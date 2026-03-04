@@ -1,46 +1,89 @@
 
-export type BookingStatus = 'Oczekująca' | 'Zatwierdzona' | 'Ukończona' | 'Anulowana';
-export type KanbanStage = 'Do zrobienia' | 'W trakcie' | 'Kontrola jakości' | 'Gotowe';
+// === API Response DTOs ===
 
-export interface Vehicle {
+export interface VehicleInfoDto {
   id: string;
-  make: string;
-  model: string;
   licensePlate: string;
-  vin?: string;
-  paintCode?: string;
+  brand: string | null;
+  model: string | null;
 }
 
-export interface Client {
+export interface CreateVehicleDto {
+  clientId: string;
+  licensePlate: string;
+  brand?: string | null;
+  model?: string | null;
+}
+
+export interface ClientInfoDto {
   id: string;
   name: string;
-  email: string;
-  phone: string;
-  nip?: string;
-  vehicles: Vehicle[];
+  email: string | null;
+  phone: string | null;
 }
 
-export interface Booking {
+export interface BookingResponseDto {
   id: string;
+  scheduledAt: string;
+  completedAt: string | null;
+  totalPrice: number;
+  status: string;
+  statusColor: string;
+  notes: string | null;
+  vehicle: VehicleInfoDto;
+  client: ClientInfoDto;
+  services: string[];
+}
+
+export interface BookingCreateDto {
   vehicleId: string;
-  serviceName: string;
-  date: string;
-  time: string;
-  price: number;
-  depositPaid: boolean;
-  status: BookingStatus;
-  assignedEmployee: string;
+  clientId: string;
+  scheduledAt: string;
+  statusId?: string;
+  serviceIds?: string[];
+  price?: number;
+  notes?: string | null;
 }
 
-export interface InventoryItem {
+export interface ClientResponseDto {
   id: string;
   name: string;
-  category: string;
-  stock: number;
-  minStock: number;
-  unit: string; // Zmiana z unii na string dla własnych jednostek
-  capacity?: number;
+  email: string | null;
+  phone: string | null;
+  nip: string | null;
+  vehicles: VehicleInfoDto[];
 }
+
+export interface CreateClientDto {
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  nip?: string | null;
+}
+
+export interface InventoryResponseDto {
+  id: string;
+  studioId: string;
+  categoryName: string | null;
+  name: string;
+  description: string | null;
+  unit: string;
+  stock: number;
+  minStock: number | null;
+}
+
+export interface InventoryCreateDto {
+  categoryId?: string | null;
+  name: string;
+  description?: string | null;
+  unit: string;
+  stock: number;
+  minStock?: number | null;
+}
+
+// === Legacy types kept for UI compatibility ===
+
+export type KanbanStage = 'Do zrobienia' | 'W trakcie' | 'Kontrola jakości' | 'Gotowe';
 
 export interface KanbanTask {
   id: string;
@@ -54,4 +97,4 @@ export interface KanbanTask {
   deadline: string;
 }
 
-export type ViewType = 'Dashboard' | 'Bookings' | 'Tasks' | 'Clients' | 'Inventory' | 'Archived' | 'AI';
+export type ViewType = 'Dashboard' | 'Bookings' | 'Tasks' | 'Clients' | 'Inventory' | 'Archived';

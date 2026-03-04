@@ -6,7 +6,6 @@ import ClientsView from './views/ClientsView';
 import InventoryView from './views/InventoryView';
 import BookingsView from './views/BookingsView';
 import ArchivedView from './views/ArchivedView';
-import AIAssistantView from './views/AIAssistantView';
 import LoginView from './views/LoginView';
 import { ViewType } from './types';
 
@@ -16,8 +15,8 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (user) setIsLoggedIn(true);
+    const token = localStorage.getItem('supabase_token');
+    if (token) setIsLoggedIn(true);
   }, []);
 
   useEffect(() => {
@@ -31,6 +30,7 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('supabase_token');
     setIsLoggedIn(false);
   };
 
@@ -44,7 +44,6 @@ const App: React.FC = () => {
       case 'Inventory': return <InventoryView {...commonProps} />;
       case 'Tasks': return <BookingsView {...commonProps} />;
       case 'Archived': return <ArchivedView {...commonProps} />;
-      case 'AI': return <AIAssistantView {...commonProps} />;
       default: return <Dashboard onNavigate={setActiveView} {...commonProps} />;
     }
   };
@@ -52,15 +51,15 @@ const App: React.FC = () => {
   if (!isLoggedIn) return <LoginView onLogin={handleLogin} />;
 
   return (
-    <div className="min-h-screen flex bg-[#f8f9fa] selection:bg-[#5dcbb6]/20 selection:text-[#237e73]">
-      <Sidebar 
-        activeView={activeView} 
-        setActiveView={setActiveView} 
+    <div className="min-h-screen flex bg-[#FDF8F0] selection:bg-[#F7E7CE]/30 selection:text-[#102C26]">
+      <Sidebar
+        activeView={activeView}
+        setActiveView={setActiveView}
         onLogout={handleLogout}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
-      
+
       <main className={`flex-1 transition-all duration-300 ${isLoggedIn ? 'lg:ml-80' : ''} p-4 sm:p-8 lg:p-12 overflow-y-auto`}>
         <div className="max-w-7xl mx-auto pb-24 pt-2 lg:pt-0">
           {renderView()}
