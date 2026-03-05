@@ -1,14 +1,15 @@
 
 import React, { useState } from 'react';
 import { Zap, ArrowRight, ShieldCheck } from 'lucide-react';
+import supabase from '../utils/supabase';
 
 interface LoginViewProps {
   onLogin: (email: string) => void;
 }
 
 const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState('demo@detailflow.pl');
-  const [password, setPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,26 +19,19 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
     setError('');
 
     try {
-      const response = await fetch('https://spsquzkwqikbwdrrkpqy.supabase.co/auth/v1/token?grant_type=password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': 'sb_publishable_0e54D14bUH3Hu2D_9IFlCg_eYZA86NZ'
-        },
-        body: JSON.stringify({ email, password }),
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error_description || data.msg || 'Błąd logowania');
+      if (authError) {
+        throw new Error(authError.message);
       }
 
-      if (data.access_token) {
-        localStorage.setItem('supabase_token', data.access_token);
+      if (data.session) {
         onLogin(email);
       } else {
-        throw new Error('Nie otrzymano tokena autoryzacji');
+        throw new Error('Nie otrzymano sesji autoryzacji');
       }
     } catch (err: any) {
       setError(err.message || 'Wystąpił błąd podczas logowania');
@@ -53,14 +47,14 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           <div className="inline-flex items-center justify-center bg-[#102C26] w-24 h-24 rounded-[3rem] mb-10 shadow-[0_30px_60px_rgba(16,44,38,0.25)] border border-[#1A3D33]">
             <Zap size={44} className="text-[#F7E7CE]" strokeWidth={2.5} />
           </div>
-          <h1 className="text-5xl font-[900] text-[#102C26] tracking-tighter italic">DetailFlow OS</h1>
+          <h1 className="text-5xl font-bold text-[#102C26] tracking-tighter">DetailFlow OS</h1>
           <p className="text-[#5A8A7A] font-bold mt-3 uppercase tracking-[0.4em] text-[10px]">Secure Detailing Infrastructure</p>
         </div>
 
         <div className="bg-white p-12 rounded-[4rem] premium-shadow border border-[#EDD9B7]">
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-[#5A8A7A] uppercase tracking-[0.3em] ml-6">Operator ID</label>
+              <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-[0.3em] ml-6">Operator ID</label>
               <input
                 type="email"
                 value={email}
@@ -72,7 +66,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
             </div>
 
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-[#5A8A7A] uppercase tracking-[0.3em] ml-6">Security Token</label>
+              <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-[0.3em] ml-6">Security Token</label>
               <input
                 type="password"
                 value={password}
@@ -92,7 +86,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-4 bg-[#102C26] hover:bg-[#1A3D33] text-[#F7E7CE] font-black py-6 rounded-[2rem] transition-all shadow-[0_20px_40px_rgba(16,44,38,0.2)] group text-[11px] uppercase tracking-[0.2em] disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-4 bg-[#102C26] hover:bg-[#1A3D33] text-[#F7E7CE] font-semibold py-6 rounded-[2rem] transition-all shadow-[0_20px_40px_rgba(16,44,38,0.2)] group text-[11px] uppercase tracking-[0.2em] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Verifying...' : 'Access System'}
               {!isLoading && <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" strokeWidth={3} />}
@@ -100,7 +94,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           </form>
         </div>
 
-        <div className="flex items-center justify-center gap-3 text-[#5A8A7A] text-xs font-black uppercase tracking-widest">
+        <div className="flex items-center justify-center gap-3 text-[#5A8A7A] text-xs font-semibold uppercase tracking-widest">
           <ShieldCheck size={18} className="text-[#F7E7CE]" strokeWidth={2.5} />
           AES-256 Protected Workspace
         </div>

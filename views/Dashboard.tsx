@@ -3,18 +3,18 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Calendar, Package, Car as CarIcon, X, Plus, TrendingUp, AlertCircle, Search, CheckCircle2, XCircle, Check,
-  User, Phone, Mail, MessageSquare, Edit2, Save, Clock, Users, DollarSign, Wrench, ArrowRight,
+  User, UserPlus, Phone, Mail, MessageSquare, Edit2, Save, Clock, Users, DollarSign, Wrench, ArrowRight,
   Shield, Droplets, CircleDot, Activity, CreditCard, ChevronRight, Star, Zap, BarChart3,
   AlertTriangle, Timer, UserCheck, Clipboard
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { PREDEFINED_SERVICES } from '../constants';
-import { BookingResponseDto, InventoryResponseDto, ViewType, ClientResponseDto, VehicleInfoDto, BookingCreateDto, CreateClientDto } from '../types';
+import { BookingResponseDto, InventoryResponseDto, ViewType, ClientResponseDto, VehicleInfoDto, BookingCreateDto, CreateClientDto, ServiceResponseDto } from '../types';
+import { BOOKING_STATUSES } from '../constants';
 import { getBookings } from '../services/bookingService';
 import { createBooking } from '../services/bookingService';
 import { getClients, createClient } from '../services/clientService';
 import { getInventory } from '../services/inventoryService';
-import { createVehicle } from '../services/vehicleService';
+import { getServices, createService } from '../services/serviceService';
 import GlobalHeader from '../components/GlobalHeader';
 
 // Chart data is now computed dynamically from fetched bookings
@@ -33,7 +33,7 @@ const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ i
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-[#102C26]/70 backdrop-blur-md animate-in fade-in duration-300">
       <div className="bg-white w-full max-w-2xl rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[95vh]">
         <div className="p-6 sm:p-10 border-b border-slate-100 flex items-center justify-between shrink-0">
-          <h3 className="text-xl sm:text-2xl lg:text-3xl font-[1000] text-[#102C26] tracking-tighter italic leading-none">{title}</h3>
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#102C26] tracking-tighter leading-none">{title}</h3>
           <button onClick={onClose} className="p-2 sm:p-3 bg-slate-50 text-slate-400 rounded-xl sm:rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all">
             <X size={18} />
           </button>
@@ -49,6 +49,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   const [bookings, setBookings] = useState<BookingResponseDto[]>([]);
   const [inventory, setInventory] = useState<InventoryResponseDto[]>([]);
   const [clients, setClients] = useState<ClientResponseDto[]>([]);
+  const [availableServices, setAvailableServices] = useState<ServiceResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [revPeriod, setRevPeriod] = useState<'weekly' | 'monthly'>('weekly');
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -80,22 +81,22 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
   const fetchData = useCallback(async () => {
     try {
-      // First, attempt to load from local cache instantly.
-      // We don't await anything here because we want parallel cache checks + network requests.
       const bookingPromise = getBookings(undefined, (cached) => { setBookings(cached); setLoading(false); });
       const inventoryPromise = getInventory(undefined, (cached) => { setInventory(cached); setLoading(false); });
       const clientsPromise = getClients(undefined, (cached) => { setClients(cached); setLoading(false); });
+      const servicesPromise = getServices((cached) => { setAvailableServices(cached); });
 
-      const [bookingsData, inventoryData, clientsData] = await Promise.all([
+      const [bookingsData, inventoryData, clientsData, servicesData] = await Promise.all([
         bookingPromise,
         inventoryPromise,
         clientsPromise,
+        servicesPromise,
       ]);
 
-      // Then set state again with the fresh network data
       setBookings(bookingsData);
       setInventory(inventoryData);
       setClients(clientsData);
+      setAvailableServices(servicesData);
     } catch (err) {
       console.error('Failed to fetch dashboard data:', err);
     } finally {
@@ -111,7 +112,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   const upcomingBookings = useMemo(() => bookings.filter(b => b.scheduledAt.startsWith(today) === false && b.scheduledAt > new Date().toISOString()).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)), [bookings, today]);
   const activeCount = useMemo(() => bookings.filter(b => b.completedAt === null).length, [bookings]);
   const completedCount = useMemo(() => bookings.filter(b => b.completedAt !== null).length, [bookings]);
-  const todayRevenue = useMemo(() => todayBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0), [todayBookings]);
+  const todayRevenue = useMemo(() => todayBookings.reduce((sum, b) => sum + ((b.totalPrice || 0) / 100), 0), [todayBookings]);
 
   // Compute chart data from bookings
   const chartData = useMemo(() => {
@@ -126,7 +127,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       d.setDate(now.getDate() - i);
       const dateString = d.toISOString().split('T')[0];
       const dayBookings = bookings.filter(b => b.scheduledAt.startsWith(dateString));
-      const rev = dayBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+      const rev = Math.round(dayBookings.reduce((sum, b) => sum + ((b.totalPrice || 0) / 100), 0) * 100) / 100;
       wData.push({ name: dNames[d.getDay()], rev, orders: dayBookings.length });
     }
 
@@ -138,7 +139,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         return diffDays >= (i * 7) && diffDays < ((i + 1) * 7);
       });
-      const rev = weekBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
+      const rev = Math.round(weekBookings.reduce((sum, b) => sum + ((b.totalPrice || 0) / 100), 0) * 100) / 100;
       mData.push({ name: `Tydz ${4 - i}`, rev, orders: weekBookings.length });
     }
 
@@ -160,11 +161,18 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
     return results.slice(0, 5);
   }, [clientSearch, clients]);
 
-  const toggleService = (s: string) => setSelectedServices(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
-  const handleAddCustomService = () => {
-    if (customServiceInput.trim() && !selectedServices.includes(customServiceInput.trim())) {
-      setSelectedServices(prev => [...prev, customServiceInput.trim()]);
+  const toggleService = (id: string) => setSelectedServices(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const handleAddCustomService = async () => {
+    const name = customServiceInput.trim();
+    if (!name) return;
+    try {
+      const created = await createService({ name });
+      setAvailableServices(prev => [...prev, created]);
+      setSelectedServices(prev => [...prev, created.id]);
       setCustomServiceInput('');
+    } catch (err) {
+      console.error('Failed to create service:', err);
+      alert('Wystąpił błąd podczas dodawania usługi.');
     }
   };
 
@@ -178,7 +186,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   const handleViewBooking = (booking: BookingResponseDto) => {
     setSelectedBooking(booking);
     setSelectedServices(booking.services);
-    setPriceInput(booking.totalPrice ? booking.totalPrice.toFixed(2).replace('.', ',') : '0,00');
+    setPriceInput(booking.totalPrice ? (booking.totalPrice / 100).toFixed(2).replace('.', ',') : '0,00');
     const dt = new Date(booking.scheduledAt);
     setSelectedDate(dt.toISOString().split('T')[0]);
     setSelectedTime(dt.toTimeString().slice(0, 5));
@@ -186,45 +194,50 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
     setIsBookingModalOpen(true);
   };
 
-  const handleCreateBooking = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddNewClientForBooking = async () => {
+    if (!newClientName || !newClientPhone || !newVehiclePlate) {
+      alert('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.');
+      return;
+    }
     try {
-      let finalClientId = '';
-      let finalVehicleId = '';
-
-      if (bookingClientMode === 'new') {
-        if (!newClientName || !newClientPhone || !newVehiclePlate) {
-          alert('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.');
-          return;
-        }
-        const createdClient = await createClient({
-          name: newClientName,
-          phone: newClientPhone,
-          email: newClientEmail || null,
-          nip: newBookingClientNip || null,
-        });
-        finalClientId = createdClient.id;
-
-        const createdVehicle = await createVehicle({
-          clientId: finalClientId,
+      const createdClient = await createClient({
+        name: newClientName,
+        phone: newClientPhone,
+        email: newClientEmail || null,
+        nip: newBookingClientNip || null,
+        vehicle: {
           licensePlate: newVehiclePlate,
           brand: newVehicleBrand || null,
           model: newVehicleModel || null,
-        });
-        finalVehicleId = createdVehicle.id;
-      } else {
-        if (!selectedVehicle) {
-          alert('Wybierz istniejącego klienta lub dodaj nowego.');
-          return;
-        }
-        finalClientId = selectedVehicle.client.id;
-        finalVehicleId = selectedVehicle.vehicle.id;
+        },
+      });
+      const vehicle = createdClient.vehicles?.[0];
+      if (vehicle) {
+        setSelectedVehicle({ client: createdClient, vehicle });
       }
+      setBookingClientMode('existing');
+      setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
+      setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+      fetchData();
+    } catch (err) {
+      console.error('Failed to create client:', err);
+      alert('Wystąpił błąd podczas dodawania klienta.');
+    }
+  };
 
+  const handleCreateBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedVehicle) {
+      alert('Wybierz istniejącego klienta lub dodaj nowego.');
+      return;
+    }
+    try {
       const dto: BookingCreateDto = {
-        vehicleId: finalVehicleId,
-        clientId: finalClientId,
+        vehicleId: selectedVehicle.vehicle.id,
+        clientId: selectedVehicle.client.id,
         scheduledAt: new Date(`${selectedDate}T${selectedTime}`).toISOString(),
+        statusId: BOOKING_STATUSES.UTWORZONA.id,
+        serviceIds: selectedServices,
         price: parseFloat(priceInput.replace(',', '.')),
         notes: null,
       };
@@ -334,12 +347,12 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#F7E7CE]/5 rounded-full blur-[80px] pointer-events-none" />
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <p className="text-[10px] font-black text-[#F7E7CE] uppercase tracking-[0.4em] mb-3">{dateStr}</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-[1000] text-white tracking-tighter italic leading-[1.1]">{greeting} 👋</h2>
-            <p className="text-white/40 text-sm font-bold mt-3 max-w-md">Masz <span className="text-[#F7E7CE] font-[900]">{todayBookings.length}</span> {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} na dziś i <span className="text-[#F7E7CE] font-[900]">{upcomingBookings.length}</span> nadchodzących.</p>
+            <p className="text-[12px] font-semibold text-[#F7E7CE] uppercase tracking-[0.4em] mb-3">{dateStr}</p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tighter leading-[1.1]">{greeting} 👋</h2>
+            <p className="text-white/40 text-sm font-bold mt-3 max-w-md">Masz <span className="text-[#F7E7CE] font-bold">{todayBookings.length}</span> {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} na dziś i <span className="text-[#F7E7CE] font-bold">{upcomingBookings.length}</span> nadchodzących.</p>
           </div>
           <div className="flex gap-3 shrink-0">
-            <button onClick={handleOpenNewBooking} className="flex items-center gap-2.5 bg-[#F7E7CE] text-[#102C26] px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(247,231,206,0.3)] hover:shadow-[0_0_50px_rgba(247,231,206,0.4)] hover:scale-[1.03] transition-all">
+            <button onClick={handleOpenNewBooking} className="flex items-center gap-2.5 bg-[#F7E7CE] text-[#102C26] px-6 py-4 rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(247,231,206,0.3)] hover:shadow-[0_0_50px_rgba(247,231,206,0.4)] hover:scale-[1.03] transition-all">
               <Plus size={16} strokeWidth={3} /> Nowe Zlecenie
             </button>
           </div>
@@ -359,10 +372,10 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               <div className={`w-12 h-12 ${card.iconBg} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
                 <card.icon size={20} className="text-white" strokeWidth={2.5} />
               </div>
-              <span className="text-[9px] font-black text-[#102C26] bg-[#F7E7CE]/30 px-2.5 py-1 rounded-lg uppercase tracking-wider">{card.trend}</span>
+              <span className="text-[9px] font-semibold text-[#102C26] bg-[#F7E7CE]/30 px-2.5 py-1 rounded-lg uppercase tracking-wider">{card.trend}</span>
             </div>
-            <h3 className="text-3xl sm:text-4xl font-[1000] text-[#102C26] tracking-tighter italic font-mono leading-none">{card.value}</h3>
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">{card.label}</p>
+            <h3 className="text-3xl sm:text-4xl font-extrabold text-[#102C26] tracking-tighter font-mono leading-none">{card.value}</h3>
+            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-[0.3em] mt-2">{card.label}</p>
           </div>
         ))}
       </div>
@@ -377,7 +390,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 lg:p-10 flex flex-col border border-slate-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h4 className="text-xl sm:text-2xl font-[900] text-[#102C26] tracking-tight italic">Dzisiejszy Grafik</h4>
+                <h4 className="text-xl sm:text-2xl font-bold text-[#102C26] tracking-tight">Dzisiejszy Grafik</h4>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{todayBookings.length} {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} zaplanowanych</p>
               </div>
               <div className="w-12 h-12 bg-[#102C26] text-[#F7E7CE] rounded-2xl flex items-center justify-center shadow-xl shrink-0"><Calendar size={20} /></div>
@@ -386,7 +399,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               {todayBookings.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mb-6"><Calendar size={32} className="text-slate-300" /></div>
-                  <p className="text-lg font-[900] text-slate-300 italic">Brak zleceń na dziś</p>
+                  <p className="text-lg font-bold text-slate-300">Brak zleceń na dziś</p>
                   <p className="text-xs text-slate-400 mt-2">Dodaj nową rezerwację klikając przycisk powyżej</p>
                 </div>
               )}
@@ -396,16 +409,16 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                   <div key={booking.id} onClick={() => handleViewBooking(booking)}
                     className="p-5 sm:p-6 bg-[#FDF8F0] rounded-[2.5rem] border border-[#F7E7CE]/30 flex flex-col sm:flex-row items-stretch sm:items-center gap-5 sm:gap-8 hover:bg-white hover:shadow-lg transition-all cursor-pointer group">
                     <div className="flex items-center justify-between sm:flex-col sm:justify-center sm:min-w-[100px] sm:border-r border-slate-200 sm:pr-8 shrink-0">
-                      <span className="text-2xl font-[1000] text-[#102C26] italic font-mono">{time}</span>
-                      <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg`} style={{ color: booking.statusColor || '#102C26', backgroundColor: (booking.statusColor || '#F7E7CE') + '20' }}>{booking.status}</span>
+                      <span className="text-2xl font-extrabold text-[#102C26] font-mono">{time}</span>
+                      <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-lg`} style={{ color: booking.statusColor || '#102C26', backgroundColor: (booking.statusColor || '#F7E7CE') + '20' }}>{booking.status}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h5 className="text-lg font-[900] text-[#102C26] italic truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 truncate">{booking.services.join(', ') || 'Brak usług'}</p>
-                      <p className="text-[9px] font-bold text-[#5A8A7A] mt-1.5"><UserCheck size={11} className="inline mr-1" />{booking.client.name}</p>
+                      <h5 className="text-xl font-bold text-[#102C26] truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
+                      <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest mt-1 truncate">{booking.services.join(', ') || 'Brak usług'}</p>
+                      <p className="text-[13px] font-bold text-[#5A8A7A] mt-1.5"><UserCheck size={11} className="inline mr-1" />{booking.client.name}</p>
                     </div>
                     <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-                      <div className="bg-[#102C26] text-[#F7E7CE] px-4 py-2 rounded-xl font-mono text-[11px] font-black tracking-widest uppercase">{booking.vehicle.licensePlate}</div>
+                      <div className="bg-[#102C26] text-[#F7E7CE] px-4 py-2 rounded-xl font-mono text-[16px] font-semibold tracking-widest uppercase">{booking.vehicle.licensePlate}</div>
                     </div>
                   </div>
                 );
@@ -417,12 +430,12 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-10 lg:p-14 border border-slate-100 shadow-sm">
             <div className="flex flex-col md:flex-row justify-between gap-6 mb-8">
               <div>
-                <p className="text-[10px] font-black text-[#5A8A7A] uppercase tracking-[0.4em] mb-2">Finanse Studia</p>
-                <h3 className="text-4xl lg:text-5xl font-[1000] text-[#102C26] tracking-tighter italic">{revPeriod === 'weekly' ? chartData.weekly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL') : chartData.monthly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL')}<span className="text-xs font-black text-[#5A8A7A] uppercase ml-2">PLN</span></h3>
+                <p className="text-[12px] font-semibold text-[#5A8A7A] uppercase tracking-[0.4em] mb-2">Finanse Studia</p>
+                <h3 className="text-4xl lg:text-5xl font-bold text-[#102C26] tracking-tighter">{revPeriod === 'weekly' ? chartData.weekly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL') : chartData.monthly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL')}<span className="text-[20px] font-semibold text-[#5A8A7A] uppercase ml-2">PLN</span></h3>
               </div>
               <div className="flex p-1 bg-[#FDF8F0] rounded-xl border border-[#E8D5B5] h-fit shrink-0">
-                <button onClick={() => setRevPeriod('weekly')} className={`px-5 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${revPeriod === 'weekly' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Tydzień</button>
-                <button onClick={() => setRevPeriod('monthly')} className={`px-5 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${revPeriod === 'monthly' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Miesiąc</button>
+                <button onClick={() => setRevPeriod('weekly')} className={`px-5 py-2 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${revPeriod === 'weekly' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Tydzień</button>
+                <button onClick={() => setRevPeriod('monthly')} className={`px-5 py-2 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${revPeriod === 'monthly' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Miesiąc</button>
               </div>
             </div>
             <div className="h-[240px] w-full">
@@ -431,7 +444,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                   <defs><linearGradient id="colorEmerald" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#102C26" stopOpacity={0.15} /><stop offset="95%" stopColor="#102C26" stopOpacity={0} /></linearGradient></defs>
                   <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#f1f3f5" />
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#adb5bd', fontSize: 10, fontWeight: 700 }} />
-                  <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', fontWeight: 700 }} />
+                  <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', fontWeight: 700 }} formatter={(value: number) => value.toFixed(2) + ' PLN'} />
                   <Area type="monotone" dataKey="rev" stroke="#102C26" strokeWidth={4} fill="url(#colorEmerald)" name="Przychód" />
                 </AreaChart>
               </ResponsiveContainer>
@@ -442,10 +455,10 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 lg:p-10 border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h4 className="text-xl font-[900] text-[#102C26] tracking-tight italic">Nadchodzące</h4>
+                <h4 className="text-xl font-bold text-[#102C26] tracking-tight">Nadchodzące</h4>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">następne {upcomingBookings.length} rezerwacji</p>
               </div>
-              <button onClick={() => onNavigate?.('Tasks')} className="text-[10px] font-black text-[#5A8A7A] uppercase tracking-widest flex items-center gap-1 hover:gap-2.5 transition-all">Zobacz Wszystkie <ChevronRight size={14} /></button>
+              <button onClick={() => onNavigate?.('Tasks')} className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest flex items-center gap-1 hover:gap-2.5 transition-all">Zobacz Wszystkie <ChevronRight size={14} /></button>
             </div>
             <div className="space-y-3">
               {upcomingBookings.slice(0, 4).map(booking => {
@@ -455,16 +468,16 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 return (
                   <div key={booking.id} onClick={() => handleViewBooking(booking)} className="p-5 bg-[#FDF8F0] rounded-[2rem] flex items-center gap-6 hover:bg-white hover:shadow-lg transition-all cursor-pointer border border-transparent hover:border-[#F7E7CE]/30">
                     <div className="text-center shrink-0 min-w-[60px]">
-                      <p className="text-2xl font-[1000] text-[#102C26] italic font-mono leading-none">{day}</p>
-                      <p className="text-[9px] font-black text-[#5A8A7A] uppercase tracking-widest">{['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'][monthIdx]}</p>
+                      <p className="text-2xl font-extrabold text-[#102C26] font-mono leading-none">{day}</p>
+                      <p className="text-[9px] font-semibold text-[#5A8A7A] uppercase tracking-widest">{['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'][monthIdx]}</p>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h5 className="text-sm font-[900] text-[#102C26] italic truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
+                      <h5 className="text-sm font-bold text-[#102C26] truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">{booking.services.join(', ') || 'Brak usług'}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-lg font-[1000] text-[#102C26] font-mono">{(booking.totalPrice || 0).toLocaleString('pl-PL')}</p>
-                      <p className="text-[8px] font-black text-slate-400 uppercase">PLN</p>
+                      <p className="text-lg font-extrabold text-[#102C26] font-mono">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}</p>
+                      <p className="text-[8px] font-semibold text-slate-400 uppercase">PLN</p>
                     </div>
                   </div>
                 );
@@ -479,7 +492,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
           {/* Quick Actions */}
           <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 border border-slate-100 shadow-sm">
-            <h4 className="text-lg font-[900] text-[#102C26] tracking-tight italic mb-6">Szybkie Akcje</h4>
+            <h4 className="text-xl font-bold text-[#102C26] tracking-tight mb-6">Szybkie Akcje</h4>
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: 'Rezerwacja', icon: Calendar, action: handleOpenNewBooking, color: 'bg-[#F7E7CE]/20 text-[#102C26] hover:bg-[#F7E7CE]/40' },
@@ -488,7 +501,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               ].map((qa, i) => (
                 <button key={i} onClick={qa.action} className={`${qa.color} p-4 rounded-2xl flex flex-col items-center gap-2.5 transition-all active:scale-95`}>
                   <qa.icon size={22} strokeWidth={2} />
-                  <span className="text-[9px] font-black uppercase tracking-widest">{qa.label}</span>
+                  <span className="text-[11px] font-semibold uppercase tracking-widest">{qa.label}</span>
                 </button>
               ))}
             </div>
@@ -497,7 +510,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           {/* Stock Alerts */}
           <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h4 className="text-lg font-[900] text-[#102C26] tracking-tight italic">Alerty Magazynowe</h4>
+              <h4 className="text-xl font-bold text-[#102C26] tracking-tight">Alerty Magazynowe</h4>
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${lowStockItems.length > 0 ? 'bg-amber-50 text-amber-500 border-amber-100' : 'bg-[#F7E7CE]/20 text-[#102C26] border-[#F7E7CE]/40'}`}><Package size={18} /></div>
             </div>
             {lowStockItems.length === 0 ? (
@@ -507,12 +520,12 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 {lowStockItems.map(item => (
                   <div key={item.id} className="p-4 rounded-[1.5rem] bg-amber-50/50 border border-amber-100/50 flex items-center justify-between">
                     <div>
-                      <h5 className="text-[11px] font-[900] text-[#102C26] italic truncate">{item.name}</h5>
-                      <p className="text-[8px] font-black text-amber-500 uppercase tracking-widest">{item.categoryName || 'Brak kategorii'}</p>
+                      <h5 className="text-[14px] font-bold text-[#102C26] truncate">{item.name}</h5>
+                      <p className="text-[12px] font-semibold text-amber-500 uppercase tracking-widest">{item.categoryName || 'Brak kategorii'}</p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="text-base font-[1000] text-amber-600 font-mono">{item.stock}<span className="text-[8px] ml-0.5 opacity-60">{item.unit}</span></p>
-                      <p className="text-[8px] font-black text-slate-400 uppercase">min. {item.minStock}</p>
+                      <p className="text-base font-extrabold text-amber-600 font-mono">{item.stock}<span className="text-[14px] ml-0.5 opacity-60">{item.unit}</span></p>
+                      <p className="text-[14px] font-semibold text-slate-400 uppercase">min. {item.minStock}</p>
                     </div>
                   </div>
                 ))}
@@ -523,7 +536,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           {/* Activity Feed */}
           <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-6">
-              <h4 className="text-lg font-[900] text-[#0b2826] tracking-tight italic">Aktywność</h4>
+              <h4 className="text-lg font-bold text-[#0b2826] tracking-tight">Aktywność</h4>
               <div className="w-10 h-10 bg-[#102C26] text-[#F7E7CE] rounded-xl flex items-center justify-center"><Activity size={18} /></div>
             </div>
             <div className="space-y-1">
@@ -548,11 +561,11 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
         <div className="space-y-8">
           <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-[2.5rem]">
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${confirmation?.type === 'Ukończona' ? 'bg-[#F7E7CE]/20 text-[#102C26]' : 'bg-red-50 text-red-500'}`}><AlertCircle size={32} /></div>
-            <div><p className="text-lg font-[900] text-[#102C26] italic leading-tight">{confirmation?.type === 'Ukończona' ? 'Zakończyć to zlecenie?' : 'Anulować tę rezerwację?'}</p></div>
+            <div><p className="text-lg font-bold text-[#102C26] leading-tight">{confirmation?.type === 'Ukończona' ? 'Zakończyć to zlecenie?' : 'Anulować tę rezerwację?'}</p></div>
           </div>
           <div className="flex gap-4">
-            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-widest">Wróć</button>
-            <button onClick={() => setConfirmation(null)} className={`flex-1 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest text-white shadow-xl ${confirmation?.type === 'Ukończona' ? 'bg-[#102C26] text-[#F7E7CE]' : 'bg-red-500'}`}>Tak</button>
+            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-2xl font-semibold text-[10px] uppercase tracking-widest">Wróć</button>
+            <button onClick={() => setConfirmation(null)} className={`flex-1 py-5 rounded-2xl font-semibold text-[10px] uppercase tracking-widest text-white shadow-xl ${confirmation?.type === 'Ukończona' ? 'bg-[#102C26] text-[#F7E7CE]' : 'bg-red-500'}`}>Tak</button>
           </div>
         </div>
       </Modal>
@@ -566,7 +579,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               <input type="email" placeholder="Email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
             </div>
           </div>
-          <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">Załóż Kartę Klienta</button>
+          <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl">Załóż Kartę Klienta</button>
         </form>
       </Modal>
 
@@ -579,14 +592,14 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-[#F7E7CE]"><User size={24} /></div>
                     <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Klient</p>
-                      <h4 className="text-xl font-[1000] text-white italic tracking-tighter">{selectedBooking.client.name}</h4>
+                      <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest">Klient</p>
+                      <h4 className="text-xl font-normal text-white tracking-tighter">{selectedBooking.client.name}</h4>
                     </div>
                   </div>
                   <div className="flex gap-4">
                     {selectedBooking.client.phone && (
                       <a href={`tel:${selectedBooking.client.phone}`} className="flex items-center gap-2 text-[#F7E7CE] hover:text-white transition-colors">
-                        <Phone size={14} /><span className="text-xs font-black font-mono">{selectedBooking.client.phone}</span>
+                        <Phone size={14} /><span className="text-l font-semibold font-mono">{selectedBooking.client.phone}</span>
                       </a>
                     )}
                   </div>
@@ -601,42 +614,42 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#5A8A7A] shadow-sm"><Clock size={28} /></div>
                 <div>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Termin</p>
-                  <p className="text-lg font-[1000] text-[#102C26] italic">{new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} • {formatBookingTime(selectedBooking.scheduledAt)}</p>
+                  <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Termin</p>
+                  <p className="text-lg font-bold text-[#102C26]">{new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} • {formatBookingTime(selectedBooking.scheduledAt)}</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-3xl font-[1000] text-[#102C26] font-mono leading-none tracking-tighter">{(selectedBooking.totalPrice || 0).toFixed(2).replace('.', ',')}</p>
-                <p className="text-[9px] font-black text-[#5A8A7A] uppercase mt-1 tracking-widest">PLN Netto</p>
+                <p className="text-3xl font-extrabold text-[#102C26] font-mono leading-none tracking-tighter">{((selectedBooking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}</p>
+                <p className="text-[9px] font-semibold text-[#5A8A7A] uppercase mt-1 tracking-widest">PLN Netto</p>
               </div>
             </div>
             <div className="space-y-4">
-              <p className="text-[10px] font-black text-[#5A8A7A] uppercase tracking-[0.4em] ml-4">Zakres Prac</p>
+              <p className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-[0.4em] ml-4">Zakres Prac</p>
               <div className="flex flex-wrap gap-2">
                 {selectedBooking.services.map(s => (
-                  <span key={s} className="px-5 py-3 bg-[#102C26] text-[#F7E7CE] rounded-xl text-[10px] font-black uppercase tracking-widest shadow-md">{s}</span>
+                  <span key={s} className="px-5 py-3 bg-[#102C26] text-[#F7E7CE] rounded-xl text-[12px] font-semibold uppercase tracking-widest shadow-md">{s}</span>
                 ))}
                 {selectedBooking.services.length === 0 && <span className="text-sm text-slate-400">Brak przypisanych usług</span>}
               </div>
             </div>
             {selectedBooking.notes && (
               <div className="space-y-2">
-                <p className="text-[10px] font-black text-[#5A8A7A] uppercase tracking-[0.4em] ml-4">Notatki</p>
+                <p className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-[0.4em] ml-4">Notatki</p>
                 <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl">{selectedBooking.notes}</p>
               </div>
             )}
             <div className="flex gap-4 pt-6">
-              <button onClick={() => setIsBookingModalOpen(false)} className="flex-1 py-5 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Zamknij</button>
+              <button onClick={() => setIsBookingModalOpen(false)} className="flex-1 py-5 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Zamknij</button>
             </div>
           </div>
         ) : (
           <form className="space-y-8 pb-10" onSubmit={handleCreateBooking}>
             <div className="space-y-4">
               <div className="flex items-center justify-between ml-4 mb-2">
-                <label className="text-[10px] font-black text-[#5A8A7A] uppercase tracking-widest">Pojazd i Klient</label>
+                <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest">Pojazd i Klient</label>
                 <div className="flex bg-slate-50 p-1 rounded-xl">
-                  <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${bookingClientMode === 'existing' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Wyszukaj</button>
-                  <button type="button" onClick={() => setBookingClientMode('new')} className={`px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${bookingClientMode === 'new' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Dodaj Nowy</button>
+                  <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'existing' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Wyszukaj</button>
+                  <button type="button" onClick={() => setBookingClientMode('new')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'new' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Dodaj Nowy</button>
                 </div>
               </div>
 
@@ -648,48 +661,51 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                   </div>
                   {clientSearch.trim() && filteredClientResults.map(res => (
                     <button key={res.vehicle.id} type="button" onClick={() => { setSelectedVehicle(res); setClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-[#F7E7CE] transition-all">
-                      <div className="text-left"><h5 className="font-black text-[#102C26] text-sm italic">{res.vehicle.brand} {res.vehicle.model}</h5><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{res.client.name}</p></div>
-                      <div className="bg-[#102C26] text-[#F7E7CE] px-3 py-1.5 rounded-xl font-mono text-[11px] font-black tracking-widest">{res.vehicle.licensePlate}</div>
+                      <div className="text-left"><h5 className="font-semibold text-[#102C26] text-sm">{res.vehicle.brand} {res.vehicle.model}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{res.client.name}</p></div>
+                      <div className="bg-[#102C26] text-[#F7E7CE] px-3 py-1.5 rounded-xl font-mono text-[11px] font-semibold tracking-widest">{res.vehicle.licensePlate}</div>
                     </button>
                   ))}
                   {selectedVehicle && (
                     <div className="p-6 bg-[#F7E7CE]/20 border-2 border-[#F7E7CE]/50 rounded-[1.5rem] flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <CarIcon size={24} className="text-[#5A8A7A]" />
-                        <div><h5 className="font-black text-[#102C26] text-sm italic">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-black text-[#5A8A7A] uppercase tracking-widest">{selectedVehicle.client.name}</p></div>
+                        <div><h5 className="font-semibold text-[#102C26] text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-semibold text-[#5A8A7A] uppercase tracking-widest">{selectedVehicle.client.name}</p></div>
                       </div>
-                      <div className="font-mono text-xs font-black text-[#102C26] whitespace-nowrap">{selectedVehicle.vehicle.licensePlate}</div>
+                      <div className="font-mono text-xs font-semibold text-[#102C26] whitespace-nowrap">{selectedVehicle.vehicle.licensePlate}</div>
                     </div>
                   )}
                 </>
               ) : (
                 <div className="space-y-4 bg-slate-50 p-6 rounded-[1.5rem] mt-2 border border-slate-100">
                   <div className="space-y-3">
-                    <h5 className="font-black text-[#102C26] text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
-                    <input type="text" placeholder="Imię i Nazwisko *" required value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                    <h5 className="font-semibold text-[#102C26] text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
+                    <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
                     <div className="grid grid-cols-2 gap-3">
-                      <input type="tel" placeholder="Telefon *" required value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                      <input type="tel" placeholder="Telefon *" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
                       <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
                     </div>
                     <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
                   </div>
                   <div className="space-y-3 pt-3 border-t border-slate-200">
-                    <h5 className="font-black text-[#102C26] text-xs uppercase tracking-widest mb-3">Dane Pojazdu</h5>
+                    <h5 className="font-semibold text-[#102C26] text-xs uppercase tracking-widest mb-3">Dane Pojazdu</h5>
                     <div className="grid grid-cols-2 gap-3">
                       <input type="text" placeholder="Marka" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
                       <input type="text" placeholder="Model" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
                     </div>
-                    <input type="text" placeholder="Nr Rejestracyjny *" required value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50 uppercase" />
+                    <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50 uppercase" />
                   </div>
+                  <button type="button" onClick={handleAddNewClientForBooking} className="w-full py-4 mt-2 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <UserPlus size={16} strokeWidth={2.5} /> Dodaj Klienta i Wybierz
+                  </button>
                 </div>
               )}
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-[#5A8A7A] uppercase tracking-widest ml-4">Wybierz Usługi</label>
+              <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest ml-4">Wybierz Usługi</label>
               <div className="flex flex-wrap gap-2">
-                {PREDEFINED_SERVICES.slice(0, 6).map(s => (
-                  <button key={s} type="button" onClick={() => toggleService(s)} className={`px-4 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${selectedServices.includes(s) ? 'bg-[#102C26] text-[#F7E7CE] border-[#102C26]' : 'bg-slate-50 text-slate-400 border-transparent'}`}>
-                    {selectedServices.includes(s) && <Check size={12} strokeWidth={4} />} {s}
+                {availableServices.map(svc => (
+                  <button key={svc.id} type="button" onClick={() => toggleService(svc.id)} className={`px-4 py-3 rounded-xl text-[9px] font-semibold uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${selectedServices.includes(svc.id) ? 'bg-[#102C26] text-[#F7E7CE] border-[#102C26]' : 'bg-slate-50 text-slate-400 border-transparent'}`}>
+                    {selectedServices.includes(svc.id) && <Check size={12} strokeWidth={4} />} {svc.name}
                   </button>
                 ))}
               </div>
@@ -698,11 +714,12 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 <button type="button" onClick={handleAddCustomService} className="w-14 h-14 bg-[#102C26] text-[#F7E7CE] rounded-2xl flex items-center justify-center shadow-lg active:scale-95"><Plus size={24} /></button>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Cena Netto</label><input type="text" value={priceInput} onChange={e => setPriceInput(e.target.value)} className="w-full px-6 py-5 bg-[#102C26] text-[#F7E7CE] border-none rounded-[1.5rem] font-black text-xl font-mono" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Data</label><input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-full px-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none" /></div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Cena Netto</label><input type="text" value={priceInput} onChange={e => setPriceInput(e.target.value)} className="w-full px-6 py-5 bg-[#102C26] text-[#F7E7CE] border-none rounded-[1.5rem] font-semibold text-xl font-mono" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Data</label><input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-full px-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Godzina</label><input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="w-full px-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none" /></div>
             </div>
-            <button type="submit" className="w-full py-6 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3"><Save size={18} /> Zapisz Rezerwację</button>
+            <button type="submit" className="w-full py-6 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3"><Save size={18} /> Zapisz Rezerwację</button>
           </form>
         )}
       </Modal>

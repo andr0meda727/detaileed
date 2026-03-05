@@ -1,61 +1,70 @@
-
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailFlow Pro | Forest & Cream Edition</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-          /* Tło główne - ciepły kremowy */
-          --bg-main: #FDF8F0;
-          --accent-primary: #F7E7CE;
-          --accent-dark: #5A8A7A;
-          /* Sidebar - głęboka leśna zieleń */
-          --sidebar-bg: #102C26;
-          --deep-green: #102C26;
-        }
-        body { 
-          font-family: 'Plus Jakarta Sans', sans-serif; 
-          background-color: var(--bg-main);
-          color: var(--deep-green);
-        }
-        
-        .premium-shadow {
-          box-shadow: 
-            0 10px 20px -5px rgba(0, 0, 0, 0.03),
-            0 25px 50px -12px rgba(0, 0, 0, 0.06);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DetailFlow Pro | Forest & Cream Edition</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      /* Tło główne - ciepły kremowy */
+      --bg-main: #FDF8F0;
+      --accent-primary: #F7E7CE;
+      --accent-dark: #5A8A7A;
+      /* Sidebar - głęboka leśna zieleń */
+      --sidebar-bg: #102C26;
+      --deep-green: #102C26;
+    }
 
-        .floating-card {
-          background: white;
-          border-radius: 2rem;
-          transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-          border: 1px solid rgba(0, 0, 0, 0.04);
-          box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04);
-        }
+    body {
+      font-family: 'Rubik', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--deep-green);
+    }
 
-        .floating-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.08);
-          border-color: var(--accent-primary);
-        }
+    .premium-shadow {
+      box-shadow:
+        0 10px 20px -5px rgba(0, 0, 0, 0.03),
+        0 25px 50px -12px rgba(0, 0, 0, 0.06);
+    }
 
-        .mesh-bg {
-          background-image: 
-            radial-gradient(at 0% 0%, #ffffff 0px, transparent 50%),
-            radial-gradient(at 100% 100%, #F5EDE0 0px, transparent 50%);
-          background-attachment: fixed;
-        }
+    .floating-card {
+      background: white;
+      border-radius: 2rem;
+      transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04);
+    }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #102C26; border-radius: 10px; }
-    </style>
-<script type="importmap">
+    .floating-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.08);
+      border-color: var(--accent-primary);
+    }
+
+    .mesh-bg {
+      background-image:
+        radial-gradient(at 0% 0%, #ffffff 0px, transparent 50%),
+        radial-gradient(at 100% 100%, #F5EDE0 0px, transparent 50%);
+      background-attachment: fixed;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #102C26;
+      border-radius: 10px;
+    }
+  </style>
+  <script type="importmap">
 {
   "imports": {
     "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
@@ -67,10 +76,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
+
 <body class="antialiased mesh-bg">
-    <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

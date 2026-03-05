@@ -5,10 +5,11 @@ import {
   Wallet, Check, X, CheckCircle2, Plus, UserPlus, Calendar, Clock, Car as CarIcon, Edit2, Save, Search,
   Hash, Briefcase, ChevronLeft, ChevronRight, User, LayoutList, CalendarDays, Phone, Mail, XCircle, AlertCircle, MessageSquare
 } from 'lucide-react';
-import { PREDEFINED_SERVICES } from '../constants';
-import { BookingResponseDto, BookingCreateDto, ClientResponseDto, VehicleInfoDto, CreateClientDto } from '../types';
+import { BookingResponseDto, BookingCreateDto, ClientResponseDto, VehicleInfoDto, CreateClientDto, ServiceResponseDto } from '../types';
+import { BOOKING_STATUSES } from '../constants';
 import { getBookings, createBooking } from '../services/bookingService';
 import { getClients, createClient } from '../services/clientService';
+import { getServices, createService } from '../services/serviceService';
 import GlobalHeader from '../components/GlobalHeader';
 
 const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ isOpen: boolean, onClose: () => void, title: string }>) => {
@@ -17,7 +18,7 @@ const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ i
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#102C26]/70 backdrop-blur-md animate-in fade-in duration-300">
       <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[95vh]">
         <div className="p-8 sm:p-10 border-b border-slate-100 flex items-center justify-between shrink-0">
-          <h3 className="text-2xl sm:text-3xl font-[1000] text-[#102C26] tracking-tighter italic leading-none">{title}</h3>
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-[#102C26] tracking-tighter leading-none">{title}</h3>
           <button onClick={onClose} className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all"><X size={20} /></button>
         </div>
         <div className="p-8 sm:p-10 overflow-y-auto flex-1 custom-scrollbar">{children}</div>
@@ -30,6 +31,7 @@ const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ i
 const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   const [bookings, setBookings] = useState<BookingResponseDto[]>([]);
   const [clients, setClients] = useState<ClientResponseDto[]>([]);
+  const [availableServices, setAvailableServices] = useState<ServiceResponseDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'list' | 'calendar'>('calendar');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -45,17 +47,27 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
   const [priceInput, setPriceInput] = useState('0,00');
   const [formDate, setFormDate] = useState(new Date().toISOString().split('T')[0]);
   const [formTime, setFormTime] = useState('08:00');
+  const [customServiceInput, setCustomServiceInput] = useState('');
   const [newClientName, setNewClientName] = useState('');
   const [newClientPhone, setNewClientPhone] = useState('');
   const [newClientEmail, setNewClientEmail] = useState('');
+  const [newBookingClientNip, setNewBookingClientNip] = useState('');
+  const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
+
+  // New vehicle form state
+  const [newVehicleBrand, setNewVehicleBrand] = useState('');
+  const [newVehicleModel, setNewVehicleModel] = useState('');
+  const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
   const fetchData = useCallback(async () => {
     try {
       const bPromise = getBookings(undefined, (c) => { setBookings(c); setLoading(false); });
       const cPromise = getClients(undefined, (c) => { setClients(c); setLoading(false); });
-      const [b, c] = await Promise.all([bPromise, cPromise]);
+      const sPromise = getServices((c) => { setAvailableServices(c); });
+      const [b, c, s] = await Promise.all([bPromise, cPromise, sPromise]);
       setBookings(b);
       setClients(c);
+      setAvailableServices(s);
     } catch (err) { console.error('Failed to fetch bookings:', err); }
     finally { setLoading(false); }
   }, []);
@@ -84,24 +96,81 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
   const handleOpenNewBooking = () => {
     setSelectedBooking(null); setSelectedServices([]); setSelectedVehicle(null); setClientSearch('');
     setPriceInput('0,00'); setFormDate(selectedDate); setFormTime('08:00');
+    setBookingClientMode('existing');
+    setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
+    setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
     setIsBookingModalOpen(true);
+  };
+
+  const toggleService = (id: string) => setSelectedServices(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const handleAddCustomService = async () => {
+    const name = customServiceInput.trim();
+    if (!name) return;
+    try {
+      const created = await createService({ name });
+      setAvailableServices(prev => [...prev, created]);
+      setSelectedServices(prev => [...prev, created.id]);
+      setCustomServiceInput('');
+    } catch (err) {
+      console.error('Failed to create service:', err);
+      alert('Wystąpił błąd podczas dodawania usługi.');
+    }
+  };
+
+  const handleAddNewClientForBooking = async () => {
+    if (!newClientName || !newClientPhone || !newVehiclePlate) {
+      alert('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.');
+      return;
+    }
+    try {
+      const createdClient = await createClient({
+        name: newClientName,
+        phone: newClientPhone,
+        email: newClientEmail || null,
+        nip: newBookingClientNip || null,
+        vehicle: {
+          licensePlate: newVehiclePlate,
+          brand: newVehicleBrand || null,
+          model: newVehicleModel || null,
+        },
+      });
+      const vehicle = createdClient.vehicles?.[0];
+      if (vehicle) {
+        setSelectedVehicle({ client: createdClient, vehicle });
+      }
+      setBookingClientMode('existing');
+      setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
+      setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+      fetchData();
+    } catch (err) {
+      console.error('Failed to create client:', err);
+      alert('Wystąpił błąd podczas dodawania klienta.');
+    }
   };
 
   const handleCreateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedVehicle) return;
+    if (!selectedVehicle) {
+      alert('Wybierz istniejącego klienta lub dodaj nowego.');
+      return;
+    }
     try {
       const dto: BookingCreateDto = {
         vehicleId: selectedVehicle.vehicle.id,
         clientId: selectedVehicle.client.id,
         scheduledAt: new Date(`${formDate}T${formTime}`).toISOString(),
+        statusId: BOOKING_STATUSES.UTWORZONA.id,
+        serviceIds: selectedServices,
         price: parseFloat(priceInput.replace(',', '.')),
         notes: null,
       };
       await createBooking(dto);
       setIsBookingModalOpen(false);
       fetchData();
-    } catch (err) { console.error('Failed to create booking:', err); }
+    } catch (err) {
+      console.error('Failed to create booking:', err);
+      alert('Wystąpił błąd podczas tworzenia rezerwacji.');
+    }
   };
 
   const handleCreateClient = async (e: React.FormEvent) => {
@@ -123,19 +192,19 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
     return (
       <div key={booking.id} onClick={() => { setSelectedBooking(booking); setIsBookingModalOpen(true); }} className="bg-white rounded-[2rem] border border-slate-100 hover:shadow-xl transition-all flex flex-col sm:flex-row items-stretch cursor-pointer p-4 gap-4">
         <div className="w-24 sm:border-r border-slate-100 flex flex-col items-center justify-center shrink-0">
-          <span className="text-2xl font-[1000] text-[#102C26] italic font-mono">{formatTime(booking.scheduledAt)}</span>
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{formatDateShort(booking.scheduledAt)}</span>
+          <span className="text-2xl font-extrabold text-[#102C26] font-mono">{formatTime(booking.scheduledAt)}</span>
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{formatDateShort(booking.scheduledAt)}</span>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-1">
-            <span className="bg-[#102C26] text-[#F7E7CE] px-3 py-1 rounded-lg font-mono text-[10px] font-black">{booking.vehicle.licensePlate}</span>
-            <h4 className="text-lg font-[900] text-[#102C26] italic truncate">{booking.vehicle.brand} {booking.vehicle.model}</h4>
+            <span className="bg-[#102C26] text-[#F7E7CE] px-3 py-1 rounded-lg font-mono text-[10px] font-semibold">{booking.vehicle.licensePlate}</span>
+            <h4 className="text-lg font-bold text-[#102C26] truncate">{booking.vehicle.brand} {booking.vehicle.model}</h4>
           </div>
           <p className="text-xs font-bold text-slate-500 truncate">{booking.services.join(', ') || 'Brak usług'}</p>
         </div>
         <div className="flex flex-col items-end justify-center shrink-0">
-          <p className="text-xl font-[1000] text-[#102C26] font-mono leading-none">{(booking.totalPrice || 0).toFixed(2).replace('.', ',')}</p>
-          <span className="text-[9px] font-black uppercase mt-1" style={{ color: booking.statusColor || '#102C26' }}>{booking.status}</span>
+          <p className="text-xl font-extrabold text-[#102C26] font-mono leading-none">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}</p>
+          <span className="text-[9px] font-semibold uppercase mt-1" style={{ color: booking.statusColor || '#102C26' }}>{booking.status}</span>
         </div>
       </div>
     );
@@ -157,8 +226,8 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
       <GlobalHeader title="Rezerwacje" subtitle="Studio DetailFlow OS" onAddBooking={handleOpenNewBooking} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
 
       <div className="flex p-1 bg-white border border-slate-200 rounded-[2.5rem] w-full sm:w-[350px]">
-        <button onClick={() => setActiveTab('list')} className={`flex-1 py-3 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'list' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Lista</button>
-        <button onClick={() => setActiveTab('calendar')} className={`flex-1 py-3 rounded-[2rem] text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Kalendarz</button>
+        <button onClick={() => setActiveTab('list')} className={`flex-1 py-3 rounded-[2rem] text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'list' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Lista</button>
+        <button onClick={() => setActiveTab('calendar')} className={`flex-1 py-3 rounded-[2rem] text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Kalendarz</button>
       </div>
 
       {activeTab === 'list' ? (
@@ -167,21 +236,21 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
         <div className="flex flex-col xl:flex-row gap-8">
           <div className="w-full xl:w-[400px] bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 shrink-0 h-fit">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-[1000] text-[#102C26] italic capitalize tracking-tighter">{currentMonth.toLocaleString('pl-PL', { month: 'long', year: 'numeric' })}</h3>
+              <h3 className="text-xl font-extrabold text-[#102C26] capitalize tracking-tighter">{currentMonth.toLocaleString('pl-PL', { month: 'long', year: 'numeric' })}</h3>
               <div className="flex gap-1">
                 <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="p-2 bg-slate-50 rounded-xl text-slate-400"><ChevronLeft size={16} /></button>
                 <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="p-2 bg-slate-50 rounded-xl text-slate-400"><ChevronRight size={16} /></button>
               </div>
             </div>
             <div className="grid grid-cols-7 gap-2">
-              {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map(d => (<div key={d} className="text-center text-[9px] font-black text-slate-300 uppercase pb-4">{d}</div>))}
+              {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map(d => (<div key={d} className="text-center text-[9px] font-semibold text-slate-300 uppercase pb-4">{d}</div>))}
               {mainCalendarDays.map((day, idx) => {
                 if (!day) return <div key={idx} />;
                 const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isSelected = dateStr === selectedDate;
                 const hasB = bookings.some(b => b.scheduledAt.startsWith(dateStr));
                 return (
-                  <button key={day} onClick={() => setSelectedDate(dateStr)} className={`relative aspect-square rounded-xl flex items-center justify-center text-xs font-black transition-all ${isSelected ? 'bg-[#102C26] text-[#F7E7CE] shadow-xl' : 'hover:bg-[#F7E7CE]/30 text-slate-600'}`}>
+                  <button key={day} onClick={() => setSelectedDate(dateStr)} className={`relative aspect-square rounded-xl flex items-center justify-center text-xs font-semibold transition-all ${isSelected ? 'bg-[#102C26] text-[#F7E7CE] shadow-xl' : 'hover:bg-[#F7E7CE]/30 text-slate-600'}`}>
                     {day} {hasB && <div className="w-1 h-1 rounded-full absolute bottom-1.5 bg-[#F7E7CE]" />}
                   </button>
                 );
@@ -191,12 +260,12 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
           <div className="flex-1 space-y-4">
             <div className="bg-[#102C26] rounded-3xl p-6 border border-white/5 flex items-center justify-between">
               <div>
-                <p className="text-[9px] font-black text-[#F7E7CE] uppercase tracking-widest mb-1">Wybrana Data</p>
-                <h4 className="text-xl font-[1000] text-white italic tracking-tighter capitalize">{new Date(selectedDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}</h4>
+                <p className="text-[9px] font-semibold text-[#F7E7CE] uppercase tracking-widest mb-1">Wybrana Data</p>
+                <h4 className="text-xl font-extrabold text-white tracking-tighter capitalize">{new Date(selectedDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}</h4>
               </div>
               <Calendar size={24} className="text-white/10" />
             </div>
-            {selectedDayBookings.length > 0 ? selectedDayBookings.map(renderBookingCard) : (<div className="p-16 text-center bg-white border border-slate-100 rounded-3xl"><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Brak rezerwacji</p></div>)}
+            {selectedDayBookings.length > 0 ? selectedDayBookings.map(renderBookingCard) : (<div className="p-16 text-center bg-white border border-slate-100 rounded-3xl"><p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak rezerwacji</p></div>)}
           </div>
         </div>
       )}
@@ -206,46 +275,94 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
         {selectedBooking ? (
           <div className="space-y-6">
             <div className="p-6 bg-[#102C26] rounded-3xl text-[#F7E7CE]">
-              <p className="text-[9px] font-black text-white/40 uppercase tracking-widest mb-1">Klient</p>
-              <h4 className="text-xl font-black italic">{selectedBooking.client.name}</h4>
+              <p className="text-[9px] font-semibold text-white/40 uppercase tracking-widest mb-1">Klient</p>
+              <h4 className="text-xl font-semibold">{selectedBooking.client.name}</h4>
               {selectedBooking.client.phone && <p className="text-xs font-mono mt-2">{selectedBooking.client.phone}</p>}
             </div>
             <div className="p-6 bg-slate-50 rounded-3xl space-y-4">
-              <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-400 uppercase">Pojazd</span><span className="text-sm font-black text-[#102C26]">{selectedBooking.vehicle.brand} {selectedBooking.vehicle.model} • {selectedBooking.vehicle.licensePlate}</span></div>
-              <div className="flex justify-between items-center border-t border-slate-200 pt-4"><span className="text-xs font-bold text-slate-400 uppercase">Termin</span><span className="text-sm font-black text-[#102C26]">{new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} • {formatTime(selectedBooking.scheduledAt)}</span></div>
-              <div className="flex justify-between items-center border-t border-slate-200 pt-4"><span className="text-xs font-bold text-slate-400 uppercase">Usługi</span><span className="text-sm font-black text-[#102C26]">{selectedBooking.services.join(', ') || '—'}</span></div>
-              <div className="flex justify-between items-center border-t border-slate-200 pt-4"><span className="text-xs font-bold text-slate-400 uppercase">Cena</span><span className="text-xl font-black text-[#102C26] font-mono">{(selectedBooking.totalPrice || 0).toFixed(2)} PLN</span></div>
+              <div className="flex justify-between items-center"><span className="text-xs font-bold text-slate-400 uppercase">Pojazd</span><span className="text-sm font-semibold text-[#102C26]">{selectedBooking.vehicle.brand} {selectedBooking.vehicle.model} • {selectedBooking.vehicle.licensePlate}</span></div>
+              <div className="flex justify-between items-center border-t border-slate-200 pt-4"><span className="text-xs font-bold text-slate-400 uppercase">Termin</span><span className="text-sm font-semibold text-[#102C26]">{new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} • {formatTime(selectedBooking.scheduledAt)}</span></div>
+              <div className="flex justify-between items-center border-t border-slate-200 pt-4"><span className="text-xs font-bold text-slate-400 uppercase">Usługi</span><span className="text-sm font-semibold text-[#102C26]">{selectedBooking.services.join(', ') || '—'}</span></div>
+              <div className="flex justify-between items-center border-t border-slate-200 pt-4"><span className="text-xs font-bold text-slate-400 uppercase">Cena</span><span className="text-xl font-semibold text-[#102C26] font-mono">{((selectedBooking.totalPrice || 0) / 100).toFixed(2)} PLN</span></div>
               {selectedBooking.notes && <div className="border-t border-slate-200 pt-4"><span className="text-xs font-bold text-slate-400 uppercase">Notatki</span><p className="text-sm text-slate-600 mt-1">{selectedBooking.notes}</p></div>}
             </div>
-            <button onClick={() => { setSelectedBooking(null); setIsBookingModalOpen(false); }} className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-black text-[10px] uppercase tracking-widest">Zamknij</button>
+            <button onClick={() => { setSelectedBooking(null); setIsBookingModalOpen(false); }} className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest">Zamknij</button>
           </div>
         ) : (
           <form onSubmit={handleCreateBooking} className="space-y-6">
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-[#5A8A7A] uppercase tracking-widest ml-4">Klient i Pojazd</label>
-              <div className="relative">
-                <Search size={16} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input type="text" placeholder="Szukaj tablicy lub nazwiska..." value={clientSearch} onChange={e => setClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-4 bg-slate-50 border-none rounded-2xl font-bold text-sm outline-none" />
+              <div className="flex items-center justify-between ml-4 mb-2">
+                <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest">Pojazd i Klient</label>
+                <div className="flex bg-slate-50 p-1 rounded-xl">
+                  <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'existing' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Wyszukaj</button>
+                  <button type="button" onClick={() => setBookingClientMode('new')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'new' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Dodaj Nowy</button>
+                </div>
               </div>
-              {clientSearch.trim() && filteredClientResults.map(res => (
-                <button key={res.vehicle.id} type="button" onClick={() => { setSelectedVehicle(res); setClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-[#F7E7CE] transition-all">
-                  <div className="text-left"><h5 className="font-black text-[#102C26] text-sm italic">{res.vehicle.brand} {res.vehicle.model}</h5><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{res.client.name}</p></div>
-                  <div className="bg-[#102C26] text-[#F7E7CE] px-3 py-1.5 rounded-xl font-mono text-[11px] font-black tracking-widest">{res.vehicle.licensePlate}</div>
-                </button>
-              ))}
-              {selectedVehicle && (
-                <div className="p-4 bg-[#F7E7CE]/20 border-2 border-[#F7E7CE]/50 rounded-2xl flex items-center justify-between">
-                  <div className="flex items-center gap-3"><CarIcon size={20} className="text-[#5A8A7A]" /><div><h5 className="font-black text-[#102C26] text-sm italic">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-black text-[#5A8A7A] uppercase tracking-widest">{selectedVehicle.client.name}</p></div></div>
-                  <span className="font-mono text-xs font-black">{selectedVehicle.vehicle.licensePlate}</span>
+
+              {bookingClientMode === 'existing' ? (
+                <>
+                  <div className="relative">
+                    <Search size={16} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input type="text" placeholder="Szukaj tablicy lub nazwiska..." value={clientSearch} onChange={e => setClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-4 bg-slate-50 border-none rounded-2xl font-bold text-sm outline-none" />
+                  </div>
+                  {clientSearch.trim() && filteredClientResults.map(res => (
+                    <button key={res.vehicle.id} type="button" onClick={() => { setSelectedVehicle(res); setClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-[#F7E7CE] transition-all">
+                      <div className="text-left"><h5 className="font-semibold text-[#102C26] text-sm">{res.vehicle.brand} {res.vehicle.model}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{res.client.name}</p></div>
+                      <div className="bg-[#102C26] text-[#F7E7CE] px-3 py-1.5 rounded-xl font-mono text-[11px] font-semibold tracking-widest">{res.vehicle.licensePlate}</div>
+                    </button>
+                  ))}
+                  {selectedVehicle && (
+                    <div className="p-4 bg-[#F7E7CE]/20 border-2 border-[#F7E7CE]/50 rounded-2xl flex items-center justify-between">
+                      <div className="flex items-center gap-3"><CarIcon size={20} className="text-[#5A8A7A]" /><div><h5 className="font-semibold text-[#102C26] text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-semibold text-[#5A8A7A] uppercase tracking-widest">{selectedVehicle.client.name}</p></div></div>
+                      <span className="font-mono text-xs font-semibold">{selectedVehicle.vehicle.licensePlate}</span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-4 bg-slate-50 p-6 rounded-[1.5rem] mt-2 border border-slate-100">
+                  <div className="space-y-3">
+                    <h5 className="font-semibold text-[#102C26] text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
+                    <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <input type="tel" placeholder="Telefon *" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                      <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                    </div>
+                    <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                  </div>
+                  <div className="space-y-3 pt-3 border-t border-slate-200">
+                    <h5 className="font-semibold text-[#102C26] text-xs uppercase tracking-widest mb-3">Dane Pojazdu</h5>
+                    <div className="grid grid-cols-2 gap-3">
+                      <input type="text" placeholder="Marka" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                      <input type="text" placeholder="Model" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                    </div>
+                    <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50 uppercase" />
+                  </div>
+                  <button type="button" onClick={handleAddNewClientForBooking} className="w-full py-4 mt-2 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <UserPlus size={16} strokeWidth={2.5} /> Dodaj Klienta i Wybierz
+                  </button>
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Data</label><input type="date" value={formDate} onChange={e => setFormDate(e.target.value)} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl font-bold text-sm" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Godzina</label><input type="time" value={formTime} onChange={e => setFormTime(e.target.value)} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl font-bold text-sm" /></div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest ml-4">Wybierz Usługi</label>
+              <div className="flex flex-wrap gap-2">
+                {availableServices.map(svc => (
+                  <button key={svc.id} type="button" onClick={() => toggleService(svc.id)} className={`px-4 py-3 rounded-xl text-[9px] font-semibold uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${selectedServices.includes(svc.id) ? 'bg-[#102C26] text-[#F7E7CE] border-[#102C26]' : 'bg-slate-50 text-slate-400 border-transparent'}`}>
+                    {selectedServices.includes(svc.id) && <Check size={12} strokeWidth={4} />} {svc.name}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-3 pt-2">
+                <input type="text" value={customServiceInput} onChange={e => setCustomServiceInput(e.target.value)} placeholder="Dodaj inną usługę..." className="flex-1 px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-[#F7E7CE]/30" />
+                <button type="button" onClick={handleAddCustomService} className="w-14 h-14 bg-[#102C26] text-[#F7E7CE] rounded-2xl flex items-center justify-center shadow-lg active:scale-95"><Plus size={24} /></button>
+              </div>
             </div>
-            <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Cena Netto</label><input type="text" value={priceInput} onChange={e => setPriceInput(e.target.value)} className="w-full px-6 py-5 bg-[#102C26] text-[#F7E7CE] border-none rounded-2xl font-black text-2xl font-mono" /></div>
-            <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl">Zapisz Rezerwację</button>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Data</label><input type="date" value={formDate} onChange={e => setFormDate(e.target.value)} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl font-bold text-sm" /></div>
+              <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Godzina</label><input type="time" value={formTime} onChange={e => setFormTime(e.target.value)} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl font-bold text-sm" /></div>
+            </div>
+            <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Cena Netto</label><input type="text" value={priceInput} onChange={e => setPriceInput(e.target.value)} className="w-full px-6 py-5 bg-[#102C26] text-[#F7E7CE] border-none rounded-2xl font-semibold text-2xl font-mono" /></div>
+            <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[11px] uppercase tracking-widest shadow-xl">Zapisz Rezerwację</button>
           </form>
         )}
       </Modal>
@@ -260,7 +377,7 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
               <input type="email" placeholder="Email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
             </div>
           </div>
-          <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">Załóż Kartę Klienta</button>
+          <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl">Załóż Kartę Klienta</button>
         </form>
       </Modal>
     </div>

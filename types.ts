@@ -54,11 +54,27 @@ export interface ClientResponseDto {
   vehicles: VehicleInfoDto[];
 }
 
+export interface CreateClientVehicleDto {
+  licensePlate: string;
+  brand?: string | null;
+  model?: string | null;
+}
+
 export interface CreateClientDto {
   name: string;
   email?: string | null;
   phone?: string | null;
   nip?: string | null;
+  vehicle?: CreateClientVehicleDto | null;
+}
+
+export interface ServiceResponseDto {
+  id: string;
+  name: string;
+}
+
+export interface CreateServiceDto {
+  name: string;
 }
 
 export interface InventoryResponseDto {

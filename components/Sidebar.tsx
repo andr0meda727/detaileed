@@ -56,8 +56,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
               <Zap className="text-[#102C26]" size={24} strokeWidth={2.5} />
             </div>
             <div>
-              <h1 className="text-xl font-[1000] text-white tracking-tighter leading-none italic uppercase">DetailFlow</h1>
-              <span className="text-[8px] font-black text-[#F7E7CE] uppercase tracking-[0.4em] mt-1 block">Studio OS</span>
+              <h1 className="text-xl font-extrabold text-white tracking-tighter leading-none uppercase">DetailFlow</h1>
+              <span className="text-[8px] font-semibold text-[#F7E7CE] uppercase tracking-[0.4em] mt-1 block">Studio OS</span>
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
                 strokeWidth={activeView === item.id ? 2.5 : 2}
                 className={activeView === item.id ? 'text-[#F7E7CE]' : 'text-white/10 group-hover:text-[#F7E7CE] transition-colors'}
               />
-              <span className="font-black text-[11px] tracking-[0.15em] uppercase">{item.label}</span>
+              <span className="font-semibold text-[11px] tracking-[0.15em] uppercase">{item.label}</span>
             </button>
           ))}
         </nav>
@@ -85,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
         <div className="mt-auto pt-8 border-t border-white/5">
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-4 px-6 py-4 text-white/20 hover:text-red-400 transition-all font-black text-[10px] uppercase tracking-[0.2em] group"
+            className="w-full flex items-center gap-4 px-6 py-4 text-white/20 hover:text-red-400 transition-all font-semibold text-[10px] uppercase tracking-[0.2em] group"
           >
             <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center group-hover:bg-red-500/10 transition-colors">
               <LogOut size={18} />

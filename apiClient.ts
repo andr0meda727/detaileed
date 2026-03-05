@@ -1,15 +1,17 @@
+import supabase from './utils/supabase';
+
 const API_BASE = '/api';
 
-function getHeaders(isJson = false): HeadersInit {
-    const token = localStorage.getItem('supabase_token');
+async function getHeaders(isJson = false): Promise<HeadersInit> {
+    const { data: { session } } = await supabase.auth.getSession();
     const headers: Record<string, string> = {
         'Accept': 'application/json',
     };
     if (isJson) {
         headers['Content-Type'] = 'application/json';
     }
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+    if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
     }
     return headers;
 }
@@ -59,7 +61,7 @@ export async function apiGet<T>(
 
     // 2. Fetch fresh data
     const response = await fetch(urlString, {
-        headers: getHeaders(),
+        headers: await getHeaders(),
     });
 
     // 3. Process and cache the fresh data
@@ -79,7 +81,7 @@ export async function apiGet<T>(
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {
     const response = await fetch(`${API_BASE}${path}`, {
         method: 'POST',
-        headers: getHeaders(true),
+        headers: await getHeaders(true),
         body: JSON.stringify(body),
     });
     return handleResponse<T>(response);
@@ -88,7 +90,7 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
 export async function apiPut<T>(path: string, body: unknown): Promise<T> {
     const response = await fetch(`${API_BASE}${path}`, {
         method: 'PUT',
-        headers: getHeaders(true),
+        headers: await getHeaders(true),
         body: JSON.stringify(body),
     });
     return handleResponse<T>(response);
@@ -97,7 +99,7 @@ export async function apiPut<T>(path: string, body: unknown): Promise<T> {
 export async function apiDelete(path: string): Promise<void> {
     const response = await fetch(`${API_BASE}${path}`, {
         method: 'DELETE',
-        headers: getHeaders(),
+        headers: await getHeaders(),
     });
     if (!response.ok) {
         const errorText = await response.text().catch(() => 'Unknown error');
