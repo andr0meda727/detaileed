@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Zap, ArrowRight, ShieldCheck, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
-import supabase from '../utils/supabase';
+import supabase from '../../utils/supabase';
 
 interface LoginViewProps {
   onLogin: (email: string) => void;
@@ -51,7 +51,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0] p-10 mesh-bg">
-      <div className="max-w-[480px] w-full space-y-12 animate-in fade-in zoom-in-95 duration-700">
+      <div className="max-w-[480px] w-full space-y-12 animate-zoom-in">
         <div className="text-center">
           <div className="inline-flex items-center justify-center bg-[#102C26] w-24 h-24 rounded-[3rem] mb-10 shadow-[0_30px_60px_rgba(16,44,38,0.25)] border border-[#1A3D33]">
             <Zap size={44} className="text-[#F7E7CE]" strokeWidth={2.5} />

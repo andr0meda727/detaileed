@@ -1,14 +1,14 @@
 
 import React, { useState, useMemo } from 'react';
-import { PREDEFINED_SERVICES } from '../constants';
+import { PREDEFINED_SERVICES } from '../../constants';
 import { Phone, Search, Car as CarIcon, Save, Plus, Check, Edit2 } from 'lucide-react';
-import GlobalHeader from '../components/GlobalHeader';
-import Modal from '../components/ui/Modal';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import { ClientResponseDto, VehicleInfoDto, CreateClientDto, BookingCreateDto } from '../types';
-import { useClients, useCreateClient, useUpdateClient } from '../hooks/useClients';
-import { createBooking } from '../services/bookingService';
-import { createVehicle } from '../services/vehicleService';
+import GlobalHeader from '../../components/GlobalHeader';
+import Modal from '../../components/ui/Modal';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import { ClientResponseDto, VehicleInfoDto, CreateClientDto, BookingCreateDto } from '../../types';
+import { useClients, useCreateClient, useUpdateClient } from '../../hooks/useClients';
+import { createBooking } from '../../services/bookingService';
+import { createVehicle } from '../../services/vehicleService';
 
 
 const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
@@ -128,7 +128,7 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
+    <div className="space-y-8 animate-fade-in pb-20">
       <GlobalHeader title="Klienci" subtitle="CRM Active • Zarządzanie Relacjami" onAddBooking={() => { setBookingClientMode('existing'); setNewClientNameForBooking(''); setNewClientPhoneForBooking(''); setNewClientEmailForBooking(''); setNewBookingClientNip(''); setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate(''); setSelectedServices([]); setSelectedVehicle(null); setClientSearch(''); setPriceInput('0,00'); setIsBookingModalOpen(true); }} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
       <div className="relative group">
         <div className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#5A8A7A] transition-colors"><Search size={22} strokeWidth={3} /></div>

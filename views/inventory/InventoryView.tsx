@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { Plus, Search, Edit2, Package } from 'lucide-react';
-import { InventoryCreateDto } from '../types';
-import { useInventory, useCreateInventoryItem, useUpdateInventoryItem } from '../hooks';
-import GlobalHeader from '../components/GlobalHeader';
-import Modal from '../components/ui/Modal';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import EmptyState from '../components/ui/EmptyState';
+import { InventoryCreateDto } from '../../types';
+import { useInventory, useCreateInventoryItem, useUpdateInventoryItem } from '../../hooks';
+import GlobalHeader from '../../components/GlobalHeader';
+import Modal from '../../components/ui/Modal';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import EmptyState from '../../components/ui/EmptyState';
 
 const DEFAULT_UNITS = ['ml', 'L', 'szt', 'm²', 'kg'];
 

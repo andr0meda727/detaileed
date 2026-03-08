@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Building2, MapPin, CheckCircle2, Loader2, Crown, Shield, UserCheck } from 'lucide-react';
-import { StudioDto } from '../types';
-import { useStudios } from '../hooks/useStudios';
-import { useStudio } from '../contexts/StudioContext';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { StudioDto } from '../../types';
+import { useStudios } from '../../hooks/useStudios';
+import { useStudio } from '../../contexts/StudioContext';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 interface StudioSelectViewProps {
   onSelect: (studio: StudioDto) => void;

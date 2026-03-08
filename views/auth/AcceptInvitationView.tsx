@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import supabase from '../utils/supabase.ts';
+import supabase from '../../utils/supabase.ts';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -13,6 +13,7 @@ interface InvitationPreview {
 interface AcceptInvitationViewProps {
     token: string;
     onSuccess: () => void;
+    onRequireLogin?: () => void;
 }
 
 // ─── Config ───────────────────────────────────────────────────────────────────
@@ -30,7 +31,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSuccess }) => {
+const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSuccess, onRequireLogin }) => {
     const [invitation, setInvitation] = useState<InvitationPreview | null>(null);
     const [authToken, setAuthToken] = useState<string | null>(null);
     const [loadingInvitation, setLoadingInvitation] = useState(true);
@@ -186,8 +187,16 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
 
                 {/* Ostrzeżenie — niezalogowany */}
                 {!authToken && (
-                    <div className="mb-5 p-4 bg-amber-50 text-amber-700 text-sm rounded-xl border border-amber-100">
-                        Musisz być zalogowany, aby odpowiedzieć na zaproszenie.
+                    <div className="mb-5 p-4 bg-amber-50 text-amber-700 text-sm rounded-xl border border-amber-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <span>Musisz być zalogowany, aby odpowiedzieć na zaproszenie.</span>
+                        {onRequireLogin && (
+                            <button
+                                onClick={onRequireLogin}
+                                className="px-5 py-2.5 w-full sm:w-auto bg-amber-600 text-white font-semibold rounded-lg text-xs hover:bg-amber-700 transition-colors shadow-sm"
+                            >
+                                Zaloguj się
+                            </button>
+                        )}
                     </div>
                 )}
 

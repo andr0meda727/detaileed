@@ -1,0 +1,6 @@
+﻿views/bookings/BookingsView.tsx(241,297): error TS2552: Cannot find name 'formatTime'. Did you mean 'formTime'?
+views/bookings/components/BookingModal.tsx(3,19): error TS2307: Cannot find module '../../../../components/Modal' or its corresponding type declarations.
+views/bookings/components/BookingModal.tsx(4,109): error TS2307: Cannot find module '../../../../types' or its corresponding type declarations.
+views/tasks/TasksView.tsx(4,36): error TS2307: Cannot find module '../../../types' or its corresponding type declarations.
+views/tasks/TasksView.tsx(5,29): error TS2307: Cannot find module '../../../services/bookingService' or its corresponding type declarations.
+views/tasks/TasksView.tsx(6,26): error TS2307: Cannot find module '../../../components/GlobalHeader' or its corresponding type declarations.

@@ -2,15 +2,15 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, History, Car as CarIcon, User, Clock, CheckCircle2, XCircle, X, Download } from 'lucide-react';
-import { BookingResponseDto } from '../types';
-import { getBookings } from '../services/bookingService';
-import GlobalHeader from '../components/GlobalHeader';
+import { BookingResponseDto } from '../../types';
+import { getBookings } from '../../services/bookingService';
+import GlobalHeader from '../../components/GlobalHeader';
 
 const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ isOpen: boolean, onClose: () => void, title: string }>) => {
   if (!isOpen) return null;
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#102C26]/70 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[95vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#102C26]/70 backdrop-blur-md animate-fade-in">
+      <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-zoom-in flex flex-col max-h-[95vh]">
         <div className="p-8 sm:p-10 border-b border-slate-100 flex items-center justify-between shrink-0">
           <h3 className="text-2xl sm:text-3xl font-extrabold text-[#102C26] tracking-tighter leading-none">{title}</h3>
           <button onClick={onClose} className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all"><X size={20} /></button>
@@ -46,7 +46,7 @@ const ArchivedView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-12 h-12 border-4 border-[#102C26] border-t-transparent rounded-full animate-spin"></div></div>;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
+    <div className="space-y-8 animate-fade-in pb-20">
       <GlobalHeader title="Archiwum" subtitle="Pełna Historia Operacyjna • DetailFlow" onOpenMenu={onOpenMenu} />
 
       <div className="flex flex-col sm:flex-row gap-4">

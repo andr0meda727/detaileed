@@ -3,18 +3,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { User } from '@supabase/supabase-js';
 
 import Sidebar from './components/Sidebar';
-import Dashboard from './views/Dashboard';
-import ClientsView from './views/ClientsView';
-import InventoryView from './views/InventoryView';
-import BookingsView from './views/BookingsView';
-import ArchivedView from './views/ArchivedView';
-import ReportsView from './views/ReportsView';
-import LoginView from './views/LoginView';
-import SetPasswordView from './views/SetPasswordView';
-import AcceptInvitationView from './views/AcceptInvitationView';
-import StudioSelectView from './views/StudioSelectView';
-import StudioSettingsView from './views/StudioSettingsView';
-import UserSettingsView from './views/UserSettingsView';
+import Dashboard from './views/dashboard/Dashboard';
+import ClientsView from './views/clients/ClientsView';
+import BookingsView from './views/bookings/BookingsView';
+import InventoryView from './views/inventory/InventoryView';
+import ArchivedView from './views/archived/ArchivedView';
+import ReportsView from './views/reports/ReportsView';
+import LoginView from './views/auth/LoginView';
+import SetPasswordView from './views/auth/SetPasswordView';
+import AcceptInvitationView from './views/auth/AcceptInvitationView';
+import StudioSelectView from './views/settings/StudioSelectView';
+import StudioSettingsView from './views/settings/StudioSettingsView';
+import UserSettingsView from './views/settings/UserSettingsView';
+import TasksView from './views/tasks/TasksView';
 
 import { ViewType, StudioDto } from './types';
 import supabase from './utils/supabase';
@@ -26,8 +27,15 @@ const AppInner: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>('Dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isSettingPassword, setIsSettingPassword] = useState(false);
+  
+  // Pobieramy synchronicznie przed ucięciem go przez auth object
+  const [isSettingPassword, setIsSettingPassword] = useState(() => {
+    const hash = window.location.hash;
+    return Boolean(hash && (hash.includes('type=invite') || hash.includes('type=recovery') || hash.includes('type=signup')));
+  });
+  
   const [invitationToken, setInvitationToken] = useState<string | null>(null);
+  const [forceLogin, setForceLogin] = useState(false);
 
   const { selectedStudio, setSelectedStudio } = useStudio();
 
@@ -43,10 +51,6 @@ const AppInner: React.FC = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsLoggedIn(!!session);
       setCurrentUser(session?.user || null);
-      const hash = window.location.hash;
-      if (hash && (hash.includes('type=invite') || hash.includes('type=recovery'))) {
-        setIsSettingPassword(true);
-      }
       setIsLoading(false);
     });
 
@@ -87,7 +91,7 @@ const AppInner: React.FC = () => {
       case 'Dashboard': return <Dashboard onNavigate={setActiveView} {...commonProps} />;
       case 'Clients': return <ClientsView {...commonProps} />;
       case 'Inventory': return <InventoryView {...commonProps} />;
-      case 'Tasks': return <BookingsView {...commonProps} />;
+      case 'Tasks': return <TasksView {...commonProps} />;
       case 'Reports': return <ReportsView {...commonProps} />;
       case 'Archived': return <ArchivedView {...commonProps} />;
       default: return <Dashboard onNavigate={setActiveView} {...commonProps} />;
@@ -115,11 +119,23 @@ const AppInner: React.FC = () => {
     );
   }
 
+  if (forceLogin && !isLoggedIn) {
+    return (
+      <div className="relative">
+        <div className="absolute top-4 left-4 z-50">
+           <button onClick={() => setForceLogin(false)} className="px-5 py-2 bg-white text-slate-500 rounded-xl shadow-sm text-xs font-bold uppercase tracking-widest hover:text-[#102C26] transition-all">Powrót do zaproszenia</button>
+        </div>
+        <LoginView onLogin={handleLogin} />
+      </div>
+    );
+  }
+
   if (invitationToken) {
     return (
       <AcceptInvitationView
         token={invitationToken}
-        onSuccess={() => { setInvitationToken(null); window.history.replaceState(null, '', '/'); }}
+        onSuccess={() => { setInvitationToken(null); setForceLogin(false); window.history.replaceState(null, '', '/'); }}
+        onRequireLogin={() => setForceLogin(true)}
       />
     );
   }

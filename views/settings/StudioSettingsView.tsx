@@ -3,15 +3,15 @@ import {
   Wrench, Layers, Users, Plus, Trash2, X, Save,
   Loader2, Mail, CheckCircle, Edit2
 } from 'lucide-react';
-import { CategoryCreateDto, CreateServiceDto, InviteEmployeeDto } from '../types';
-import { useServices, useCreateService, useDeleteService } from '../hooks/useServices';
-import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '../hooks/useCategories';
-import { apiPost } from '../apiClient';
-import GlobalHeader from '../components/GlobalHeader';
-import Modal from '../components/ui/Modal';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import EmptyState from '../components/ui/EmptyState';
-import { useToast } from '../components/ui/useToast';
+import { CategoryCreateDto, CreateServiceDto, InviteEmployeeDto } from '../../types';
+import { useServices, useCreateService, useDeleteService } from '../../hooks/useServices';
+import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '../../hooks/useCategories';
+import { apiPost } from '../../apiClient';
+import GlobalHeader from '../../components/GlobalHeader';
+import Modal from '../../components/ui/Modal';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import EmptyState from '../../components/ui/EmptyState';
+import { useToast } from '../../components/ui/useToast';
 
 // ─── Card grid shared styles ─────────────────────────────────────────────────
 const CARD = `relative group bg-white border-2 border-slate-100 rounded-3xl p-6 flex flex-col gap-3
@@ -221,7 +221,7 @@ const EmployeesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => 
     e.preventDefault();
     setSending(true);
     try {
-      await apiPost<void>('/Employees/invite', { email } as InviteEmployeeDto);
+      await apiPost<void>('/Employees/invite', { email, roleId: 3 } as InviteEmployeeDto);
       setLastSent(email);
       setEmail('');
       addToast('success', `Zaproszenie wysłane do ${email}`);
@@ -255,7 +255,7 @@ const EmployeesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => 
       </div>
 
       {lastSent && (
-        <div className="flex items-center gap-3 px-6 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-700 text-sm font-semibold animate-in fade-in">
+        <div className="flex items-center gap-3 px-6 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-700 text-sm font-semibold animate-fade-in">
           <CheckCircle size={17} />
           Zaproszono: <span className="font-extrabold">{lastSent}</span>
         </div>
@@ -274,9 +274,9 @@ const EmployeesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => 
 type TabId = 'services' | 'categories' | 'employees';
 
 const TABS: { id: TabId; label: string; icon: React.FC<{ size?: number; className?: string }> }[] = [
-  { id: 'services',   label: 'Usługi',             icon: Wrench },
-  { id: 'categories', label: 'Kategorie magazynu',  icon: Layers },
-  { id: 'employees',  label: 'Pracownicy',          icon: Users  },
+  { id: 'services', label: 'Usługi', icon: Wrench },
+  { id: 'categories', label: 'Kategorie magazynu', icon: Layers },
+  { id: 'employees', label: 'Pracownicy', icon: Users },
 ];
 
 const StudioSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
@@ -303,9 +303,9 @@ const StudioSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu 
 
       {/* Tab content */}
       <div>
-        {activeTab === 'services'   && <ServicesTab   addToast={addToast} />}
+        {activeTab === 'services' && <ServicesTab addToast={addToast} />}
         {activeTab === 'categories' && <CategoriesTab addToast={addToast} />}
-        {activeTab === 'employees'  && <EmployeesTab  addToast={addToast} />}
+        {activeTab === 'employees' && <EmployeesTab addToast={addToast} />}
       </div>
 
       <ToastContainer />

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { FileBarChart2, Download, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
-import GlobalHeader from '../components/GlobalHeader';
-import { generateBookingsReport } from '../apiClient';
-import { useToast } from '../components/ui/useToast';
+import GlobalHeader from '../../components/GlobalHeader';
+import { generateBookingsReport } from '../../apiClient';
+import { useToast } from '../../components/ui/useToast';
 
 interface ReportsViewProps {
   onOpenMenu?: () => void;
@@ -47,7 +47,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
+    <div className="space-y-8 animate-fade-in pb-20">
       <GlobalHeader title="Raporty" subtitle="Eksport Danych i Analizy" onOpenMenu={onOpenMenu} />
       
       <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 lg:p-10 border border-slate-100 shadow-sm max-w-3xl">

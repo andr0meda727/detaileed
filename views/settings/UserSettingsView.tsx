@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { KeyRound, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Shield } from 'lucide-react';
-import supabase from '../utils/supabase';
-import GlobalHeader from '../components/GlobalHeader';
+import supabase from '../../utils/supabase';
+import GlobalHeader from '../../components/GlobalHeader';
 
 const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   // ── Change password state ──
@@ -111,7 +111,7 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
 
             {/* Result */}
             {result && (
-              <div className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold animate-in fade-in duration-300 ${
+              <div className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold animate-fade-in ${
                 result.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'
               }`}>
                 {result.type === 'success' ? <CheckCircle size={17} /> : <AlertCircle size={17} />}

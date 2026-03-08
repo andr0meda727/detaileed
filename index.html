@@ -6,6 +6,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DetailFlow Pro | Forest & Cream Edition</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'fade-in': 'fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+            'slide-up-delayed': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both',
+            'slide-up-delayed-2': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both',
+            'zoom-in': 'zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(15px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            zoomIn: {
+              '0%': { opacity: '0', transform: 'scale(0.97)' },
+              '100%': { opacity: '1', transform: 'scale(1)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link

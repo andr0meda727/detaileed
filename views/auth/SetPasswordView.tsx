@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import supabase from '../utils/supabase.ts';
+import supabase from '../../utils/supabase.ts';
 
 interface SetPasswordViewProps {
     onSuccess: () => void;

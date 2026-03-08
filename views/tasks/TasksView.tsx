@@ -1,9 +1,9 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { CheckCircle2, X, Clock, Car as CarIcon, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight, LayoutList, Search, CalendarDays, Hash } from 'lucide-react';
-import { BookingResponseDto } from '../types';
-import { getBookings } from '../services/bookingService';
-import GlobalHeader from '../components/GlobalHeader';
+import { BookingResponseDto } from '../../types';
+import { getBookings } from '../../services/bookingService';
+import GlobalHeader from '../../components/GlobalHeader';
 
 const TasksView: React.FC = () => {
   const [bookings, setBookings] = useState<BookingResponseDto[]>([]);
@@ -49,7 +49,7 @@ const TasksView: React.FC = () => {
           <h4 className="font-bold text-[#102C26] text-lg tracking-tighter truncate">{booking.vehicle.brand} {booking.vehicle.model}</h4>
         </div>
         <div className="flex flex-wrap gap-x-6 gap-y-2">
-          <div className="flex items-center gap-2 text-slate-500 font-bold text-[10px] uppercase tracking-wider"><Hash size={12} className="text-[#5A8A7A]" />{booking.services.join(', ') || 'Brak usług'}</div>
+          <div className="flex items-center gap-2 text-slate-500 font-bold text-[10px] uppercase tracking-wider"><Hash size={12} className="text-[#5A8A7A]" />{booking.services.join(', ') || 'Brak usĹ‚ug'}</div>
           <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-widest"><User size={12} />{booking.client.name}</div>
         </div>
       </div>
@@ -62,7 +62,7 @@ const TasksView: React.FC = () => {
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-12 h-12 border-4 border-[#102C26] border-t-transparent rounded-full animate-spin"></div></div>;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
+    <div className="space-y-8 animate-fade-in pb-20">
       <GlobalHeader title="Harmonogram" subtitle="Studio DetailFlow" />
 
       <div className="flex p-1.5 bg-white border border-slate-200 rounded-[2.5rem] w-full md:w-[480px] shadow-sm">
@@ -75,8 +75,8 @@ const TasksView: React.FC = () => {
           {inProgressBookings.length > 0 ? inProgressBookings.map(b => renderBookingCard(b)) : (
             <div className="bg-white rounded-[3rem] p-24 text-center border-2 border-dashed border-slate-100">
               <div className="w-20 h-20 bg-[#F7E7CE]/20 text-[#102C26] rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={36} /></div>
-              <h3 className="text-2xl font-semibold text-[#102C26] tracking-tighter">Brak aktywnych zleceń</h3>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Wszystkie rezerwacje zostały ukończone.</p>
+              <h3 className="text-2xl font-semibold text-[#102C26] tracking-tighter">Brak aktywnych zleceĹ„</h3>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Wszystkie rezerwacje zostaĹ‚y ukoĹ„czone.</p>
             </div>
           )}
         </div>
@@ -92,7 +92,7 @@ const TasksView: React.FC = () => {
                 </div>
               </div>
               <div className="grid grid-cols-7 gap-2 mb-4">
-                {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map(d => (<div key={d} className="text-center text-[10px] font-semibold text-slate-300 uppercase tracking-widest py-3">{d}</div>))}
+                {['Pn', 'Wt', 'Ĺšr', 'Cz', 'Pt', 'So', 'Nd'].map(d => (<div key={d} className="text-center text-[10px] font-semibold text-slate-300 uppercase tracking-widest py-3">{d}</div>))}
                 {calendarDays.map((day, idx) => {
                   if (!day) return <div key={`e-${idx}`} />;
                   const ds = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -136,3 +136,4 @@ const TasksView: React.FC = () => {
 };
 
 export default TasksView;
+

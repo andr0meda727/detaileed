@@ -5,28 +5,15 @@ import {
   Wallet, Check, X, CheckCircle2, Plus, UserPlus, Calendar, Clock, Car as CarIcon, Edit2, Save, Search,
   Hash, Briefcase, ChevronLeft, ChevronRight, User, LayoutList, CalendarDays, Phone, Mail, XCircle, AlertCircle, MessageSquare
 } from 'lucide-react';
-import { BookingResponseDto, BookingCreateDto, ClientResponseDto, VehicleInfoDto, CreateClientDto, ServiceResponseDto } from '../types';
-import { BOOKING_STATUSES } from '../constants';
-import { getBookings, createBooking } from '../services/bookingService';
-import { getClients, createClient } from '../services/clientService';
-import { getServices, createService } from '../services/serviceService';
-import GlobalHeader from '../components/GlobalHeader';
-
-const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ isOpen: boolean, onClose: () => void, title: string }>) => {
-  if (!isOpen) return null;
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#102C26]/70 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[95vh]">
-        <div className="p-8 sm:p-10 border-b border-slate-100 flex items-center justify-between shrink-0">
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-[#102C26] tracking-tighter leading-none">{title}</h3>
-          <button onClick={onClose} className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all"><X size={20} /></button>
-        </div>
-        <div className="p-8 sm:p-10 overflow-y-auto flex-1 custom-scrollbar">{children}</div>
-      </div>
-    </div>,
-    document.body
-  );
-};
+import { BookingResponseDto, BookingCreateDto, ClientResponseDto, VehicleInfoDto, CreateClientDto, ServiceResponseDto } from '../../types';
+import { BOOKING_STATUSES } from '../../constants';
+import { getBookings, createBooking } from '../../services/bookingService';
+import { getClients, createClient } from '../../services/clientService';
+import { getServices, createService } from '../../services/serviceService';
+import GlobalHeader from '../../components/GlobalHeader';
+import BookingList from './components/BookingList';
+import BookingCalendar from './components/BookingCalendar';
+import Modal from '../../components/Modal';
 
 const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   const [bookings, setBookings] = useState<BookingResponseDto[]>([]);
@@ -56,6 +43,10 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
 
   // New vehicle form state
   const [newVehicleBrand, setNewVehicleBrand] = useState('');
+  
+  const formatTime = (iso: string) => {
+    return new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+  };
   const [newVehicleModel, setNewVehicleModel] = useState('');
   const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
@@ -182,40 +173,11 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
     } catch (err) { console.error('Failed to create client:', err); }
   };
 
-  const formatTime = (iso: string) => new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-  const formatDateShort = (iso: string) => {
-    const d = new Date(iso);
-    return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const handleBookingClick = (booking: BookingResponseDto) => {
+    setSelectedBooking(booking);
+    setIsBookingModalOpen(true);
   };
 
-  const renderBookingCard = (booking: BookingResponseDto) => {
-    return (
-      <div key={booking.id} onClick={() => { setSelectedBooking(booking); setIsBookingModalOpen(true); }} className="bg-white rounded-[2rem] border border-slate-100 hover:shadow-xl transition-all flex flex-col sm:flex-row items-stretch cursor-pointer p-4 gap-4">
-        <div className="w-24 sm:border-r border-slate-100 flex flex-col items-center justify-center shrink-0">
-          <span className="text-2xl font-extrabold text-[#102C26] font-mono">{formatTime(booking.scheduledAt)}</span>
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{formatDateShort(booking.scheduledAt)}</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-1">
-            <span className="bg-[#102C26] text-[#F7E7CE] px-3 py-1 rounded-lg font-mono text-[10px] font-semibold">{booking.vehicle.licensePlate}</span>
-            <h4 className="text-lg font-bold text-[#102C26] truncate">{booking.vehicle.brand} {booking.vehicle.model}</h4>
-          </div>
-          <p className="text-xs font-bold text-slate-500 truncate">{booking.services.join(', ') || 'Brak usług'}</p>
-        </div>
-        <div className="flex flex-col items-end justify-center shrink-0">
-          <p className="text-xl font-extrabold text-[#102C26] font-mono leading-none">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}</p>
-          <span className="text-[9px] font-semibold uppercase mt-1" style={{ color: booking.statusColor || '#102C26' }}>{booking.status}</span>
-        </div>
-      </div>
-    );
-  };
-
-  const mainCalendarDays = useMemo(() => {
-    const y = currentMonth.getFullYear(); const m = currentMonth.getMonth();
-    const total = new Date(y, m + 1, 0).getDate(); const start = (new Date(y, m, 1).getDay() + 6) % 7;
-    const d: (number | null)[] = []; for (let i = 0; i < start; i++) d.push(null); for (let i = 1; i <= total; i++) d.push(i);
-    return d;
-  }, [currentMonth]);
 
   if (loading) {
     return <div className="flex items-center justify-center h-64"><div className="w-12 h-12 border-4 border-[#102C26] border-t-transparent rounded-full animate-spin"></div></div>;
@@ -231,32 +193,16 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
       </div>
 
       {activeTab === 'list' ? (
-        <div className="space-y-4">{bookings.map(renderBookingCard)}</div>
+        <BookingList bookings={bookings} onBookingClick={handleBookingClick} />
       ) : (
         <div className="flex flex-col xl:flex-row gap-6 lg:gap-8">
-          <div className="w-full xl:w-[380px] bg-white rounded-[2rem] p-6 lg:p-8 shadow-sm border border-slate-100 shrink-0 h-fit">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg lg:text-xl font-extrabold text-[#102C26] capitalize tracking-tighter">{currentMonth.toLocaleString('pl-PL', { month: 'long', year: 'numeric' })}</h3>
-              <div className="flex gap-1">
-                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="p-1.5 bg-slate-50 rounded-xl text-slate-400"><ChevronLeft size={16} /></button>
-                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="p-1.5 bg-slate-50 rounded-xl text-slate-400"><ChevronRight size={16} /></button>
-              </div>
-            </div>
-            <div className="grid grid-cols-7 gap-1 lg:gap-2">
-              {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map(d => (<div key={d} className="text-center text-[9px] font-semibold text-slate-300 uppercase pb-2 lg:pb-4">{d}</div>))}
-              {mainCalendarDays.map((day, idx) => {
-                if (!day) return <div key={idx} />;
-                const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const isSelected = dateStr === selectedDate;
-                const hasB = bookings.some(b => b.scheduledAt.startsWith(dateStr));
-                return (
-                  <button key={day} onClick={() => setSelectedDate(dateStr)} className={`relative aspect-[4/3] sm:aspect-square rounded-xl flex items-center justify-center text-xs font-semibold transition-all ${isSelected ? 'bg-[#102C26] text-[#F7E7CE] shadow-lg' : 'hover:bg-[#F7E7CE]/30 text-slate-600'}`}>
-                    {day} {hasB && <div className="w-1 h-1 rounded-full absolute bottom-1 lg:bottom-1.5 bg-[#F7E7CE]" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <BookingCalendar 
+            currentMonth={currentMonth}
+            selectedDate={selectedDate}
+            bookings={bookings}
+            onMonthChange={setCurrentMonth}
+            onDateChange={setSelectedDate}
+          />
           <div className="flex-1 space-y-4">
             <div className="bg-[#102C26] rounded-[2rem] p-5 lg:p-6 border border-white/5 flex items-center justify-between">
               <div>
@@ -265,7 +211,7 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
               </div>
               <Calendar size={20} className="text-white/10" />
             </div>
-            {selectedDayBookings.length > 0 ? selectedDayBookings.map(renderBookingCard) : (<div className="p-10 lg:p-16 text-center bg-white border border-slate-100 rounded-[2rem]"><p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak rezerwacji</p></div>)}
+            <BookingList bookings={selectedDayBookings} onBookingClick={handleBookingClick} />
           </div>
         </div>
       )}

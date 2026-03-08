@@ -19,6 +19,7 @@ export interface CategoryCreateDto {
 
 export interface InviteEmployeeDto {
   email: string;
+  roleId: number;
 }
 
 
