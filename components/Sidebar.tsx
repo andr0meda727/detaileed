@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   History, Users, Package, LayoutDashboard, CalendarClock,
   LogOut, Zap, X, Building2, ChevronDown, Settings,
-  Wrench, UserCircle, LucideIcon,
+  Wrench, UserCircle, LucideIcon, FileBarChart2
 } from 'lucide-react';
 import { ViewType } from '../types';
 import { useStudio } from '../contexts/StudioContext';
@@ -60,6 +60,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
     { id: 'Tasks',     icon: CalendarClock,  label: 'Rezerwacje' },
     { id: 'Clients',   icon: Users,          label: 'Klienci (CRM)' },
     { id: 'Inventory', icon: Package,        label: 'Magazyn' },
+    { id: 'Reports',   icon: FileBarChart2,  label: 'Raporty' },
     { id: 'Archived',  icon: History,        label: 'Archiwum Zleceń' },
   ];
 

@@ -225,47 +225,47 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
     <div className="space-y-8 animate-in fade-in duration-700">
       <GlobalHeader title="Rezerwacje" subtitle="Studio DetailFlow OS" onAddBooking={handleOpenNewBooking} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
 
-      <div className="flex p-1 bg-white border border-slate-200 rounded-[2.5rem] w-full sm:w-[350px]">
-        <button onClick={() => setActiveTab('list')} className={`flex-1 py-3 rounded-[2rem] text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'list' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Lista</button>
-        <button onClick={() => setActiveTab('calendar')} className={`flex-1 py-3 rounded-[2rem] text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Kalendarz</button>
+      <div className="flex p-1 bg-white border border-slate-200 rounded-[1.5rem] w-full sm:w-[350px]">
+        <button onClick={() => setActiveTab('list')} className={`flex-1 py-2.5 rounded-[1.25rem] text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'list' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Lista</button>
+        <button onClick={() => setActiveTab('calendar')} className={`flex-1 py-2.5 rounded-[1.25rem] text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Kalendarz</button>
       </div>
 
       {activeTab === 'list' ? (
         <div className="space-y-4">{bookings.map(renderBookingCard)}</div>
       ) : (
-        <div className="flex flex-col xl:flex-row gap-8">
-          <div className="w-full xl:w-[400px] bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 shrink-0 h-fit">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-extrabold text-[#102C26] capitalize tracking-tighter">{currentMonth.toLocaleString('pl-PL', { month: 'long', year: 'numeric' })}</h3>
+        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8">
+          <div className="w-full xl:w-[380px] bg-white rounded-[2rem] p-6 lg:p-8 shadow-sm border border-slate-100 shrink-0 h-fit">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg lg:text-xl font-extrabold text-[#102C26] capitalize tracking-tighter">{currentMonth.toLocaleString('pl-PL', { month: 'long', year: 'numeric' })}</h3>
               <div className="flex gap-1">
-                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="p-2 bg-slate-50 rounded-xl text-slate-400"><ChevronLeft size={16} /></button>
-                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="p-2 bg-slate-50 rounded-xl text-slate-400"><ChevronRight size={16} /></button>
+                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} className="p-1.5 bg-slate-50 rounded-xl text-slate-400"><ChevronLeft size={16} /></button>
+                <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} className="p-1.5 bg-slate-50 rounded-xl text-slate-400"><ChevronRight size={16} /></button>
               </div>
             </div>
-            <div className="grid grid-cols-7 gap-2">
-              {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map(d => (<div key={d} className="text-center text-[9px] font-semibold text-slate-300 uppercase pb-4">{d}</div>))}
+            <div className="grid grid-cols-7 gap-1 lg:gap-2">
+              {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map(d => (<div key={d} className="text-center text-[9px] font-semibold text-slate-300 uppercase pb-2 lg:pb-4">{d}</div>))}
               {mainCalendarDays.map((day, idx) => {
                 if (!day) return <div key={idx} />;
                 const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isSelected = dateStr === selectedDate;
                 const hasB = bookings.some(b => b.scheduledAt.startsWith(dateStr));
                 return (
-                  <button key={day} onClick={() => setSelectedDate(dateStr)} className={`relative aspect-square rounded-xl flex items-center justify-center text-xs font-semibold transition-all ${isSelected ? 'bg-[#102C26] text-[#F7E7CE] shadow-xl' : 'hover:bg-[#F7E7CE]/30 text-slate-600'}`}>
-                    {day} {hasB && <div className="w-1 h-1 rounded-full absolute bottom-1.5 bg-[#F7E7CE]" />}
+                  <button key={day} onClick={() => setSelectedDate(dateStr)} className={`relative aspect-[4/3] sm:aspect-square rounded-xl flex items-center justify-center text-xs font-semibold transition-all ${isSelected ? 'bg-[#102C26] text-[#F7E7CE] shadow-lg' : 'hover:bg-[#F7E7CE]/30 text-slate-600'}`}>
+                    {day} {hasB && <div className="w-1 h-1 rounded-full absolute bottom-1 lg:bottom-1.5 bg-[#F7E7CE]" />}
                   </button>
                 );
               })}
             </div>
           </div>
           <div className="flex-1 space-y-4">
-            <div className="bg-[#102C26] rounded-3xl p-6 border border-white/5 flex items-center justify-between">
+            <div className="bg-[#102C26] rounded-[2rem] p-5 lg:p-6 border border-white/5 flex items-center justify-between">
               <div>
                 <p className="text-[9px] font-semibold text-[#F7E7CE] uppercase tracking-widest mb-1">Wybrana Data</p>
-                <h4 className="text-xl font-extrabold text-white tracking-tighter capitalize">{new Date(selectedDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}</h4>
+                <h4 className="text-lg lg:text-xl font-extrabold text-white tracking-tighter capitalize">{new Date(selectedDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}</h4>
               </div>
-              <Calendar size={24} className="text-white/10" />
+              <Calendar size={20} className="text-white/10" />
             </div>
-            {selectedDayBookings.length > 0 ? selectedDayBookings.map(renderBookingCard) : (<div className="p-16 text-center bg-white border border-slate-100 rounded-3xl"><p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak rezerwacji</p></div>)}
+            {selectedDayBookings.length > 0 ? selectedDayBookings.map(renderBookingCard) : (<div className="p-10 lg:p-16 text-center bg-white border border-slate-100 rounded-[2rem]"><p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak rezerwacji</p></div>)}
           </div>
         </div>
       )}

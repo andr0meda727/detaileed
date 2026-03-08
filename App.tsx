@@ -8,6 +8,7 @@ import ClientsView from './views/ClientsView';
 import InventoryView from './views/InventoryView';
 import BookingsView from './views/BookingsView';
 import ArchivedView from './views/ArchivedView';
+import ReportsView from './views/ReportsView';
 import LoginView from './views/LoginView';
 import SetPasswordView from './views/SetPasswordView';
 import AcceptInvitationView from './views/AcceptInvitationView';
@@ -87,6 +88,7 @@ const AppInner: React.FC = () => {
       case 'Clients': return <ClientsView {...commonProps} />;
       case 'Inventory': return <InventoryView {...commonProps} />;
       case 'Tasks': return <BookingsView {...commonProps} />;
+      case 'Reports': return <ReportsView {...commonProps} />;
       case 'Archived': return <ArchivedView {...commonProps} />;
       default: return <Dashboard onNavigate={setActiveView} {...commonProps} />;
     }

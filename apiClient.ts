@@ -112,3 +112,17 @@ export async function apiDelete(path: string): Promise<void> {
         throw new Error(`API Error ${response.status}: ${errorText}`);
     }
 }
+
+export async function generateBookingsReport(dateFrom: string, dateTo: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/Reports/bookings`, {
+        method: 'POST',
+        headers: await getHeaders(true),
+        body: JSON.stringify({ dateFrom, dateTo }),
+    });
+    
+    // Accept 200, 202 (Accepted) or 204
+    if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        throw new Error(`API Error ${response.status}: ${errorText}`);
+    }
+}

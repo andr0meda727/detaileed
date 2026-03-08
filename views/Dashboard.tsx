@@ -342,17 +342,17 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       <GlobalHeader title="Panel" subtitle="Studio OS DetailFlow" onAddBooking={handleOpenNewBooking} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
 
       {/* Greeting Banner */}
-      <div className="relative bg-gradient-to-br from-[#102C26] via-[#1A3D33] to-[#152F28] rounded-[2.5rem] lg:rounded-[3rem] p-8 sm:p-10 lg:p-12 overflow-hidden border border-white/5">
+      <div className="relative bg-gradient-to-br from-[#102C26] via-[#1A3D33] to-[#152F28] rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 overflow-hidden border border-white/5">
         <div className="absolute top-0 right-0 w-72 h-72 bg-[#F7E7CE]/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#F7E7CE]/5 rounded-full blur-[80px] pointer-events-none" />
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
             <p className="text-[12px] font-semibold text-[#F7E7CE] uppercase tracking-[0.4em] mb-3">{dateStr}</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tighter leading-[1.1]">{greeting} 👋</h2>
-            <p className="text-white/40 text-sm font-bold mt-3 max-w-md">Masz <span className="text-[#F7E7CE] font-bold">{todayBookings.length}</span> {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} na dziś i <span className="text-[#F7E7CE] font-bold">{upcomingBookings.length}</span> nadchodzących.</p>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tighter leading-[1.1]">{greeting} 👋</h2>
+            <p className="text-white/40 text-[13px] font-bold mt-2 max-w-md">Masz <span className="text-[#F7E7CE] font-bold">{todayBookings.length}</span> {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} na dziś i <span className="text-[#F7E7CE] font-bold">{upcomingBookings.length}</span> nadchodzących.</p>
           </div>
           <div className="flex gap-3 shrink-0">
-            <button onClick={handleOpenNewBooking} className="flex items-center gap-2.5 bg-[#F7E7CE] text-[#102C26] px-6 py-4 rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(247,231,206,0.3)] hover:shadow-[0_0_50px_rgba(247,231,206,0.4)] hover:scale-[1.03] transition-all">
+            <button onClick={handleOpenNewBooking} className="flex items-center gap-2 bg-[#F7E7CE] text-[#102C26] px-5 py-3 rounded-[1.25rem] font-semibold text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(247,231,206,0.3)] hover:shadow-[0_0_50px_rgba(247,231,206,0.4)] hover:scale-[1.03] transition-all">
               <Plus size={16} strokeWidth={3} /> Nowe Zlecenie
             </button>
           </div>
@@ -367,14 +367,14 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           { label: 'Baza Klientów', value: clients.length, icon: Users, accent: 'from-violet-500 to-purple-600', bg: 'bg-violet-50', iconBg: 'bg-violet-500', trend: 'z API' },
           { label: 'Ukończone', value: completedCount, icon: CheckCircle2, accent: 'from-amber-500 to-orange-600', bg: 'bg-amber-50', iconBg: 'bg-amber-500', trend: 'z API' },
         ].map((card, i) => (
-          <div key={i} className="bg-white rounded-[2rem] p-6 sm:p-7 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group">
-            <div className="flex items-start justify-between mb-5">
-              <div className={`w-12 h-12 ${card.iconBg} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                <card.icon size={20} className="text-white" strokeWidth={2.5} />
+          <div key={i} className="bg-white rounded-[1.5rem] lg:rounded-[2rem] p-5 lg:p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group">
+            <div className="flex items-start justify-between mb-4">
+              <div className={`w-10 h-10 ${card.iconBg} rounded-[1rem] flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                <card.icon size={18} className="text-white" strokeWidth={2.5} />
               </div>
               <span className="text-[9px] font-semibold text-[#102C26] bg-[#F7E7CE]/30 px-2.5 py-1 rounded-lg uppercase tracking-wider">{card.trend}</span>
             </div>
-            <h3 className="text-3xl sm:text-4xl font-extrabold text-[#102C26] tracking-tighter font-mono leading-none">{card.value}</h3>
+            <h3 className="text-2xl lg:text-3xl font-extrabold text-[#102C26] tracking-tighter font-mono leading-none">{card.value}</h3>
             <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-[0.3em] mt-2">{card.label}</p>
           </div>
         ))}
@@ -387,13 +387,13 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
         <div className="lg:col-span-8 flex flex-col gap-6 lg:gap-8">
 
           {/* Today's Schedule */}
-          <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 lg:p-10 flex flex-col border border-slate-100 shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between mb-8">
+          <div className="bg-white rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 flex flex-col border border-slate-100 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h4 className="text-xl sm:text-2xl font-bold text-[#102C26] tracking-tight">Dzisiejszy Grafik</h4>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{todayBookings.length} {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} zaplanowanych</p>
+                <h4 className="text-xl font-bold text-[#102C26] tracking-tight">Dzisiejszy Grafik</h4>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">{todayBookings.length} {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} zaplanowanych</p>
               </div>
-              <div className="w-12 h-12 bg-[#102C26] text-[#F7E7CE] rounded-2xl flex items-center justify-center shadow-xl shrink-0"><Calendar size={20} /></div>
+              <div className="w-10 h-10 bg-[#102C26] text-[#F7E7CE] rounded-[1rem] flex items-center justify-center shadow-xl shrink-0"><Calendar size={18} /></div>
             </div>
             <div className="space-y-4">
               {todayBookings.length === 0 && (
@@ -427,13 +427,13 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           </div>
 
           {/* Revenue Chart */}
-          <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-10 lg:p-14 border border-slate-100 shadow-sm">
-            <div className="flex flex-col md:flex-row justify-between gap-6 mb-8">
+          <div className="bg-white rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 border border-slate-100 shadow-sm">
+            <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
               <div>
-                <p className="text-[12px] font-semibold text-[#5A8A7A] uppercase tracking-[0.4em] mb-2">Finanse Studia</p>
-                <h3 className="text-4xl lg:text-5xl font-bold text-[#102C26] tracking-tighter">{revPeriod === 'weekly' ? chartData.weekly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL') : chartData.monthly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL')}<span className="text-[20px] font-semibold text-[#5A8A7A] uppercase ml-2">PLN</span></h3>
+                <p className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-[0.4em] mb-1">Finanse Studia</p>
+                <h3 className="text-3xl lg:text-4xl font-bold text-[#102C26] tracking-tighter">{revPeriod === 'weekly' ? chartData.weekly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL') : chartData.monthly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL')}<span className="text-[16px] font-semibold text-[#5A8A7A] uppercase ml-2">PLN</span></h3>
               </div>
-              <div className="flex p-1 bg-[#FDF8F0] rounded-xl border border-[#E8D5B5] h-fit shrink-0">
+              <div className="flex p-1 bg-[#FDF8F0] rounded-[0.75rem] border border-[#E8D5B5] h-fit shrink-0">
                 <button onClick={() => setRevPeriod('weekly')} className={`px-5 py-2 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${revPeriod === 'weekly' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Tydzień</button>
                 <button onClick={() => setRevPeriod('monthly')} className={`px-5 py-2 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${revPeriod === 'monthly' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400'}`}>Miesiąc</button>
               </div>
@@ -452,13 +452,13 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           </div>
 
           {/* Upcoming Bookings */}
-          <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 lg:p-10 border border-slate-100 shadow-sm">
-            <div className="flex items-center justify-between mb-8">
+          <div className="bg-white rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 border border-slate-100 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h4 className="text-xl font-bold text-[#102C26] tracking-tight">Nadchodzące</h4>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">następne {upcomingBookings.length} rezerwacji</p>
+                <h4 className="text-lg lg:text-xl font-bold text-[#102C26] tracking-tight">Nadchodzące</h4>
+                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">następne {upcomingBookings.length} rezerwacji</p>
               </div>
-              <button onClick={() => onNavigate?.('Tasks')} className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest flex items-center gap-1 hover:gap-2.5 transition-all">Zobacz Wszystkie <ChevronRight size={14} /></button>
+              <button onClick={() => onNavigate?.('Tasks')} className="text-[9px] font-semibold text-[#5A8A7A] uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">Zobacz Zlecenia <ChevronRight size={14} /></button>
             </div>
             <div className="space-y-3">
               {upcomingBookings.slice(0, 4).map(booking => {
