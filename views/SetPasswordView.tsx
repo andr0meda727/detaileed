@@ -29,13 +29,14 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
 
         // TODO: Odkomentuj, gdy podepniesz klienta Supabase
         const { error } = await supabase.auth.updateUser({
-          password: password
+            password: password,
+            data: { needs_password: false }
         });
 
         if (error) {
-          setError(error.message);
-          setLoading(false);
-          return;
+            setError(error.message);
+            setLoading(false);
+            return;
         }
 
         // Symulacja ładowania dla testów (usuń potem)

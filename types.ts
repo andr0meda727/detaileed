@@ -1,6 +1,27 @@
 
 // === API Response DTOs ===
 
+export interface StudioDto {
+  studioId: string;
+  name: string;
+  role: string;
+  address: string | null;
+}
+
+export interface CategoryResponseDto {
+  id: string;
+  name: string;
+}
+
+export interface CategoryCreateDto {
+  name: string;
+}
+
+export interface InviteEmployeeDto {
+  email: string;
+}
+
+
 export interface VehicleInfoDto {
   id: string;
   licensePlate: string;
@@ -113,4 +134,7 @@ export interface KanbanTask {
   deadline: string;
 }
 
-export type ViewType = 'Dashboard' | 'Bookings' | 'Tasks' | 'Clients' | 'Inventory' | 'Archived';
+export type ViewType = 'Dashboard' | 'Bookings' | 'Tasks' | 'Clients' | 'Inventory' | 'Archived' | 'Studios' | 'StudioSettings' | 'UserSettings';
+
+
+

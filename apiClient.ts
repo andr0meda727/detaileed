@@ -1,4 +1,5 @@
 import supabase from './utils/supabase';
+import { getSelectedStudioId } from './contexts/StudioContext';
 
 const API_BASE = '/api';
 
@@ -13,8 +14,13 @@ async function getHeaders(isJson = false): Promise<HeadersInit> {
     if (session?.access_token) {
         headers['Authorization'] = `Bearer ${session.access_token}`;
     }
+    const studioId = getSelectedStudioId();
+    if (studioId) {
+        headers['X-Studio-Id'] = studioId;
+    }
     return headers;
 }
+
 
 async function handleResponse<T>(response: Response): Promise<T> {
     if (!response.ok) {

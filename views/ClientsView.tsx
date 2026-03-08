@@ -1,33 +1,21 @@
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState, useMemo } from 'react';
 import { PREDEFINED_SERVICES } from '../constants';
-import { Phone, Search, Car as CarIcon, X, User, Save, Plus, Check, Edit2 } from 'lucide-react';
+import { Phone, Search, Car as CarIcon, Save, Plus, Check, Edit2 } from 'lucide-react';
 import GlobalHeader from '../components/GlobalHeader';
+import Modal from '../components/ui/Modal';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 import { ClientResponseDto, VehicleInfoDto, CreateClientDto, BookingCreateDto } from '../types';
-import { getClients, createClient, updateClient } from '../services/clientService';
+import { useClients, useCreateClient, useUpdateClient } from '../hooks/useClients';
 import { createBooking } from '../services/bookingService';
 import { createVehicle } from '../services/vehicleService';
 
-const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ isOpen: boolean, onClose: () => void, title: string }>) => {
-  if (!isOpen) return null;
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#102C26]/70 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[95vh]">
-        <div className="p-8 sm:p-10 border-b border-slate-100 flex items-center justify-between shrink-0">
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-[#102C26] tracking-tighter leading-none">{title}</h3>
-          <button onClick={onClose} className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all"><X size={20} /></button>
-        </div>
-        <div className="p-8 sm:p-10 overflow-y-auto flex-1 custom-scrollbar">{children}</div>
-      </div>
-    </div>,
-    document.body
-  );
-};
 
 const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
-  const [clients, setClients] = useState<ClientResponseDto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: clients = [], isLoading } = useClients();
+  const createClientMutation = useCreateClient();
+  const updateClientMutation = useUpdateClient();
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClientForDetails, setSelectedClientForDetails] = useState<ClientResponseDto | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -37,14 +25,12 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto, vehicle: VehicleInfoDto } | null>(null);
   const [priceInput, setPriceInput] = useState('0,00');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [customServiceInput, setCustomServiceInput] = useState('');
   const [editData, setEditData] = useState({ id: '', name: '', email: '', phone: '', nip: '' });
   const [newName, setNewName] = useState('');
   const [newPhone, setNewPhone] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newNip, setNewNip] = useState('');
 
-  // Nwe states for Booking modal form
   const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
   const [newBookingClientNip, setNewBookingClientNip] = useState('');
   const [newVehicleBrand, setNewVehicleBrand] = useState('');
@@ -53,14 +39,6 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   const [newClientNameForBooking, setNewClientNameForBooking] = useState('');
   const [newClientPhoneForBooking, setNewClientPhoneForBooking] = useState('');
   const [newClientEmailForBooking, setNewClientEmailForBooking] = useState('');
-
-  const fetchClients = useCallback(async () => {
-    try {
-      const cPromise = getClients(undefined, (c) => { setClients(c); setLoading(false); });
-      setClients(await cPromise);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
-  }, []);
-  useEffect(() => { fetchClients(); }, [fetchClients]);
 
   const filteredClients = useMemo(() => {
     const q = searchQuery.toLowerCase();
@@ -83,12 +61,20 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
 
   const handleUpdateClient = async (e: React.FormEvent) => {
     e.preventDefault();
-    try { await updateClient(editData.id, { name: editData.name, email: editData.email || null, phone: editData.phone || null, nip: editData.nip || null }); setSelectedClientForDetails(null); fetchClients(); } catch (e) { console.error(e); }
+    try {
+      await updateClientMutation.mutateAsync({ id: editData.id, dto: { name: editData.name, email: editData.email || null, phone: editData.phone || null, nip: editData.nip || null } });
+      setSelectedClientForDetails(null);
+    } catch (e) { console.error(e); }
   };
+
   const handleCreateClient = async (e: React.FormEvent) => {
     e.preventDefault();
-    try { await createClient({ name: newName, phone: newPhone || null, email: newEmail || null, nip: newNip || null }); setIsClientModalOpen(false); setNewName(''); setNewPhone(''); setNewEmail(''); setNewNip(''); fetchClients(); } catch (e) { console.error(e); }
+    try {
+      await createClientMutation.mutateAsync({ name: newName, phone: newPhone || null, email: newEmail || null, nip: newNip || null });
+      setIsClientModalOpen(false); setNewName(''); setNewPhone(''); setNewEmail(''); setNewNip('');
+    } catch (e) { console.error(e); }
   };
+
   const handleCreateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -100,7 +86,7 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
           alert('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.');
           return;
         }
-        const createdClient = await createClient({
+        const createdClient = await createClientMutation.mutateAsync({
           name: newClientNameForBooking,
           phone: newClientPhoneForBooking,
           email: newClientEmailForBooking || null,
@@ -112,6 +98,7 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
           clientId: finalClientId,
           licensePlate: newVehiclePlate,
           brand: newVehicleBrand || null,
+
           model: newVehicleModel || null,
         });
         finalVehicleId = createdVehicle.id;
@@ -132,14 +119,13 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
         notes: null
       });
       setIsBookingModalOpen(false);
-      fetchClients();
     } catch (e) {
       console.error(e);
       alert('Wystąpił błąd podczas tworzenia rezerwacji.');
     }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-12 h-12 border-4 border-[#102C26] border-t-transparent rounded-full animate-spin"></div></div>;
+  if (isLoading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-20">
