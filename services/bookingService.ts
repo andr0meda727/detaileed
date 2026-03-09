@@ -23,6 +23,14 @@ export async function updateBooking(id: string, dto: BookingCreateDto): Promise<
     return apiPut<BookingResponseDto>(`/Bookings/${id}`, dto);
 }
 
+export async function completeBooking(id: string): Promise<BookingResponseDto> {
+    return apiPost<BookingResponseDto>(`/Bookings/${id}/complete`, {});
+}
+
+export async function cancelBooking(id: string): Promise<BookingResponseDto> {
+    return apiPost<BookingResponseDto>(`/Bookings/${id}/cancel`, {});
+}
+
 export async function deleteBooking(id: string): Promise<void> {
     return apiDelete(`/Bookings/${id}`);
 }

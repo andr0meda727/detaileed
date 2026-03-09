@@ -10,14 +10,15 @@ import {
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { BookingResponseDto, InventoryResponseDto, ViewType, ClientResponseDto, VehicleInfoDto, BookingCreateDto, CreateClientDto, ServiceResponseDto } from '../../types';
 import { BOOKING_STATUSES } from '../../constants';
-import { getBookings } from '../../services/bookingService';
-import { createBooking } from '../../services/bookingService';
+import { getBookings, createBooking, updateBooking, completeBooking, cancelBooking } from '../../services/bookingService';
 import { getClients, createClient } from '../../services/clientService';
+import { createVehicle } from '../../services/vehicleService';
 import { getInventory } from '../../services/inventoryService';
 import { getServices, createService } from '../../services/serviceService';
 import GlobalHeader from '../../components/GlobalHeader';
 import DashboardStats from './components/DashboardStats';
 import RevenueChart from './components/RevenueChart';
+import { useToast } from '../../contexts/ToastContext';
 
 // Chart data is now computed dynamically from fetched bookings
 
@@ -32,8 +33,26 @@ const activityFeed = [
 const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ isOpen: boolean, onClose: () => void, title: string }>) => {
   if (!isOpen) return null;
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-[#102C26]/70 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-500 flex flex-col max-h-[95vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-[#102C26]/70 backdrop-blur-md transition-opacity duration-300">
+      {/* Use generic animation styles since tailwindcss-animate might not be configured */}
+      <style>{`
+        @keyframes custom-zoom-in {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes custom-fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-custom-zoom {
+          animation: custom-zoom-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-custom-fade {
+          animation: custom-fade-in 0.3s ease-out forwards;
+        }
+      `}</style>
+      <div className="fixed inset-0 animate-custom-fade" onClick={onClose}></div>
+      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl overflow-hidden animate-custom-zoom flex flex-col max-h-[95vh] relative z-10">
         <div className="p-6 sm:p-10 border-b border-slate-100 flex items-center justify-between shrink-0">
           <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#102C26] tracking-tighter leading-none">{title}</h3>
           <button onClick={onClose} className="p-2 sm:p-3 bg-slate-50 text-slate-400 rounded-xl sm:rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all">
@@ -48,6 +67,7 @@ const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ i
 };
 
 const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: () => void }> = ({ onNavigate, onOpenMenu }) => {
+  const { addToast } = useToast();
   const [bookings, setBookings] = useState<BookingResponseDto[]>([]);
   const [inventory, setInventory] = useState<InventoryResponseDto[]>([]);
   const [clients, setClients] = useState<ClientResponseDto[]>([]);
@@ -56,11 +76,14 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   const [revPeriod, setRevPeriod] = useState<'weekly' | 'monthly'>('weekly');
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
+  const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isEditingBooking, setIsEditingBooking] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<BookingResponseDto | null>(null);
-  const [confirmation, setConfirmation] = useState<{ id: string, type: string } | null>(null);
+  const [confirmation, setConfirmation] = useState<{ id: string, type: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES], booking: BookingResponseDto } | null>(null);
   const [clientSearch, setClientSearch] = useState('');
+  const [vehicleClientSearch, setVehicleClientSearch] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto, vehicle: VehicleInfoDto } | null>(null);
+  const [selectedClientForVehicle, setSelectedClientForVehicle] = useState<ClientResponseDto | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [customServiceInput, setCustomServiceInput] = useState('');
   const [priceInput, setPriceInput] = useState('0,00');
@@ -80,6 +103,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
   // Form mode
   const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
+  const [vehicleClientMode, setVehicleClientMode] = useState<'existing' | 'new'>('existing');
 
   const fetchData = useCallback(async () => {
     try {
@@ -133,6 +157,16 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
     return results.slice(0, 5);
   }, [clientSearch, clients]);
 
+  const filteredClientsOnlyResults = useMemo(() => {
+    if (!vehicleClientSearch.trim()) return [];
+    const query = vehicleClientSearch.toLowerCase();
+    return clients.filter(c =>
+      c.name.toLowerCase().includes(query) ||
+      (c.phone || '').toLowerCase().includes(query) ||
+      (c.email || '').toLowerCase().includes(query)
+    ).slice(0, 5);
+  }, [vehicleClientSearch, clients]);
+
   const toggleService = (id: string) => setSelectedServices(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const handleAddCustomService = async () => {
     const name = customServiceInput.trim();
@@ -144,8 +178,47 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       setCustomServiceInput('');
     } catch (err) {
       console.error('Failed to create service:', err);
-      alert('Wystąpił błąd podczas dodawania usługi.');
+      addToast('Wystąpił błąd podczas dodawania usługi.', 'error');
     }
+  };
+
+  const handleQuickUpdateStatus = async (booking: BookingResponseDto, targetStatus: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES]) => {
+    try {
+      if (targetStatus.id === BOOKING_STATUSES.ZAKONCZONA.id) {
+        await completeBooking(booking.id);
+      } else if (targetStatus.id === BOOKING_STATUSES.ANULOWANA.id) {
+        await cancelBooking(booking.id);
+      } else {
+        // Fallback or generic update for other statuses
+        const serviceIds = booking.services
+          .map(name => availableServices.find(s => s.name === name)?.id)
+          .filter((id): id is string => !!id);
+
+        const dto: BookingCreateDto = {
+          vehicleId: booking.vehicle.id,
+          clientId: booking.client.id,
+          scheduledAt: booking.scheduledAt,
+          statusId: targetStatus.id,
+          serviceIds: serviceIds,
+          price: booking.totalPrice ? booking.totalPrice / 100 : undefined,
+          notes: booking.notes,
+        };
+        await updateBooking(booking.id, dto);
+      }
+
+      addToast(`Status rezerwacji zmieniony na: ${targetStatus.name}`, 'success');
+      fetchData();
+    } catch (err) {
+      console.error('Failed to update booking status:', err);
+      addToast('Wystąpił błąd podczas zmiany statusu.', 'error');
+    } finally {
+      setConfirmation(null);
+    }
+  };
+
+  const confirmStatusUpdate = (e: React.MouseEvent, booking: BookingResponseDto, targetStatus: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES]) => {
+    e.stopPropagation();
+    setConfirmation({ id: booking.id, type: targetStatus, booking });
   };
 
   const handleOpenNewBooking = () => {
@@ -168,7 +241,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
   const handleAddNewClientForBooking = async () => {
     if (!newClientName || !newClientPhone || !newVehiclePlate) {
-      alert('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.');
+      addToast('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.', 'error');
       return;
     }
     try {
@@ -191,16 +264,17 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
       setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
       fetchData();
+      addToast('Dodano i wybrano nowego klienta.', 'success');
     } catch (err) {
       console.error('Failed to create client:', err);
-      alert('Wystąpił błąd podczas dodawania klienta.');
+      addToast('Wystąpił błąd podczas dodawania klienta.', 'error');
     }
   };
 
   const handleCreateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedVehicle) {
-      alert('Wybierz istniejącego klienta lub dodaj nowego.');
+      addToast('Wybierz istniejącego klienta lub dodaj nowego.', 'error');
       return;
     }
     try {
@@ -215,10 +289,11 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       };
       await createBooking(dto);
       setIsBookingModalOpen(false);
+      addToast('Rezerwacja została pomyślnie utworzona.', 'success');
       fetchData();
     } catch (err) {
       console.error('Failed to create booking:', err);
-      alert('Wystąpił błąd podczas tworzenia rezerwacji.');
+      addToast('Wystąpił błąd podczas tworzenia rezerwacji.', 'error');
     }
   };
 
@@ -234,10 +309,82 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       await createClient(dto);
       setIsClientModalOpen(false);
       setNewClientName(''); setNewClientPhone(''); setNewClientEmail('');
+      addToast('Karta klienta została utworzona.', 'success');
       fetchData();
     } catch (err) {
       console.error('Failed to create client:', err);
+      addToast('Wystąpił błąd podczas tworzenia klienta.', 'error');
     }
+  };
+
+  const handleAddNewVehicleToExisting = async () => {
+    if (!newVehiclePlate) {
+      addToast('Numer Rejestracyjny jest wymagany.', 'error');
+      return;
+    }
+    if (!selectedClientForVehicle) {
+      addToast('Wybierz istniejącego klienta lub dodaj nowego.', 'error');
+      return;
+    }
+    try {
+      await createVehicle({
+        clientId: selectedClientForVehicle.id,
+        licensePlate: newVehiclePlate,
+        brand: newVehicleBrand || null,
+        model: newVehicleModel || null
+      });
+      addToast('Nowy pojazd został pomyślnie dodany do klienta.', 'success');
+
+      setIsVehicleModalOpen(false);
+      setVehicleClientMode('existing');
+      setSelectedClientForVehicle(null);
+      setVehicleClientSearch('');
+      setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+      fetchData();
+    } catch (err) {
+      console.error('Failed to create vehicle:', err);
+      addToast('Wystąpił błąd podczas dodawania pojazdu.', 'error');
+    }
+  };
+
+  const handleCreateClientWithVehicle = async () => {
+    if (!newClientName || !newClientPhone || !newVehiclePlate) {
+      addToast('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.', 'error');
+      return;
+    }
+    try {
+      await createClient({
+        name: newClientName,
+        phone: newClientPhone,
+        email: newClientEmail || null,
+        nip: newBookingClientNip || null,
+        vehicle: {
+          licensePlate: newVehiclePlate,
+          brand: newVehicleBrand || null,
+          model: newVehicleModel || null,
+        },
+      });
+      addToast('Dodano nowego klienta wraz z pojazdem.', 'success');
+
+      // Close modal and reset state as the goal (adding a vehicle) is achieved by creating the new client & vehicle
+      setIsVehicleModalOpen(false);
+      setVehicleClientMode('existing');
+      setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
+      setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+      fetchData();
+    } catch (err) {
+      console.error('Failed to create client with vehicle:', err);
+      addToast('Wystąpił błąd podczas tworzenia klienta.', 'error');
+    }
+  };
+
+  const handleOpenNewVehicle = () => {
+    setVehicleClientMode('existing');
+    setSelectedClientForVehicle(null);
+    setVehicleClientSearch('');
+    setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
+    setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+    setIsVehicleModalOpen(true);
   };
 
   const formatBookingTime = (iso: string) => new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
@@ -310,7 +457,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <GlobalHeader title="Panel" subtitle="Studio OS DetailFlow" onAddBooking={handleOpenNewBooking} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
 
       {/* Greeting Banner */}
@@ -332,11 +479,11 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       </div>
 
       {/* KPI Cards */}
-      <DashboardStats 
-        todayRevenue={todayRevenue} 
-        activeCount={activeCount} 
-        clientsCount={clients.length} 
-        completedCount={completedCount} 
+      <DashboardStats
+        todayRevenue={todayRevenue}
+        activeCount={activeCount}
+        clientsCount={clients.length}
+        completedCount={completedCount}
         todayBookingsCount={todayBookings.length}
       />
 
@@ -378,6 +525,24 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                       <p className="text-[13px] font-bold text-[#5A8A7A] mt-1.5"><UserCheck size={11} className="inline mr-1" />{booking.client.name}</p>
                     </div>
                     <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                      {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
+                        <>
+                          <button
+                            onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA)}
+                            title="Szybko Zakończ"
+                            className="w-10 h-10 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all hover:scale-105 active:scale-95 border border-emerald-100"
+                          >
+                            <Check size={18} strokeWidth={2.5} />
+                          </button>
+                          <button
+                            onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA)}
+                            title="Anuluj"
+                            className="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-all hover:scale-105 active:scale-95 border border-red-100"
+                          >
+                            <X size={18} strokeWidth={2.5} />
+                          </button>
+                        </>
+                      )}
                       <div className="bg-[#102C26] text-[#F7E7CE] px-4 py-2 rounded-xl font-mono text-[16px] font-semibold tracking-widest uppercase">{booking.vehicle.licensePlate}</div>
                     </div>
                   </div>
@@ -416,6 +581,24 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                     <div className="text-right shrink-0">
                       <p className="text-lg font-extrabold text-[#102C26] font-mono">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}</p>
                       <p className="text-[8px] font-semibold text-slate-400 uppercase">PLN</p>
+                      {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
+                        <div className="flex gap-1.5 justify-end mt-1.5">
+                          <button
+                            onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA)}
+                            title="Szybko Zakończ"
+                            className="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-all border border-emerald-100"
+                          >
+                            <Check size={14} strokeWidth={2.5} />
+                          </button>
+                          <button
+                            onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA)}
+                            title="Anuluj"
+                            className="w-7 h-7 flex items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-all border border-red-100"
+                          >
+                            <X size={14} strokeWidth={2.5} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -435,6 +618,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               {[
                 { label: 'Rezerwacja', icon: Calendar, action: handleOpenNewBooking, color: 'bg-[#F7E7CE]/20 text-[#102C26] hover:bg-[#F7E7CE]/40' },
                 { label: 'Nowy Klient', icon: User, action: () => setIsClientModalOpen(true), color: 'bg-blue-50 text-blue-600 hover:bg-blue-100' },
+                { label: 'Nowy Pojazd', icon: CarIcon, action: handleOpenNewVehicle, color: 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' },
                 { label: 'Magazyn', icon: Package, action: () => onNavigate?.('Inventory'), color: 'bg-amber-50 text-amber-600 hover:bg-amber-100' },
               ].map((qa, i) => (
                 <button key={i} onClick={qa.action} className={`${qa.color} p-4 rounded-2xl flex flex-col items-center gap-2.5 transition-all active:scale-95`}>
@@ -498,12 +682,16 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       <Modal isOpen={!!confirmation} onClose={() => setConfirmation(null)} title="Zmień Status">
         <div className="space-y-8">
           <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-[2.5rem]">
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${confirmation?.type === 'Ukończona' ? 'bg-[#F7E7CE]/20 text-[#102C26]' : 'bg-red-50 text-red-500'}`}><AlertCircle size={32} /></div>
-            <div><p className="text-lg font-bold text-[#102C26] leading-tight">{confirmation?.type === 'Ukończona' ? 'Zakończyć to zlecenie?' : 'Anulować tę rezerwację?'}</p></div>
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-[#F7E7CE]/20 text-[#102C26]' : 'bg-red-50 text-red-500'}`}><AlertCircle size={32} /></div>
+            <div>
+              <p className="text-lg font-bold text-[#102C26] leading-tight mb-2">{confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'Zakończyć to zlecenie?' : 'Anulować tę rezerwację?'}</p>
+              <p className="text-sm text-slate-500 font-semibold">{confirmation?.booking.vehicle.brand} {confirmation?.booking.vehicle.model}</p>
+              <p className="text-xs text-slate-400 font-mono mt-1">{confirmation?.booking.vehicle.licensePlate}</p>
+            </div>
           </div>
           <div className="flex gap-4">
-            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-2xl font-semibold text-[10px] uppercase tracking-widest">Wróć</button>
-            <button onClick={() => setConfirmation(null)} className={`flex-1 py-5 rounded-2xl font-semibold text-[10px] uppercase tracking-widest text-white shadow-xl ${confirmation?.type === 'Ukończona' ? 'bg-[#102C26] text-[#F7E7CE]' : 'bg-red-500'}`}>Tak</button>
+            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">Wróć</button>
+            <button onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)} className={`flex-1 py-5 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-[#102C26] text-[#F7E7CE]' : 'bg-red-500'}`}>Tak, kontynuuj</button>
           </div>
         </div>
       </Modal>
@@ -519,6 +707,77 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           </div>
           <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl">Załóż Kartę Klienta</button>
         </form>
+      </Modal>
+
+      <Modal isOpen={isVehicleModalOpen} onClose={() => setIsVehicleModalOpen(false)} title="Dodaj Nowy Pojazd">
+        <div className="space-y-8 pb-10">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between ml-4 mb-2">
+              <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest">Właściciel</label>
+              <div className="flex bg-slate-50 p-1 rounded-xl">
+                <button type="button" onClick={() => setVehicleClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${vehicleClientMode === 'existing' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Znajdź Właściciela</button>
+                <button type="button" onClick={() => setVehicleClientMode('new')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${vehicleClientMode === 'new' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Nowy Klient</button>
+              </div>
+            </div>
+
+            {vehicleClientMode === 'existing' ? (
+              <>
+                <div className="relative">
+                  <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input type="text" placeholder="Szukaj klienta po nazwie lub kontakcie..." value={vehicleClientSearch} onChange={e => setVehicleClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none focus:ring-4 focus:ring-[#F7E7CE]/30" />
+                </div>
+                {vehicleClientSearch.trim() && filteredClientsOnlyResults.map(client => (
+                  <button key={client.id} type="button" onClick={() => { setSelectedClientForVehicle(client); setVehicleClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-[#F7E7CE] transition-all">
+                    <div className="text-left"><h5 className="font-semibold text-[#102C26] text-sm">{client.name}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{client.phone || client.email || 'Brak danych kontaktowych'}</p></div>
+                  </button>
+                ))}
+                {selectedClientForVehicle && (
+                  <div className="p-6 bg-[#F7E7CE]/20 border-2 border-[#F7E7CE]/50 rounded-[1.5rem] flex items-center gap-4">
+                    <User size={24} className="text-[#5A8A7A]" />
+                    <div><h5 className="font-semibold text-[#102C26] text-sm">{selectedClientForVehicle.name}</h5><p className="text-[9px] font-semibold text-[#5A8A7A] uppercase tracking-widest">{selectedClientForVehicle.phone || selectedClientForVehicle.email}</p></div>
+                  </div>
+                )}
+
+                <div className="space-y-4 pt-4">
+                  <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest ml-4">Nowy Pojazd</label>
+                  <div className="space-y-3 bg-slate-50 p-6 rounded-[1.5rem] border border-slate-100">
+                    <div className="grid grid-cols-2 gap-3">
+                      <input type="text" placeholder="Marka (opcjonalnie)" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                      <input type="text" placeholder="Model (opcjonalnie)" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                    </div>
+                    <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50 uppercase" />
+                  </div>
+                </div>
+                <button type="button" onClick={handleAddNewVehicleToExisting} className="w-full mt-8 py-6 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                  <Save size={18} /> Zapisz Pojazd
+                </button>
+              </>
+            ) : (
+              <div className="space-y-4 bg-slate-50 p-6 rounded-[1.5rem] mt-2 border border-slate-100">
+                <div className="space-y-3">
+                  <h5 className="font-semibold text-[#102C26] text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
+                  <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} required className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input type="tel" placeholder="Telefon *" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} required className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                    <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                  </div>
+                  <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                </div>
+                <div className="space-y-3 pt-4 border-t border-slate-200">
+                  <h5 className="font-semibold text-[#102C26] text-xs uppercase tracking-widest mb-3">Pojazd Klienta</h5>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input type="text" placeholder="Marka (opcjonalnie)" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                    <input type="text" placeholder="Model (opcjonalnie)" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                  </div>
+                  <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} required className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50 uppercase" />
+                </div>
+                <button type="button" onClick={handleCreateClientWithVehicle} className="w-full py-4 bg-[#102C26] text-[#F7E7CE] rounded-xl font-semibold text-[10px] uppercase tracking-wider">
+                  Utwórz Klienta i Pojazd
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </Modal>
 
       <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title={isEditingBooking ? (selectedBooking ? 'Edytuj' : 'Nowa Rezerwacja') : 'Detale Zlecenia'}>
@@ -557,8 +816,13 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-3xl font-extrabold text-[#102C26] font-mono leading-none tracking-tighter">{((selectedBooking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}</p>
-                <p className="text-[9px] font-semibold text-[#5A8A7A] uppercase mt-1 tracking-widest">PLN Netto</p>
+                <div className={`inline-block px-3 py-1.5 rounded-xl border mb-2 font-semibold text-[10px] uppercase tracking-widest`} style={{ color: selectedBooking.statusColor || '#102C26', backgroundColor: (selectedBooking.statusColor || '#F7E7CE') + '15', borderColor: (selectedBooking.statusColor || '#F7E7CE') + '30' }}>
+                  {selectedBooking.status}
+                </div>
+                <div className="flex flex-col items-end">
+                  <p className="text-3xl font-extrabold text-[#102C26] font-mono leading-none tracking-tighter">{((selectedBooking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}</p>
+                  <p className="text-[9px] font-semibold text-[#5A8A7A] uppercase mt-1 tracking-widest">PLN Netto</p>
+                </div>
               </div>
             </div>
             <div className="space-y-4">
@@ -577,7 +841,16 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               </div>
             )}
             <div className="flex gap-4 pt-6">
-              <button onClick={() => setIsBookingModalOpen(false)} className="flex-1 py-5 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Zamknij</button>
+              {selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name && (
+                <>
+                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><Check size={16} strokeWidth={2.5} /> Zakończ</button>
+                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><X size={16} strokeWidth={2.5} /> Anuluj</button>
+                </>
+              )}
+              <button
+                onClick={() => setIsBookingModalOpen(false)}
+                className={`py-5 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
+              >Zamknij</button>
             </div>
           </div>
         ) : (

@@ -20,6 +20,7 @@ import TasksView from './views/tasks/TasksView';
 import { ViewType, StudioDto } from './types';
 import supabase from './utils/supabase';
 import { StudioProvider, useStudio } from './contexts/StudioContext';
+import { ToastProvider } from './contexts/ToastContext';
 
 const AppInner: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -27,13 +28,13 @@ const AppInner: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeView, setActiveView] = useState<ViewType>('Dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
+
   // Pobieramy synchronicznie przed ucięciem go przez auth object
   const [isSettingPassword, setIsSettingPassword] = useState(() => {
     const hash = window.location.hash;
     return Boolean(hash && (hash.includes('type=invite') || hash.includes('type=recovery') || hash.includes('type=signup')));
   });
-  
+
   const [invitationToken, setInvitationToken] = useState<string | null>(null);
   const [forceLogin, setForceLogin] = useState(false);
 
@@ -123,7 +124,7 @@ const AppInner: React.FC = () => {
     return (
       <div className="relative">
         <div className="absolute top-4 left-4 z-50">
-           <button onClick={() => setForceLogin(false)} className="px-5 py-2 bg-white text-slate-500 rounded-xl shadow-sm text-xs font-bold uppercase tracking-widest hover:text-[#102C26] transition-all">Powrót do zaproszenia</button>
+          <button onClick={() => setForceLogin(false)} className="px-5 py-2 bg-white text-slate-500 rounded-xl shadow-sm text-xs font-bold uppercase tracking-widest hover:text-[#102C26] transition-all">Powrót do zaproszenia</button>
         </div>
         <LoginView onLogin={handleLogin} />
       </div>
@@ -178,9 +179,11 @@ const queryClient = new QueryClient({
 
 const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
-    <StudioProvider>
-      <AppInner />
-    </StudioProvider>
+    <ToastProvider>
+      <StudioProvider>
+        <AppInner />
+      </StudioProvider>
+    </ToastProvider>
   </QueryClientProvider>
 );
 
