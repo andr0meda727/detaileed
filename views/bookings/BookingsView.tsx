@@ -30,6 +30,7 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
   // Form states
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [clientSearch, setClientSearch] = useState('');
+  const [listSearchQuery, setListSearchQuery] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto, vehicle: VehicleInfoDto } | null>(null);
   const [priceInput, setPriceInput] = useState('0,00');
   const [formDate, setFormDate] = useState(new Date().toISOString().split('T')[0]);
@@ -43,7 +44,7 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
 
   // New vehicle form state
   const [newVehicleBrand, setNewVehicleBrand] = useState('');
-  
+
   const formatTime = (iso: string) => {
     return new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
   };
@@ -83,6 +84,18 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
     });
     return results.slice(0, 5);
   }, [clientSearch, clients]);
+
+  const filteredListBookings = useMemo(() => {
+    if (!listSearchQuery.trim()) return bookings;
+    const q = listSearchQuery.toLowerCase();
+    return bookings.filter(b =>
+      b.services.join(' ').toLowerCase().includes(q) ||
+      b.client.name.toLowerCase().includes(q) ||
+      (b.vehicle.brand || '').toLowerCase().includes(q) ||
+      (b.vehicle.model || '').toLowerCase().includes(q) ||
+      b.vehicle.licensePlate.toLowerCase().includes(q)
+    );
+  }, [bookings, listSearchQuery]);
 
   const handleOpenNewBooking = () => {
     setSelectedBooking(null); setSelectedServices([]); setSelectedVehicle(null); setClientSearch('');
@@ -193,10 +206,29 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
       </div>
 
       {activeTab === 'list' ? (
-        <BookingList bookings={bookings} onBookingClick={handleBookingClick} />
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#F7E7CE]/20 blur-[40px] rounded-full -mr-10 -mt-10 pointer-events-none"></div>
+            <div className="relative z-10">
+              <h3 className="text-2xl font-semibold text-[#102C26] tracking-tighter">Wyszukiwarka</h3>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Szybkie wyszukiwanie ({filteredListBookings.length})</p>
+            </div>
+            <div className="relative w-full md:w-[400px] z-10">
+              <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400"><Search size={20} /></div>
+              <input
+                type="text"
+                placeholder="Tablica, klient, model..."
+                value={listSearchQuery}
+                onChange={e => setListSearchQuery(e.target.value)}
+                className="w-full pl-14 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:bg-white focus:ring-4 focus:ring-[#F7E7CE]/20 focus:border-[#F7E7CE] transition-all"
+              />
+            </div>
+          </div>
+          <BookingList bookings={filteredListBookings} onBookingClick={handleBookingClick} />
+        </div>
       ) : (
-        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8">
-          <BookingCalendar 
+        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <BookingCalendar
             currentMonth={currentMonth}
             selectedDate={selectedDate}
             bookings={bookings}
@@ -207,7 +239,7 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
             <div className="bg-[#102C26] rounded-[2rem] p-5 lg:p-6 border border-white/5 flex items-center justify-between">
               <div>
                 <p className="text-[9px] font-semibold text-[#F7E7CE] uppercase tracking-widest mb-1">Wybrana Data</p>
-                <h4 className="text-lg lg:text-xl font-extrabold text-white tracking-tighter capitalize">{new Date(selectedDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}</h4>
+                <h4 className="text-lg lg:text-xl font-semibold text-white tracking-tighter capitalize">{new Date(selectedDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}</h4>
               </div>
               <Calendar size={20} className="text-white/10" />
             </div>

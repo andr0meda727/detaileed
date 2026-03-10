@@ -517,7 +517,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                     className="p-5 sm:p-6 bg-[#FDF8F0] rounded-[2.5rem] border border-[#F7E7CE]/30 flex flex-col sm:flex-row items-stretch sm:items-center gap-5 sm:gap-8 hover:bg-white hover:shadow-lg transition-all cursor-pointer group">
                     <div className="flex items-center justify-between sm:flex-col sm:justify-center sm:min-w-[100px] sm:border-r border-slate-200 sm:pr-8 shrink-0">
                       <span className="text-2xl font-extrabold text-[#102C26] font-mono">{time}</span>
-                      <span className={`text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1 rounded-lg`} style={{ color: booking.statusColor || '#102C26', backgroundColor: (booking.statusColor || '#F7E7CE') + '20' }}>{booking.status}</span>
+                      <span className={`text-[11px] font-bold uppercase tracking-widest px-4 py-2 rounded-2xl border-2 mt-2`} style={{ color: booking.statusColor || '#102C26', borderColor: (booking.statusColor || '#102C26') + '40', backgroundColor: (booking.statusColor || '#102C26') + '15' }}>{booking.status}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <h5 className="text-xl font-bold text-[#102C26] truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
@@ -816,7 +816,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 </div>
               </div>
               <div className="text-right">
-                <div className={`inline-block px-3 py-1.5 rounded-xl border mb-2 font-semibold text-[10px] uppercase tracking-widest`} style={{ color: selectedBooking.statusColor || '#102C26', backgroundColor: (selectedBooking.statusColor || '#F7E7CE') + '15', borderColor: (selectedBooking.statusColor || '#F7E7CE') + '30' }}>
+                <div className={`inline-block px-5 py-2.5 rounded-2xl border-2 mb-2 font-bold text-[11px] uppercase tracking-widest`} style={{ color: selectedBooking.statusColor || '#102C26', backgroundColor: (selectedBooking.statusColor || '#102C26') + '15', borderColor: (selectedBooking.statusColor || '#102C26') + '40' }}>
                   {selectedBooking.status}
                 </div>
                 <div className="flex flex-col items-end">

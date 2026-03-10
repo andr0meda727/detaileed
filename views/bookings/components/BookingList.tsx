@@ -13,12 +13,13 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onBookingClick }) =
     return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
   };
 
-  const renderBookingCard = (booking: BookingResponseDto) => {
+  const renderBookingCard = (booking: BookingResponseDto, index: number = 0) => {
     return (
-      <div 
-        key={booking.id} 
-        onClick={() => onBookingClick(booking)} 
-        className="bg-white rounded-[2rem] border border-slate-100 hover:shadow-xl transition-all flex flex-col sm:flex-row items-stretch cursor-pointer p-4 gap-4"
+      <div
+        key={booking.id}
+        onClick={() => onBookingClick(booking)}
+        className="bg-white rounded-[2rem] border border-slate-100 hover:shadow-xl transition-all flex flex-col sm:flex-row items-stretch cursor-pointer p-4 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+        style={{ animationDelay: `${index * 50}ms` }}
       >
         <div className="w-24 sm:border-r border-slate-100 flex flex-col items-center justify-center shrink-0">
           <span className="text-2xl font-extrabold text-[#102C26] font-mono">{formatTime(booking.scheduledAt)}</span>
@@ -33,7 +34,7 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onBookingClick }) =
         </div>
         <div className="flex flex-col items-end justify-center shrink-0">
           <p className="text-xl font-extrabold text-[#102C26] font-mono leading-none">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')} PLN</p>
-          <span className="text-[9px] font-semibold uppercase mt-1" style={{ color: booking.statusColor || '#102C26' }}>{booking.status}</span>
+          <span className="px-3 py-1.5 rounded-xl border-2 text-[10px] font-bold uppercase tracking-widest mt-2" style={{ color: booking.statusColor || '#102C26', borderColor: (booking.statusColor || '#102C26') + '40', backgroundColor: (booking.statusColor || '#102C26') + '15' }}>{booking.status}</span>
         </div>
       </div>
     );
@@ -42,7 +43,7 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onBookingClick }) =
   return (
     <div className="space-y-4">
       {bookings.length > 0 ? (
-        bookings.map(renderBookingCard)
+        bookings.map((b, i) => renderBookingCard(b, i))
       ) : (
         <div className="p-10 lg:p-16 text-center bg-white border border-slate-100 rounded-[2rem]">
           <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak rezerwacji</p>

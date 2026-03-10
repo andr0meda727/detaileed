@@ -1,9 +1,12 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { CheckCircle2, X, Clock, Car as CarIcon, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight, LayoutList, Search, CalendarDays, Hash } from 'lucide-react';
-import { BookingResponseDto } from '../../types';
-import { getBookings } from '../../services/bookingService';
+import { CheckCircle2, X, Clock, Car as CarIcon, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight, LayoutList, Search, CalendarDays, Hash, Phone, MessageSquare, AlertCircle, Check } from 'lucide-react';
+import { BookingResponseDto, BookingCreateDto } from '../../types';
+import { BOOKING_STATUSES } from '../../constants';
+import { getBookings, completeBooking, cancelBooking, updateBooking } from '../../services/bookingService';
 import GlobalHeader from '../../components/GlobalHeader';
+import Modal from '../../components/Modal';
+import { useToast } from '../../contexts/ToastContext';
 
 const TasksView: React.FC = () => {
   const [bookings, setBookings] = useState<BookingResponseDto[]>([]);
@@ -12,13 +15,47 @@ const TasksView: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
+  const [inProgressSearchQuery, setInProgressSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'UTWORZONA' | 'ZAKONCZONA' | 'ANULOWANA'>('all');
+
+  const { addToast } = useToast();
+  const [selectedBooking, setSelectedBooking] = useState<BookingResponseDto | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [confirmation, setConfirmation] = useState<{ id: string, type: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES], booking: BookingResponseDto } | null>(null);
 
   const fetchData = useCallback(async () => {
-    try { setLoading(true); setBookings(await getBookings({ isCompleted: false })); } catch (e) { console.error(e); } finally { setLoading(false); }
+    try { setLoading(true); setBookings(await getBookings()); } catch (e) { console.error(e); } finally { setLoading(false); }
   }, []);
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const inProgressBookings = useMemo(() => bookings.sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)), [bookings]);
+  const inProgressBookings = useMemo(() => {
+    let filtered = bookings;
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(b => b.status === BOOKING_STATUSES[filterStatus]?.name);
+    }
+    if (inProgressSearchQuery.trim()) {
+      const q = inProgressSearchQuery.toLowerCase();
+      filtered = filtered.filter(b =>
+        b.services.join(' ').toLowerCase().includes(q) ||
+        b.client.name.toLowerCase().includes(q) ||
+        (b.vehicle.brand || '').toLowerCase().includes(q) ||
+        (b.vehicle.model || '').toLowerCase().includes(q) ||
+        b.vehicle.licensePlate.toLowerCase().includes(q)
+      );
+    }
+    return filtered.sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
+  }, [bookings, filterStatus, inProgressSearchQuery]);
+  const groupedInProgressBookings = useMemo(() => {
+    const grouped = inProgressBookings.reduce((acc, booking) => {
+      const date = booking.scheduledAt.split('T')[0];
+      if (!acc[date]) acc[date] = [];
+      acc[date].push(booking);
+      return acc;
+    }, {} as Record<string, BookingResponseDto[]>);
+    return Object.entries(grouped)
+      .map(([date, bks]) => ({ date, bookings: bks }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }, [inProgressBookings]);
   const selectedDayBookings = useMemo(() => bookings.filter(b => b.scheduledAt.startsWith(selectedDate)).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)), [bookings, selectedDate]);
 
   const globalSearchResults = useMemo(() => {
@@ -37,8 +74,46 @@ const TasksView: React.FC = () => {
   const formatTime = (iso: string) => new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
   const formatDateShort = (iso: string) => { const d = new Date(iso); return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`; };
 
-  const renderBookingCard = (booking: BookingResponseDto) => (
-    <div key={booking.id} className="bg-white rounded-[2rem] border border-slate-100 hover:shadow-xl transition-all group overflow-hidden flex flex-col sm:flex-row items-stretch sm:items-center">
+  const handleViewBooking = (booking: BookingResponseDto) => {
+    setSelectedBooking(booking);
+    setIsBookingModalOpen(true);
+  };
+
+  const handleQuickUpdateStatus = async (booking: BookingResponseDto, targetStatus: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES]) => {
+    try {
+      if (targetStatus.id === BOOKING_STATUSES.ZAKONCZONA.id) {
+        await completeBooking(booking.id);
+      } else if (targetStatus.id === BOOKING_STATUSES.ANULOWANA.id) {
+        await cancelBooking(booking.id);
+      } else {
+        const dto: BookingCreateDto = {
+          vehicleId: booking.vehicle.id,
+          clientId: booking.client.id,
+          scheduledAt: booking.scheduledAt,
+          statusId: targetStatus.id,
+          serviceIds: [], // We don't have availableServices easily here, but usually for just status we might not need it if backend allows partial update or ignores it if not changed. Wait, backend might require it. Better to just use complete/cancel for now as requested.
+        };
+        // If we really need to update status to something else, we might need availableServices. 
+        // For now, let's keep it simple as dashboard mostly uses complete/cancel quick actions.
+      }
+
+      addToast(`Status rezerwacji zmieniony na: ${targetStatus.name}`, 'success');
+      fetchData();
+    } catch (err) {
+      console.error('Failed to update booking status:', err);
+      addToast('Wystąpił błąd podczas zmiany statusu.', 'error');
+    } finally {
+      setConfirmation(null);
+    }
+  };
+
+  const confirmStatusUpdate = (e: React.MouseEvent, booking: BookingResponseDto, targetStatus: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES]) => {
+    e.stopPropagation();
+    setConfirmation({ id: booking.id, type: targetStatus, booking });
+  };
+
+  const renderBookingCard = (booking: BookingResponseDto, index: number = 0) => (
+    <div key={booking.id} onClick={() => handleViewBooking(booking)} className="bg-white rounded-[2rem] border border-slate-100 hover:shadow-xl transition-all group overflow-hidden flex flex-col sm:flex-row items-stretch sm:items-center cursor-pointer animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both" style={{ animationDelay: `${index * 50}ms` }}>
       <div className="bg-[#f8f9fa] sm:bg-transparent sm:border-r border-slate-100 p-6 flex flex-col items-center justify-center min-w-[120px]">
         <span className="text-3xl font-extrabold text-[#102C26] tracking-tighter leading-none">{formatDateShort(booking.scheduledAt)}</span>
         <span className="text-[10px] font-semibold text-slate-400 font-mono tracking-widest mt-2">{formatTime(booking.scheduledAt)}</span>
@@ -54,7 +129,7 @@ const TasksView: React.FC = () => {
         </div>
       </div>
       <div className="p-6 flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 border-slate-50 bg-[#fafafa] sm:bg-transparent">
-        <span className="px-4 py-2 rounded-full text-[9px] font-semibold uppercase tracking-widest border shrink-0" style={{ color: booking.statusColor || '#102C26', borderColor: (booking.statusColor || '#102C26') + '30', backgroundColor: (booking.statusColor || '#102C26') + '10' }}>{booking.status}</span>
+        <span className="px-5 py-2.5 rounded-2xl text-[11px] font-bold uppercase tracking-widest border-2 shrink-0" style={{ color: booking.statusColor || '#102C26', borderColor: (booking.statusColor || '#102C26') + '40', backgroundColor: (booking.statusColor || '#102C26') + '15' }}>{booking.status}</span>
       </div>
     </div>
   );
@@ -71,12 +146,49 @@ const TasksView: React.FC = () => {
       </div>
 
       {activeTab === 'in-progress' ? (
-        <div className="space-y-4">
-          {inProgressBookings.length > 0 ? inProgressBookings.map(b => renderBookingCard(b)) : (
+        <div className="space-y-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+            <div className="flex flex-wrap gap-2">
+              {([
+                { id: 'all', label: 'Wszystkie' },
+                { id: 'UTWORZONA', label: 'W toku' },
+                { id: 'ZAKONCZONA', label: 'Ukończone' },
+                { id: 'ANULOWANA', label: 'Anulowane' }
+              ] as const).map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setFilterStatus(f.id)}
+                  className={`px-4 py-2 rounded-[1rem] text-[10px] font-bold uppercase tracking-widest transition-all ${filterStatus === f.id ? 'bg-[#102C26] text-[#F7E7CE] shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:border-[#102C26]/20'}`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            <div className="relative w-full md:w-[300px]">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Search size={16} /></div>
+              <input
+                type="text"
+                placeholder="Szukaj zlecenia..."
+                value={inProgressSearchQuery}
+                onChange={e => setInProgressSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-[1rem] font-semibold text-xs outline-none focus:ring-2 focus:ring-[#F7E7CE]/50 focus:border-[#F7E7CE] transition-all"
+              />
+            </div>
+          </div>
+          {groupedInProgressBookings.length > 0 ? groupedInProgressBookings.map(group => (
+            <div key={group.date} className="space-y-4">
+              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest pl-2 border-b border-slate-100 pb-2 mb-4">
+                {new Date(group.date).toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </h3>
+              <div className="space-y-4">
+                {group.bookings.map((b, idx) => renderBookingCard(b, idx))}
+              </div>
+            </div>
+          )) : (
             <div className="bg-white rounded-[3rem] p-24 text-center border-2 border-dashed border-slate-100">
               <div className="w-20 h-20 bg-[#F7E7CE]/20 text-[#102C26] rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={36} /></div>
-              <h3 className="text-2xl font-semibold text-[#102C26] tracking-tighter">Brak aktywnych zleceĹ„</h3>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Wszystkie rezerwacje zostaĹ‚y ukoĹ„czone.</p>
+              <h3 className="text-2xl font-semibold text-[#102C26] tracking-tighter">Brak zleceń</h3>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Brak przypisanych rezerwacji.</p>
             </div>
           )}
         </div>
@@ -109,7 +221,7 @@ const TasksView: React.FC = () => {
                 <CalendarIcon size={32} className="text-white/10 shrink-0" />
               </div>
               <div className="grid grid-cols-1 gap-4">
-                {selectedDayBookings.length > 0 ? selectedDayBookings.map(b => renderBookingCard(b)) : (<div className="bg-[#f8f9fa] rounded-[3rem] p-16 text-center border-2 border-dashed border-slate-200"><p className="text-slate-400 text-xs font-semibold uppercase tracking-widest">Brak rezerwacji w tym dniu</p></div>)}
+                {selectedDayBookings.length > 0 ? selectedDayBookings.map((b, idx) => renderBookingCard(b, idx)) : (<div className="bg-[#f8f9fa] rounded-[3rem] p-16 text-center border-2 border-dashed border-slate-200"><p className="text-slate-400 text-xs font-semibold uppercase tracking-widest">Brak rezerwacji w tym dniu</p></div>)}
               </div>
             </div>
           </div>
@@ -125,12 +237,108 @@ const TasksView: React.FC = () => {
                   <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Wyniki dla: "{searchQuery}"</span>
                   <span className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest">Znaleziono: {globalSearchResults.length}</span>
                 </div>
-                <div className="grid grid-cols-1 gap-4">{globalSearchResults.length > 0 ? globalSearchResults.map(b => renderBookingCard(b)) : (<div className="py-12 text-center text-slate-300 font-semibold uppercase text-xs tracking-widest">Nie znaleziono</div>)}</div>
+                <div className="grid grid-cols-1 gap-4">{globalSearchResults.length > 0 ? globalSearchResults.map((b, idx) => renderBookingCard(b, idx)) : (<div className="py-12 text-center text-slate-300 font-semibold uppercase text-xs tracking-widest">Nie znaleziono</div>)}</div>
               </div>
             )}
           </div>
         </div>
       )}
+
+      {/* Booking Details Modal */}
+      <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title="Detale Zlecenia">
+        {selectedBooking && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="p-8 bg-[#102C26] rounded-[2.5rem] border border-white/5 relative overflow-hidden">
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-[#F7E7CE]"><User size={24} /></div>
+                    <div>
+                      <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest">Klient</p>
+                      <h4 className="text-xl font-normal text-white tracking-tighter">{selectedBooking.client.name}</h4>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    {selectedBooking.client.phone && (
+                      <a href={`tel:${selectedBooking.client.phone}`} className="flex items-center gap-2 text-[#F7E7CE] hover:text-white transition-colors">
+                        <Phone size={14} /><span className="text-sm font-semibold font-mono">{selectedBooking.client.phone}</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  {selectedBooking.client.phone && <a href={`tel:${selectedBooking.client.phone}`} className="w-12 h-12 bg-[#F7E7CE] text-[#102C26] rounded-xl flex items-center justify-center active:scale-90 transition-transform"><Phone size={20} /></a>}
+                  {selectedBooking.client.phone && <a href={`sms:${selectedBooking.client.phone}`} className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center active:scale-90 transition-transform"><MessageSquare size={20} /></a>}
+                </div>
+              </div>
+            </div>
+            <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-[#5A8A7A] shadow-sm"><Clock size={28} /></div>
+                <div>
+                  <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Termin</p>
+                  <p className="text-lg font-bold text-[#102C26]">{new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} • {formatTime(selectedBooking.scheduledAt)}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className={`inline-block px-3 py-1.5 rounded-xl border mb-2 font-semibold text-[10px] uppercase tracking-widest`} style={{ color: selectedBooking.statusColor || '#102C26', backgroundColor: (selectedBooking.statusColor || '#F7E7CE') + '15', borderColor: (selectedBooking.statusColor || '#F7E7CE') + '30' }}>
+                  {selectedBooking.status}
+                </div>
+                <div className="flex flex-col items-end">
+                  <p className="text-3xl font-extrabold text-[#102C26] font-mono leading-none tracking-tighter">{((selectedBooking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}</p>
+                  <p className="text-[9px] font-semibold text-[#5A8A7A] uppercase mt-1 tracking-widest">PLN Netto</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <p className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-[0.4em] ml-4">Zakres Prac</p>
+              <div className="flex flex-wrap gap-2">
+                {selectedBooking.services.map(s => (
+                  <span key={s} className="px-5 py-3 bg-[#102C26] text-[#F7E7CE] rounded-xl text-[12px] font-semibold uppercase tracking-widest shadow-md">{s}</span>
+                ))}
+                {selectedBooking.services.length === 0 && <span className="text-sm text-slate-400">Brak przypisanych usług</span>}
+              </div>
+            </div>
+            {selectedBooking.notes && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-[0.4em] ml-4">Notatki</p>
+                <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl">{selectedBooking.notes}</p>
+              </div>
+            )}
+            <div className="flex gap-4 pt-6">
+              {selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name && (
+                <>
+                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><Check size={16} strokeWidth={2.5} /> Zakończ</button>
+                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><X size={16} strokeWidth={2.5} /> Anuluj</button>
+                </>
+              )}
+              <button
+                onClick={() => setIsBookingModalOpen(false)}
+                className={`py-5 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
+              >Zamknij</button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* Confirmation Modal */}
+      <Modal isOpen={!!confirmation} onClose={() => setConfirmation(null)} title="Zmień Status">
+        <div className="space-y-8">
+          <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-[2.5rem]">
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-[#F7E7CE]/20 text-[#102C26]' : 'bg-red-50 text-red-500'}`}><AlertCircle size={32} /></div>
+            <div>
+              <p className="text-lg font-bold text-[#102C26] leading-tight mb-2">{confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'Zakończyć to zlecenie?' : 'Anulować tę rezerwację?'}</p>
+              <p className="text-sm text-slate-500 font-semibold">{confirmation?.booking.vehicle.brand} {confirmation?.booking.vehicle.model}</p>
+              <p className="text-xs text-slate-400 font-mono mt-1">{confirmation?.booking.vehicle.licensePlate}</p>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">Wróć</button>
+            <button onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)} className={`flex-1 py-5 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-[#102C26] text-[#F7E7CE]' : 'bg-red-500'}`}>Tak, kontynuuj</button>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   );
 };
