@@ -1,4 +1,4 @@
-﻿
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -102,7 +102,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
  const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
  // Form mode
- const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
+ const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new' | 'new_vehicle'>('existing');
  const [vehicleClientMode, setVehicleClientMode] = useState<'existing' | 'new'>('existing');
 
  const fetchData = useCallback(async () => {
@@ -268,6 +268,31 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
  } catch (err) {
  console.error('Failed to create client:', err);
  addToast('Wystąpił błąd podczas dodawania klienta.', 'error');
+ }
+ };
+
+ const handleAddNewVehicleForBooking = async () => {
+ if (!selectedClientForVehicle || !newVehiclePlate) {
+ addToast('Wybierz klienta i podaj numer rejestracyjny.', 'error');
+ return;
+ }
+ try {
+ const createdVehicle = await createVehicle({
+ clientId: selectedClientForVehicle.id,
+ licensePlate: newVehiclePlate,
+ brand: newVehicleBrand || null,
+ model: newVehicleModel || null
+ });
+ setSelectedVehicle({ client: selectedClientForVehicle, vehicle: createdVehicle });
+ setBookingClientMode('existing');
+ setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+ setVehicleClientSearch('');
+ setSelectedClientForVehicle(null);
+ fetchData();
+ addToast('Dodano i wybrano nowy pojazd dla klienta.', 'success');
+ } catch (err) {
+ console.error(err);
+ addToast('Wystąpił błąd podczas dodawania pojazdu.', 'error');
  }
  };
 
@@ -859,6 +884,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
  <div className="flex bg-[#FDF8F0] p-1 rounded-xl">
  <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${bookingClientMode === 'existing' ? 'bg-[#102C26] text-white' : 'text-slate-400 hover:text-[#102C26]'}`}>Wyszukaj</button>
  <button type="button" onClick={() => setBookingClientMode('new')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${bookingClientMode === 'new' ? 'bg-[#102C26] text-white' : 'text-slate-400 hover:text-[#102C26]'}`}>Dodaj Nowy</button>
+ <button type="button" onClick={() => setBookingClientMode('new_vehicle')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${bookingClientMode === 'new_vehicle' ? 'bg-[#102C26] text-white' : 'text-slate-400 hover:text-[#102C26]'}`}>Nowe Auto do Klienta</button>
  </div>
  </div>
 
@@ -881,6 +907,40 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
  <div><h5 className="font-semibold text-[#102C26] text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-xs font-semibold text-[#5A8A7A] tracking-wide">{selectedVehicle.client.name}</p></div>
  </div>
  <div className="font-mono text-xs font-semibold text-[#102C26] whitespace-nowrap">{selectedVehicle.vehicle.licensePlate}</div>
+ </div>
+ )}
+ </>
+ ) : bookingClientMode === 'new_vehicle' ? (
+ <>
+ <div className="relative">
+ <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
+ <input type="text" placeholder="Szukaj klienta po nazwie lub kontakcie..." value={vehicleClientSearch} onChange={e => setVehicleClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-5 bg-[#FDF8F0] border-none rounded-xl font-bold text-sm outline-none focus:ring-4 focus:ring-[#F7E7CE]/30" />
+ </div>
+ {vehicleClientSearch.trim() && filteredClientsOnlyResults.map(client => (
+ <button key={client.id} type="button" onClick={() => { setSelectedClientForVehicle(client); setVehicleClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-[#F7E7CE] transition-all">
+ <div className="text-left"><h5 className="font-semibold text-[#102C26] text-sm">{client.name}</h5><p className="text-xs font-semibold text-slate-400 tracking-wide">{client.phone || client.email || 'Brak danych kontaktowych'}</p></div>
+ </button>
+ ))}
+ {selectedClientForVehicle && (
+ <div className="p-6 bg-[#F7E7CE]/20 border-2 border-[#F7E7CE]/50 rounded-xl flex items-center gap-4">
+ <User size={24} className="text-[#5A8A7A]" />
+ <div><h5 className="font-semibold text-[#102C26] text-sm">{selectedClientForVehicle.name}</h5><p className="text-xs font-semibold text-[#5A8A7A] tracking-wide">{selectedClientForVehicle.phone || selectedClientForVehicle.email}</p></div>
+ </div>
+ )}
+
+ {selectedClientForVehicle && (
+ <div className="space-y-4 pt-4 border-t border-slate-100">
+ <label className="text-xs font-semibold text-[#5A8A7A] tracking-wide ml-4">Dodaj nowy pojazd do wybranego klienta</label>
+ <div className="space-y-3 bg-[#FDF8F0] p-6 rounded-xl border border-slate-100">
+ <div className="grid grid-cols-2 gap-3">
+ <input type="text" placeholder="Marka (opcjonalnie)" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+ <input type="text" placeholder="Model (opcjonalnie)" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+ </div>
+ <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50 " />
+ </div>
+ <button type="button" onClick={handleAddNewVehicleForBooking} className="w-full py-4 bg-[#102C26] text-white rounded-xl font-semibold text-xs tracking-wider active:scale-95 transition-all shadow-xl">
+ Zapisz Auto i Kontynuuj Rezerwację
+ </button>
  </div>
  )}
  </>

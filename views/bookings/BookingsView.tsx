@@ -1,4 +1,4 @@
-﻿
+
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -9,6 +9,7 @@ import { BookingResponseDto, BookingCreateDto, ClientResponseDto, VehicleInfoDto
 import { BOOKING_STATUSES } from '../../constants';
 import { getBookings, createBooking } from '../../services/bookingService';
 import { getClients, createClient } from '../../services/clientService';
+import { createVehicle } from '../../services/vehicleService';
 import { getServices, createService } from '../../services/serviceService';
 import GlobalHeader from '../../components/GlobalHeader';
 import BookingList from './components/BookingList';
@@ -40,7 +41,10 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
  const [newClientPhone, setNewClientPhone] = useState('');
  const [newClientEmail, setNewClientEmail] = useState('');
  const [newBookingClientNip, setNewBookingClientNip] = useState('');
- const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
+ const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new' | 'new_vehicle'>('existing');
+
+ const [vehicleClientSearch, setVehicleClientSearch] = useState('');
+ const [selectedClientForVehicle, setSelectedClientForVehicle] = useState<ClientResponseDto | null>(null);
 
  // New vehicle form state
  const [newVehicleBrand, setNewVehicleBrand] = useState('');
@@ -85,6 +89,16 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
  return results.slice(0, 5);
  }, [clientSearch, clients]);
 
+ const filteredClientsOnlyResults = useMemo(() => {
+ if (!vehicleClientSearch.trim()) return [];
+ const query = vehicleClientSearch.toLowerCase();
+ return clients.filter(c =>
+ c.name.toLowerCase().includes(query) ||
+ (c.phone || '').toLowerCase().includes(query) ||
+ (c.email || '').toLowerCase().includes(query)
+ ).slice(0, 5);
+ }, [vehicleClientSearch, clients]);
+
  const filteredListBookings = useMemo(() => {
  if (!listSearchQuery.trim()) return bookings;
  const q = listSearchQuery.toLowerCase();
@@ -118,6 +132,30 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
  } catch (err) {
  console.error('Failed to create service:', err);
  alert('Wystąpił błąd podczas dodawania usługi.');
+ }
+ };
+
+ const handleAddNewVehicleForBooking = async () => {
+ if (!selectedClientForVehicle || !newVehiclePlate) {
+ alert('Wybierz klienta i podaj numer rejestracyjny.');
+ return;
+ }
+ try {
+ const createdVehicle = await createVehicle({
+ clientId: selectedClientForVehicle.id,
+ licensePlate: newVehiclePlate,
+ brand: newVehicleBrand || null,
+ model: newVehicleModel || null
+ });
+ setSelectedVehicle({ client: selectedClientForVehicle, vehicle: createdVehicle });
+ setBookingClientMode('existing');
+ setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+ setVehicleClientSearch('');
+ setSelectedClientForVehicle(null);
+ fetchData();
+ } catch (err) {
+ console.error(err);
+ alert('Wystąpił błąd podczas dodawania pojazdu.');
  }
  };
 
@@ -273,6 +311,7 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
  <div className="flex bg-[#FDF8F0] p-1 rounded-xl">
  <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${bookingClientMode === 'existing' ? 'bg-[#102C26] text-white' : 'text-slate-400 hover:text-[#102C26]'}`}>Wyszukaj</button>
  <button type="button" onClick={() => setBookingClientMode('new')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${bookingClientMode === 'new' ? 'bg-[#102C26] text-white' : 'text-slate-400 hover:text-[#102C26]'}`}>Dodaj Nowy</button>
+ <button type="button" onClick={() => setBookingClientMode('new_vehicle')} className={`px-4 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-all ${bookingClientMode === 'new_vehicle' ? 'bg-[#102C26] text-white' : 'text-slate-400 hover:text-[#102C26]'}`}>Nowe Auto do Klienta</button>
  </div>
  </div>
 
@@ -292,6 +331,37 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
  <div className="p-4 bg-[#F7E7CE]/20 border-2 border-[#F7E7CE]/50 rounded-2xl flex items-center justify-between">
  <div className="flex items-center gap-3"><CarIcon size={20} className="text-[#5A8A7A]" /><div><h5 className="font-semibold text-[#102C26] text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-xs font-semibold text-[#5A8A7A] tracking-wide">{selectedVehicle.client.name}</p></div></div>
  <span className="font-mono text-xs font-semibold">{selectedVehicle.vehicle.licensePlate}</span>
+ </div>
+ )}
+ </>
+ ) : bookingClientMode === 'new_vehicle' ? (
+ <>
+ <div className="relative">
+ <Search size={16} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
+ <input type="text" placeholder="Szukaj klienta po nazwie lub kontakcie..." value={vehicleClientSearch} onChange={e => setVehicleClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-4 bg-[#FDF8F0] border-none rounded-xl font-medium text-sm outline-none" />
+ </div>
+ {vehicleClientSearch.trim() && filteredClientsOnlyResults.map(client => (
+ <button key={client.id} type="button" onClick={() => { setSelectedClientForVehicle(client); setVehicleClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-[#F7E7CE] transition-all">
+ <div className="text-left"><h5 className="font-semibold text-[#102C26] text-sm">{client.name}</h5><p className="text-xs font-semibold text-slate-400 tracking-wide">{client.phone || client.email || 'Brak danych kontaktowych'}</p></div>
+ </button>
+ ))}
+ {selectedClientForVehicle && (
+ <div className="p-4 bg-[#F7E7CE]/20 border-2 border-[#F7E7CE]/50 rounded-2xl flex items-center justify-between">
+ <div className="flex items-center gap-3"><User size={20} className="text-[#5A8A7A]" /><div><h5 className="font-semibold text-[#102C26] text-sm">{selectedClientForVehicle.name}</h5><p className="text-xs font-semibold text-[#5A8A7A] tracking-wide">{selectedClientForVehicle.phone || selectedClientForVehicle.email}</p></div></div>
+ </div>
+ )}
+
+ {selectedClientForVehicle && (
+ <div className="space-y-3 pt-3 border-t border-slate-200">
+ <h5 className="font-semibold text-[#102C26] text-xs tracking-wide mb-3">Nowy Pojazd</h5>
+ <div className="grid grid-cols-2 gap-3">
+ <input type="text" placeholder="Marka" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+ <input type="text" placeholder="Model" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+ </div>
+ <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50 " />
+ <button type="button" onClick={handleAddNewVehicleForBooking} className="w-full py-4 mt-2 bg-[#102C26] text-white rounded-xl font-medium text-xs tracking-wide shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+ <CarIcon size={16} strokeWidth={2.5} /> Zapisz Auto i Wybierz
+ </button>
  </div>
  )}
  </>
