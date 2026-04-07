@@ -181,50 +181,83 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="space-y-8 animate-fade-in pb-20">
-      <GlobalHeader title="Klienci" subtitle="CRM Active • Zarządzanie Relacjami" onAddBooking={() => { setBookingClientMode('existing'); setNewClientNameForBooking(''); setNewClientPhoneForBooking(''); setNewClientEmailForBooking(''); setNewBookingClientNip(''); setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate(''); setSelectedServices([]); setSelectedVehicle(null); setClientSearch(''); setPriceInput('0,00'); setIsBookingModalOpen(true); }} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
+    <div className="space-y-8 animate-slide-up pb-20">
+      <GlobalHeader title="Klienci" subtitle="CRM • Zarządzanie Relacjami" onAddBooking={() => { setBookingClientMode('existing'); setNewClientNameForBooking(''); setNewClientPhoneForBooking(''); setNewClientEmailForBooking(''); setNewBookingClientNip(''); setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate(''); setSelectedServices([]); setSelectedVehicle(null); setClientSearch(''); setPriceInput('0,00'); setIsBookingModalOpen(true); }} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
+
+      {/* Search */}
       <div className="relative group">
-        <div className="absolute left-7 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#5A8A7A] transition-colors"><Search size={22} strokeWidth={3} /></div>
-        <input type="text" placeholder="Szukaj klienta, tablicy, modelu..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-16 pr-10 py-6 bg-white border border-slate-200 rounded-[2.5rem] font-bold text-base text-[#102C26] outline-none focus:ring-8 focus:ring-[#F7E7CE]/20 focus:border-[#F7E7CE]/40 transition-all shadow-sm" />
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-green-deep/30 group-focus-within:text-green-light transition-colors"><Search size={20} strokeWidth={2.5} /></div>
+        <input type="text" placeholder="Szukaj klienta, tablicy, modelu..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+          className="w-full pl-14 pr-6 py-5 rounded-[2rem] font-semibold text-base text-green-deep outline-none transition-all"
+          style={{ background: 'white', border: '1px solid rgba(26,46,30,0.07)', boxShadow: '0 4px 16px -4px rgba(0,0,0,0.04)' }}
+          onFocus={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(61,107,70,0.3)'; (e.target as HTMLInputElement).style.boxShadow = '0 0 0 4px rgba(61,107,70,0.08), 0 4px 16px -4px rgba(0,0,0,0.04)'; }}
+          onBlur={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(26,46,30,0.07)'; (e.target as HTMLInputElement).style.boxShadow = '0 4px 16px -4px rgba(0,0,0,0.04)'; }}
+        />
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {filteredClients.map((client, idx) => (
-          <div key={client.id} onClick={() => setViewingClientDetail(client)} className="bg-white border border-slate-100 rounded-[3rem] p-8 lg:p-10 hover:shadow-2xl transition-all group flex flex-col cursor-pointer animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both" style={{ animationDelay: `${idx * 50}ms` }}>
-            <div className="flex items-center gap-6 mb-8">
-              <div className="w-20 h-20 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] flex items-center justify-center font-extrabold text-2xl shadow-lg shrink-0">{client.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</div>
-              <div className="min-w-0 flex-1">
-                <h3 className="font-extrabold text-[#102C26] text-2xl tracking-tight truncate">{client.name}</h3>
-                <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest mt-1 truncate">{client.phone || 'Brak telefonu'}</p>
+          <div
+            key={client.id}
+            onClick={() => setViewingClientDetail(client)}
+            className="floating-card p-7 lg:p-8 flex flex-col cursor-pointer animate-slide-up"
+            style={{ animationDelay: `${idx * 60}ms` }}
+          >
+            {/* Header */}
+            <div className="flex items-center gap-5 mb-7">
+              <div
+                className="w-16 h-16 rounded-[1.25rem] flex items-center justify-center font-extrabold text-xl text-cream-warm shrink-0 shadow-lg"
+                style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)' }}
+              >
+                {client.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
               </div>
-              <button onClick={(e) => { e.stopPropagation(); setSelectedClientForDetails(client); setEditData({ id: client.id, name: client.name, email: client.email || '', phone: client.phone || '', nip: client.nip || '' }); }} className="w-14 h-14 flex items-center justify-center bg-slate-50 border border-slate-100 text-slate-400 rounded-2xl hover:text-[#102C26] hover:bg-[#F7E7CE]/20 hover:border-[#F7E7CE]/40 transition-all shrink-0"><Edit2 size={24} /></button>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-bold text-green-deep text-xl tracking-tight truncate">{client.name}</h3>
+                <p className="text-[11px] font-semibold text-green-deep/40 uppercase tracking-widest mt-1 truncate">{client.phone || 'Brak telefonu'}</p>
+              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); setSelectedClientForDetails(client); setEditData({ id: client.id, name: client.name, email: client.email || '', phone: client.phone || '', nip: client.nip || '' }); }}
+                className="w-10 h-10 flex items-center justify-center text-green-deep/30 rounded-xl hover:text-green-deep hover:bg-green-pale/30 transition-all shrink-0"
+              >
+                <Edit2 size={18} />
+              </button>
             </div>
 
-            <div className="flex-1 bg-slate-50 rounded-[2rem] p-6 lg:p-8 border border-slate-100/50 mb-8">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-2 mb-4">Pojazdy ({client.vehicles.length})</h4>
-              <div className="space-y-3">
+            {/* Vehicles */}
+            <div className="flex-1 rounded-[1.5rem] p-5 mb-6" style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}>
+              <h4 className="text-[10px] font-bold text-green-deep/40 uppercase tracking-widest mb-3">Pojazdy ({client.vehicles.length})</h4>
+              <div className="space-y-2">
                 {client.vehicles.slice(0, 3).map(v => (
-                  <div key={v.id} className="bg-white p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between shadow-sm border border-slate-100 gap-3">
-                    <div className="flex items-center gap-4 min-w-0">
-                      <CarIcon size={18} className="text-slate-400 shrink-0" />
-                      <span className="font-bold text-[#102C26] text-base truncate">{v.brand} {v.model}</span>
+                  <div key={v.id} className="bg-white rounded-xl p-3 flex items-center justify-between gap-3" style={{ boxShadow: '0 2px 8px -2px rgba(0,0,0,0.04)' }}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <CarIcon size={15} className="text-green-light/60 shrink-0" />
+                      <span className="font-semibold text-green-deep text-sm truncate">{v.brand} {v.model}</span>
                     </div>
-                    <span className="bg-slate-50 text-slate-500 border border-slate-200 px-3 py-1.5 rounded-lg font-mono text-[11px] font-bold shrink-0 text-center">{v.licensePlate}</span>
+                    <span className="bg-green-deep text-cream-warm px-3 py-1 rounded-lg font-mono text-[11px] font-bold shrink-0">{v.licensePlate}</span>
                   </div>
                 ))}
                 {client.vehicles.length > 3 && (
-                  <div className="text-center pt-3">
-                    <span className="text-xs font-bold text-[#5A8A7A] uppercase tracking-widest">+ {client.vehicles.length - 3} więcej</span>
-                  </div>
+                  <p className="text-center text-[10px] font-bold text-green-light uppercase tracking-widest pt-1">+ {client.vehicles.length - 3} więcej</p>
                 )}
-                {client.vehicles.length === 0 && <p className="text-sm text-slate-400 text-center py-6 font-semibold">Brak dodanych pojazdów</p>}
+                {client.vehicles.length === 0 && (
+                  <p className="text-[12px] text-green-deep/25 text-center py-4 font-medium">Brak dodanych pojazdów</p>
+                )}
               </div>
             </div>
 
+            {/* CTA */}
             <div className="mt-auto">
               {client.phone ? (
-                <a href={`tel:${client.phone}`} onClick={(e) => e.stopPropagation()} className="w-full py-5 lg:py-6 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#0a1c18] hover:shadow-xl transition-all"><Phone size={18} /> Zadzwoń do klienta</a>
+                <a href={`tel:${client.phone}`} onClick={(e) => e.stopPropagation()}
+                  className="w-full py-4 bg-green-deep text-cream-warm rounded-full font-bold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2.5 hover:bg-green-mid hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200">
+                  <Phone size={16} /> Zadzwoń
+                </a>
               ) : (
-                <div onClick={(e) => e.stopPropagation()} className="w-full py-5 lg:py-6 bg-slate-50 text-slate-300 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-3 border border-slate-100 border-dashed cursor-not-allowed"><Phone size={18} /> Brak numeru</div>
+                <div onClick={(e) => e.stopPropagation()}
+                  className="w-full py-4 rounded-full font-bold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2.5 cursor-not-allowed"
+                  style={{ background: 'rgba(26,46,30,0.04)', color: 'rgba(26,46,30,0.2)', border: '1px dashed rgba(26,46,30,0.1)' }}>
+                  <Phone size={16} /> Brak numeru
+                </div>
               )}
             </div>
           </div>
@@ -239,7 +272,7 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
             <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Telefon</label><input type="tel" value={editData.phone} onChange={e => setEditData({ ...editData, phone: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold" /></div>
             <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Email</label><input type="email" value={editData.email} onChange={e => setEditData({ ...editData, email: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold" /></div>
           </div>
-          <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2"><Save size={18} /> Zapisz</button>
+          <button type="submit" className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2"><Save size={18} /> Zapisz</button>
         </form>
       </Modal>
 
@@ -251,7 +284,7 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
             <input type="tel" placeholder="Telefon" value={newPhone} onChange={e => setNewPhone(e.target.value)} className="px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
             <input type="email" placeholder="Email" value={newEmail} onChange={e => setNewEmail(e.target.value)} className="px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
           </div>
-          <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl">Załóż Kartę Klienta</button>
+          <button type="submit" className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl">Załóż Kartę Klienta</button>
         </form>
       </Modal>
 
@@ -260,10 +293,10 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
         <form className="space-y-8 pb-10" onSubmit={handleCreateBooking}>
           <div className="space-y-4">
             <div className="flex items-center justify-between ml-4 mb-2">
-              <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest">Pojazd i Klient</label>
+              <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest">Pojazd i Klient</label>
               <div className="flex bg-slate-50 p-1 rounded-xl">
-                <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'existing' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Wyszukaj</button>
-                <button type="button" onClick={() => setBookingClientMode('new')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'new' ? 'bg-[#102C26] text-[#F7E7CE]' : 'text-slate-400 hover:text-[#102C26]'}`}>Dodaj Nowy</button>
+                <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'existing' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}>Wyszukaj</button>
+                <button type="button" onClick={() => setBookingClientMode('new')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'new' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}>Dodaj Nowy</button>
               </div>
             </div>
 
@@ -271,74 +304,74 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
               <>
                 <div className="relative"><Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" /><input type="text" placeholder="Szukaj..." value={clientSearch} onChange={e => setClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none" /></div>
                 {clientSearch.trim() && searchResults.map(r => (
-                  <button key={r.vehicle.id} type="button" onClick={() => { setSelectedVehicle(r); setClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-[#F7E7CE] transition-all">
-                    <div className="text-left"><h5 className="font-semibold text-[#102C26] text-sm">{r.vehicle.brand} {r.vehicle.model}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{r.client.name}</p></div>
-                    <div className="bg-[#102C26] text-[#F7E7CE] px-3 py-1.5 rounded-xl font-mono text-[11px] font-semibold">{r.vehicle.licensePlate}</div>
+                  <button key={r.vehicle.id} type="button" onClick={() => { setSelectedVehicle(r); setClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-cream-warm transition-all">
+                    <div className="text-left"><h5 className="font-semibold text-green-deep text-sm">{r.vehicle.brand} {r.vehicle.model}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{r.client.name}</p></div>
+                    <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-xl font-mono text-[11px] font-semibold">{r.vehicle.licensePlate}</div>
                   </button>
                 ))}
-                {selectedVehicle && <div className="p-6 bg-[#F7E7CE]/20 border-2 border-[#F7E7CE]/30 rounded-[1.5rem] flex items-center justify-between"><div className="flex items-center gap-4"><CarIcon size={24} className="text-[#5A8A7A]" /><div><h5 className="font-semibold text-[#102C26] text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-semibold text-[#5A8A7A] uppercase tracking-widest">{selectedVehicle.client.name}</p></div></div><span className="font-mono text-xs font-semibold">{selectedVehicle.vehicle.licensePlate}</span></div>}
+                {selectedVehicle && <div className="p-6 bg-cream-warm/20 border-2 border-cream-warm/30 rounded-[1.5rem] flex items-center justify-between"><div className="flex items-center gap-4"><CarIcon size={24} className="text-green-light" /><div><h5 className="font-semibold text-green-deep text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-semibold text-green-light uppercase tracking-widest">{selectedVehicle.client.name}</p></div></div><span className="font-mono text-xs font-semibold">{selectedVehicle.vehicle.licensePlate}</span></div>}
               </>
             ) : (
               <div className="space-y-4 bg-slate-50 p-6 rounded-[1.5rem] mt-2 border border-slate-100">
                 <div className="space-y-3">
-                  <h5 className="font-semibold text-[#102C26] text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
-                  <input type="text" placeholder="Imię i Nazwisko *" required value={newClientNameForBooking} onChange={e => setNewClientNameForBooking(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                  <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
+                  <input type="text" placeholder="Imię i Nazwisko *" required value={newClientNameForBooking} onChange={e => setNewClientNameForBooking(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
                   <div className="grid grid-cols-2 gap-3">
-                    <input type="tel" placeholder="Telefon *" required value={newClientPhoneForBooking} onChange={e => setNewClientPhoneForBooking(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
-                    <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmailForBooking} onChange={e => setNewClientEmailForBooking(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                    <input type="tel" placeholder="Telefon *" required value={newClientPhoneForBooking} onChange={e => setNewClientPhoneForBooking(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
+                    <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmailForBooking} onChange={e => setNewClientEmailForBooking(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
                   </div>
-                  <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                  <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
                 </div>
                 <div className="space-y-3 pt-3 border-t border-slate-200">
-                  <h5 className="font-semibold text-[#102C26] text-xs uppercase tracking-widest mb-3">Dane Pojazdu</h5>
+                  <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">Dane Pojazdu</h5>
                   <div className="grid grid-cols-2 gap-3">
-                    <input type="text" placeholder="Marka" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
-                    <input type="text" placeholder="Model" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50" />
+                    <input type="text" placeholder="Marka" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
+                    <input type="text" placeholder="Model" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
                   </div>
-                  <input type="text" placeholder="Nr Rejestracyjny *" required value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-[#F7E7CE]/50 uppercase" />
+                  <input type="text" placeholder="Nr Rejestracyjny *" required value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50 uppercase" />
                 </div>
               </div>
             )}
           </div>
           <div className="space-y-4">
-            <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest ml-4">Usługi</label>
-            <div className="flex flex-wrap gap-2">{PREDEFINED_SERVICES.slice(0, 6).map(s => (<button key={s} type="button" onClick={() => toggleService(s)} className={`px-4 py-3 rounded-xl text-[9px] font-semibold uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${selectedServices.includes(s) ? 'bg-[#102C26] text-[#F7E7CE] border-[#102C26]' : 'bg-slate-50 text-slate-400 border-transparent'}`}>{selectedServices.includes(s) && <Check size={12} strokeWidth={4} />} {s}</button>))}</div>
+            <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-4">Usługi</label>
+            <div className="flex flex-wrap gap-2">{PREDEFINED_SERVICES.slice(0, 6).map(s => (<button key={s} type="button" onClick={() => toggleService(s)} className={`px-4 py-3 rounded-xl text-[9px] font-semibold uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${selectedServices.includes(s) ? 'bg-green-deep text-cream-warm border-green-deep' : 'bg-slate-50 text-slate-400 border-transparent'}`}>{selectedServices.includes(s) && <Check size={12} strokeWidth={4} />} {s}</button>))}</div>
           </div>
           <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Cena</label><input type="text" value={priceInput} onChange={e => setPriceInput(e.target.value)} className="w-full px-6 py-5 bg-[#102C26] text-[#F7E7CE] border-none rounded-[1.5rem] font-semibold text-xl font-mono" /></div>
+            <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Cena</label><input type="text" value={priceInput} onChange={e => setPriceInput(e.target.value)} className="w-full px-6 py-5 bg-green-deep text-cream-warm border-none rounded-[1.5rem] font-semibold text-xl font-mono" /></div>
             <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Data</label><input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-full px-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none" /></div>
           </div>
-          <button type="submit" className="w-full py-6 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3"><Save size={18} /> Zapisz</button>
+          <button type="submit" className="w-full py-6 bg-green-deep text-cream-warm rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3"><Save size={18} /> Zapisz</button>
         </form>
       </Modal>
       {/* Client Details View Modal */}
       <Modal isOpen={!!activeClientDetail} onClose={() => setViewingClientDetail(null)} title="Karta Klienta">
         {activeClientDetail && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-6">
-            <div className="p-8 bg-[#102C26] rounded-[2.5rem] border border-white/5 relative overflow-hidden">
+            <div className="p-8 bg-green-deep rounded-[2.5rem] border border-white/5 relative overflow-hidden">
               <div className="relative z-10 flex flex-col gap-6">
                 <div className="flex items-center gap-6">
-                  <div className="w-24 h-24 bg-white/10 text-[#F7E7CE] rounded-[2rem] flex items-center justify-center font-extrabold text-4xl shadow-xl shrink-0">
+                  <div className="w-24 h-24 bg-white/10 text-cream-warm rounded-[2rem] flex items-center justify-center font-extrabold text-4xl shadow-xl shrink-0">
                     {activeClientDetail.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-semibold text-[#F7E7CE]/60 uppercase tracking-widest mb-1">Klient</p>
+                    <p className="text-[10px] font-semibold text-cream-warm/60 uppercase tracking-widest mb-1">Klient</p>
                     <h3 className="font-extrabold text-white text-3xl tracking-tight truncate">{activeClientDetail.name}</h3>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                   <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4">
-                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-[#F7E7CE] shrink-0"><Phone size={16} /></div>
+                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-cream-warm shrink-0"><Phone size={16} /></div>
                     <div className="min-w-0">
-                      <p className="text-[9px] font-semibold text-[#F7E7CE]/50 uppercase tracking-wider">Telefon</p>
+                      <p className="text-[9px] font-semibold text-cream-warm/50 uppercase tracking-wider">Telefon</p>
                       <p className="font-semibold text-white truncate">{activeClientDetail.phone || 'Brak'}</p>
                     </div>
                   </div>
                   <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4">
-                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-[#F7E7CE] shrink-0"><Search size={16} /></div>
+                    <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-cream-warm shrink-0"><Search size={16} /></div>
                     <div className="min-w-0">
-                      <p className="text-[9px] font-semibold text-[#F7E7CE]/50 uppercase tracking-wider">Email</p>
+                      <p className="text-[9px] font-semibold text-cream-warm/50 uppercase tracking-wider">Email</p>
                       <p className="font-semibold text-white truncate">{activeClientDetail.email || 'Brak'}</p>
                     </div>
                   </div>
@@ -349,14 +382,14 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
             <div className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <h4 className="text-sm font-bold text-[#102C26] uppercase tracking-widest">Pojazdy we flocie</h4>
-                  <div className="px-3 py-1 bg-[#F7E7CE]/30 text-[#102C26] rounded-lg font-bold text-xs">
+                  <h4 className="text-sm font-bold text-green-deep uppercase tracking-widest">Pojazdy we flocie</h4>
+                  <div className="px-3 py-1 bg-cream-warm/30 text-green-deep rounded-lg font-bold text-xs">
                     {activeClientDetail.vehicles.length}
                   </div>
                 </div>
                 <button
                   onClick={() => { setEditingVehicleId(null); setVehicleFormData({ brand: '', model: '', licensePlate: '' }); setIsVehicleModalOpen(true); }}
-                  className="px-4 py-2 bg-white border border-slate-200 text-[#102C26] rounded-xl font-bold text-[10px] uppercase tracking-widest hover:border-[#102C26]/20 transition-all flex items-center gap-2 self-start sm:self-auto shadow-sm"
+                  className="px-4 py-2 bg-white border border-slate-200 text-green-deep rounded-xl font-bold text-[10px] uppercase tracking-widest hover:border-green-deep/20 transition-all flex items-center gap-2 self-start sm:self-auto shadow-sm"
                 >
                   <Plus size={14} /> Dodaj Pojazd
                 </button>
@@ -365,20 +398,20 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
               <div className="space-y-4">
                 {activeClientDetail.vehicles.length > 0 ? (
                   activeClientDetail.vehicles.map(v => (
-                    <div key={v.id} className="bg-white p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between shadow-sm border border-slate-100 gap-4 group hover:border-[#F7E7CE] transition-all">
+                    <div key={v.id} className="bg-white p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between shadow-sm border border-slate-100 gap-4 group hover:border-cream-warm transition-all">
                       <div className="flex items-center gap-5 min-w-0">
-                        <div className="w-12 h-12 bg-slate-50 group-hover:bg-[#F7E7CE]/20 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-[#5A8A7A] transition-colors shrink-0">
+                        <div className="w-12 h-12 bg-slate-50 group-hover:bg-cream-warm/20 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-green-light transition-colors shrink-0">
                           <CarIcon size={24} />
                         </div>
                         <div className="min-w-0">
-                          <span className="font-bold text-[#102C26] text-lg block truncate">{v.brand} {v.model}</span>
+                          <span className="font-bold text-green-deep text-lg block truncate">{v.brand} {v.model}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <div className="bg-[#102C26] text-[#F7E7CE] px-4 py-2.5 rounded-xl font-mono text-sm font-bold text-center shadow-md">
+                        <div className="bg-green-deep text-cream-warm px-4 py-2.5 rounded-xl font-mono text-sm font-bold text-center shadow-md">
                           {v.licensePlate}
                         </div>
-                        <button onClick={() => { setEditingVehicleId(v.id); setVehicleFormData({ brand: v.brand || '', model: v.model || '', licensePlate: v.licensePlate }); setIsVehicleModalOpen(true); }} className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-100 text-slate-400 rounded-xl hover:text-[#102C26] hover:bg-[#F7E7CE]/20 hover:border-[#F7E7CE]/40 transition-all"><Edit2 size={16} /></button>
+                        <button onClick={() => { setEditingVehicleId(v.id); setVehicleFormData({ brand: v.brand || '', model: v.model || '', licensePlate: v.licensePlate }); setIsVehicleModalOpen(true); }} className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-100 text-slate-400 rounded-xl hover:text-green-deep hover:bg-cream-warm/20 hover:border-cream-warm/40 transition-all"><Edit2 size={16} /></button>
                         <button onClick={() => setDeleteConfirmation(v.id)} className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-100 text-slate-400 rounded-xl hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all"><Trash2 size={16} /></button>
                       </div>
                     </div>
@@ -398,12 +431,12 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
                   setSelectedClientForDetails(activeClientDetail);
                   setEditData({ id: activeClientDetail.id, name: activeClientDetail.name, email: activeClientDetail.email || '', phone: activeClientDetail.phone || '', nip: activeClientDetail.nip || '' });
                 }}
-                className="w-full py-5 bg-white border-2 border-slate-100 text-[#102C26] rounded-2xl font-bold text-xs uppercase tracking-widest hover:border-[#102C26] transition-all flex items-center justify-center gap-2"
+                className="w-full py-5 bg-white border-2 border-slate-100 text-green-deep rounded-2xl font-bold text-xs uppercase tracking-widest hover:border-green-deep transition-all flex items-center justify-center gap-2"
               >
                 <Edit2 size={16} /> Edytuj Klienta
               </button>
               {activeClientDetail.phone ? (
-                <a href={`tel:${activeClientDetail.phone}`} className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl hover:bg-[#0a1c18] transition-all">
+                <a href={`tel:${activeClientDetail.phone}`} className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl hover:bg-[#0a1c18] transition-all">
                   <Phone size={16} /> Zadzwoń
                 </a>
               ) : (
@@ -426,7 +459,7 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
             </div>
             <input type="text" placeholder="Nr Rejestracyjny *" required value={vehicleFormData.licensePlate} onChange={e => setVehicleFormData({ ...vehicleFormData, licensePlate: e.target.value })} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm uppercase" />
           </div>
-          <button type="submit" className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2"><Save size={18} /> Zapisz Pojazd</button>
+          <button type="submit" className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2"><Save size={18} /> Zapisz Pojazd</button>
         </form>
       </Modal>
 

@@ -47,10 +47,10 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0] p-4">
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#F7E7CE] max-w-md w-full">
+        <div className="min-h-screen flex items-center justify-center bg-cream p-4">
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full">
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-[#102C26] mb-2">Witaj w Zespole!</h1>
+                    <h1 className="text-2xl font-bold text-green-deep mb-2">Witaj w Zespole!</h1>
                     <p className="text-gray-500 text-sm">
                         Zostałeś zaproszony do aplikacji. Ustaw swoje hasło, aby uzyskać dostęp do panelu.
                     </p>
@@ -64,28 +64,28 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block text-sm font-semibold text-[#102C26] mb-2">
+                        <label className="block text-sm font-semibold text-green-deep mb-2">
                             Nowe hasło
                         </label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#102C26] focus:ring-1 focus:ring-[#102C26] outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-deep focus:ring-1 focus:ring-green-deep outline-none transition-all"
                             placeholder="••••••••"
                             required
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-semibold text-[#102C26] mb-2">
+                        <label className="block text-sm font-semibold text-green-deep mb-2">
                             Powtórz hasło
                         </label>
                         <input
                             type="password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#102C26] focus:ring-1 focus:ring-[#102C26] outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-deep focus:ring-1 focus:ring-green-deep outline-none transition-all"
                             placeholder="••••••••"
                             required
                         />
@@ -94,7 +94,7 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[#102C26] text-[#FDF8F0] font-semibold py-3.5 rounded-xl hover:bg-[#1a423a] transition-all disabled:opacity-70 mt-4"
+                        className="w-full bg-green-deep text-cream font-semibold py-3.5 rounded-xl hover:bg-[#1a423a] transition-all disabled:opacity-70 mt-4"
                     >
                         {loading ? 'Zapisywanie...' : 'Zapisz hasło i wejdź'}
                     </button>

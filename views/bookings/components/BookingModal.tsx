@@ -23,10 +23,10 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, selectedBo
   if (!isOpen) return null;
 
   return (
-     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#102C26]/70 backdrop-blur-md animate-fade-in">
+     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#1a2e1e]/80 backdrop-blur-md">
       <div className="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-zoom-in flex flex-col max-h-[95vh]">
         <div className="p-8 sm:p-10 border-b border-slate-100 flex items-center justify-between shrink-0">
-          <h3 className="text-2xl sm:text-3xl font-extrabold text-[#102C26] tracking-tighter leading-none">
+          <h3 className="text-2xl sm:text-3xl font-extrabold text-green-deep tracking-tighter leading-none">
             {selectedBooking ? 'Szczegóły Rezerwacji' : 'Nowa Rezerwacja'}
           </h3>
           <button onClick={onClose} className="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all">Zamknij</button>
@@ -34,11 +34,11 @@ const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, selectedBo
         <div className="p-8 sm:p-10 overflow-y-auto flex-1 custom-scrollbar">
            {selectedBooking ? (
               <div className="space-y-6">
-                <div className="p-6 bg-[#102C26] rounded-3xl text-[#F7E7CE]">
+                <div className="p-6 bg-green-deep rounded-3xl text-cream-warm">
                   <p className="text-[9px] font-semibold text-white/40 uppercase tracking-widest mb-1">Klient</p>
                   <h4 className="text-xl font-semibold">{selectedBooking.client.name}</h4>
                 </div>
-                 <button onClick={onClose} className="w-full py-5 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[10px] uppercase tracking-widest">Zamknij</button>
+                 <button onClick={onClose} className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest">Zamknij</button>
               </div>
            ) : (
               <div>{/* Tutaj ogromny formularz z BookingsView.tsx (będzie przeniesiony) */}</div>

@@ -16,6 +16,7 @@ import StudioSelectView from './views/settings/StudioSelectView';
 import StudioSettingsView from './views/settings/StudioSettingsView';
 import UserSettingsView from './views/settings/UserSettingsView';
 import TasksView from './views/tasks/TasksView';
+import TeamView from './views/team/TeamView';
 
 import { ViewType, StudioDto } from './types';
 import supabase from './utils/supabase';
@@ -93,6 +94,7 @@ const AppInner: React.FC = () => {
       case 'Clients': return <ClientsView {...commonProps} />;
       case 'Inventory': return <InventoryView {...commonProps} />;
       case 'Tasks': return <TasksView {...commonProps} />;
+      case 'Team': return <TeamView {...commonProps} />;
       case 'Reports': return <ReportsView {...commonProps} />;
       case 'Archived': return <ArchivedView {...commonProps} />;
       default: return <Dashboard onNavigate={setActiveView} {...commonProps} />;
@@ -101,8 +103,8 @@ const AppInner: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0]">
-        <div className="w-12 h-12 border-4 border-[#102C26] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-cream">
+        <div className="w-12 h-12 border-4 border-green-deep border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -124,7 +126,7 @@ const AppInner: React.FC = () => {
     return (
       <div className="relative">
         <div className="absolute top-4 left-4 z-50">
-          <button onClick={() => setForceLogin(false)} className="px-5 py-2 bg-white text-slate-500 rounded-xl shadow-sm text-xs font-bold uppercase tracking-widest hover:text-[#102C26] transition-all">Powrót do zaproszenia</button>
+          <button onClick={() => setForceLogin(false)} className="px-5 py-2 bg-white text-slate-500 rounded-xl shadow-sm text-xs font-bold uppercase tracking-widest hover:text-green-deep transition-all">Powrót do zaproszenia</button>
         </div>
         <LoginView onLogin={handleLogin} />
       </div>
@@ -148,7 +150,7 @@ const AppInner: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-[#FDF8F0] selection:bg-[#F7E7CE]/30 selection:text-[#102C26]">
+    <div className="min-h-screen flex bg-cream selection:bg-amber-light/30 selection:text-green-deep">
       <Sidebar
         activeView={activeView}
         setActiveView={setActiveView}

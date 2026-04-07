@@ -44,13 +44,16 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#FDF8F0] p-6 sm:p-12">
-      <div className="mb-12 text-center max-w-sm">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#102C26] shadow-2xl mb-6">
-          <Building2 className="text-[#F7E7CE]" size={28} />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-cream mesh-bg p-6 sm:p-12">
+      <div className="mb-12 text-center max-w-md animate-slide-up">
+        <div
+          className="inline-flex items-center justify-center w-20 h-20 rounded-[1.5rem] mb-7 shadow-[0_20px_50px_rgba(26,46,30,0.2)]"
+          style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)' }}
+        >
+          <Building2 className="text-cream-warm" size={32} />
         </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#102C26] tracking-tight mb-3">Wybierz Studio</h1>
-        <p className="text-[#102C26]/40 text-sm font-medium leading-relaxed">
+        <h1 className="text-4xl sm:text-5xl font-serif text-green-deep tracking-tight mb-4 leading-tight">Wybierz Studio</h1>
+        <p className="text-green-deep/40 text-[14px] font-medium leading-relaxed max-w-sm mx-auto">
           Wybierz studio, z którym chcesz pracować. Możesz je zmienić w dowolnym momencie.
         </p>
       </div>
@@ -77,34 +80,38 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
                   key={studio.studioId}
                   onClick={() => handleSelect(studio)}
                   disabled={!!selecting}
-                  className={`relative text-left flex flex-col gap-5 p-7 rounded-3xl border-2 transition-all duration-300 overflow-hidden group
+                  className={`relative text-left flex flex-col gap-5 p-7 rounded-[2rem] transition-all duration-300 overflow-hidden group animate-slide-up
                     ${isActive
-                      ? 'bg-[#102C26] border-[#102C26] shadow-2xl shadow-[#102C26]/25 scale-[1.02]'
-                      : 'bg-white border-slate-100 hover:border-[#102C26]/20 hover:shadow-xl hover:scale-[1.01]'
+                      ? 'shadow-[0_20px_50px_rgba(26,46,30,0.2)] scale-[1.02]'
+                      : 'hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)]'
                     }
                     ${selecting && !isSelecting ? 'opacity-40 pointer-events-none' : ''}
                   `}
+                  style={isActive
+                    ? { background: 'linear-gradient(135deg, #1a2e1e 0%, #1e3523 100%)', border: '1px solid rgba(255,255,255,0.08)' }
+                    : { background: 'white', border: '1px solid rgba(26,46,30,0.06)', boxShadow: '0 4px 16px -4px rgba(0,0,0,0.04)' }
+                  }
                 >
                   {/* accent stripe */}
-                  <div className={`absolute inset-x-0 top-0 h-1 rounded-t-3xl ${isActive ? 'bg-[#F7E7CE]/40' : cfg.accent}`} />
+                  <div className={`absolute inset-x-0 top-0 h-1 rounded-t-3xl ${isActive ? 'bg-cream-warm/40' : cfg.accent}`} />
 
                   {/* role badge */}
                   <div className="flex items-start justify-between">
                     <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border
-                      ${isActive ? 'bg-white/10 text-[#F7E7CE] border-white/10' : `${cfg.bg} ${cfg.text} ${cfg.border}`}`}>
+                      ${isActive ? 'bg-white/10 text-cream-warm border-white/10' : `${cfg.bg} ${cfg.text} ${cfg.border}`}`}>
                       <RoleIcon size={11} className="shrink-0" />
                       {cfg.label}
                     </div>
-                    {isSelecting && <Loader2 className={`animate-spin ${isActive ? 'text-[#F7E7CE]/60' : 'text-[#102C26]/30'}`} size={18} />}
-                    {isActive && !isSelecting && <CheckCircle2 className="text-[#F7E7CE]" size={20} />}
+                    {isSelecting && <Loader2 className={`animate-spin ${isActive ? 'text-cream-warm/60' : 'text-green-deep/30'}`} size={18} />}
+                    {isActive && !isSelecting && <CheckCircle2 className="text-cream-warm" size={20} />}
                   </div>
 
                   {/* Studio info */}
                   <div className="flex-1">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${isActive ? 'bg-white/10' : 'bg-slate-50'}`}>
-                      <Building2 size={20} className={isActive ? 'text-[#F7E7CE]/80' : 'text-[#102C26]/40'} />
+                      <Building2 size={20} className={isActive ? 'text-cream-warm/80' : 'text-green-deep/40'} />
                     </div>
-                    <h3 className={`font-extrabold text-lg tracking-tight leading-tight mb-1 ${isActive ? 'text-white' : 'text-[#102C26]'}`}>
+                    <h3 className={`font-extrabold text-lg tracking-tight leading-tight mb-1 ${isActive ? 'text-white' : 'text-green-deep'}`}>
                       {studio.name}
                     </h3>
                     {studio.address
@@ -116,7 +123,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
                     }
                   </div>
 
-                  <div className={`text-[10px] font-semibold uppercase tracking-widest ${isActive ? 'text-[#F7E7CE]/60' : 'text-slate-300 group-hover:text-[#102C26]/40 transition-colors'}`}>
+                  <div className={`text-[10px] font-semibold uppercase tracking-widest ${isActive ? 'text-cream-warm/60' : 'text-slate-300 group-hover:text-green-deep/40 transition-colors'}`}>
                     {isActive ? '✓ Aktualnie wybrane' : 'Kliknij, aby wybrać →'}
                   </div>
                 </button>

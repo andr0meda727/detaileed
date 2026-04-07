@@ -31,19 +31,19 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
   return (
     <div className="w-full xl:w-[380px] bg-white rounded-[2rem] p-6 lg:p-8 shadow-sm border border-slate-100 shrink-0 h-fit">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg lg:text-xl font-extrabold text-[#102C26] capitalize tracking-tighter">
+        <h3 className="text-lg lg:text-xl font-extrabold text-green-deep capitalize tracking-tighter">
           {currentMonth.toLocaleString('pl-PL', { month: 'long', year: 'numeric' })}
         </h3>
         <div className="flex gap-1">
           <button 
             onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} 
-            className="p-1.5 bg-slate-50 rounded-xl text-slate-400 hover:text-[#102C26] transition-colors"
+            className="p-1.5 bg-slate-50 rounded-xl text-slate-400 hover:text-green-deep transition-colors"
           >
             <ChevronLeft size={16} />
           </button>
           <button 
             onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} 
-            className="p-1.5 bg-slate-50 rounded-xl text-slate-400 hover:text-[#102C26] transition-colors"
+            className="p-1.5 bg-slate-50 rounded-xl text-slate-400 hover:text-green-deep transition-colors"
           >
             <ChevronRight size={16} />
           </button>
@@ -64,12 +64,12 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
               onClick={() => onDateChange(dateStr)} 
               className={`relative aspect-[4/3] sm:aspect-square rounded-xl flex items-center justify-center text-xs font-semibold transition-all ${
                 isSelected 
-                  ? 'bg-[#102C26] text-[#F7E7CE] shadow-lg' 
-                  : 'hover:bg-[#F7E7CE]/30 text-slate-600'
+                  ? 'bg-green-deep text-cream-warm shadow-lg' 
+                  : 'hover:bg-cream-warm/30 text-slate-600'
               }`}
             >
               {day} 
-              {hasB && <div className="w-1 h-1 rounded-full absolute bottom-1 lg:bottom-1.5 bg-[#F7E7CE]" />}
+              {hasB && <div className="w-1 h-1 rounded-full absolute bottom-1 lg:bottom-1.5 bg-cream-warm" />}
             </button>
           );
         })}

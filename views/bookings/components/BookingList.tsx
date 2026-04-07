@@ -22,19 +22,19 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onBookingClick }) =
         style={{ animationDelay: `${index * 50}ms` }}
       >
         <div className="w-24 sm:border-r border-slate-100 flex flex-col items-center justify-center shrink-0">
-          <span className="text-2xl font-extrabold text-[#102C26] font-mono">{formatTime(booking.scheduledAt)}</span>
+          <span className="text-2xl font-extrabold text-green-deep font-mono">{formatTime(booking.scheduledAt)}</span>
           <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{formatDateShort(booking.scheduledAt)}</span>
         </div>
         <div className="flex-1 min-w-0 flex flex-col justify-center">
           <div className="flex items-center gap-3 mb-1">
-            <span className="bg-[#102C26] text-[#F7E7CE] px-3 py-1 rounded-lg font-mono text-[10px] font-semibold">{booking.vehicle.licensePlate}</span>
-            <h4 className="text-lg font-bold text-[#102C26] truncate">{booking.vehicle.brand} {booking.vehicle.model}</h4>
+            <span className="bg-green-deep text-cream-warm px-3 py-1 rounded-lg font-mono text-[10px] font-semibold">{booking.vehicle.licensePlate}</span>
+            <h4 className="text-lg font-bold text-green-deep truncate">{booking.vehicle.brand} {booking.vehicle.model}</h4>
           </div>
           <p className="text-xs font-bold text-slate-500 truncate">{booking.services?.join(', ') || 'Brak usług'}</p>
         </div>
         <div className="flex flex-col items-end justify-center shrink-0">
-          <p className="text-xl font-extrabold text-[#102C26] font-mono leading-none">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')} PLN</p>
-          <span className="px-3 py-1.5 rounded-xl border-2 text-[10px] font-bold uppercase tracking-widest mt-2" style={{ color: booking.statusColor || '#102C26', borderColor: (booking.statusColor || '#102C26') + '40', backgroundColor: (booking.statusColor || '#102C26') + '15' }}>{booking.status}</span>
+          <p className="text-xl font-extrabold text-green-deep font-mono leading-none">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')} PLN</p>
+          <span className="px-3 py-1.5 rounded-xl border-2 text-[10px] font-bold uppercase tracking-widest mt-2" style={{ color: booking.statusColor || 'var(--green-deep)', borderColor: (booking.statusColor || 'var(--green-deep)') + '40', backgroundColor: (booking.statusColor || 'var(--green-deep)') + '15' }}>{booking.status}</span>
         </div>
       </div>
     );

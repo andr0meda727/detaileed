@@ -28,7 +28,7 @@ export function useToast() {
         <div
           key={t.id}
           className={`flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl text-sm font-semibold animate-in slide-in-from-right duration-300 ${
-            t.type === 'success' ? 'bg-[#102C26] text-[#F7E7CE]' : 'bg-red-600 text-white'
+            t.type === 'success' ? 'bg-green-deep text-cream-warm' : 'bg-red-600 text-white'
           }`}
         >
           {t.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}

@@ -47,11 +47,11 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
         {/* Change password card */}
         <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
           <div className="px-8 py-6 border-b border-slate-50 flex items-center gap-4">
-            <div className="w-10 h-10 bg-[#102C26] rounded-xl flex items-center justify-center">
-              <KeyRound size={18} className="text-[#F7E7CE]" />
+            <div className="w-10 h-10 bg-green-deep rounded-xl flex items-center justify-center">
+              <KeyRound size={18} className="text-cream-warm" />
             </div>
             <div>
-              <h3 className="font-extrabold text-[#102C26] tracking-tight">Zmień hasło</h3>
+              <h3 className="font-extrabold text-green-deep tracking-tight">Zmień hasło</h3>
               <p className="text-xs text-slate-400 mt-0.5">Ustaw nowe hasło do swojego konta</p>
             </div>
           </div>
@@ -59,7 +59,7 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
           <form onSubmit={handleChangePassword} className="p-8 space-y-5">
             {/* New password */}
             <div className="space-y-2">
-              <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest ml-1">Nowe hasło</label>
+              <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-1">Nowe hasło</label>
               <div className="relative">
                 <input
                   type={showNew ? 'text' : 'password'}
@@ -68,7 +68,7 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
                   required
                   minLength={8}
                   placeholder="Minimum 8 znaków"
-                  className="w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-[#F7E7CE]/30 transition-all"
+                  className="w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all"
                 />
                 <button type="button" onClick={() => setShowNew(v => !v)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
@@ -79,7 +79,7 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
 
             {/* Confirm password */}
             <div className="space-y-2">
-              <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest ml-1">Potwierdź nowe hasło</label>
+              <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-1">Potwierdź nowe hasło</label>
               <div className="relative">
                 <input
                   type={showConfirm ? 'text' : 'password'}
@@ -87,7 +87,7 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
                   onChange={e => setConfirmPassword(e.target.value)}
                   required
                   placeholder="Powtórz nowe hasło"
-                  className="w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-[#F7E7CE]/30 transition-all"
+                  className="w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all"
                 />
                 <button type="button" onClick={() => setShowConfirm(v => !v)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
@@ -120,7 +120,7 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
             )}
 
             <button type="submit" disabled={loading}
-              className="w-full py-4 bg-[#102C26] text-[#F7E7CE] rounded-2xl font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-60">
+              className="w-full py-4 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-60">
               {loading ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
               Zmień hasło
             </button>
@@ -128,8 +128,8 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
         </div>
 
         {/* Info notice */}
-        <div className="px-5 py-4 bg-[#F7E7CE]/30 border border-[#F7E7CE] rounded-2xl">
-          <p className="text-xs text-[#102C26]/60 font-semibold leading-relaxed">
+        <div className="px-5 py-4 bg-cream-warm/30 border border-cream-warm rounded-2xl">
+          <p className="text-xs text-green-deep/60 font-semibold leading-relaxed">
             Po zmianie hasła Twoja aktualna sesja pozostanie aktywna. Inne urządzenia zostaną poproszone o ponowne logowanie.
           </p>
         </div>

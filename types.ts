@@ -22,6 +22,17 @@ export interface InviteEmployeeDto {
   roleId: number;
 }
 
+export interface ChangeEmployeeRoleDto {
+  userId: string;
+  roleId: number;
+}
+
+export interface EmployeeResponseDto {
+  userId: string;
+  email: string;
+  name?: string | null;
+  roleId: number;
+}
 
 export interface VehicleInfoDto {
   id: string;
@@ -135,7 +146,7 @@ export interface KanbanTask {
   deadline: string;
 }
 
-export type ViewType = 'Dashboard' | 'Bookings' | 'Tasks' | 'Clients' | 'Inventory' | 'Archived' | 'Studios' | 'StudioSettings' | 'UserSettings' | 'Reports';
+export type ViewType = 'Dashboard' | 'Bookings' | 'Tasks' | 'Clients' | 'Inventory' | 'Archived' | 'Studios' | 'StudioSettings' | 'UserSettings' | 'Reports' | 'Team';
 
 
 

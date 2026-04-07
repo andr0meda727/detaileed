@@ -104,8 +104,8 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
 
     if (loadingInvitation) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0]">
-                <div className="w-10 h-10 border-4 border-[#102C26] border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-cream">
+                <div className="w-10 h-10 border-4 border-green-deep border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
@@ -114,10 +114,10 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
 
     if (fetchError) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0] p-4">
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#F7E7CE] max-w-md w-full text-center">
+            <div className="min-h-screen flex items-center justify-center bg-cream p-4">
+                <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full text-center">
                     <div className="text-4xl mb-4">🔗</div>
-                    <h1 className="text-2xl font-bold text-[#102C26] mb-2">Link nieaktywny</h1>
+                    <h1 className="text-2xl font-bold text-green-deep mb-2">Link nieaktywny</h1>
                     <p className="text-gray-500 text-sm">{fetchError}</p>
                 </div>
             </div>
@@ -128,15 +128,15 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
 
     if (decision === 'accepted') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0] p-4">
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#F7E7CE] max-w-md w-full text-center">
+            <div className="min-h-screen flex items-center justify-center bg-cream p-4">
+                <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full text-center">
                     <div className="text-4xl mb-4">✅</div>
-                    <h1 className="text-2xl font-bold text-[#102C26] mb-2">Witaj w studiu!</h1>
+                    <h1 className="text-2xl font-bold text-green-deep mb-2">Witaj w studiu!</h1>
                     <p className="text-gray-500 text-sm">
                         Zaproszenie zostało zaakceptowane. Za chwilę zostaniesz przekierowany…
                     </p>
                     <div className="mt-6 flex justify-center">
-                        <div className="w-6 h-6 border-2 border-[#102C26] border-t-transparent rounded-full animate-spin" />
+                        <div className="w-6 h-6 border-2 border-green-deep border-t-transparent rounded-full animate-spin" />
                     </div>
                 </div>
             </div>
@@ -147,10 +147,10 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
 
     if (decision === 'declined') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0] p-4">
-                <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#F7E7CE] max-w-md w-full text-center">
+            <div className="min-h-screen flex items-center justify-center bg-cream p-4">
+                <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full text-center">
                     <div className="text-4xl mb-4">👋</div>
-                    <h1 className="text-2xl font-bold text-[#102C26] mb-2">Zaproszenie odrzucone</h1>
+                    <h1 className="text-2xl font-bold text-green-deep mb-2">Zaproszenie odrzucone</h1>
                     <p className="text-gray-500 text-sm">Możesz zamknąć tę kartę.</p>
                 </div>
             </div>
@@ -160,18 +160,18 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
     // ── Główny widok ─────────────────────────────────────────────────────────
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#FDF8F0] p-4">
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-[#F7E7CE] max-w-md w-full">
+        <div className="min-h-screen flex items-center justify-center bg-cream p-4">
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full">
 
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-[#102C26] mb-2">Masz zaproszenie!</h1>
+                    <h1 className="text-2xl font-bold text-green-deep mb-2">Masz zaproszenie!</h1>
                     <p className="text-gray-500 text-sm">
                         Zostałeś zaproszony do dołączenia do studia w aplikacji DetailFlow.
                     </p>
                 </div>
 
                 {/* Szczegóły zaproszenia */}
-                <div className="bg-[#FDF8F0] rounded-2xl p-5 mb-6 space-y-3">
+                <div className="bg-cream rounded-2xl p-5 mb-6 space-y-3">
                     <DetailRow label="Studio" value={invitation!.studioName} bold />
                     <DetailRow label="Rola" value={ROLE_LABELS[invitation!.role] ?? invitation!.role} />
                     <DetailRow label="Email" value={invitation!.email} />
@@ -212,7 +212,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
                     <button
                         onClick={() => handleAction('decline')}
                         disabled={loadingAction || !authToken}
-                        className="flex-1 border border-gray-200 text-[#102C26] font-semibold py-3.5 rounded-xl
+                        className="flex-1 border border-gray-200 text-green-deep font-semibold py-3.5 rounded-xl
   hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Odrzuć
@@ -220,13 +220,13 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
                     <button
                         onClick={() => handleAction('accept')}
                         disabled={loadingAction || !authToken}
-                        className="flex-[2] bg-[#102C26] text-[#FDF8F0] font-semibold py-3.5 rounded-xl
+                        className="flex-[2] bg-green-deep text-cream font-semibold py-3.5 rounded-xl
   hover:bg-[#1a423a] transition-all disabled:opacity-70 disabled:cursor-not-allowed
   flex items-center justify-center gap-2"
                     >
                         {loadingAction ? (
                             <>
-                                <div className="w-4 h-4 border-2 border-[#FDF8F0] border-t-transparent rounded-full animate-spin" />
+                                <div className="w-4 h-4 border-2 border-cream border-t-transparent rounded-full animate-spin" />
                                 Przetwarzanie…
                             </>
                         ) : (
@@ -246,7 +246,7 @@ function DetailRow({ label, value, bold }: { label: string; value: string; bold?
     return (
         <div className="flex items-center justify-between">
             <span className="text-sm text-gray-500">{label}</span>
-            <span className={`text-sm text-[#102C26] ${bold ? 'font-bold' : 'font-medium'}`}>
+            <span className={`text-sm text-green-deep ${bold ? 'font-bold' : 'font-medium'}`}>
                 {value}
             </span>
         </div>

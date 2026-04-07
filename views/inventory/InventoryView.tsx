@@ -141,22 +141,28 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
 
   return (
     <div className="space-y-6 sm:space-y-10">
-      <GlobalHeader title="Magazyn" subtitle="Baza Produktów Studio OS" onOpenMenu={onOpenMenu} />
+      <GlobalHeader 
+        title="Magazyn" 
+        subtitle="Baza Produktów Studio OS" 
+        onOpenMenu={onOpenMenu}
+        onAddBooking={() => alert('Moduł tworzenia rezerwacji zostanie dodany globalnie w kolejnym kroku.')}
+        onAddClient={() => alert('Moduł szybkiego dodawania klienta zostanie dodany globalnie w kolejnym kroku.')}
+      />
 
       <div className="flex flex-col lg:flex-row gap-4">
         <div className="flex-1 relative group">
-          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#5A8A7A] transition-colors" />
+          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-light transition-colors" />
           <input
             type="text"
             placeholder="Szukaj produktu..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full pl-14 pr-6 py-5 bg-white border border-slate-200 rounded-[2rem] outline-none shadow-sm focus:ring-8 focus:ring-[#F7E7CE]/20 focus:border-[#F7E7CE]/40 transition-all font-bold text-sm sm:text-base"
+            className="w-full pl-14 pr-6 py-5 bg-white border border-slate-200 rounded-[2rem] outline-none shadow-sm focus:ring-8 focus:ring-cream-warm/20 focus:border-cream-warm/40 transition-all font-bold text-sm sm:text-base"
           />
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-[#102C26] text-[#F7E7CE] px-10 py-5 rounded-[2rem] font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"
+          className="bg-green-deep text-cream-warm px-10 py-5 rounded-[2rem] font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"
         >
           <Plus size={18} /> Dodaj Produkt
         </button>
@@ -178,10 +184,10 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
                 <tr key={item.id} className="hover:bg-slate-50/50 transition-all group">
                   <td className="px-10 py-8">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-[#f8f9fa] rounded-xl flex items-center justify-center text-slate-300 group-hover:text-[#5A8A7A] transition-colors">
+                      <div className="w-12 h-12 bg-[#f8f9fa] rounded-xl flex items-center justify-center text-slate-300 group-hover:text-green-light transition-colors">
                         <Package size={20} />
                       </div>
-                      <span className="font-bold text-[#102C26] text-base lg:text-lg tracking-tighter">{item.name}</span>
+                      <span className="font-bold text-green-deep text-base lg:text-lg tracking-tighter">{item.name}</span>
                     </div>
                   </td>
                   <td className="px-10 py-8">
@@ -189,7 +195,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
                       {item.categoryName || '—'}
                     </span>
                   </td>
-                  <td className={`px-10 py-8 text-right font-mono text-xl lg:text-2xl font-extrabold ${item.minStock !== null && item.stock < item.minStock ? 'text-red-500' : 'text-[#102C26]'}`}>
+                  <td className={`px-10 py-8 text-right font-mono text-xl lg:text-2xl font-extrabold ${item.minStock !== null && item.stock < item.minStock ? 'text-red-500' : 'text-green-deep'}`}>
                     {quickEditStockId === item.id ? (
                       <div className="flex items-center justify-end gap-2">
                         <input
@@ -198,9 +204,9 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
                           value={quickEditStockValue}
                           onChange={e => setQuickEditStockValue(e.target.value)}
                           onKeyDown={e => e.key === 'Enter' && handleQuickStockSave(item)}
-                          className="w-24 px-3 py-2 text-right bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-[#F7E7CE]/50 font-bold text-lg text-[#102C26]"
+                          className="w-24 px-3 py-2 text-right bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-cream-warm/50 font-bold text-lg text-green-deep"
                         />
-                        <button onClick={() => handleQuickStockSave(item)} disabled={updateItem.isPending} className="p-2 bg-[#102C26] text-[#F7E7CE] rounded-lg hover:bg-opacity-90 disabled:opacity-50 transition-all"><Check size={16} /></button>
+                        <button onClick={() => handleQuickStockSave(item)} disabled={updateItem.isPending} className="p-2 bg-green-deep text-cream-warm rounded-lg hover:bg-opacity-90 disabled:opacity-50 transition-all"><Check size={16} /></button>
                         <button onClick={() => setQuickEditStockId(null)} className="p-2 bg-slate-100 text-slate-500 rounded-lg hover:bg-slate-200 transition-all"><X size={16} /></button>
                       </div>
                     ) : (
@@ -219,7 +225,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
                   <td className="px-10 py-8 text-center">
                     <button
                       onClick={() => handleOpenModal(item)}
-                      className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:bg-[#102C26] hover:text-[#F7E7CE] transition-all active:scale-90"
+                      className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:bg-green-deep hover:text-cream-warm transition-all active:scale-90"
                     >
                       <Edit2 size={16} />
                     </button>
@@ -239,18 +245,18 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
       >
         <form className="space-y-8" onSubmit={handleSave}>
           <div className="space-y-2">
-            <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest ml-4">Pełna Nazwa</label>
+            <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-4">Pełna Nazwa</label>
             <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required
-              className="w-full px-6 py-5 bg-slate-50 border-none rounded-[1.5rem] outline-none font-bold text-base shadow-inner focus:ring-4 focus:ring-[#F7E7CE]/20" />
+              className="w-full px-6 py-5 bg-slate-50 border-none rounded-[1.5rem] outline-none font-bold text-base shadow-inner focus:ring-4 focus:ring-cream-warm/20" />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest ml-4">Opis</label>
+            <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-4">Opis</label>
             <input type="text" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-6 py-4 bg-slate-50 border-none rounded-[1.5rem] outline-none font-bold text-sm" placeholder="Opcjonalny opis..." />
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between ml-4 pr-1">
-              <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest">Kategoria</label>
+              <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest">Kategoria</label>
             </div>
             {isAddingCategory ? (
               <div className="flex gap-2">
@@ -263,7 +269,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleCreateCategoryInline())}
                   className="flex-1 px-6 py-4 bg-slate-50 border-none rounded-[1.5rem] outline-none font-bold text-sm shadow-inner"
                 />
-                <button type="button" onClick={handleCreateCategoryInline} disabled={!newCategoryName.trim() || createCategory.isPending} className="p-4 bg-[#102C26] text-[#F7E7CE] rounded-[1.2rem] hover:bg-opacity-90 disabled:opacity-50 transition-all"><Check size={18} /></button>
+                <button type="button" onClick={handleCreateCategoryInline} disabled={!newCategoryName.trim() || createCategory.isPending} className="p-4 bg-green-deep text-cream-warm rounded-[1.2rem] hover:bg-opacity-90 disabled:opacity-50 transition-all"><Check size={18} /></button>
                 <button type="button" onClick={() => { setIsAddingCategory(false); setNewCategoryName(''); }} className="p-4 bg-slate-100 text-slate-500 rounded-[1.2rem] hover:bg-slate-200 transition-all"><X size={18} /></button>
               </div>
             ) : (
@@ -280,7 +286,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
                     ))}
                   </select>
                 </div>
-                <button type="button" onClick={() => setIsAddingCategory(true)} className="px-5 bg-slate-50 text-[#102C26] font-bold rounded-[1.5rem] hover:bg-slate-100 transition-all flex items-center justify-center gap-2 border border-slate-100 shadow-sm">
+                <button type="button" onClick={() => setIsAddingCategory(true)} className="px-5 bg-slate-50 text-green-deep font-bold rounded-[1.5rem] hover:bg-slate-100 transition-all flex items-center justify-center gap-2 border border-slate-100 shadow-sm">
                   <Plus size={18} /> Nowa
                 </button>
               </div>
@@ -290,7 +296,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
             <div className="space-y-2">
               <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Stan Aktualny</label>
               <input type="number" value={formData.stock} onChange={e => setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })}
-                className="w-full px-6 py-5 bg-[#102C26] text-[#F7E7CE] border-none rounded-[1.5rem] font-extrabold text-2xl font-mono shadow-xl" />
+                className="w-full px-6 py-5 bg-green-deep text-cream-warm border-none rounded-[1.5rem] font-extrabold text-2xl font-mono shadow-xl" />
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-semibold text-red-400 uppercase tracking-widest ml-4">Stan Minimalny</label>
@@ -299,11 +305,11 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
             </div>
           </div>
           <div className="space-y-4">
-            <label className="text-[10px] font-semibold text-[#5A8A7A] uppercase tracking-widest ml-4">Jednostka Miar</label>
+            <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-4">Jednostka Miar</label>
             <div className="flex flex-wrap gap-2">
               {DEFAULT_UNITS.map(u => (
                 <button key={u} type="button" onClick={() => { setFormData({ ...formData, unit: u }); setCustomUnit(''); }}
-                  className={`px-5 py-3 rounded-[1.2rem] text-[10px] font-semibold uppercase tracking-widest border-2 transition-all ${formData.unit === u && !customUnit ? 'bg-[#102C26] text-[#F7E7CE] border-[#102C26]' : 'bg-slate-50 text-slate-400 border-transparent'}`}>
+                  className={`px-5 py-3 rounded-[1.2rem] text-[10px] font-semibold uppercase tracking-widest border-2 transition-all ${formData.unit === u && !customUnit ? 'bg-green-deep text-cream-warm border-green-deep' : 'bg-slate-50 text-slate-400 border-transparent'}`}>
                   {u}
                 </button>
               ))}
@@ -312,7 +318,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
               placeholder="Własna jednostka..." className="w-full px-6 py-4 bg-slate-50 border-none rounded-[1.2rem] outline-none font-bold text-sm" />
           </div>
           <button type="submit" disabled={createItem.isPending || updateItem.isPending}
-            className="w-full py-6 bg-[#102C26] text-[#F7E7CE] rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-60">
+            className="w-full py-6 bg-green-deep text-cream-warm rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-60">
             Zapisz
           </button>
         </form>
