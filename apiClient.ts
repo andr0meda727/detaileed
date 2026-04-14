@@ -1,7 +1,7 @@
 import supabase from './utils/supabase';
 import { getSelectedStudioId } from './contexts/StudioContext';
 
-const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api.detaileed.com' : '/api');
+const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api.detaileed.com/api' : '/api');
 
 async function getHeaders(isJson = false): Promise<HeadersInit> {
     const { data: { session } } = await supabase.auth.getSession();
@@ -128,7 +128,7 @@ export async function generateBookingsReport(dateFrom: string, dateTo: string): 
         headers: await getHeaders(true),
         body: JSON.stringify({ dateFrom, dateTo }),
     });
-    
+
     // Accept 200, 202 (Accepted) or 204
     if (!response.ok) {
         const errorText = await response.text().catch(() => 'Unknown error');
