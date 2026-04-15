@@ -1,12 +1,14 @@
-import React from 'react';
+﻿import React from 'react';
 import { DollarSign, Clipboard, Users, CheckCircle2 } from 'lucide-react';
+import Skeleton from '../../../components/ui/Skeleton';
 
-interface DashboardStatsProps {
+export interface DashboardStatsProps {
   todayRevenue: number;
   activeCount: number;
   clientsCount: number;
   completedCount: number;
   todayBookingsCount: number;
+  loading?: boolean;
 }
 
 const DashboardStats: React.FC<DashboardStatsProps> = ({
@@ -14,7 +16,8 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   activeCount,
   clientsCount,
   completedCount,
-  todayBookingsCount
+  todayBookingsCount,
+  loading
 }) => {
   const stats = [
     {
@@ -60,18 +63,24 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       {stats.map((card, i) => (
         <div
           key={i}
-          className="floating-card p-5 lg:p-6 animate-slide-up"
+          className="floating-card p-5 lg:p-6"
           style={{ animationDelay: `${i * 60}ms` }}
         >
           <div className="flex items-start justify-between mb-4">
             <div className={`w-11 h-11 ${card.iconBg} rounded-[0.875rem] flex items-center justify-center shadow-md`}>
               <card.icon size={18} className={card.iconColor} strokeWidth={2.5} />
             </div>
-            <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full ${card.trendStyle}`}>
+            <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${card.trendStyle}`}>
               {card.trend}
             </span>
           </div>
-          <h3 className="text-3xl lg:text-4xl font-extrabold text-green-deep leading-none">{card.value}</h3>
+          <h3 className="text-3xl lg:text-4xl font-extrabold text-green-deep leading-none flex items-baseline">
+            {loading ? (
+              <Skeleton width="100px" height="32px" className="rounded-lg" />
+            ) : (
+              <span className="">{card.value}</span>
+            )}
+          </h3>
           <p className="text-[12px] font-semibold text-green-deep/45 uppercase tracking-wide mt-2">{card.label}</p>
         </div>
       ))}
@@ -80,3 +89,4 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
 };
 
 export default DashboardStats;
+

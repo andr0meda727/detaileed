@@ -1,6 +1,5 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
 import {
   Calendar, Package, Car as CarIcon, X, Plus, TrendingUp, AlertCircle, Search, CheckCircle2, XCircle, Check,
   User, UserPlus, Phone, Mail, MessageSquare, Edit2, Save, Clock, Users, DollarSign, Wrench, ArrowRight,
@@ -15,10 +14,20 @@ import { getClients, createClient } from '../../services/clientService';
 import { createVehicle } from '../../services/vehicleService';
 import { getInventory } from '../../services/inventoryService';
 import { getServices, createService } from '../../services/serviceService';
+import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
+import { useBookings } from '../../hooks/useBookings';
+import { useInventory } from '../../hooks/useInventory';
+import { useClients } from '../../hooks/useClients';
+import { useServices } from '../../hooks/useServices';
+import { useClientSearch, useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
+import { toggleIdSelection } from '../../utils/selection';
 import GlobalHeader from '../../components/GlobalHeader';
+import Modal from '../../components/ui/Modal';
 import DashboardStats from './components/DashboardStats';
 import RevenueChart from './components/RevenueChart';
 import { useToast } from '../../contexts/ToastContext';
+import { useStudio } from '../../contexts/StudioContext';
+import Skeleton from '../../components/ui/Skeleton';
 
 // Chart data is now computed dynamically from fetched bookings
 
@@ -30,49 +39,28 @@ const activityFeed = [
   { id: 5, text: 'Dane załadowane poprawnie', sub: 'API połączone', time: '3 godz. temu', icon: Wrench, color: 'text-cyan-500 bg-cyan-50' },
 ];
 
-const Modal = ({ isOpen, onClose, title, children }: React.PropsWithChildren<{ isOpen: boolean, onClose: () => void, title: string }>) => {
-  if (!isOpen) return null;
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-[#1a2e1e]/80 backdrop-blur-md transition-opacity duration-300">
-      {/* Use generic animation styles since tailwindcss-animate might not be configured */}
-      <style>{`
-        @keyframes custom-zoom-in {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes custom-fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-custom-zoom {
-          animation: custom-zoom-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .animate-custom-fade {
-          animation: custom-fade-in 0.3s ease-out forwards;
-        }
-      `}</style>
-      <div className="fixed inset-0 animate-custom-fade" onClick={onClose}></div>
-      <div className="bg-white w-full max-w-2xl rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl overflow-hidden animate-custom-zoom flex flex-col max-h-[95vh] relative z-10">
-        <div className="p-6 sm:p-10 border-b border-slate-100 flex items-center justify-between shrink-0">
-          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-deep tracking-tight leading-none">{title}</h3>
-          <button onClick={onClose} className="p-2 sm:p-3 bg-slate-50 text-slate-400 rounded-xl sm:rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all">
-            <X size={18} />
-          </button>
-        </div>
-        <div className="p-6 sm:p-10 overflow-y-auto flex-1 custom-scrollbar">{children}</div>
-      </div>
-    </div>,
-    document.body
-  );
-};
-
 const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: () => void }> = ({ onNavigate, onOpenMenu }) => {
   const { addToast } = useToast();
-  const [bookings, setBookings] = useState<BookingResponseDto[]>([]);
-  const [inventory, setInventory] = useState<InventoryResponseDto[]>([]);
-  const [clients, setClients] = useState<ClientResponseDto[]>([]);
-  const [availableServices, setAvailableServices] = useState<ServiceResponseDto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: bookings = [], isLoading: bookingsLoading, refetch: refetchBookings } = useBookings();
+  const { data: inventory = [], isLoading: inventoryLoading, refetch: refetchInventory } = useInventory();
+  const { data: clients = [], isLoading: clientsLoading, refetch: refetchClients } = useClients();
+  const { data: availableServices = [], isLoading: servicesLoading, refetch: refetchServices } = useServices();
+
+  // Natywne rozwiązanie Anti-Flicker z pominięciem opóźnień:
+  // Hook isPending z React Query zgłosi brak danych tylko początkowo. 
+  // Aby chronić się przed "tikami" przeglądarki podczas odmountowywania, żądamy wymuszenia flagi na podstawie obiektywnej zawartości zwrotnej (czy faktycznie nie ma żadnych rezerwacji, usług, stoku, ani klientów w pamięci lokalnej/cache).
+  const isDataFound = bookings.length > 0 || clients.length > 0 || inventory.length > 0 || availableServices.length > 0;
+  const loading = (bookingsLoading || inventoryLoading || clientsLoading || servicesLoading) && !isDataFound;
+  const showLoading = loading;
+  const { selectedStudio } = useStudio();
+
+  const fetchData = useCallback(() => {
+    refetchBookings();
+    refetchInventory();
+    refetchClients();
+    refetchServices();
+  }, [refetchBookings, refetchInventory, refetchClients, refetchServices]);
+
   const [revPeriod, setRevPeriod] = useState<'weekly' | 'monthly'>('weekly');
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
@@ -105,33 +93,6 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
   const [vehicleClientMode, setVehicleClientMode] = useState<'existing' | 'new'>('existing');
 
-  const fetchData = useCallback(async () => {
-    try {
-      const bookingPromise = getBookings(undefined, (cached) => { setBookings(cached); setLoading(false); });
-      const inventoryPromise = getInventory(undefined, (cached) => { setInventory(cached); setLoading(false); });
-      const clientsPromise = getClients(undefined, (cached) => { setClients(cached); setLoading(false); });
-      const servicesPromise = getServices((cached) => { setAvailableServices(cached); });
-
-      const [bookingsData, inventoryData, clientsData, servicesData] = await Promise.all([
-        bookingPromise,
-        inventoryPromise,
-        clientsPromise,
-        servicesPromise,
-      ]);
-
-      setBookings(bookingsData);
-      setInventory(inventoryData);
-      setClients(clientsData);
-      setAvailableServices(servicesData);
-    } catch (err) {
-      console.error('Failed to fetch dashboard data:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
-
   const today = new Date().toISOString().split('T')[0];
   const lowStockItems = useMemo(() => inventory.filter(i => i.minStock !== null && i.stock < i.minStock), [inventory]);
   const todayBookings = useMemo(() => bookings.filter(b => b.scheduledAt.startsWith(today)).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)), [bookings, today]);
@@ -142,40 +103,18 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
   // Wykres przeniesiony do izolowanego komponentu w ./components/RevenueChart
 
-  const filteredClientResults = useMemo(() => {
-    if (!clientSearch.trim()) return [];
-    const query = clientSearch.toLowerCase();
-    const results: { client: ClientResponseDto, vehicle: VehicleInfoDto }[] = [];
-    clients.forEach(client => {
-      client.vehicles.forEach(vehicle => {
-        if (client.name.toLowerCase().includes(query) || (vehicle.brand || '').toLowerCase().includes(query) ||
-          (vehicle.model || '').toLowerCase().includes(query) || vehicle.licensePlate.toLowerCase().includes(query)) {
-          results.push({ client, vehicle });
-        }
-      });
-    });
-    return results.slice(0, 5);
-  }, [clientSearch, clients]);
+  const filteredClientResults = useClientVehicleSearch(clients, clientSearch);
+  const filteredClientsOnlyResults = useClientSearch(clients, vehicleClientSearch);
 
-  const filteredClientsOnlyResults = useMemo(() => {
-    if (!vehicleClientSearch.trim()) return [];
-    const query = vehicleClientSearch.toLowerCase();
-    return clients.filter(c =>
-      c.name.toLowerCase().includes(query) ||
-      (c.phone || '').toLowerCase().includes(query) ||
-      (c.email || '').toLowerCase().includes(query)
-    ).slice(0, 5);
-  }, [vehicleClientSearch, clients]);
-
-  const toggleService = (id: string) => setSelectedServices(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggleService = (id: string) => setSelectedServices((prev) => toggleIdSelection(prev, id));
   const handleAddCustomService = async () => {
     const name = customServiceInput.trim();
     if (!name) return;
     try {
       const created = await createService({ name });
-      setAvailableServices(prev => [...prev, created]);
       setSelectedServices(prev => [...prev, created.id]);
       setCustomServiceInput('');
+      refetchServices();
     } catch (err) {
       console.error('Failed to create service:', err);
       addToast('Wystąpił błąd podczas dodawania usługi.', 'error');
@@ -278,15 +217,14 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       return;
     }
     try {
-      const dto: BookingCreateDto = {
+      const dto: BookingCreateDto = buildBookingCreateDto({
         vehicleId: selectedVehicle.vehicle.id,
         clientId: selectedVehicle.client.id,
-        scheduledAt: new Date(`${selectedDate}T${selectedTime}`).toISOString(),
-        statusId: BOOKING_STATUSES.UTWORZONA.id,
+        date: selectedDate,
+        time: selectedTime,
         serviceIds: selectedServices,
-        price: parseFloat(priceInput.replace(',', '.')),
-        notes: null,
-      };
+        priceInput,
+      });
       await createBooking(dto);
       setIsBookingModalOpen(false);
       addToast('Rezerwacja została pomyślnie utworzona.', 'success');
@@ -400,70 +338,34 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   const monthNames = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
   const dateStr = `${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
-  if (loading) {
-    return (
-      <div className="space-y-6 sm:space-y-8 w-full">
-        <GlobalHeader title="Panel" subtitle="Studio OS DetailFlow" onAddBooking={() => { }} onAddClient={() => { }} onOpenMenu={onOpenMenu} />
-
-        {/* Skeleton Greeting Banner */}
-        <div className="skeleton rounded-[2rem] h-[160px] w-full" />
-
-        {/* Skeleton KPI Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 w-full">
-          {[1, 2, 3, 4].map(i => (
-            <div key={i} className="floating-card-static p-5 lg:p-6 h-[140px] w-full">
-              <div className="flex items-start justify-between mb-5">
-                <div className="w-11 h-11 skeleton rounded-[0.875rem]" />
-                <div className="w-14 h-5 skeleton rounded-full" />
-              </div>
-              <div className="w-1/2 h-8 skeleton rounded-xl mt-4" />
-              <div className="w-1/3 h-3 skeleton rounded-lg mt-3" />
-            </div>
-          ))}
-        </div>
-
-        {/* Skeleton Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start w-full">
-          <div className="lg:col-span-8 flex flex-col gap-5 lg:gap-6 w-full">
-            <div className="floating-card-static p-6 lg:p-8 w-full">
-              <div className="w-1/3 h-7 skeleton rounded-xl mb-7" />
-              <div className="space-y-4">
-                {[1,2,3].map(i => <div key={i} className="h-24 w-full skeleton rounded-[1.5rem]" />)}
-              </div>
-            </div>
-            <div className="floating-card-static p-6 h-[300px] w-full" />
-            <div className="floating-card-static p-6 h-[200px] w-full" />
-          </div>
-          <div className="lg:col-span-4 flex flex-col gap-5 lg:gap-6 w-full">
-            <div className="floating-card-static p-6 w-full">
-              <div className="w-1/2 h-5 skeleton rounded-lg mb-5" />
-              <div className="grid grid-cols-2 gap-3">
-                {[1,2,3,4].map(i => <div key={i} className="h-20 w-full skeleton rounded-2xl" />)}
-              </div>
-            </div>
-            <div className="floating-card-static p-6 h-[280px] w-full" />
-          </div>
-        </div>
-      </div>
-    );
+  if (loading && !bookings.length && !clients.length && !inventory.length && !availableServices.length) {
+    // Retain variables but render with phantom-ui
   }
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-slide-up">
-      <GlobalHeader title="Panel" subtitle="Studio OS DetailFlow" onAddBooking={handleOpenNewBooking} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
+    <div className="space-y-6 sm:space-y-8">
+      <GlobalHeader title="Panel" subtitle={`Studio ${selectedStudio?.name}`} onAddBooking={handleOpenNewBooking} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
 
       {/* Greeting Banner */}
-      <div className="relative rounded-[2rem] p-6 lg:p-8 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #1e3523 50%, #152b1a 100%)', border: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="relative rounded-xl p-6 lg:p-8 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #1e3523 50%, #152b1a 100%)', border: '1px solid rgba(255,255,255,0.05)' }}>
         <div className="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(237,231,216,0.1) 0%, transparent 70%)', filter: 'blur(40px)' }} />
         <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(232,168,48,0.06) 0%, transparent 70%)', filter: 'blur(30px)' }} />
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
-            <p className="text-[11px] font-bold text-cream-warm/50 uppercase tracking-[0.4em] mb-3">{dateStr}</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-white leading-none">Witaj! 👋</h2>
-            <p className="text-white/40 text-[13px] font-medium mt-3 max-w-md">Masz <span className="text-cream-warm font-bold">{todayBookings.length}</span> {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} na dziś i <span className="text-cream-warm font-bold">{upcomingBookings.length}</span> nadchodzących.</p>
+            <p className="text-[11px] font-bold text-cream-warm uppercase tracking-[0.4em] mb-3">{dateStr}</p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif text-white leading-none">{greeting} 👋</h2>
+            <p className="text-white/40 text-[13px] font-medium mt-3 max-w-md h-5 flex items-center">
+              {showLoading ? (
+                <Skeleton width="200px" height="14px" className="bg-white/10" />
+              ) : (
+                <span className="">
+                  Masz <span className="text-cream-warm font-bold">{todayBookings.length}</span> {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} na dziś i <span className="text-cream-warm font-bold">{upcomingBookings.length}</span> nadchodzących.
+                </span>
+              )}
+            </p>
           </div>
           <div className="flex gap-3 shrink-0">
-            <button onClick={handleOpenNewBooking} className="flex items-center gap-2 bg-amber text-green-deep px-5 py-3 rounded-full font-bold text-[11px] uppercase tracking-widest shadow-[0_8px_24px_rgba(232,168,48,0.35)] hover:shadow-[0_12px_32px_rgba(232,168,48,0.45)] hover:-translate-y-0.5 hover:bg-amber-light transition-all">
+            <button onClick={handleOpenNewBooking} className="flex items-center gap-2 bg-amber text-green-deep px-5 py-3 rounded-lg font-bold text-[11px] uppercase tracking-widest shadow-[0_4px_6px_rgba(232,168,48,0.35)] hover:shadow-[0_6px_8px_rgba(232,168,48,0.45)] hover:-translate-y-0.5 hover:bg-amber-light transition-all">
               <Plus size={15} strokeWidth={3} /> Nowe Zlecenie
             </button>
           </div>
@@ -477,6 +379,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
         clientsCount={clients.length}
         completedCount={completedCount}
         todayBookingsCount={todayBookings.length}
+        loading={showLoading}
       />
 
       {/* Main Content Layout */}
@@ -486,58 +389,79 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
         <div className="lg:col-span-8 flex flex-col gap-6 lg:gap-8">
 
           {/* Today's Schedule */}
-          <div className="floating-card-static p-6 lg:p-8 flex flex-col overflow-hidden animate-slide-up-1">
+          <div className="floating-card-static p-6 lg:p-7 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h4 className="text-xl font-sans font-bold text-green-deep">Dzisiejszy Grafik</h4>
-                <p className="text-[11px] font-semibold text-green-light/60 uppercase tracking-wide mt-1">{todayBookings.length} {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} zaplanowanych</p>
+                <p className="text-[11px] font-semibold text-green-light/60 uppercase tracking-wide mt-1 h-3 flex items-center">
+                  {showLoading ? (
+                    <Skeleton width="120px" height="10px" />
+                  ) : (
+                    <span className="">{todayBookings.length} {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} zaplanowanych</span>
+                  )}
+                </p>
               </div>
               <div className="w-10 h-10 bg-green-deep text-cream-warm rounded-[0.875rem] flex items-center justify-center shadow-lg shrink-0"><Calendar size={17} /></div>
             </div>
             <div className="space-y-3">
-              {todayBookings.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-14 text-center">
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style={{ background: 'rgba(26,46,30,0.05)' }}><Calendar size={28} className="text-green-deep/20" /></div>
-                  <p className="text-base font-semibold text-green-deep/25">Brak zleceń na dziś</p>
-                  <p className="text-xs text-green-deep/20 mt-1 font-medium">Dodaj nową rezerwację klikając + powyżej</p>
-                </div>
-              )}
-              {todayBookings.map((booking) => {
-                const time = formatBookingTime(booking.scheduledAt);
-                return (
-                  <div key={booking.id} onClick={() => handleViewBooking(booking)}
-                    className="p-4 sm:p-5 rounded-[1.5rem] flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 cursor-pointer group transition-all duration-300 hover:-translate-y-0.5"
-                    style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'white'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px -6px rgba(0,0,0,0.08)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(26,46,30,0.03)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
-                  >
-                    <div className="flex items-center justify-between sm:flex-col sm:justify-center sm:min-w-[90px] sm:border-r sm:pr-6 shrink-0" style={{ borderColor: 'rgba(26,46,30,0.08)' }}>
-                      <span className="text-xl font-bold text-green-deep font-mono">{time}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border mt-1.5" style={{ color: booking.statusColor || 'var(--green-deep)', borderColor: (booking.statusColor || 'var(--green-deep)') + '40', backgroundColor: (booking.statusColor || 'var(--green-deep)') + '12' }}>{booking.status}</span>
+              {showLoading ? (
+                [1, 2, 3].map(i => (
+                  <div key={i} className="p-4 sm:p-5 rounded-xl flex items-center gap-6 bg-slate-50 border border-slate-100">
+                    <div className="w-20 border-r pr-6 shrink-0 border-slate-200 flex flex-col items-center justify-center gap-2">
+                      <Skeleton width="40px" height="14px" className="rounded" />
+                      <Skeleton width="54px" height="18px" className="rounded-md" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h5 className="text-lg font-sans font-bold text-green-deep truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
-                      <p className="text-[11px] font-bold text-green-deep/35 uppercase tracking-widest mt-0.5 truncate">{booking.services.join(', ') || 'Brak usług'}</p>
-                      <p className="text-[12px] font-semibold text-green-light mt-1"><UserCheck size={10} className="inline mr-1" />{booking.client.name}</p>
-                    </div>
-                    <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
-                      {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
-                        <>
-                          <button onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA)} title="Zakończ"
-                            className="w-9 h-9 flex items-center justify-center rounded-xl bg-green-pale/40 text-green-light hover:bg-green-pale/70 transition-all active:scale-95">
-                            <Check size={16} strokeWidth={2.5} />
-                          </button>
-                          <button onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA)} title="Anuluj"
-                            className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition-all active:scale-95">
-                            <X size={16} strokeWidth={2.5} />
-                          </button>
-                        </>
-                      )}
-                      <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-xl font-mono text-[13px] font-bold tracking-wider uppercase shadow-md">{booking.vehicle.licensePlate}</div>
+                    <div className="flex-1 flex flex-col justify-center gap-2">
+                      <Skeleton width="60%" height="18px" className="rounded-lg" />
+                      <Skeleton width="40%" height="12px" className="rounded-md" />
                     </div>
                   </div>
-                );
-              })}
+                ))
+              ) : (
+                <>
+                  {todayBookings.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-14 text-center">
+                      <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: 'rgba(26,46,30,0.05)' }}><Calendar size={24} className="text-green-deep/20" /></div>
+                      <p className="text-base font-semibold text-green-deep/25">Brak zleceń na dziś</p>
+                      <p className="text-xs text-green-deep/20 mt-1 font-medium">Dodaj nową rezerwację klikając + powyżej</p>
+                    </div>
+                  )}
+                  {todayBookings.map((booking) => {
+                    const time = formatBookingTime(booking.scheduledAt);
+                    return (
+                      <div key={booking.id} onClick={() => handleViewBooking(booking)}
+                        className="p-4 sm:p-5 rounded-xl flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 cursor-pointer group transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.08)]"
+                        style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}
+                      >
+                        <div className="flex items-center justify-between sm:flex-col sm:justify-center sm:min-w-[90px] sm:border-r sm:pr-6 shrink-0" style={{ borderColor: 'rgba(26,46,30,0.08)' }}>
+                          <span className="text-xl font-bold text-green-deep font-mono">{time}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border mt-1.5" style={{ color: booking.statusColor || 'var(--green-deep)', borderColor: (booking.statusColor || 'var(--green-deep)') + '40', backgroundColor: (booking.statusColor || 'var(--green-deep)') + '12' }}>{booking.status}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h5 className="text-lg font-sans font-bold text-green-deep truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
+                          <p className="text-[11px] font-bold text-green-deep/35 uppercase tracking-widest mt-0.5 truncate">{booking.services.join(', ') || 'Brak usług'}</p>
+                          <p className="text-[12px] font-semibold text-green-light mt-1"><UserCheck size={10} className="inline mr-1" />{booking.client.name}</p>
+                        </div>
+                        <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                          {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
+                            <>
+                              <button onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA)} title="Zakończ"
+                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-green-pale/40 text-green-light hover:bg-green-pale/70 transition-all active:scale-95">
+                                <Check size={16} strokeWidth={2.5} />
+                              </button>
+                              <button onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA)} title="Anuluj"
+                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition-all active:scale-95">
+                                <X size={16} strokeWidth={2.5} />
+                              </button>
+                            </>
+                          )}
+                          <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-xl font-mono text-[13px] font-bold tracking-wider uppercase shadow-md">{booking.vehicle.licensePlate}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
             </div>
           </div>
 
@@ -545,40 +469,58 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           <RevenueChart bookings={bookings} />
 
           {/* Upcoming Bookings */}
-          <div className="floating-card-static p-6 lg:p-8 animate-slide-up-3">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h4 className="text-lg lg:text-xl font-sans font-bold text-green-deep">Nadchodzące</h4>
-                <p className="text-[11px] font-semibold text-green-light/60 uppercase tracking-wide mt-1">następne {upcomingBookings.length} rezerwacji</p>
+          <div className="floating-card-static p-6 lg:p-8">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h4 className="text-lg lg:text-xl font-sans font-bold text-green-deep">Nadchodzące</h4>
+                  <p className="text-[11px] font-semibold text-green-light/60 uppercase tracking-wide mt-1">następne {upcomingBookings.length} rezerwacji</p>
+                </div>
+                <button onClick={() => onNavigate?.('Tasks')} className="text-[9px] font-semibold text-green-light uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">Wszystkie <ChevronRight size={13} /></button>
               </div>
-              <button onClick={() => onNavigate?.('Tasks')} className="text-[9px] font-semibold text-green-light uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">Wszystkie <ChevronRight size={13} /></button>
-            </div>
-            <div className="space-y-2">
-              {upcomingBookings.slice(0, 4).map(booking => {
-                const dt = new Date(booking.scheduledAt);
-                const day = String(dt.getDate()).padStart(2, '0');
-                const monthIdx = dt.getMonth();
-                return (
-                  <div key={booking.id} onClick={() => handleViewBooking(booking)}
-                    className="p-4 rounded-[1.5rem] flex items-center gap-5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
-                    style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'white'; (e.currentTarget as HTMLElement).style.boxShadow = '0 8px 24px -6px rgba(0,0,0,0.07)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(26,46,30,0.03)'; (e.currentTarget as HTMLElement).style.boxShadow = 'none'; }}
-                  >
-                    <div className="text-center shrink-0 min-w-[50px] border-r pr-4" style={{ borderColor: 'rgba(26,46,30,0.08)' }}>
-                      <p className="text-xl font-bold text-green-deep font-mono leading-none">{day}</p>
-                      <p className="text-[8px] font-bold text-green-light/60 uppercase tracking-wider">{['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'][monthIdx]}</p>
+              <div className="space-y-2">
+                {loading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="p-4 rounded-xl flex items-center gap-5" style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}>
+                      <div className="text-center shrink-0 min-w-[50px] border-r pr-4" style={{ borderColor: 'rgba(26,46,30,0.08)' }}>
+                        <Skeleton width="30px" height="24px" className="mx-auto mb-1 rounded-md" />
+                        <Skeleton width="24px" height="10px" className="mx-auto" />
+                      </div>
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <Skeleton width="100px" height="16px" className="rounded-md" />
+                        <Skeleton width="60%" height="12px" className="rounded-md" />
+                      </div>
+                      <div className="text-right shrink-0">
+                        <Skeleton width="60px" height="20px" className="rounded-md" />
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h5 className="text-sm font-bold text-green-deep truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
-                      <p className="text-[9px] font-bold text-green-deep/30 uppercase tracking-widest truncate">{booking.services.join(', ') || 'Brak usług'}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-base font-bold text-green-deep font-mono">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')} <span className="text-[9px] text-green-deep/35">zł</span></p>
-                    </div>
-                  </div>
-                );
-              })}
+                  ))
+                ) : (
+                  upcomingBookings.slice(0, 4).map(booking => {
+                    const dt = new Date(booking.scheduledAt);
+                    const day = String(dt.getDate()).padStart(2, '0');
+                    const monthIdx = dt.getMonth();
+                    return (
+                      <div key={booking.id} onClick={() => handleViewBooking(booking)}
+                        className="p-4 rounded-xl flex items-center gap-5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.07)]"
+                        style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}
+                      >
+                        <div className="text-center shrink-0 min-w-[50px] border-r pr-4" style={{ borderColor: 'rgba(26,46,30,0.08)' }}>
+                          <p className="text-xl font-bold text-green-deep font-mono leading-none">{day}</p>
+                          <p className="text-[8px] font-bold text-green-light/60 uppercase tracking-wider">{['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'][monthIdx]}</p>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h5 className="text-sm font-bold text-green-deep truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
+                          <p className="text-[9px] font-bold text-green-deep/30 uppercase tracking-widest truncate">{booking.services.join(', ') || 'Brak usług'}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-base font-bold text-green-deep font-mono">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')} <span className="text-[9px] text-green-deep/35">zł</span></p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
             </div>
           </div>
 
@@ -588,7 +530,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
         <div className="lg:col-span-4 flex flex-col gap-6 lg:gap-8">
 
           {/* Quick Actions */}
-          <div className="floating-card-static p-6 sm:p-7 animate-slide-up-1">
+          <div className="floating-card-static p-6 sm:p-7">
             <h4 className="text-lg font-sans font-bold text-green-deep mb-5">Szybkie Akcje</h4>
             <div className="grid grid-cols-2 gap-3">
               {[
@@ -632,48 +574,62 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           </div>
 
           {/* Stock Alerts */}
-          <div className="floating-card-static p-6 sm:p-7 animate-slide-up-2">
+          <div className="floating-card-static p-6 sm:p-7">
             <div className="flex items-center justify-between mb-5">
               <h4 className="text-lg font-sans font-bold text-green-deep">Alerty Magazynowe</h4>
               <div className={`w-9 h-9 rounded-[0.875rem] flex items-center justify-center ${lowStockItems.length > 0 ? 'bg-amber/15 text-amber' : 'bg-green-pale/40 text-green-light'}`}><Package size={16} /></div>
             </div>
-            {lowStockItems.length === 0 ? (
-              <div className="text-center py-5">
-                <div className="w-10 h-10 bg-green-pale/40 rounded-full flex items-center justify-center mx-auto mb-2">
-                  <span className="text-green-light text-lg">✓</span>
-                </div>
-                <p className="text-sm font-semibold text-green-deep/50">Wszystko w normie</p>
-              </div>
-            ) : (
+            {showLoading ? (
               <div className="space-y-2">
-                {lowStockItems.map(item => (
-                  <div key={item.id} className="p-4 rounded-2xl flex items-center justify-between" style={{ background: 'rgba(232,168,48,0.07)', border: '1px solid rgba(232,168,48,0.15)' }}>
-                    <div>
-                      <h5 className="text-[13px] font-bold text-green-deep truncate">{item.name}</h5>
-                      <p className="text-[10px] font-semibold text-amber uppercase tracking-widest">{item.categoryName || 'Brak kategorii'}</p>
+                {[1, 2].map(i => (
+                  <div key={i} className="p-4 rounded-2xl flex items-center justify-between bg-slate-50 border border-slate-100">
+                    <div className="flex-1 flex flex-col justify-center gap-2">
+                      <Skeleton width="60%" height="14px" className="rounded-md" />
+                      <Skeleton width="40%" height="10px" className="rounded" />
                     </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-base font-bold text-amber font-mono">{item.stock}<span className="text-[11px] ml-0.5 opacity-60">{item.unit}</span></p>
-                      <p className="text-[10px] font-semibold text-green-deep/35 uppercase">min. {item.minStock}</p>
-                    </div>
+                    <Skeleton width="40px" height="24px" className="rounded-lg" />
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div className="">
+                {lowStockItems.length === 0 ? (
+                  <div className="text-center py-5">
+                    <div className="w-10 h-10 bg-green-pale/40 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <span className="text-green-light text-lg">✓</span>
+                    </div>
+                    <p className="text-sm font-semibold text-green-deep/50">Wszystko w normie</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {lowStockItems.map(item => (
+                      <div key={item.id} className="p-4 rounded-2xl flex items-center justify-between" style={{ background: 'rgba(232,168,48,0.07)', border: '1px solid rgba(232,168,48,0.15)' }}>
+                        <div>
+                          <h5 className="text-[13px] font-bold text-green-deep truncate">{item.name}</h5>
+                          <p className="text-[10px] font-semibold text-amber uppercase tracking-widest">{item.categoryName || 'Brak kategorii'}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="text-base font-bold text-amber font-mono">{item.stock}<span className="text-[11px] ml-0.5 opacity-60">{item.unit}</span></p>
+                          <p className="text-[10px] font-semibold text-green-deep/35 uppercase">min. {item.minStock}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
 
           {/* Activity Feed */}
-          <div className="floating-card-static p-6 sm:p-7 animate-slide-up-3">
+          <div className="floating-card-static p-6 sm:p-7">
             <div className="flex items-center justify-between mb-5">
               <h4 className="text-lg font-sans font-bold text-green-deep">Aktywność</h4>
               <div className="w-9 h-9 bg-green-deep text-cream-warm rounded-[0.875rem] flex items-center justify-center"><Activity size={16} /></div>
             </div>
             <div className="space-y-0.5">
               {activityFeed.map(item => (
-                <div key={item.id} className="flex items-start gap-3.5 p-3 rounded-2xl cursor-pointer transition-all duration-200"
+                <div key={item.id} className="flex items-start gap-3.5 p-3 rounded-2xl cursor-pointer transition-all duration-200 hover:bg-[rgba(26,46,30,0.04)]"
                   style={{ borderRadius: '1rem' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(26,46,30,0.04)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                 >
                   <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}><item.icon size={14} /></div>
                   <div className="flex-1 min-w-0">
@@ -692,7 +648,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       {/* === MODALS === */}
       <Modal isOpen={!!confirmation} onClose={() => setConfirmation(null)} title="Zmień Status">
         <div className="space-y-8">
-          <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-[2.5rem]">
+          <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-2xl">
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-cream-warm/20 text-green-deep' : 'bg-red-50 text-red-500'}`}><AlertCircle size={32} /></div>
             <div>
               <p className="text-lg font-bold text-green-deep leading-tight mb-2">{confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'Zakończyć to zlecenie?' : 'Anulować tę rezerwację?'}</p>
@@ -701,8 +657,8 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
             </div>
           </div>
           <div className="flex gap-4">
-            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">Wróć</button>
-            <button onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)} className={`flex-1 py-5 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-green-deep text-cream-warm' : 'bg-red-500'}`}>Tak, kontynuuj</button>
+            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">Wróć</button>
+            <button onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)} className={`flex-1 py-5 rounded-xl font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-green-deep text-cream-warm' : 'bg-red-500'}`}>Tak, kontynuuj</button>
           </div>
         </div>
       </Modal>
@@ -735,7 +691,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               <>
                 <div className="relative">
                   <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input type="text" placeholder="Szukaj klienta po nazwie lub kontakcie..." value={vehicleClientSearch} onChange={e => setVehicleClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/30" />
+                  <input type="text" placeholder="Szukaj klienta po nazwie lub kontakcie..." value={vehicleClientSearch} onChange={e => setVehicleClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-xl font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/30" />
                 </div>
                 {vehicleClientSearch.trim() && filteredClientsOnlyResults.map(client => (
                   <button key={client.id} type="button" onClick={() => { setSelectedClientForVehicle(client); setVehicleClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-cream-warm transition-all">
@@ -743,7 +699,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                   </button>
                 ))}
                 {selectedClientForVehicle && (
-                  <div className="p-6 bg-cream-warm/20 border-2 border-cream-warm/50 rounded-[1.5rem] flex items-center gap-4">
+                  <div className="p-6 bg-cream-warm/20 border-2 border-cream-warm/50 rounded-xl flex items-center gap-4">
                     <User size={24} className="text-green-light" />
                     <div><h5 className="font-semibold text-green-deep text-sm">{selectedClientForVehicle.name}</h5><p className="text-[9px] font-semibold text-green-light uppercase tracking-widest">{selectedClientForVehicle.phone || selectedClientForVehicle.email}</p></div>
                   </div>
@@ -751,7 +707,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
                 <div className="space-y-4 pt-4">
                   <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-4">Nowy Pojazd</label>
-                  <div className="space-y-3 bg-slate-50 p-6 rounded-[1.5rem] border border-slate-100">
+                  <div className="space-y-3 bg-slate-50 p-6 rounded-xl border border-slate-100">
                     <div className="grid grid-cols-2 gap-3">
                       <input type="text" placeholder="Marka (opcjonalnie)" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
                       <input type="text" placeholder="Model (opcjonalnie)" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
@@ -759,12 +715,12 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                     <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50 uppercase" />
                   </div>
                 </div>
-                <button type="button" onClick={handleAddNewVehicleToExisting} className="w-full mt-8 py-6 bg-green-deep text-cream-warm rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                <button type="button" onClick={handleAddNewVehicleToExisting} className="w-full mt-8 py-6 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3">
                   <Save size={18} /> Zapisz Pojazd
                 </button>
               </>
             ) : (
-              <div className="space-y-4 bg-slate-50 p-6 rounded-[1.5rem] mt-2 border border-slate-100">
+              <div className="space-y-4 bg-slate-50 p-6 rounded-xl mt-2 border border-slate-100">
                 <div className="space-y-3">
                   <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
                   <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} required className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
@@ -793,8 +749,8 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
       <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title={isEditingBooking ? (selectedBooking ? 'Edytuj' : 'Nowa Rezerwacja') : 'Detale Zlecenia'}>
         {!isEditingBooking && selectedBooking ? (
-          <div className="space-y-8 animate-slide-up">
-            <div className="p-8 bg-green-deep rounded-[2.5rem] border border-white/5 relative overflow-hidden">
+          <div className="space-y-8">
+            <div className="p-8 bg-green-deep rounded-2xl border border-white/5 relative overflow-hidden">
               <div className="relative z-10 flex items-center justify-between">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
@@ -818,7 +774,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 </div>
               </div>
             </div>
-            <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between">
+            <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-sm"><Clock size={28} /></div>
                 <div>
@@ -854,94 +810,232 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
             <div className="flex gap-4 pt-6">
               {selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name && (
                 <>
-                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><Check size={16} strokeWidth={2.5} /> Zakończ</button>
-                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><X size={16} strokeWidth={2.5} /> Anuluj</button>
+                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><Check size={16} strokeWidth={2.5} /> Zakończ</button>
+                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><X size={16} strokeWidth={2.5} /> Anuluj</button>
                 </>
               )}
               <button
                 onClick={() => setIsBookingModalOpen(false)}
-                className={`py-5 bg-green-deep text-cream-warm rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
+                className={`py-5 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
               >Zamknij</button>
             </div>
           </div>
         ) : (
-          <form className="space-y-8 pb-10" onSubmit={handleCreateBooking}>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between ml-4 mb-2">
-                <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest">Pojazd i Klient</label>
+          <form className="space-y-5 pb-6" onSubmit={handleCreateBooking}>
+
+            {/* ── Pojazd i Klient ────────────────────────────── */}
+            <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white" style={{ boxShadow: '0 8px 20px rgba(26,46,30,0.12)' }}>
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-deep rounded-xl flex items-center justify-center shrink-0">
+                    <CarIcon size={14} className="text-cream-warm" />
+                  </div>
+                  <p className="text-[11px] font-bold text-green-deep uppercase tracking-widest">Pojazd i Klient</p>
+                </div>
                 <div className="flex bg-slate-50 p-1 rounded-xl">
-                  <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'existing' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}>Wyszukaj</button>
-                  <button type="button" onClick={() => setBookingClientMode('new')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${bookingClientMode === 'new' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}>Dodaj Nowy</button>
+                  <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${bookingClientMode === 'existing' ? 'bg-green-deep text-cream-warm shadow-sm' : 'text-slate-400 hover:text-green-deep'}`}>Wyszukaj</button>
+                  <button type="button" onClick={() => setBookingClientMode('new')} className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${bookingClientMode === 'new' ? 'bg-green-deep text-cream-warm shadow-sm' : 'text-slate-400 hover:text-green-deep'}`}>Dodaj Nowy</button>
                 </div>
               </div>
 
-              {bookingClientMode === 'existing' ? (
-                <>
-                  <div className="relative">
-                    <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input type="text" placeholder="Szukaj..." value={clientSearch} onChange={e => setClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/30" />
-                  </div>
-                  {clientSearch.trim() && filteredClientResults.map(res => (
-                    <button key={res.vehicle.id} type="button" onClick={() => { setSelectedVehicle(res); setClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-cream-warm transition-all">
-                      <div className="text-left"><h5 className="font-semibold text-green-deep text-sm">{res.vehicle.brand} {res.vehicle.model}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{res.client.name}</p></div>
-                      <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-xl font-mono text-[11px] font-semibold tracking-widest">{res.vehicle.licensePlate}</div>
-                    </button>
-                  ))}
-                  {selectedVehicle && (
-                    <div className="p-6 bg-cream-warm/20 border-2 border-cream-warm/50 rounded-[1.5rem] flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <CarIcon size={24} className="text-green-light" />
-                        <div><h5 className="font-semibold text-green-deep text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-semibold text-green-light uppercase tracking-widest">{selectedVehicle.client.name}</p></div>
+              <div className="p-4 space-y-3">
+                {bookingClientMode === 'existing' ? (
+                  <>
+                    <div className="relative">
+                      <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input type="text" placeholder="Szukaj klienta lub pojazdu..." value={clientSearch} onChange={e => setClientSearch(e.target.value)} className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl font-semibold text-sm outline-none focus:border-cream-warm/50 transition-all" />
+                    </div>
+                    {/* Wyniki wyszukiwania – zawsze w DOM, animacja CSS height */}
+                    <div style={{
+                      height: clientSearch.trim() ? '130px' : '0px',
+                      opacity: clientSearch.trim() ? 1 : 0,
+                      transition: 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      overflow: 'hidden',
+                    }}>
+                      <div className="overflow-y-auto custom-scrollbar rounded-xl h-full">
+                        {filteredClientResults.length === 0 ? (
+                          <div className="h-full flex items-center justify-center">
+                            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak wyników</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-1.5">
+                            {filteredClientResults.map(res => (
+                              <button key={res.vehicle.id} type="button" onClick={() => { setSelectedVehicle(res); setClientSearch(''); }} className="w-full p-3.5 bg-white border-2 border-slate-100 rounded-xl flex items-center justify-between hover:border-cream-warm/60 hover:shadow-sm transition-all">
+                                <div className="text-left"><h5 className="font-bold text-green-deep text-sm">{res.vehicle.brand} {res.vehicle.model}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">{res.client.name}</p></div>
+                                <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-lg font-mono text-[10px] font-bold tracking-widest">{res.vehicle.licensePlate}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div className="font-mono text-xs font-semibold text-green-deep whitespace-nowrap">{selectedVehicle.vehicle.licensePlate}</div>
                     </div>
-                  )}
-                </>
-              ) : (
-                <div className="space-y-4 bg-slate-50 p-6 rounded-[1.5rem] mt-2 border border-slate-100">
+                    {selectedVehicle && (
+                      <div className="p-4 rounded-xl flex items-center justify-between" style={{ background: 'rgba(232,168,48,0.08)', border: '2px solid rgba(232,168,48,0.3)' }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 bg-amber/15 rounded-xl flex items-center justify-center shrink-0">
+                            <CarIcon size={16} className="text-amber" />
+                          </div>
+                          <div><h5 className="font-bold text-green-deep text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-semibold text-green-light uppercase tracking-widest mt-0.5">{selectedVehicle.client.name}</p></div>
+                        </div>
+                        <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-lg font-mono text-[10px] font-bold tracking-widest">{selectedVehicle.vehicle.licensePlate}</div>
+                      </div>
+                    )}
+                  </>
+                ) : (
                   <div className="space-y-3">
-                    <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
-                    <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
-                    <div className="grid grid-cols-2 gap-3">
-                      <input type="tel" placeholder="Telefon *" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
-                      <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
+                    <div className="space-y-2.5">
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Klienta</p>
+                      <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <input type="tel" placeholder="Telefon *" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                        <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                      </div>
+                      <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
                     </div>
-                    <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
-                  </div>
-                  <div className="space-y-3 pt-3 border-t border-slate-200">
-                    <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">Dane Pojazdu</h5>
-                    <div className="grid grid-cols-2 gap-3">
-                      <input type="text" placeholder="Marka" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
-                      <input type="text" placeholder="Model" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
+                    <div className="space-y-2.5 pt-3 border-t border-slate-100">
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Pojazdu</p>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <input type="text" placeholder="Marka" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                        <input type="text" placeholder="Model" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                      </div>
+                      <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all uppercase" />
                     </div>
-                    <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50 uppercase" />
+                    <button type="button" onClick={handleAddNewClientForBooking} className="w-full py-3.5 bg-green-deep text-cream-warm rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                      <UserPlus size={15} strokeWidth={2.5} /> Dodaj Klienta i Wybierz
+                    </button>
                   </div>
-                  <button type="button" onClick={handleAddNewClientForBooking} className="w-full py-4 mt-2 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                    <UserPlus size={16} strokeWidth={2.5} /> Dodaj Klienta i Wybierz
-                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* ── Sekcja Usług ───────────────────────────────── */}
+            <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white" style={{ boxShadow: '0 8px 20px rgba(26,46,30,0.12)' }}>
+              {/* Nagłówek sekcji */}
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-deep rounded-xl flex items-center justify-center shrink-0">
+                    <Wrench size={14} className="text-cream-warm" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-green-deep uppercase tracking-widest leading-none">Wybierz Usługi</p>
+                    <p className="text-[9px] text-slate-400 font-semibold mt-0.5">
+                      {selectedServices.length === 0 ? 'Nic nie wybrano' : `${selectedServices.length} ${selectedServices.length === 1 ? 'wybrana' : 'wybranych'}`}
+                    </p>
+                  </div>
                 </div>
-              )}
-            </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-4">Wybierz Usługi</label>
-              <div className="flex flex-wrap gap-2">
-                {availableServices.map(svc => (
-                  <button key={svc.id} type="button" onClick={() => toggleService(svc.id)} className={`px-4 py-3 rounded-xl text-[9px] font-semibold uppercase tracking-widest border-2 transition-all flex items-center gap-2 ${selectedServices.includes(svc.id) ? 'bg-green-deep text-cream-warm border-green-deep' : 'bg-slate-50 text-slate-400 border-transparent'}`}>
-                    {selectedServices.includes(svc.id) && <Check size={12} strokeWidth={4} />} {svc.name}
-                  </button>
-                ))}
+                {selectedServices.length > 0 && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: '#1a2e1e' }}>
+                    <Check size={10} strokeWidth={3} className="text-cream-warm" />
+                    <span className="text-[9px] font-bold text-cream-warm tracking-widest">{selectedServices.length}</span>
+                  </div>
+                )}
               </div>
-              <div className="flex gap-3 pt-2">
-                <input type="text" value={customServiceInput} onChange={e => setCustomServiceInput(e.target.value)} placeholder="Dodaj inną usługę..." className="flex-1 px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30" />
-                <button type="button" onClick={handleAddCustomService} className="w-14 h-14 bg-green-deep text-cream-warm rounded-2xl flex items-center justify-center shadow-lg active:scale-95"><Plus size={24} /></button>
+
+              {/* Siatka usług */}
+              <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {availableServices.map(svc => {
+                  const isSelected = selectedServices.includes(svc.id);
+                  return (
+                    <button
+                      key={svc.id}
+                      type="button"
+                      onClick={() => toggleService(svc.id)}
+                      className="group relative flex items-center gap-2.5 p-3 rounded-xl text-left transition-all duration-200 active:scale-[0.97]"
+                      style={isSelected
+                        ? { background: '#1a2e1e', border: '2px solid transparent', boxShadow: '0 4px 12px rgba(26,46,30,0.2)' }
+                        : { background: '#f8f9fa', border: '2px solid transparent' }
+                      }
+                    >
+                      {/* Checkbox indicator */}
+                      <div
+                        className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all"
+                        style={isSelected
+                          ? { background: 'rgba(245,240,232,0.15)', border: '1.5px solid rgba(245,240,232,0.4)' }
+                          : { background: 'white', border: '1.5px solid rgba(0,0,0,0.12)' }
+                        }
+                      >
+                        {isSelected && <Check size={10} strokeWidth={3.5} className="text-cream-warm" />}
+                      </div>
+                      {/* Nazwa usługi */}
+                      <span
+                        className="text-[10px] font-bold uppercase tracking-wide leading-tight line-clamp-2"
+                        style={{ color: isSelected ? '#f5f0e8' : '#2d4f33' }}
+                      >
+                        {svc.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Dodaj niestandardową usługę */}
+              <div className="px-4 pb-4 flex gap-2">
+                <input
+                  type="text"
+                  value={customServiceInput}
+                  onChange={e => setCustomServiceInput(e.target.value)}
+                  placeholder="Dodaj inną usługę..."
+                  className="flex-1 px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddCustomService}
+                  className="w-12 h-12 bg-green-deep text-cream-warm rounded-xl flex items-center justify-center shadow-md active:scale-95 transition-all hover:shadow-lg shrink-0"
+                >
+                  <Plus size={18} strokeWidth={2.5} />
+                </button>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Cena Netto</label><input type="text" value={priceInput} onChange={e => setPriceInput(e.target.value)} className="w-full px-6 py-5 bg-green-deep text-cream-warm border-none rounded-[1.5rem] font-semibold text-xl font-mono" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Data</label><input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="w-full px-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none" /></div>
-              <div className="space-y-2"><label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4">Godzina</label><input type="time" value={selectedTime} onChange={e => setSelectedTime(e.target.value)} className="w-full px-6 py-5 bg-slate-50 border-none rounded-[1.5rem] font-bold text-sm outline-none" /></div>
+
+            {/* ── Termin i Cena ──────────────────────────────── */}
+            <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white" style={{ boxShadow: '0 8px 20px rgba(26,46,30,0.12)' }}>
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(232,168,48,0.12)' }}>
+                  <Calendar size={14} className="text-amber" />
+                </div>
+                <p className="text-[11px] font-bold text-green-deep uppercase tracking-widest">Termin i Cena</p>
+              </div>
+              <div className="p-4 grid grid-cols-3 gap-3">
+                {/* Cena */}
+                <div className="col-span-1 flex flex-col gap-1.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Cena netto</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={priceInput}
+                      onChange={e => setPriceInput(e.target.value)}
+                      className="w-full px-4 py-4 rounded-xl font-bold text-lg font-mono text-cream-warm outline-none border-none"
+                      style={{ background: '#1a2e1e' }}
+                    />
+                    <span className="absolute right-3 bottom-3.5 text-[9px] font-bold text-cream-warm/40 uppercase tracking-widest">ZŁ</span>
+                  </div>
+                </div>
+                {/* Data */}
+                <div className="col-span-1 flex flex-col gap-1.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Data</label>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={e => setSelectedDate(e.target.value)}
+                    className="w-full px-4 py-4 bg-slate-50 border-2 border-transparent rounded-xl font-bold text-sm outline-none focus:border-cream-warm/50 transition-all text-green-deep"
+                  />
+                </div>
+                {/* Godzina */}
+                <div className="col-span-1 flex flex-col gap-1.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Godzina</label>
+                  <input
+                    type="time"
+                    value={selectedTime}
+                    onChange={e => setSelectedTime(e.target.value)}
+                    className="w-full px-4 py-4 bg-slate-50 border-2 border-transparent rounded-xl font-bold text-sm outline-none focus:border-cream-warm/50 transition-all text-green-deep"
+                  />
+                </div>
+              </div>
             </div>
-            <button type="submit" className="w-full py-6 bg-green-deep text-cream-warm rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3"><Save size={18} /> Zapisz Rezerwację</button>
+
+            <button type="submit" className="w-full py-5 bg-green-deep text-cream-warm rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 hover:shadow-2xl">
+              <Save size={16} strokeWidth={2.5} /> Zapisz Rezerwację
+            </button>
           </form>
         )}
       </Modal>
@@ -949,4 +1043,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   );
 };
 
+
 export default Dashboard;
+
+

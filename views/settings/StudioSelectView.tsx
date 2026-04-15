@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Building2, MapPin, CheckCircle2, Loader2, Crown, Shield, UserCheck } from 'lucide-react';
 import { StudioDto } from '../../types';
 import { useStudios } from '../../hooks/useStudios';
@@ -18,9 +18,9 @@ type RoleConfig = {
 };
 
 const ROLE_CONFIG: Record<string, RoleConfig> = {
-  Owner:    { label: 'Właściciel', icon: Crown,     bg: 'bg-amber-50',   text: 'text-amber-700',  border: 'border-amber-200',  accent: 'bg-amber-500' },
-  Manager:  { label: 'Menedżer',   icon: Shield,    bg: 'bg-blue-50',    text: 'text-blue-700',   border: 'border-blue-200',   accent: 'bg-blue-500'  },
-  Employee: { label: 'Pracownik',  icon: UserCheck, bg: 'bg-emerald-50', text: 'text-emerald-700',border: 'border-emerald-200',accent: 'bg-emerald-500'},
+  Owner: { label: 'Właściciel', icon: Crown, bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', accent: 'bg-amber-500' },
+  Manager: { label: 'Menedżer', icon: Shield, bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', accent: 'bg-blue-500' },
+  Employee: { label: 'Pracownik', icon: UserCheck, bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', accent: 'bg-emerald-500' },
 };
 
 const getFallback = (role: string): RoleConfig => ({
@@ -45,9 +45,9 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-cream mesh-bg p-6 sm:p-12">
-      <div className="mb-12 text-center max-w-md animate-slide-up">
+      <div className="mb-12 text-center max-w-md">
         <div
-          className="inline-flex items-center justify-center w-20 h-20 rounded-[1.5rem] mb-7 shadow-[0_20px_50px_rgba(26,46,30,0.2)]"
+          className="inline-flex items-center justify-center w-20 h-20 rounded-xl mb-7 shadow-[0_20px_50px_rgba(26,46,30,0.2)]"
           style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)' }}
         >
           <Building2 className="text-cream-warm" size={32} />
@@ -80,7 +80,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
                   key={studio.studioId}
                   onClick={() => handleSelect(studio)}
                   disabled={!!selecting}
-                  className={`relative text-left flex flex-col gap-5 p-7 rounded-[2rem] transition-all duration-300 overflow-hidden group animate-slide-up
+                  className={`relative text-left flex flex-col gap-5 p-7 rounded-xl transition-all duration-300 overflow-hidden group
                     ${isActive
                       ? 'shadow-[0_20px_50px_rgba(26,46,30,0.2)] scale-[1.02]'
                       : 'hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)]'
@@ -116,9 +116,9 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
                     </h3>
                     {studio.address
                       ? <div className={`flex items-start gap-1.5 text-xs leading-relaxed ${isActive ? 'text-white/40' : 'text-slate-400'}`}>
-                          <MapPin size={11} className="shrink-0 mt-0.5" />
-                          <span>{studio.address}</span>
-                        </div>
+                        <MapPin size={11} className="shrink-0 mt-0.5" />
+                        <span>{studio.address}</span>
+                      </div>
                       : <span className={`text-xs ${isActive ? 'text-white/20' : 'text-slate-300'}`}>Brak adresu</span>
                     }
                   </div>
@@ -137,3 +137,4 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
 };
 
 export default StudioSelectView;
+

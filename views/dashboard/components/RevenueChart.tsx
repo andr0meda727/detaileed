@@ -53,12 +53,12 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
           </h3>
         </div>
         <div
-          className="flex p-1.5 rounded-full h-fit shrink-0"
+          className="flex p-1.5 rounded-lg h-fit shrink-0"
           style={{ background: 'rgba(26,46,30,0.04)', border: '1px solid rgba(26,46,30,0.07)' }}
         >
           <button 
             onClick={() => setRevPeriod('weekly')} 
-            className={`px-5 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
+            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
               revPeriod === 'weekly' ? 'bg-green-deep text-cream-warm shadow-md' : 'text-green-deep/40 hover:text-green-deep'
             }`}
           >
@@ -66,7 +66,7 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
           </button>
           <button 
             onClick={() => setRevPeriod('monthly')} 
-            className={`px-5 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
+            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
               revPeriod === 'monthly' ? 'bg-green-deep text-cream-warm shadow-md' : 'text-green-deep/40 hover:text-green-deep'
             }`}
           >

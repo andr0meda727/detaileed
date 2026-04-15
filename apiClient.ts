@@ -50,7 +50,8 @@ export async function apiGet<T>(
     }
 
     const urlString = url.toString();
-    const cacheKey = `${CACHE_PREFIX}${urlString}`;
+    const studioId = getSelectedStudioId() || 'global';
+    const cacheKey = `${CACHE_PREFIX}${studioId}_${urlString}`;
 
     // 1. Try to serve from cache first
     if (onCacheHit) {

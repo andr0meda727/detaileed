@@ -24,7 +24,7 @@ body {
 /* ── Floating card — core visual primitive ───────────────────── */
 .floating-card {
   background: white;
-  border-radius: 2rem;
+  border-radius: 1rem;
   transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
   border: 1px solid rgba(0, 0, 0, 0.04);
   box-shadow:
@@ -33,17 +33,17 @@ body {
 }
 
 .floating-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.02),
-    0 30px 60px -15px rgba(0, 0, 0, 0.09);
+    0 20px 40px -10px rgba(0, 0, 0, 0.07);
   border-color: rgba(61, 107, 70, 0.12);
 }
 
 /* Non-interactive card variant */
 .floating-card-static {
   background: white;
-  border-radius: 2rem;
+  border-radius: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.04);
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.02),
@@ -99,12 +99,18 @@ body {
   background: linear-gradient(
     90deg,
     rgba(26, 46, 30, 0.04) 25%,
-    rgba(26, 46, 30, 0.09) 50%,
+    rgba(26, 46, 30, 0.08) 50%,
     rgba(26, 46, 30, 0.04) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.8s ease-in-out infinite;
-  border-radius: 1rem;
+  border-radius: 0.5rem;
+  min-height: 1em;
+}
+
+/* ── Data entry animation ────────────────────────────────────── */
+.data-entry-fade {
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────── */

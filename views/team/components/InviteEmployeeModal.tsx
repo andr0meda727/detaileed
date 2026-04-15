@@ -23,7 +23,7 @@ const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    
+
     setIsSubmitting(true);
     try {
       await onInvite(selectedRole, email);
@@ -41,10 +41,10 @@ const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClo
           <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4 flex items-center gap-2">
             <Mail size={12} /> Email do logowania
           </label>
-          <input 
-            type="email" 
-            required 
-            value={email} 
+          <input
+            type="email"
+            required
+            value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all text-green-deep"
             placeholder="np. jan@studio.pl"
@@ -57,7 +57,7 @@ const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClo
             <Shield size={12} /> Uprawnienia
           </label>
           {ROLES.map(role => (
-            <div 
+            <div
               key={role.id}
               onClick={() => !isSubmitting && setSelectedRole(role.id)}
               className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${selectedRole === role.id ? 'border-green-deep bg-green-deep/5' : 'border-slate-100 bg-white hover:border-slate-200'} ${isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
@@ -76,16 +76,16 @@ const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClo
         </div>
 
         <div className="pt-6 border-t border-slate-100 flex justify-end gap-3">
-          <button 
-            type="button" 
-            onClick={onClose} 
+          <button
+            type="button"
+            onClick={onClose}
             disabled={isSubmitting}
             className="px-6 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
           >
             Anuluj
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isSubmitting}
             className="px-8 py-4 bg-green-deep text-cream-warm rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:active:scale-100 disabled:cursor-not-allowed"
           >

@@ -10,20 +10,26 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       proxy: {
         '^/api/.*': {
-          target: 'http://localhost:5174',
+          target: 'https://api.detaileed.com',
           changeOrigin: true,
         },
       },
     },
     plugins: [react()],
-    define: {
-      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       }
-    }
+    },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./tests/setupTests.ts'],
+      include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html'],
+      },
+    },
   };
 });

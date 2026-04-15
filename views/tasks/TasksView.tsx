@@ -1,17 +1,52 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { CheckCircle2, X, Clock, Car as CarIcon, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight, LayoutList, Search, CalendarDays, Hash, Phone, MessageSquare, AlertCircle, Check } from 'lucide-react';
+import { CheckCircle2, X, Clock, Car as CarIcon, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight, LayoutList, Search, CalendarDays, Hash, Phone, MessageSquare, AlertCircle, Check, Plus, Wrench, UserPlus, Save, Calendar } from 'lucide-react';
 import { BookingResponseDto, BookingCreateDto } from '../../types';
 import { BOOKING_STATUSES } from '../../constants';
-import { getBookings, completeBooking, cancelBooking, updateBooking } from '../../services/bookingService';
+import { completeBooking, cancelBooking, updateBooking } from '../../services/bookingService';
+import { useBookings } from '../../hooks/useBookings';
+import { useClients } from '../../hooks/useClients';
+import { useServices } from '../../hooks/useServices';
+import { createBooking } from '../../services/bookingService';
+import { createClient } from '../../services/clientService';
+import { createService } from '../../services/serviceService';
+import { ClientResponseDto, VehicleInfoDto } from '../../types';
+import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
+import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
+import { toggleIdSelection } from '../../utils/selection';
 import GlobalHeader from '../../components/GlobalHeader';
-import Modal from '../../components/Modal';
+import Modal from '../../components/ui/Modal';
 import { useToast } from '../../contexts/ToastContext';
+import Skeleton from '../../components/ui/Skeleton';
 
 const TasksView: React.FC = () => {
-  const [bookings, setBookings] = useState<BookingResponseDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'in-progress' | 'calendar'>('in-progress');
+  const { data: bookings = [], isLoading: loading, refetch: refetchBookings } = useBookings();
+
+  const { data: clients = [], refetch: refetchClients } = useClients();
+  const { data: availableServices = [], refetch: refetchServices } = useServices();
+
+  const [isClientModalOpen, setIsClientModalOpen] = useState(false);
+  const [isEditingBooking, setIsEditingBooking] = useState(false);
+  const [clientSearch, setClientSearch] = useState('');
+  const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto, vehicle: VehicleInfoDto } | null>(null);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [customServiceInput, setCustomServiceInput] = useState('');
+  const [priceInput, setPriceInput] = useState('0,00');
+  const [selectedTime, setSelectedTime] = useState('08:00');
+
+  const [newClientName, setNewClientName] = useState('');
+  const [newClientPhone, setNewClientPhone] = useState('');
+  const [newClientEmail, setNewClientEmail] = useState('');
+  const [newBookingClientNip, setNewBookingClientNip] = useState('');
+
+  const [newVehicleBrand, setNewVehicleBrand] = useState('');
+  const [newVehicleModel, setNewVehicleModel] = useState('');
+  const [newVehiclePlate, setNewVehiclePlate] = useState('');
+
+  const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
+
+  const fetchData = useCallback(() => { refetchBookings(); refetchClients(); refetchServices(); }, [refetchBookings, refetchClients, refetchServices]);
+  const [activeTab, setActiveTab] = useState<'in-progress' | 'calendar' | 'search'>('in-progress');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,28 +58,35 @@ const TasksView: React.FC = () => {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [confirmation, setConfirmation] = useState<{ id: string, type: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES], booking: BookingResponseDto } | null>(null);
 
-  const fetchData = useCallback(async () => {
-    try { setLoading(true); setBookings(await getBookings()); } catch (e) { console.error(e); } finally { setLoading(false); }
-  }, []);
-  useEffect(() => { fetchData(); }, [fetchData]);
+
 
   const activeBookings = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    // Start of current week (Monday)
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    weekStart.setHours(0, 0, 0, 0);
+
     return bookings.filter(b => {
-      if (b.status === BOOKING_STATUSES.ZAKONCZONA.name || b.status === BOOKING_STATUSES.ANULOWANA.name) {
+      // Zlecenia w toku (Utworzone) – zawsze widoczne
+      if (b.status === BOOKING_STATUSES.UTWORZONA.name) return true;
+      // Zakończone – tylko z bieżącego tygodnia
+      if (b.status === BOOKING_STATUSES.ZAKONCZONA.name) {
+        const d = new Date(b.completedAt || b.scheduledAt);
+        return d >= weekStart;
+      }
+      // Anulowane – tylko dzisiaj
+      if (b.status === BOOKING_STATUSES.ANULOWANA.name) {
         const dateToCheck = b.completedAt || b.scheduledAt;
-        return dateToCheck.startsWith(today);
+        return dateToCheck.startsWith(todayStr);
       }
       return true;
     });
   }, [bookings]);
 
   const inProgressBookings = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0];
-    let filtered = activeBookings.filter(b => {
-      const scheduledDate = b.scheduledAt.split('T')[0];
-      return scheduledDate >= today;
-    });
+    let filtered = [...activeBookings];
 
     if (filterStatus !== 'all') {
       filtered = filtered.filter(b => b.status === BOOKING_STATUSES[filterStatus]?.name);
@@ -77,7 +119,9 @@ const TasksView: React.FC = () => {
   const globalSearchResults = useMemo(() => {
     if (!searchQuery) return [];
     const q = searchQuery.toLowerCase();
-    return activeBookings.filter(b => b.services.join(' ').toLowerCase().includes(q) || b.client.name.toLowerCase().includes(q) || (b.vehicle.brand || '').toLowerCase().includes(q) || (b.vehicle.model || '').toLowerCase().includes(q) || b.vehicle.licensePlate.toLowerCase().includes(q));
+    return activeBookings
+      .filter(b => b.services.join(' ').toLowerCase().includes(q) || b.client.name.toLowerCase().includes(q) || (b.vehicle.brand || '').toLowerCase().includes(q) || (b.vehicle.model || '').toLowerCase().includes(q) || b.vehicle.licensePlate.toLowerCase().includes(q))
+      .sort((a, b) => b.scheduledAt.localeCompare(a.scheduledAt));
   }, [activeBookings, searchQuery]);
 
   const calendarDays = useMemo(() => {
@@ -90,7 +134,105 @@ const TasksView: React.FC = () => {
   const formatTime = (iso: string) => new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
   const formatDateShort = (iso: string) => { const d = new Date(iso); return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`; };
 
+  
+  const filteredClientResults = useClientVehicleSearch(clients, clientSearch);
+
+  const toggleService = (id: string) => setSelectedServices((prev) => toggleIdSelection(prev, id));
+  const handleAddCustomService = async () => {
+    const name = customServiceInput.trim();
+    if (!name) return;
+    try {
+      const created = await createService({ name });
+      setSelectedServices(prev => [...prev, created.id]);
+      setCustomServiceInput('');
+      refetchServices();
+    } catch (err) {
+      addToast('Wystąpił błąd podczas dodawania usługi.', 'error');
+    }
+  };
+
+  const handleOpenNewBooking = () => {
+    setSelectedBooking(null); setSelectedVehicle(null); setClientSearch(''); setSelectedServices([]); setPriceInput('0,00');
+    // Ensure selectedDate tracks correctly - typically reset to today, but TasksView tracks it already via selectedDate so we just let it be or reset
+    setIsEditingBooking(true);
+    setBookingClientMode('existing');
+    setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
+    setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate(''); setIsBookingModalOpen(true);
+  };
+  
+  const handleCreateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await createClient({ name: newClientName, phone: newClientPhone || null, email: newClientEmail || null, nip: null });
+      setIsClientModalOpen(false);
+      setNewClientName(''); setNewClientPhone(''); setNewClientEmail('');
+      addToast('Karta klienta została utworzona.', 'success');
+      fetchData();
+    } catch (err) {
+      addToast('Wystąpił błąd podczas tworzenia klienta.', 'error');
+    }
+  };
+
+  const handleAddNewClientForBooking = async () => {
+    if (!newClientName || !newClientPhone || !newVehiclePlate) {
+      addToast('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.', 'error');
+      return;
+    }
+    try {
+      const createdClient = await createClient({
+        name: newClientName,
+        phone: newClientPhone,
+        email: newClientEmail || null,
+        nip: newBookingClientNip || null,
+        vehicle: {
+          licensePlate: newVehiclePlate,
+          brand: newVehicleBrand || null,
+          model: newVehicleModel || null,
+        },
+      });
+      const vehicle = createdClient.vehicles?.[0];
+      if (vehicle) setSelectedVehicle({ client: createdClient, vehicle });
+      setBookingClientMode('existing');
+      setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
+      setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+      fetchData();
+      addToast('Dodano i wybrano nowego klienta.', 'success');
+    } catch (err) {
+      addToast('Wystąpił błąd podczas dodawania klienta.', 'error');
+    }
+  };
+
+  const handleCreateBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedVehicle) {
+      addToast('Wybierz istniejącego klienta lub dodaj nowego.', 'error');
+      return;
+    }
+    try {
+      const dto = buildBookingCreateDto({
+        vehicleId: selectedVehicle.vehicle.id,
+        clientId: selectedVehicle.client.id,
+        date: selectedDate,
+        time: selectedTime,
+        serviceIds: selectedServices,
+        priceInput,
+      });
+      await createBooking(dto);
+      setIsBookingModalOpen(false);
+      addToast('Rezerwacja została pomyślnie utworzona.', 'success');
+      fetchData();
+    } catch (err) {
+      addToast('Wystąpił błąd podczas tworzenia rezerwacji.', 'error');
+    }
+  };
+
   const handleViewBooking = (booking: BookingResponseDto) => {
+    setIsEditingBooking(false);
+    setSelectedServices(booking.services);
+    setPriceInput(booking.totalPrice ? (booking.totalPrice / 100).toFixed(2).replace('.', ',') : '0,00');
+    const dt = new Date(booking.scheduledAt);
+    setSelectedDate(dt.toISOString().split('T')[0]);
+    setSelectedTime(dt.toTimeString().slice(0, 5));
     setSelectedBooking(booking);
     setIsBookingModalOpen(true);
   };
@@ -126,11 +268,11 @@ const TasksView: React.FC = () => {
   const confirmStatusUpdate = (e: React.MouseEvent, booking: BookingResponseDto, targetStatus: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES]) => {
     e.stopPropagation();
     setConfirmation({ id: booking.id, type: targetStatus, booking });
-  };  const renderBookingCard = (booking: BookingResponseDto, index: number = 0) => (
+  }; const renderBookingCard = (booking: BookingResponseDto, index: number = 0) => (
     <div
       key={booking.id}
       onClick={() => handleViewBooking(booking)}
-      className="floating-card flex flex-col sm:flex-row items-stretch sm:items-center cursor-pointer overflow-hidden animate-slide-up"
+      className="floating-card flex flex-col sm:flex-row items-stretch cursor-pointer overflow-hidden"
       style={{ animationDelay: `${index * 50}ms` }}
     >
       {/* Date/Time column */}
@@ -142,7 +284,7 @@ const TasksView: React.FC = () => {
         <span className="text-[10px] font-semibold text-green-deep/35 font-mono tracking-widest mt-2">{formatTime(booking.scheduledAt)}</span>
       </div>
       {/* Content */}
-      <div className="flex-1 p-5 sm:p-6 space-y-2">
+      <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center space-y-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="bg-green-deep text-cream-warm px-3 py-1 rounded-lg font-mono text-[10px] font-bold tracking-widest">{booking.vehicle.licensePlate}</span>
           <h4 className="font-sans font-bold text-green-deep text-base tracking-tight truncate">{booking.vehicle.brand} {booking.vehicle.model}</h4>
@@ -161,15 +303,15 @@ const TasksView: React.FC = () => {
     </div>
   );
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-12 h-12 border-4 border-green-deep border-t-transparent rounded-full animate-spin"></div></div>;
+  // Removed full-page loading to keep layout static
 
   return (
-    <div className="space-y-8 animate-slide-up pb-20">
-      <GlobalHeader 
-        title="Rezerwacje" 
-        subtitle="Harmonogram • Studio DetailFlow" 
-        onAddBooking={() => alert('Moduł tworzenia rezerwacji zostanie dodany globalnie w kolejnym kroku.')}
-        onAddClient={() => alert('Moduł szybkiego dodawania klienta zostanie dodany globalnie w kolejnym kroku.')}
+    <div className="space-y-8 pb-20">
+      <GlobalHeader
+        title="Rezerwacje"
+        subtitle="Harmonogram • Studio DetailFlow"
+        onAddBooking={handleOpenNewBooking}
+        onAddClient={() => setIsClientModalOpen(true)}
       />
 
       {/* Tab switcher */}
@@ -189,12 +331,18 @@ const TasksView: React.FC = () => {
         >
           <CalendarDays size={16} /> Kalendarz
         </button>
+        <button
+          onClick={() => setActiveTab('search')}
+          className={`flex-1 flex items-center justify-center gap-2.5 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all duration-300 ${activeTab === 'search' ? 'bg-green-deep text-cream-warm shadow-lg' : 'text-green-deep/40 hover:text-green-deep'}`}
+        >
+          <Search size={16} /> Wyszukiwarka
+        </button>
       </div>
 
       {activeTab === 'in-progress' ? (
         <div className="space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {([
                 { id: 'all', label: 'Wszystkie' },
                 { id: 'UTWORZONA', label: 'W toku' },
@@ -204,11 +352,23 @@ const TasksView: React.FC = () => {
                 <button
                   key={f.id}
                   onClick={() => setFilterStatus(f.id)}
-                  className={`px-4 py-2 rounded-[1rem] text-[10px] font-bold uppercase tracking-widest transition-all ${filterStatus === f.id ? 'bg-green-deep text-cream-warm shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:border-green-deep/20'}`}
+                  className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${filterStatus === f.id ? 'bg-green-deep text-cream-warm shadow-md' : 'bg-white text-slate-400 border border-slate-200 hover:border-green-deep/20'}`}
                 >
                   {f.label}
                 </button>
               ))}
+              {/* Tooltip info */}
+              <div className="relative group ml-1">
+                <div className="w-6 h-6 rounded-full bg-white border border-slate-200 text-slate-400 flex items-center justify-center cursor-help hover:bg-green-deep hover:text-cream-warm hover:border-green-deep transition-all text-[10px] font-bold select-none">?</div>
+                <div className="absolute left-0 top-8 z-50 w-68 p-4 rounded-xl shadow-2xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 text-left" style={{ background: '#1a2e1e', width: '260px' }}>
+                  <p className="text-[9px] font-bold uppercase tracking-widest mb-3" style={{ color: 'rgba(245,240,232,0.5)' }}>Zasady wyświetlania</p>
+                  <ul className="space-y-2 text-[11px] font-medium leading-snug" style={{ color: '#f5f0e8' }}>
+                    <li className="flex items-start gap-2.5"><span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0 mt-1.5"></span><span>Zlecenia <strong>w toku</strong> – zawsze widoczne</span></li>
+                    <li className="flex items-start gap-2.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0 mt-1.5"></span><span>Zlecenia <strong>ukończone</strong> – z bieżącego tygodnia</span></li>
+                    <li className="flex items-start gap-2.5"><span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0 mt-1.5"></span><span>Zlecenia <strong>anulowane</strong> – tylko z dzisiaj</span></li>
+                  </ul>
+                </div>
+              </div>
             </div>
             <div className="relative w-full md:w-[300px]">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Search size={16} /></div>
@@ -217,24 +377,104 @@ const TasksView: React.FC = () => {
                 placeholder="Szukaj zlecenia..."
                 value={inProgressSearchQuery}
                 onChange={e => setInProgressSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-[1rem] font-semibold text-xs outline-none focus:ring-2 focus:ring-cream-warm/50 focus:border-cream-warm transition-all"
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl font-semibold text-xs outline-none focus:ring-2 focus:ring-cream-warm/50 focus:border-cream-warm transition-all"
               />
             </div>
           </div>
-          {groupedInProgressBookings.length > 0 ? groupedInProgressBookings.map(group => (
-            <div key={group.date} className="space-y-4">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest pl-2 border-b border-slate-100 pb-2 mb-4">
-                {new Date(group.date).toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}
-              </h3>
-              <div className="space-y-4">
-                {group.bookings.map((b, idx) => renderBookingCard(b, idx))}
-              </div>
+          {loading ? (
+            <div className="space-y-8">
+              {[1, 2].map(dayIdx => (
+                <div key={dayIdx} className="space-y-4">
+                  <Skeleton width="200px" height="20px" className="ml-2 mb-4" />
+                  <div className="space-y-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="floating-card-static flex flex-col sm:flex-row items-stretch sm:items-center overflow-hidden h-auto sm:h-[104px]">
+                        <div className="w-full sm:w-28 p-4 sm:p-5 border-b sm:border-b-0 sm:border-r border-slate-50 flex flex-col items-center justify-center shrink-0" style={{ background: 'rgba(26,46,30,0.01)' }}>
+                          <Skeleton width="40px" height="24px" className="mb-2 rounded-md" />
+                          <Skeleton width="32px" height="12px" className="rounded-md" />
+                        </div>
+                        <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center space-y-3">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Skeleton width="70px" height="22px" className="rounded-lg" />
+                            <Skeleton width="120px" height="20px" className="rounded-lg" />
+                          </div>
+                          <div className="flex flex-wrap gap-4">
+                            <Skeleton width="30%" height="14px" className="rounded-md" />
+                            <Skeleton width="20%" height="14px" className="rounded-md" />
+                          </div>
+                        </div>
+                        <div className="px-5 sm:px-6 py-4 flex items-center justify-end sm:shrink-0" style={{ borderTop: '1px solid rgba(26,46,30,0.02)', background: 'rgba(26,46,30,0.005)' }}>
+                          <Skeleton width="80px" height="28px" className="rounded-full" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          )) : (
-            <div className="bg-white rounded-[3rem] p-24 text-center border-2 border-dashed border-slate-100">
-              <div className="w-20 h-20 bg-cream-warm/20 text-green-deep rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={36} /></div>
-              <h3 className="text-2xl font-semibold text-green-deep tracking-tighter">Brak zleceń</h3>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Brak przypisanych rezerwacji.</p>
+          ) : (
+            <>
+              {groupedInProgressBookings.length > 0 ? groupedInProgressBookings.map(group => (
+                <div key={group.date} className="space-y-4">
+                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest pl-2 border-b border-slate-100 pb-2 mb-4">
+                    {new Date(group.date).toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  </h3>
+                  <div className="space-y-4">
+                    {group.bookings.map((b, idx) => renderBookingCard(b, idx))}
+                  </div>
+                </div>
+              )) : (
+                <div className="bg-white rounded-2xl p-24 text-center border-2 border-dashed border-slate-100">
+                  <div className="w-20 h-20 bg-cream-warm/20 text-green-deep rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={36} /></div>
+                  <h3 className="text-2xl font-semibold text-green-deep tracking-tighter">Brak zleceń</h3>
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Brak przypisanych rezerwacji.</p>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      ) : activeTab === 'search' ? (
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-2xl font-semibold text-green-deep tracking-tighter">Wyszukiwarka</h3>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Przeszukaj wszystkie rezerwacje w systemie</p>
+            </div>
+            <div className="relative w-full md:w-[420px]">
+              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"><Search size={18} /></div>
+              <input
+                type="text"
+                placeholder="Tablica, klient, model, usługa..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pr-6 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/20 focus:border-cream-warm transition-all"
+                style={{ paddingLeft: '3rem' }}
+                autoFocus
+              />
+            </div>
+          </div>
+          {!searchQuery ? (
+            <div className="bg-white rounded-2xl p-20 text-center border-2 border-dashed border-slate-100">
+              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search size={28} className="text-slate-300" />
+              </div>
+              <p className="text-slate-400 text-sm font-semibold">Wpisz frazę aby wyszukać rezerwację</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Wyniki dla: &ldquo;{searchQuery}&rdquo;</span>
+                <span className="text-[10px] font-semibold text-green-light uppercase tracking-widest">Znaleziono: {globalSearchResults.length}</span>
+              </div>
+              {globalSearchResults.length > 0
+                ? globalSearchResults.map((b, idx) => renderBookingCard(b, idx))
+                : (
+                  <div className="bg-white rounded-2xl p-16 text-center border-2 border-dashed border-slate-100">
+                    <p className="text-slate-400 text-sm font-semibold">Brak wyników</p>
+                    <p className="text-slate-300 text-xs font-bold uppercase tracking-widest mt-1">Spróbuj innej frazy</p>
+                  </div>
+                )
+              }
             </div>
           )}
         </div>
@@ -266,51 +506,52 @@ const TasksView: React.FC = () => {
                   const hasB = bookings.some(b => b.scheduledAt.startsWith(ds));
                   return (
                     <button key={day} onClick={() => setSelectedDate(ds)}
-                      className={`relative aspect-square rounded-[0.65rem] flex flex-col items-center justify-center text-sm font-semibold transition-all duration-200 ${
-                        isSel ? 'bg-green-deep text-cream-warm shadow-lg scale-105 z-10' : 'hover:bg-green-pale/30 text-green-deep/70'
-                      }`}>
+                      className={`relative aspect-square rounded-[0.65rem] flex flex-col items-center justify-center text-sm font-semibold transition-all duration-200 ${isSel ? 'bg-green-deep text-cream-warm shadow-lg scale-105 z-10' : 'hover:bg-green-pale/30 text-green-deep/70'
+                        }`}>
                       {day}
-                      {hasB && <div className={`w-1 h-1 rounded-full absolute bottom-1.5 ${isSel ? 'bg-amber' : 'bg-green-light'}`} />}
+                      {hasB && <div className={`w-1.5 h-1.5 rounded-full absolute bottom-1.5 ${isSel ? 'bg-amber' : 'bg-green-light'}`} />}
                     </button>
                   );
                 })}
               </div>
             </div>
             <div className="flex-1 space-y-6">
-              <div className="bg-green-deep rounded-[2.5rem] p-8 flex items-center justify-between gap-4 border border-white/5 overflow-hidden relative">
+              <div className="bg-green-deep rounded-2xl p-8 flex items-center justify-between gap-4 border border-white/5 overflow-hidden relative">
                 <div className="absolute top-0 right-0 w-40 h-40 bg-cream-warm/10 blur-[60px] rounded-full -mr-16 -mt-16"></div>
                 <div className="relative z-10"><p className="text-[10px] font-semibold text-cream-warm uppercase tracking-[0.4em] mb-2">Wybrana Data</p><h4 className="text-3xl font-extrabold text-white tracking-tighter capitalize leading-none">{new Date(selectedDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}</h4></div>
-                <CalendarIcon size={32} className="text-white/10 shrink-0" />
+                <div className="relative z-10 w-16 h-16 rounded-2xl bg-white/15 flex items-center justify-center shrink-0 border border-white/5 shadow-inner">
+                  <CalendarIcon size={24} color="#ffffff" strokeWidth={2} />
+                </div>
               </div>
               <div className="grid grid-cols-1 gap-4">
-                {selectedDayBookings.length > 0 ? selectedDayBookings.map((b, idx) => renderBookingCard(b, idx)) : (<div className="bg-[#f8f9fa] rounded-[3rem] p-16 text-center border-2 border-dashed border-slate-200"><p className="text-slate-400 text-xs font-semibold uppercase tracking-widest">Brak rezerwacji w tym dniu</p></div>)}
+                {loading ? (
+                  [1, 2].map(i => (
+                    <div key={i} className="floating-card-static flex flex-col sm:flex-row items-center h-24 bg-white/50">
+                      <div className="w-24 border-r pr-6 flex items-center justify-center shrink-0 border-slate-100">
+                        <Skeleton width="40px" height="20px" />
+                      </div>
+                      <div className="flex-1 p-6 space-y-2">
+                        <Skeleton width="40%" height="16px" />
+                        <Skeleton width="20%" height="10px" />
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <>
+                    {selectedDayBookings.length > 0 ? selectedDayBookings.map((b, idx) => renderBookingCard(b, idx)) : (<div className="bg-[#f8f9fa] rounded-2xl p-16 text-center border-2 border-dashed border-slate-200"><p className="text-slate-400 text-xs font-semibold uppercase tracking-widest">Brak rezerwacji w tym dniu</p></div>)}
+                  </>
+                )}
               </div>
             </div>
-          </div>
-
-          <div className="space-y-6 pt-10 border-t border-slate-200">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div><h3 className="text-2xl font-semibold text-green-deep tracking-tighter">Wyszukiwarka</h3><p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">Przeszukaj wszystkie rezerwacje</p></div>
-              <div className="relative w-full md:w-[400px]"><div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400"><Search size={20} /></div><input type="text" placeholder="Tablica, klient, model..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-14 pr-6 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/20 focus:border-cream-warm transition-all" /></div>
-            </div>
-            {searchQuery && (
-              <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-inner">
-                <div className="mb-6 flex items-center justify-between border-b border-slate-50 pb-4">
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Wyniki dla: "{searchQuery}"</span>
-                  <span className="text-[10px] font-semibold text-green-light uppercase tracking-widest">Znaleziono: {globalSearchResults.length}</span>
-                </div>
-                <div className="grid grid-cols-1 gap-4">{globalSearchResults.length > 0 ? globalSearchResults.map((b, idx) => renderBookingCard(b, idx)) : (<div className="py-12 text-center text-slate-300 font-semibold uppercase text-xs tracking-widest">Nie znaleziono</div>)}</div>
-              </div>
-            )}
           </div>
         </div>
       )}
 
       {/* Booking Details Modal */}
-      <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title="Detale Zlecenia">
-        {selectedBooking && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="p-8 bg-green-deep rounded-[2.5rem] border border-white/5 relative overflow-hidden">
+      <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title={isEditingBooking ? (selectedBooking ? 'Edytuj' : 'Nowa Rezerwacja') : 'Detale Zlecenia'}>
+        {!isEditingBooking && selectedBooking ? (
+          <div className="space-y-8">
+            <div className="p-8 bg-green-deep rounded-2xl border border-white/5 relative overflow-hidden">
               <div className="relative z-10 flex items-center justify-between">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
@@ -323,7 +564,7 @@ const TasksView: React.FC = () => {
                   <div className="flex gap-4">
                     {selectedBooking.client.phone && (
                       <a href={`tel:${selectedBooking.client.phone}`} className="flex items-center gap-2 text-cream-warm hover:text-white transition-colors">
-                        <Phone size={14} /><span className="text-sm font-semibold font-mono">{selectedBooking.client.phone}</span>
+                        <Phone size={14} /><span className="text-l font-semibold font-mono">{selectedBooking.client.phone}</span>
                       </a>
                     )}
                   </div>
@@ -334,7 +575,7 @@ const TasksView: React.FC = () => {
                 </div>
               </div>
             </div>
-            <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 flex items-center justify-between">
+            <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-sm"><Clock size={28} /></div>
                 <div>
@@ -343,7 +584,7 @@ const TasksView: React.FC = () => {
                 </div>
               </div>
               <div className="text-right">
-                <div className={`inline-block px-3 py-1.5 rounded-xl border mb-2 font-semibold text-[10px] uppercase tracking-widest`} style={{ color: selectedBooking.statusColor || 'var(--green-deep)', backgroundColor: (selectedBooking.statusColor || 'var(--cream-warm)') + '15', borderColor: (selectedBooking.statusColor || 'var(--cream-warm)') + '30' }}>
+                <div className={`inline-block px-5 py-2.5 rounded-2xl border-2 mb-2 font-bold text-[11px] uppercase tracking-widest`} style={{ color: selectedBooking.statusColor || 'var(--green-deep)', backgroundColor: (selectedBooking.statusColor || 'var(--green-deep)') + '15', borderColor: (selectedBooking.statusColor || 'var(--green-deep)') + '40' }}>
                   {selectedBooking.status}
                 </div>
                 <div className="flex flex-col items-end">
@@ -370,23 +611,253 @@ const TasksView: React.FC = () => {
             <div className="flex gap-4 pt-6">
               {selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name && (
                 <>
-                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><Check size={16} strokeWidth={2.5} /> Zakończ</button>
-                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><X size={16} strokeWidth={2.5} /> Anuluj</button>
+                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><Check size={16} strokeWidth={2.5} /> Zakończ</button>
+                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><X size={16} strokeWidth={2.5} /> Anuluj</button>
                 </>
               )}
               <button
                 onClick={() => setIsBookingModalOpen(false)}
-                className={`py-5 bg-green-deep text-cream-warm rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
+                className={`py-5 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
               >Zamknij</button>
             </div>
           </div>
+        ) : (
+          <form className="space-y-5 pb-6" onSubmit={handleCreateBooking}>
+
+            {/* ── Pojazd i Klient ────────────────────────────── */}
+            <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white" style={{ boxShadow: '0 8px 20px rgba(26,46,30,0.12)' }}>
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-deep rounded-xl flex items-center justify-center shrink-0">
+                    <CarIcon size={14} className="text-cream-warm" />
+                  </div>
+                  <p className="text-[11px] font-bold text-green-deep uppercase tracking-widest">Pojazd i Klient</p>
+                </div>
+                <div className="flex bg-slate-50 p-1 rounded-xl">
+                  <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${bookingClientMode === 'existing' ? 'bg-green-deep text-cream-warm shadow-sm' : 'text-slate-400 hover:text-green-deep'}`}>Wyszukaj</button>
+                  <button type="button" onClick={() => setBookingClientMode('new')} className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${bookingClientMode === 'new' ? 'bg-green-deep text-cream-warm shadow-sm' : 'text-slate-400 hover:text-green-deep'}`}>Dodaj Nowy</button>
+                </div>
+              </div>
+
+              <div className="p-4 space-y-3">
+                {bookingClientMode === 'existing' ? (
+                  <>
+                    <div className="relative">
+                      <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input type="text" placeholder="Szukaj klienta lub pojazdu..." value={clientSearch} onChange={e => setClientSearch(e.target.value)} className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl font-semibold text-sm outline-none focus:border-cream-warm/50 transition-all" />
+                    </div>
+                    {/* Wyniki wyszukiwania – zawsze w DOM, animacja CSS height */}
+                    <div style={{
+                      height: clientSearch.trim() ? '130px' : '0px',
+                      opacity: clientSearch.trim() ? 1 : 0,
+                      transition: 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      overflow: 'hidden',
+                    }}>
+                      <div className="overflow-y-auto custom-scrollbar rounded-xl h-full">
+                        {filteredClientResults.length === 0 ? (
+                          <div className="h-full flex items-center justify-center">
+                            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak wyników</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-1.5">
+                            {filteredClientResults.map(res => (
+                              <button key={res.vehicle.id} type="button" onClick={() => { setSelectedVehicle(res); setClientSearch(''); }} className="w-full p-3.5 bg-white border-2 border-slate-100 rounded-xl flex items-center justify-between hover:border-cream-warm/60 hover:shadow-sm transition-all">
+                                <div className="text-left"><h5 className="font-bold text-green-deep text-sm">{res.vehicle.brand} {res.vehicle.model}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">{res.client.name}</p></div>
+                                <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-lg font-mono text-[10px] font-bold tracking-widest">{res.vehicle.licensePlate}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {selectedVehicle && (
+                      <div className="p-4 rounded-xl flex items-center justify-between" style={{ background: 'rgba(232,168,48,0.08)', border: '2px solid rgba(232,168,48,0.3)' }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 bg-amber/15 rounded-xl flex items-center justify-center shrink-0">
+                            <CarIcon size={16} className="text-amber" />
+                          </div>
+                          <div><h5 className="font-bold text-green-deep text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-semibold text-green-light uppercase tracking-widest mt-0.5">{selectedVehicle.client.name}</p></div>
+                        </div>
+                        <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-lg font-mono text-[10px] font-bold tracking-widest">{selectedVehicle.vehicle.licensePlate}</div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="space-y-2.5">
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Klienta</p>
+                      <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <input type="tel" placeholder="Telefon *" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                        <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                      </div>
+                      <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                    </div>
+                    <div className="space-y-2.5 pt-3 border-t border-slate-100">
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Pojazdu</p>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <input type="text" placeholder="Marka" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                        <input type="text" placeholder="Model" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
+                      </div>
+                      <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all uppercase" />
+                    </div>
+                    <button type="button" onClick={handleAddNewClientForBooking} className="w-full py-3.5 bg-green-deep text-cream-warm rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                      <UserPlus size={15} strokeWidth={2.5} /> Dodaj Klienta i Wybierz
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* ── Sekcja Usług ───────────────────────────────── */}
+            <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white" style={{ boxShadow: '0 8px 20px rgba(26,46,30,0.12)' }}>
+              {/* Nagłówek sekcji */}
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-deep rounded-xl flex items-center justify-center shrink-0">
+                    <Wrench size={14} className="text-cream-warm" />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-green-deep uppercase tracking-widest leading-none">Wybierz Usługi</p>
+                    <p className="text-[9px] text-slate-400 font-semibold mt-0.5">
+                      {selectedServices.length === 0 ? 'Nic nie wybrano' : `${selectedServices.length} ${selectedServices.length === 1 ? 'wybrana' : 'wybranych'}`}
+                    </p>
+                  </div>
+                </div>
+                {selectedServices.length > 0 && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: '#1a2e1e' }}>
+                    <Check size={10} strokeWidth={3} className="text-cream-warm" />
+                    <span className="text-[9px] font-bold text-cream-warm tracking-widest">{selectedServices.length}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Siatka usług */}
+              <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {availableServices.map(svc => {
+                  const isSelected = selectedServices.includes(svc.id);
+                  return (
+                    <button
+                      key={svc.id}
+                      type="button"
+                      onClick={() => toggleService(svc.id)}
+                      className="group relative flex items-center gap-2.5 p-3 rounded-xl text-left transition-all duration-200 active:scale-[0.97]"
+                      style={isSelected
+                        ? { background: '#1a2e1e', border: '2px solid transparent', boxShadow: '0 4px 12px rgba(26,46,30,0.2)' }
+                        : { background: '#f8f9fa', border: '2px solid transparent' }
+                      }
+                    >
+                      {/* Checkbox indicator */}
+                      <div
+                        className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all"
+                        style={isSelected
+                          ? { background: 'rgba(245,240,232,0.15)', border: '1.5px solid rgba(245,240,232,0.4)' }
+                          : { background: 'white', border: '1.5px solid rgba(0,0,0,0.12)' }
+                        }
+                      >
+                        {isSelected && <Check size={10} strokeWidth={3.5} className="text-cream-warm" />}
+                      </div>
+                      {/* Nazwa usługi */}
+                      <span
+                        className="text-[10px] font-bold uppercase tracking-wide leading-tight line-clamp-2"
+                        style={{ color: isSelected ? '#f5f0e8' : '#2d4f33' }}
+                      >
+                        {svc.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Dodaj niestandardową usługę */}
+              <div className="px-4 pb-4 flex gap-2">
+                <input
+                  type="text"
+                  value={customServiceInput}
+                  onChange={e => setCustomServiceInput(e.target.value)}
+                  placeholder="Dodaj inną usługę..."
+                  className="flex-1 px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddCustomService}
+                  className="w-12 h-12 bg-green-deep text-cream-warm rounded-xl flex items-center justify-center shadow-md active:scale-95 transition-all hover:shadow-lg shrink-0"
+                >
+                  <Plus size={18} strokeWidth={2.5} />
+                </button>
+              </div>
+            </div>
+
+            {/* ── Termin i Cena ──────────────────────────────── */}
+            <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white" style={{ boxShadow: '0 8px 20px rgba(26,46,30,0.12)' }}>
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(232,168,48,0.12)' }}>
+                  <Calendar size={14} className="text-amber" />
+                </div>
+                <p className="text-[11px] font-bold text-green-deep uppercase tracking-widest">Termin i Cena</p>
+              </div>
+              <div className="p-4 grid grid-cols-3 gap-3">
+                {/* Cena */}
+                <div className="col-span-1 flex flex-col gap-1.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Cena netto</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={priceInput}
+                      onChange={e => setPriceInput(e.target.value)}
+                      className="w-full px-4 py-4 rounded-xl font-bold text-lg font-mono text-cream-warm outline-none border-none"
+                      style={{ background: '#1a2e1e' }}
+                    />
+                    <span className="absolute right-3 bottom-3.5 text-[9px] font-bold text-cream-warm/40 uppercase tracking-widest">ZŁ</span>
+                  </div>
+                </div>
+                {/* Data */}
+                <div className="col-span-1 flex flex-col gap-1.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Data</label>
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={e => setSelectedDate(e.target.value)}
+                    className="w-full px-4 py-4 bg-slate-50 border-2 border-transparent rounded-xl font-bold text-sm outline-none focus:border-cream-warm/50 transition-all text-green-deep"
+                  />
+                </div>
+                {/* Godzina */}
+                <div className="col-span-1 flex flex-col gap-1.5">
+                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Godzina</label>
+                  <input
+                    type="time"
+                    value={selectedTime}
+                    onChange={e => setSelectedTime(e.target.value)}
+                    className="w-full px-4 py-4 bg-slate-50 border-2 border-transparent rounded-xl font-bold text-sm outline-none focus:border-cream-warm/50 transition-all text-green-deep"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="w-full py-5 bg-green-deep text-cream-warm rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 hover:shadow-2xl">
+              <Save size={16} strokeWidth={2.5} /> Zapisz Rezerwację
+            </button>
+          </form>
         )}
       </Modal>
 
-      {/* Confirmation Modal */}
+<Modal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} title="Nowy Klient">
+        <form className="space-y-6" onSubmit={handleCreateClient}>
+          <div className="space-y-4">
+            <input type="text" placeholder="Imię i Nazwisko" required value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
+            <div className="grid grid-cols-2 gap-4">
+              <input type="tel" placeholder="Telefon" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
+              <input type="email" placeholder="Email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
+            </div>
+          </div>
+          <button type="submit" className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl">Załóż Kartę Klienta</button>
+        </form>
+      </Modal>
+
+{/* Confirmation Modal */}
       <Modal isOpen={!!confirmation} onClose={() => setConfirmation(null)} title="Zmień Status">
         <div className="space-y-8">
-          <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-[2.5rem]">
+          <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-2xl">
             <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-cream-warm/20 text-green-deep' : 'bg-red-50 text-red-500'}`}><AlertCircle size={32} /></div>
             <div>
               <p className="text-lg font-bold text-green-deep leading-tight mb-2">{confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'Zakończyć to zlecenie?' : 'Anulować tę rezerwację?'}</p>
@@ -395,8 +866,8 @@ const TasksView: React.FC = () => {
             </div>
           </div>
           <div className="flex gap-4">
-            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">Wróć</button>
-            <button onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)} className={`flex-1 py-5 rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-green-deep text-cream-warm' : 'bg-red-500'}`}>Tak, kontynuuj</button>
+            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">Wróć</button>
+            <button onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)} className={`flex-1 py-5 rounded-xl font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-green-deep text-cream-warm' : 'bg-red-500'}`}>Tak, kontynuuj</button>
           </div>
         </div>
       </Modal>
@@ -406,4 +877,5 @@ const TasksView: React.FC = () => {
 };
 
 export default TasksView;
+
 

@@ -4,9 +4,11 @@
 export interface StudioDto {
   studioId: string;
   name: string;
-  role: string;
+  role: StudioRole | string;
   address: string | null;
 }
+
+export type StudioRole = 'Owner' | 'Manager' | 'Employee';
 
 export interface CategoryResponseDto {
   id: string;
@@ -146,7 +148,7 @@ export interface KanbanTask {
   deadline: string;
 }
 
-export type ViewType = 'Dashboard' | 'Bookings' | 'Tasks' | 'Clients' | 'Inventory' | 'Archived' | 'Studios' | 'StudioSettings' | 'UserSettings' | 'Reports' | 'Team';
+export type ViewType = 'Dashboard' | 'Bookings' | 'Tasks' | 'Clients' | 'Inventory' | 'Studios' | 'StudioSettings' | 'UserSettings' | 'Reports' | 'Team';
 
 
 

@@ -7,7 +7,6 @@ import Dashboard from './views/dashboard/Dashboard';
 import ClientsView from './views/clients/ClientsView';
 import BookingsView from './views/bookings/BookingsView';
 import InventoryView from './views/inventory/InventoryView';
-import ArchivedView from './views/archived/ArchivedView';
 import ReportsView from './views/reports/ReportsView';
 import LoginView from './views/auth/LoginView';
 import SetPasswordView from './views/auth/SetPasswordView';
@@ -39,7 +38,7 @@ const AppInner: React.FC = () => {
   const [invitationToken, setInvitationToken] = useState<string | null>(null);
   const [forceLogin, setForceLogin] = useState(false);
 
-  const { selectedStudio, setSelectedStudio } = useStudio();
+  const { selectedStudio, setSelectedStudio, clearSelectedStudio } = useStudio();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -71,6 +70,23 @@ const AppInner: React.FC = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+
+    // Clear selected studio
+    if (clearSelectedStudio) {
+      clearSelectedStudio();
+    } else {
+      setSelectedStudio(null);
+    }
+
+    // Clear API cache
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('df_api_cache_') || key === 'df_selected_studio') {
+        localStorage.removeItem(key);
+      }
+    });
+
+    queryClient.clear(); // Clear react-query cache
+
     setIsLoggedIn(false);
     setCurrentUser(null);
   };
@@ -96,7 +112,6 @@ const AppInner: React.FC = () => {
       case 'Tasks': return <TasksView {...commonProps} />;
       case 'Team': return <TeamView {...commonProps} />;
       case 'Reports': return <ReportsView {...commonProps} />;
-      case 'Archived': return <ArchivedView {...commonProps} />;
       default: return <Dashboard onNavigate={setActiveView} {...commonProps} />;
     }
   };

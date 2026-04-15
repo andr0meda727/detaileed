@@ -10,39 +10,39 @@ interface BookingCalendarProps {
   onDateChange: (date: string) => void;
 }
 
-const BookingCalendar: React.FC<BookingCalendarProps> = ({ 
-  currentMonth, 
-  selectedDate, 
-  bookings, 
-  onMonthChange, 
-  onDateChange 
+const BookingCalendar: React.FC<BookingCalendarProps> = ({
+  currentMonth,
+  selectedDate,
+  bookings,
+  onMonthChange,
+  onDateChange
 }) => {
   const mainCalendarDays = useMemo(() => {
-    const y = currentMonth.getFullYear(); 
+    const y = currentMonth.getFullYear();
     const m = currentMonth.getMonth();
-    const total = new Date(y, m + 1, 0).getDate(); 
+    const total = new Date(y, m + 1, 0).getDate();
     const start = (new Date(y, m, 1).getDay() + 6) % 7;
-    const d: (number | null)[] = []; 
-    for (let i = 0; i < start; i++) d.push(null); 
+    const d: (number | null)[] = [];
+    for (let i = 0; i < start; i++) d.push(null);
     for (let i = 1; i <= total; i++) d.push(i);
     return d;
   }, [currentMonth]);
 
   return (
-    <div className="w-full xl:w-[380px] bg-white rounded-[2rem] p-6 lg:p-8 shadow-sm border border-slate-100 shrink-0 h-fit">
+    <div className="w-full xl:w-[380px] bg-white rounded-xl p-6 lg:p-8 shadow-sm border border-slate-100 shrink-0 h-fit">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg lg:text-xl font-extrabold text-green-deep capitalize tracking-tighter">
           {currentMonth.toLocaleString('pl-PL', { month: 'long', year: 'numeric' })}
         </h3>
         <div className="flex gap-1">
-          <button 
-            onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} 
+          <button
+            onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
             className="p-1.5 bg-slate-50 rounded-xl text-slate-400 hover:text-green-deep transition-colors"
           >
             <ChevronLeft size={16} />
           </button>
-          <button 
-            onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} 
+          <button
+            onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
             className="p-1.5 bg-slate-50 rounded-xl text-slate-400 hover:text-green-deep transition-colors"
           >
             <ChevronRight size={16} />
@@ -59,16 +59,15 @@ const BookingCalendar: React.FC<BookingCalendarProps> = ({
           const isSelected = dateStr === selectedDate;
           const hasB = bookings.some(b => b.scheduledAt.startsWith(dateStr));
           return (
-            <button 
-              key={day} 
-              onClick={() => onDateChange(dateStr)} 
-              className={`relative aspect-[4/3] sm:aspect-square rounded-xl flex items-center justify-center text-xs font-semibold transition-all ${
-                isSelected 
-                  ? 'bg-green-deep text-cream-warm shadow-lg' 
-                  : 'hover:bg-cream-warm/30 text-slate-600'
-              }`}
+            <button
+              key={day}
+              onClick={() => onDateChange(dateStr)}
+              className={`relative aspect-[4/3] sm:aspect-square rounded-xl flex items-center justify-center text-xs font-semibold transition-all ${isSelected
+                ? 'bg-green-deep text-cream-warm shadow-lg'
+                : 'hover:bg-cream-warm/30 text-slate-600'
+                }`}
             >
-              {day} 
+              {day}
               {hasB && <div className="w-1 h-1 rounded-full absolute bottom-1 lg:bottom-1.5 bg-cream-warm" />}
             </button>
           );

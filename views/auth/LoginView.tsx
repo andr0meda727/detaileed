@@ -9,6 +9,11 @@ interface LoginViewProps {
 
 type Mode = 'login' | 'reset' | 'reset-sent';
 
+function getErrorMessage(error: unknown, fallbackMessage: string): string {
+  if (error instanceof Error && error.message) return error.message;
+  return fallbackMessage;
+}
+
 const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<Mode>('login');
   const [email, setEmail] = useState('');
@@ -25,8 +30,8 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
       if (authError) throw new Error(authError.message);
       if (data.session) { onLogin(email); }
       else throw new Error('Nie otrzymano sesji autoryzacji');
-    } catch (err: any) {
-      setError(err.message || 'Wystąpił błąd podczas logowania');
+    } catch (error) {
+      setError(getErrorMessage(error, 'Wystąpił błąd podczas logowania'));
     } finally {
       setIsLoading(false);
     }
@@ -42,8 +47,8 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
       });
       if (resetError) throw new Error(resetError.message);
       setMode('reset-sent');
-    } catch (err: any) {
-      setError(err.message || 'Wystąpił błąd podczas resetowania hasła');
+    } catch (error) {
+      setError(getErrorMessage(error, 'Wystąpił błąd podczas resetowania hasła'));
     } finally {
       setIsLoading(false);
     }
@@ -53,14 +58,14 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
     <div className="min-h-screen flex items-center justify-center bg-cream p-10 mesh-bg">
       <div className="max-w-[480px] w-full space-y-12 animate-zoom-in">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center bg-green-deep w-24 h-24 rounded-[3rem] mb-10 shadow-[0_30px_60px_rgba(16,44,38,0.25)] border border-[#1A3D33]">
+          <div className="inline-flex items-center justify-center bg-green-deep w-24 h-24 rounded-2xl mb-10 shadow-[0_30px_60px_rgba(16,44,38,0.25)] border border-[#1A3D33]">
             <Zap size={44} className="text-cream-warm" strokeWidth={2.5} />
           </div>
           <h1 className="text-5xl font-bold text-green-deep tracking-tighter">DetailFlow OS</h1>
           <p className="text-green-light font-bold mt-3 uppercase tracking-[0.4em] text-[10px]">Secure Detailing Infrastructure</p>
         </div>
 
-        <div className="bg-white p-12 rounded-[4rem] premium-shadow border border-[#EDD9B7]">
+        <div className="bg-white p-12 rounded-2xl premium-shadow border border-[#EDD9B7]">
 
           {/* ── LOGIN MODE ── */}
           {mode === 'login' && (
@@ -69,7 +74,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Operator ID</label>
                 <input
                   type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                  className="w-full px-8 py-6 bg-cream border-none rounded-[2rem] focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
+                  className="w-full px-8 py-6 bg-cream border-none rounded-xl focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
                   placeholder="id@detailflow.pl"
                 />
               </div>
@@ -77,7 +82,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Security Token</label>
                 <input
                   type="password" value={password} onChange={e => setPassword(e.target.value)} required
-                  className="w-full px-8 py-6 bg-cream border-none rounded-[2rem] focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
+                  className="w-full px-8 py-6 bg-cream border-none rounded-xl focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
                   placeholder="••••••••"
                 />
               </div>
@@ -87,7 +92,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
               )}
 
               <button type="submit" disabled={isLoading}
-                className="w-full flex items-center justify-center gap-4 bg-green-deep hover:bg-[#1A3D33] text-cream-warm font-semibold py-6 rounded-[2rem] transition-all shadow-[0_20px_40px_rgba(16,44,38,0.2)] group text-[11px] uppercase tracking-[0.2em] disabled:opacity-70 disabled:cursor-not-allowed">
+                className="w-full flex items-center justify-center gap-4 bg-green-deep hover:bg-[#1A3D33] text-cream-warm font-semibold py-6 rounded-xl transition-all shadow-[0_20px_40px_rgba(16,44,38,0.2)] group text-[11px] uppercase tracking-[0.2em] disabled:opacity-70 disabled:cursor-not-allowed">
                 {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>Access System <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" strokeWidth={3} /></>}
               </button>
 
@@ -112,7 +117,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Operator ID</label>
                 <input
                   type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus
-                  className="w-full px-8 py-6 bg-cream border-none rounded-[2rem] focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
+                  className="w-full px-8 py-6 bg-cream border-none rounded-xl focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
                   placeholder="id@detailflow.pl"
                 />
               </div>
@@ -122,7 +127,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
               )}
 
               <button type="submit" disabled={isLoading}
-                className="w-full flex items-center justify-center gap-3 bg-green-deep text-cream-warm font-semibold py-6 rounded-[2rem] transition-all text-[11px] uppercase tracking-[0.2em] disabled:opacity-70">
+                className="w-full flex items-center justify-center gap-3 bg-green-deep text-cream-warm font-semibold py-6 rounded-xl transition-all text-[11px] uppercase tracking-[0.2em] disabled:opacity-70">
                 {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>Wyślij link resetujący <ArrowRight size={20} strokeWidth={3} /></>}
               </button>
 

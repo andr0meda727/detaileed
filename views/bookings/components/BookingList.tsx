@@ -18,7 +18,7 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onBookingClick }) =
       <div
         key={booking.id}
         onClick={() => onBookingClick(booking)}
-        className="bg-white rounded-[2rem] border border-slate-100 hover:shadow-xl transition-all flex flex-col sm:flex-row items-stretch cursor-pointer p-4 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
+        className="bg-white rounded-xl border border-slate-100 hover:shadow-xl transition-all flex flex-col sm:flex-row items-stretch cursor-pointer p-4 gap-4 fill-mode-both"
         style={{ animationDelay: `${index * 50}ms` }}
       >
         <div className="w-24 sm:border-r border-slate-100 flex flex-col items-center justify-center shrink-0">
@@ -45,7 +45,7 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onBookingClick }) =
       {bookings.length > 0 ? (
         bookings.map((b, i) => renderBookingCard(b, i))
       ) : (
-        <div className="p-10 lg:p-16 text-center bg-white border border-slate-100 rounded-[2rem]">
+        <div className="p-10 lg:p-16 text-center bg-white border border-slate-100 rounded-xl">
           <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak rezerwacji</p>
         </div>
       )}
@@ -54,3 +54,4 @@ const BookingList: React.FC<BookingListProps> = ({ bookings, onBookingClick }) =
 };
 
 export default BookingList;
+

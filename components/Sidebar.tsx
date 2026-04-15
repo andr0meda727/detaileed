@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import {
-  History, Users, Package, LayoutDashboard, CalendarClock,
+  Users, Package, LayoutDashboard, CalendarClock,
   LogOut, Zap, X, Building2, ChevronDown, Settings,
   Wrench, UserCircle, LucideIcon, FileBarChart2, Shield
 } from 'lucide-react';
 import { ViewType } from '../types';
 import { useStudio } from '../contexts/StudioContext';
+import { isEmployeeRole } from '../utils/studioRole';
 
 interface SidebarProps {
   activeView: ViewType;
@@ -31,7 +32,7 @@ const NavBtn: React.FC<NavBtnProps> = ({ id, icon: Icon, label, activeView, setA
     <button
       onClick={() => setActiveView(id as ViewType)}
       className={`
-        w-full flex items-center gap-4 rounded-2xl transition-all duration-200 group relative
+        w-full flex items-center gap-4 rounded-xl transition-all duration-200 group relative
         ${indent ? 'px-5 py-3' : 'px-5 py-3.5'}
         ${active
           ? 'bg-white/12 text-white'
@@ -60,19 +61,20 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
   const { selectedStudio } = useStudio();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
+  const isEmployee = isEmployeeRole(selectedStudio?.role);
+
   const menuItems: { id: string; icon: LucideIcon; label: string }[] = [
     { id: 'Dashboard', icon: LayoutDashboard, label: 'Panel Główny' },
-    { id: 'Tasks',     icon: CalendarClock,  label: 'Rezerwacje'  },
-    { id: 'Clients',   icon: Users,          label: 'Klienci'     },
-    { id: 'Team',      icon: Shield,         label: 'Zespół'      },
-    { id: 'Inventory', icon: Package,        label: 'Magazyn'     },
-    { id: 'Reports',   icon: FileBarChart2,  label: 'Raporty'     },
-    { id: 'Archived',  icon: History,        label: 'Archiwum'    },
-  ];
+    { id: 'Tasks', icon: CalendarClock, label: 'Rezerwacje' },
+    { id: 'Clients', icon: Users, label: 'Klienci' },
+    !isEmployee && { id: 'Team', icon: Shield, label: 'Zespół' },
+    { id: 'Inventory', icon: Package, label: 'Magazyn' },
+    { id: 'Reports', icon: FileBarChart2, label: 'Raporty' },
+  ].filter(Boolean) as { id: string; icon: LucideIcon; label: string }[];
 
   const settingsItems: { id: string; icon: LucideIcon; label: string }[] = [
-    { id: 'StudioSettings', icon: Wrench,     label: 'Ustawienia Studia' },
-    { id: 'UserSettings',   icon: UserCircle, label: 'Moje Konto'        },
+    { id: 'StudioSettings', icon: Wrench, label: 'Ustawienia Studia' },
+    { id: 'UserSettings', icon: UserCircle, label: 'Moje Konto' },
   ];
 
   const isSettingsActive = activeView === 'StudioSettings' || activeView === 'UserSettings';
@@ -119,7 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
               <Zap className="text-amber" size={19} strokeWidth={2.5} />
             </div>
             <div>
-            <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 900, fontSize: '19px', letterSpacing: '-0.02em' }} className="text-white leading-none">
+              <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 900, fontSize: '19px', letterSpacing: '-0.02em' }} className="text-white leading-none">
                 <span className="text-amber">D</span>etailFlow
               </h1>
               <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '8px', letterSpacing: '0.22em' }} className="text-white/35 uppercase mt-1 block">Studio OS</span>
@@ -130,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
           <button
             onClick={() => setActiveView('Studios')}
             className={`
-              w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl border mb-6 transition-all duration-200 group
+              w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl border mb-6 transition-all duration-200 group
               ${activeView === 'Studios'
                 ? 'bg-white/12 border-white/12 text-white'
                 : 'bg-white/5 border-white/5 text-white/50 hover:text-white hover:bg-white/8 hover:border-white/10'
@@ -169,7 +171,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
             <button
               onClick={() => setSettingsOpen(v => !v)}
               className={`
-                w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all duration-200 group
+                w-full flex items-center gap-4 px-5 py-3.5 rounded-xl transition-all duration-200 group
                 ${isSettingsActive ? 'bg-white/12 text-white' : 'text-white/55 hover:text-white hover:bg-white/7'}
               `}
             >
@@ -218,7 +220,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
           {/* Logout */}
           <button
             onClick={onLogout}
-            className="w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl text-white/40 hover:text-red-400 hover:bg-red-500/7 transition-all duration-200 group"
+            className="w-full flex items-center gap-4 px-5 py-3.5 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/7 transition-all duration-200 group"
           >
             <LogOut size={18} strokeWidth={2} className="text-white/30 shrink-0 group-hover:text-red-400 transition-colors" />
             <span className="font-syne font-bold text-[14px] tracking-wide">Wyloguj</span>

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { FileBarChart2, Download, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import GlobalHeader from '../../components/GlobalHeader';
 import { generateBookingsReport } from '../../apiClient';
-import { useToast } from '../../components/ui/useToast';
+import { useToast } from '../../contexts/ToastContext';
 
 interface ReportsViewProps {
   onOpenMenu?: () => void;
@@ -12,17 +12,17 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const { addToast, ToastContainer } = useToast();
+  const { addToast } = useToast();
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!dateFrom || !dateTo) {
-      addToast('error', 'Wybierz zakres dat');
+      addToast('Wybierz zakres dat', 'error');
       return;
     }
 
     if (new Date(dateFrom) > new Date(dateTo)) {
-      addToast('error', 'Data od nie może być późniejsza niż data do');
+      addToast('Data od nie może być późniejsza niż data do', 'error');
       return;
     }
 
@@ -32,31 +32,31 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
       const toTimestamp = `${dateTo}T23:59:59Z`;
 
       await generateBookingsReport(fromTimestamp, toTimestamp);
-      
-      addToast('success', 'Rozpoczęto generowanie raportu. Zostanie on wysłany na Twój adres e-mail.');
-      
+
+      addToast('Rozpoczęto generowanie raportu. Zostanie on wysłany na Twój adres e-mail.', 'success');
+
       // Opcjonalny reset formularza
       setDateFrom('');
       setDateTo('');
     } catch (err) {
       console.error('Failed to generate report', err);
-      addToast('error', 'Wystąpił błąd podczas zlecania raportu');
+      addToast('Wystąpił błąd podczas zlecania raportu', 'error');
     } finally {
       setIsGenerating(false);
     }
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-20">
-      <GlobalHeader 
-        title="Raporty" 
-        subtitle="Eksport Danych i Analizy" 
+    <div className="space-y-8 pb-20">
+      <GlobalHeader
+        title="Raporty"
+        subtitle="Eksport Danych i Analizy"
         onOpenMenu={onOpenMenu}
-        onAddBooking={() => alert('Moduł tworzenia rezerwacji zostanie dodany globalnie w kolejnym kroku.')}
-        onAddClient={() => alert('Moduł szybkiego dodawania klienta zostanie dodany globalnie w kolejnym kroku.')}
+        onAddBooking={() => addToast('Globalny moduł tworzenia rezerwacji zostanie podpięty w kolejnym kroku.', 'info')}
+        onAddClient={() => addToast('Globalny moduł szybkiego dodawania klienta zostanie podpięty w kolejnym kroku.', 'info')}
       />
-      
-      <div className="bg-white rounded-[2.5rem] lg:rounded-[3rem] p-6 sm:p-8 lg:p-10 border border-slate-100 shadow-sm max-w-3xl">
+
+      <div className="bg-white rounded-2xl lg:rounded-2xl p-6 sm:p-8 lg:p-10 border border-slate-100 shadow-sm max-w-3xl">
         <div className="flex items-center gap-5 mb-8">
           <div className="w-14 h-14 bg-green-deep rounded-2xl flex items-center justify-center text-cream-warm shadow-lg shrink-0">
             <FileBarChart2 size={24} strokeWidth={2.5} />
@@ -73,10 +73,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
               <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4 flex items-center gap-2">
                 <CalendarIcon size={12} /> Data Od
               </label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 required
-                value={dateFrom} 
+                value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
                 className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all text-green-deep"
               />
@@ -85,10 +85,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
               <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4 flex items-center gap-2">
                 <CalendarIcon size={12} /> Data Do
               </label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 required
-                value={dateTo} 
+                value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
                 className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all text-green-deep"
               />
@@ -96,10 +96,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
           </div>
 
           <div className="pt-4 border-t border-slate-100">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isGenerating}
-              className="w-full sm:w-auto px-8 py-5 bg-green-deep text-cream-warm rounded-[1.5rem] font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 disabled:cursor-not-allowed"
+              className="w-full sm:w-auto px-8 py-5 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 disabled:cursor-not-allowed"
             >
               {isGenerating ? (
                 <>
@@ -116,10 +116,9 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
           </div>
         </form>
       </div>
-
-      <ToastContainer />
     </div>
   );
 };
 
 export default ReportsView;
+

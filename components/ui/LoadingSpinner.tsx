@@ -13,7 +13,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ fullPage = false }) => 
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream mesh-bg">
         <div className="text-center animate-fade-in">
-          <div className="w-20 h-20 bg-green-deep rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-[0_20px_50px_rgba(26,46,30,0.25)]">
+          <div className="w-20 h-20 bg-green-deep rounded-xl flex items-center justify-center mx-auto mb-6 shadow-[0_20px_50px_rgba(26,46,30,0.25)]">
             <Zap size={36} className="text-cream-warm" strokeWidth={2.5} />
           </div>
           <div className="flex gap-1.5 justify-center">

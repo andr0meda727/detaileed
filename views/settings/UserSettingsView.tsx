@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { KeyRound, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Shield } from 'lucide-react';
 import supabase from '../../utils/supabase';
 import GlobalHeader from '../../components/GlobalHeader';
+
+function getErrorMessage(error: unknown, fallbackMessage: string): string {
+  if (error instanceof Error && error.message) return error.message;
+  return fallbackMessage;
+}
 
 const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   // ── Change password state ──
@@ -32,8 +37,8 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
       setResult({ type: 'success', message: 'Hasło zostało zmienione.' });
       setNewPassword('');
       setConfirmPassword('');
-    } catch (err: any) {
-      setResult({ type: 'error', message: err.message || 'Nie udało się zmienić hasła.' });
+    } catch (error) {
+      setResult({ type: 'error', message: getErrorMessage(error, 'Nie udało się zmienić hasła.') });
     } finally {
       setLoading(false);
     }
@@ -45,7 +50,7 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
 
       <div className="max-w-lg space-y-6">
         {/* Change password card */}
-        <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
           <div className="px-8 py-6 border-b border-slate-50 flex items-center gap-4">
             <div className="w-10 h-10 bg-green-deep rounded-xl flex items-center justify-center">
               <KeyRound size={18} className="text-cream-warm" />
@@ -100,20 +105,18 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
             {newPassword.length > 0 && (
               <div className="flex gap-1.5">
                 {[1, 2, 3, 4].map(i => (
-                  <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                    newPassword.length >= i * 3
+                  <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${newPassword.length >= i * 3
                       ? i <= 1 ? 'bg-red-400' : i <= 2 ? 'bg-amber-400' : i <= 3 ? 'bg-blue-400' : 'bg-emerald-400'
                       : 'bg-slate-100'
-                  }`} />
+                    }`} />
                 ))}
               </div>
             )}
 
             {/* Result */}
             {result && (
-              <div className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold animate-fade-in ${
-                result.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'
-              }`}>
+              <div className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl text-sm font-semibold ${result.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-600 border border-red-100'
+                }`}>
                 {result.type === 'success' ? <CheckCircle size={17} /> : <AlertCircle size={17} />}
                 {result.message}
               </div>
@@ -139,3 +142,4 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
 };
 
 export default UserSettingsView;
+

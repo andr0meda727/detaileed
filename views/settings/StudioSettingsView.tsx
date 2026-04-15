@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   Wrench, Layers, Users, Plus, Trash2, X, Save,
   Loader2, Mail, CheckCircle, Edit2
@@ -11,7 +11,7 @@ import GlobalHeader from '../../components/GlobalHeader';
 import Modal from '../../components/ui/Modal';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
-import { useToast } from '../../components/ui/useToast';
+import { useToast } from '../../contexts/ToastContext';
 
 // ─── Card grid shared styles ─────────────────────────────────────────────────
 const CARD = `relative group bg-white border-2 border-slate-100 rounded-3xl p-6 flex flex-col gap-3
@@ -53,7 +53,7 @@ const NameForm: React.FC<{
 };
 
 // ─── Tab: Services ────────────────────────────────────────────────────────────
-const ServicesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => void }> = ({ addToast }) => {
+const ServicesTab: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({ addToast }) => {
   const { data: items = [], isLoading } = useServices();
   const createService = useCreateService();
   const deleteService = useDeleteService();
@@ -62,16 +62,16 @@ const ServicesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => v
   const handleAdd = async (name: string) => {
     try {
       await createService.mutateAsync({ name } as CreateServiceDto);
-      addToast('success', 'Usługa dodana');
+      addToast('Usługa dodana', 'success');
       setIsModalOpen(false);
-    } catch { addToast('error', 'Nie udało się dodać usługi'); }
+    } catch { addToast('Nie udało się dodać usługi', 'error'); }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await deleteService.mutateAsync(id);
-      addToast('success', 'Usługa usunięta');
-    } catch { addToast('error', 'Nie udało się usunąć usługi'); }
+      addToast('Usługa usunięta', 'success');
+    } catch { addToast('Nie udało się usunąć usługi', 'error'); }
   };
 
   if (isLoading) return <LoadingSpinner />;
@@ -121,7 +121,7 @@ const ServicesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => v
 };
 
 // ─── Tab: Categories ─────────────────────────────────────────────────────────
-const CategoriesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => void }> = ({ addToast }) => {
+const CategoriesTab: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({ addToast }) => {
   const { data: items = [], isLoading } = useCategories();
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
@@ -138,20 +138,20 @@ const CategoriesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) =>
     try {
       if (editing) {
         await updateCategory.mutateAsync({ id: editing.id, dto });
-        addToast('success', 'Kategoria zaktualizowana');
+        addToast('Kategoria zaktualizowana', 'success');
       } else {
         await createCategory.mutateAsync(dto);
-        addToast('success', 'Kategoria dodana');
+        addToast('Kategoria dodana', 'success');
       }
       setIsModalOpen(false);
-    } catch { addToast('error', 'Nie udało się zapisać kategorii'); }
+    } catch { addToast('Nie udało się zapisać kategorii', 'error'); }
   };
 
   const handleDelete = async (id: string) => {
     try {
       await deleteCategory.mutateAsync(id);
-      addToast('success', 'Kategoria usunięta');
-    } catch { addToast('error', 'Nie udało się usunąć kategorii'); }
+      addToast('Kategoria usunięta', 'success');
+    } catch { addToast('Nie udało się usunąć kategorii', 'error'); }
   };
 
   const isMutating = createCategory.isPending || updateCategory.isPending;
@@ -212,7 +212,7 @@ const CategoriesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) =>
 };
 
 // ─── Tab: Employees ───────────────────────────────────────────────────────────
-const EmployeesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => void }> = ({ addToast }) => {
+const EmployeesTab: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({ addToast }) => {
   const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [lastSent, setLastSent] = useState<string | null>(null);
@@ -224,8 +224,8 @@ const EmployeesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => 
       await apiPost<void>('/Employees/invite', { email, roleId: 3 } as InviteEmployeeDto);
       setLastSent(email);
       setEmail('');
-      addToast('success', `Zaproszenie wysłane do ${email}`);
-    } catch { addToast('error', 'Nie udało się wysłać zaproszenia'); }
+      addToast(`Zaproszenie wysłane do ${email}`, 'success');
+    } catch { addToast('Nie udało się wysłać zaproszenia', 'error'); }
     finally { setSending(false); }
   };
 
@@ -255,7 +255,7 @@ const EmployeesTab: React.FC<{ addToast: (t: 'success' | 'error', m: string) => 
       </div>
 
       {lastSent && (
-        <div className="flex items-center gap-3 px-6 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-700 text-sm font-semibold animate-fade-in">
+        <div className="flex items-center gap-3 px-6 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-700 text-sm font-semibold">
           <CheckCircle size={17} />
           Zaproszono: <span className="font-extrabold">{lastSent}</span>
         </div>
@@ -281,7 +281,7 @@ const TABS: { id: TabId; label: string; icon: React.FC<{ size?: number; classNam
 
 const StudioSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   const [activeTab, setActiveTab] = useState<TabId>('services');
-  const { addToast, ToastContainer } = useToast();
+  const { addToast } = useToast();
 
   return (
     <div className="space-y-8 sm:space-y-10">
@@ -307,10 +307,9 @@ const StudioSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu 
         {activeTab === 'categories' && <CategoriesTab addToast={addToast} />}
         {activeTab === 'employees' && <EmployeesTab addToast={addToast} />}
       </div>
-
-      <ToastContainer />
     </div>
   );
 };
 
 export default StudioSettingsView;
+

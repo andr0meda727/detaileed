@@ -1,25 +1,32 @@
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
+import React, { useState, useMemo } from 'react';
 import {
   Wallet, Check, X, CheckCircle2, Plus, UserPlus, Calendar, Clock, Car as CarIcon, Edit2, Save, Search,
   Hash, Briefcase, ChevronLeft, ChevronRight, User, LayoutList, CalendarDays, Phone, Mail, XCircle, AlertCircle, MessageSquare
 } from 'lucide-react';
 import { BookingResponseDto, BookingCreateDto, ClientResponseDto, VehicleInfoDto, CreateClientDto, ServiceResponseDto } from '../../types';
 import { BOOKING_STATUSES } from '../../constants';
-import { getBookings, createBooking } from '../../services/bookingService';
-import { getClients, createClient } from '../../services/clientService';
-import { getServices, createService } from '../../services/serviceService';
+import { createBooking } from '../../services/bookingService';
+import { createClient } from '../../services/clientService';
+import { createService } from '../../services/serviceService';
+import { useBookings } from '../../hooks/useBookings';
+import { useClients } from '../../hooks/useClients';
+import { useServices } from '../../hooks/useServices';
+import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
+import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
+import { toggleIdSelection } from '../../utils/selection';
 import GlobalHeader from '../../components/GlobalHeader';
 import BookingList from './components/BookingList';
 import BookingCalendar from './components/BookingCalendar';
-import Modal from '../../components/Modal';
+import Modal from '../../components/ui/Modal';
+import { useToast } from '../../contexts/ToastContext';
 
 const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
-  const [bookings, setBookings] = useState<BookingResponseDto[]>([]);
-  const [clients, setClients] = useState<ClientResponseDto[]>([]);
-  const [availableServices, setAvailableServices] = useState<ServiceResponseDto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { addToast } = useToast();
+  const { data: bookings = [], isLoading: isBookingsLoading, refetch: refetchBookings } = useBookings();
+  const { data: clients = [], isLoading: isClientsLoading, refetch: refetchClients } = useClients();
+  const { data: availableServices = [], isLoading: isServicesLoading, refetch: refetchServices } = useServices();
+  const loading = isBookingsLoading || isClientsLoading || isServicesLoading;
   const [activeTab, setActiveTab] = useState<'list' | 'calendar'>('calendar');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -51,39 +58,17 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
   const [newVehicleModel, setNewVehicleModel] = useState('');
   const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
-  const fetchData = useCallback(async () => {
-    try {
-      const bPromise = getBookings(undefined, (c) => { setBookings(c); setLoading(false); });
-      const cPromise = getClients(undefined, (c) => { setClients(c); setLoading(false); });
-      const sPromise = getServices((c) => { setAvailableServices(c); });
-      const [b, c, s] = await Promise.all([bPromise, cPromise, sPromise]);
-      setBookings(b);
-      setClients(c);
-      setAvailableServices(s);
-    } catch (err) { console.error('Failed to fetch bookings:', err); }
-    finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
+  const fetchData = () => {
+    void refetchBookings();
+    void refetchClients();
+    void refetchServices();
+  };
 
   const selectedDayBookings = useMemo(() => {
     return bookings.filter(b => b.scheduledAt.startsWith(selectedDate)).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
   }, [bookings, selectedDate]);
 
-  const filteredClientResults = useMemo(() => {
-    if (!clientSearch.trim()) return [];
-    const query = clientSearch.toLowerCase();
-    const results: { client: ClientResponseDto, vehicle: VehicleInfoDto }[] = [];
-    clients.forEach(client => {
-      client.vehicles.forEach(vehicle => {
-        if (client.name.toLowerCase().includes(query) || (vehicle.brand || '').toLowerCase().includes(query) ||
-          (vehicle.model || '').toLowerCase().includes(query) || vehicle.licensePlate.toLowerCase().includes(query)) {
-          results.push({ client, vehicle });
-        }
-      });
-    });
-    return results.slice(0, 5);
-  }, [clientSearch, clients]);
+  const filteredClientResults = useClientVehicleSearch(clients, clientSearch);
 
   const filteredListBookings = useMemo(() => {
     if (!listSearchQuery.trim()) return bookings;
@@ -106,24 +91,24 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
     setIsBookingModalOpen(true);
   };
 
-  const toggleService = (id: string) => setSelectedServices(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggleService = (id: string) => setSelectedServices((prev) => toggleIdSelection(prev, id));
   const handleAddCustomService = async () => {
     const name = customServiceInput.trim();
     if (!name) return;
     try {
       const created = await createService({ name });
-      setAvailableServices(prev => [...prev, created]);
       setSelectedServices(prev => [...prev, created.id]);
       setCustomServiceInput('');
+      fetchData();
     } catch (err) {
       console.error('Failed to create service:', err);
-      alert('Wystąpił błąd podczas dodawania usługi.');
+      addToast('Wystąpił błąd podczas dodawania usługi.', 'error');
     }
   };
 
   const handleAddNewClientForBooking = async () => {
     if (!newClientName || !newClientPhone || !newVehiclePlate) {
-      alert('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.');
+      addToast('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.', 'error');
       return;
     }
     try {
@@ -146,34 +131,35 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
       setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
       setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
       fetchData();
+      addToast('Dodano nowego klienta i wybrano pojazd do rezerwacji.', 'success');
     } catch (err) {
       console.error('Failed to create client:', err);
-      alert('Wystąpił błąd podczas dodawania klienta.');
+      addToast('Wystąpił błąd podczas dodawania klienta.', 'error');
     }
   };
 
   const handleCreateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedVehicle) {
-      alert('Wybierz istniejącego klienta lub dodaj nowego.');
+      addToast('Wybierz istniejącego klienta lub dodaj nowego.', 'error');
       return;
     }
     try {
-      const dto: BookingCreateDto = {
+      const dto: BookingCreateDto = buildBookingCreateDto({
         vehicleId: selectedVehicle.vehicle.id,
         clientId: selectedVehicle.client.id,
-        scheduledAt: new Date(`${formDate}T${formTime}`).toISOString(),
-        statusId: BOOKING_STATUSES.UTWORZONA.id,
+        date: formDate,
+        time: formTime,
         serviceIds: selectedServices,
-        price: parseFloat(priceInput.replace(',', '.')),
-        notes: null,
-      };
+        priceInput,
+      });
       await createBooking(dto);
       setIsBookingModalOpen(false);
       fetchData();
+      addToast('Rezerwacja została pomyślnie utworzona.', 'success');
     } catch (err) {
       console.error('Failed to create booking:', err);
-      alert('Wystąpił błąd podczas tworzenia rezerwacji.');
+      addToast('Wystąpił błąd podczas tworzenia rezerwacji.', 'error');
     }
   };
 
@@ -183,7 +169,11 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
       await createClient({ name: newClientName, phone: newClientPhone || null, email: newClientEmail || null, nip: null });
       setIsClientModalOpen(false); setNewClientName(''); setNewClientPhone(''); setNewClientEmail('');
       fetchData();
-    } catch (err) { console.error('Failed to create client:', err); }
+      addToast('Karta klienta została utworzona.', 'success');
+    } catch (err) {
+      console.error('Failed to create client:', err);
+      addToast('Wystąpił błąd podczas tworzenia klienta.', 'error');
+    }
   };
 
   const handleBookingClick = (booking: BookingResponseDto) => {
@@ -200,14 +190,14 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
     <div className="space-y-8 animate-in fade-in duration-700">
       <GlobalHeader title="Rezerwacje" subtitle="Studio DetailFlow OS" onAddBooking={handleOpenNewBooking} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
 
-      <div className="flex p-1 bg-white border border-slate-200 rounded-[1.5rem] w-full sm:w-[350px]">
-        <button onClick={() => setActiveTab('list')} className={`flex-1 py-2.5 rounded-[1.25rem] text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'list' ? 'bg-green-deep text-cream-warm' : 'text-slate-400'}`}>Lista</button>
-        <button onClick={() => setActiveTab('calendar')} className={`flex-1 py-2.5 rounded-[1.25rem] text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-green-deep text-cream-warm' : 'text-slate-400'}`}>Kalendarz</button>
+      <div className="flex p-1 bg-white border border-slate-200 rounded-xl w-full sm:w-[350px]">
+        <button onClick={() => setActiveTab('list')} className={`flex-1 py-2.5 rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'list' ? 'bg-green-deep text-cream-warm' : 'text-slate-400'}`}>Lista</button>
+        <button onClick={() => setActiveTab('calendar')} className={`flex-1 py-2.5 rounded-lg text-[10px] font-semibold uppercase tracking-widest transition-all ${activeTab === 'calendar' ? 'bg-green-deep text-cream-warm' : 'text-slate-400'}`}>Kalendarz</button>
       </div>
 
       {activeTab === 'list' ? (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
+        <div className=" space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 md:p-8 rounded-xl border border-slate-100 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-cream-warm/20 blur-[40px] rounded-full -mr-10 -mt-10 pointer-events-none"></div>
             <div className="relative z-10">
               <h3 className="text-2xl font-semibold text-green-deep tracking-tighter">Wyszukiwarka</h3>
@@ -227,7 +217,7 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
           <BookingList bookings={filteredListBookings} onBookingClick={handleBookingClick} />
         </div>
       ) : (
-        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex flex-col xl:flex-row gap-6 lg:gap-8">
           <BookingCalendar
             currentMonth={currentMonth}
             selectedDate={selectedDate}
@@ -236,12 +226,14 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
             onDateChange={setSelectedDate}
           />
           <div className="flex-1 space-y-4">
-            <div className="bg-green-deep rounded-[2rem] p-5 lg:p-6 border border-white/5 flex items-center justify-between">
+            <div className="bg-green-deep rounded-xl p-5 lg:p-6 border border-white/5 flex items-center justify-between">
               <div>
                 <p className="text-[9px] font-semibold text-cream-warm uppercase tracking-widest mb-1">Wybrana Data</p>
                 <h4 className="text-lg lg:text-xl font-semibold text-white tracking-tighter capitalize">{new Date(selectedDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}</h4>
               </div>
-              <Calendar size={20} className="text-white/10" />
+              <div className="w-14 h-14 rounded-[1.25rem] bg-white/15 flex items-center justify-center shadow-inner">
+                <Calendar size={24} color="#ffffff" strokeWidth={2.5} />
+              </div>
             </div>
             <BookingList bookings={selectedDayBookings} onBookingClick={handleBookingClick} />
           </div>
@@ -297,7 +289,7 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
                   )}
                 </>
               ) : (
-                <div className="space-y-4 bg-slate-50 p-6 rounded-[1.5rem] mt-2 border border-slate-100">
+                <div className="space-y-4 bg-slate-50 p-6 rounded-xl mt-2 border border-slate-100">
                   <div className="space-y-3">
                     <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
                     <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
@@ -363,3 +355,4 @@ const BookingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => 
 };
 
 export default BookingsView;
+
