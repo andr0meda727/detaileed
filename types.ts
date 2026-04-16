@@ -148,7 +148,7 @@ export interface KanbanTask {
   deadline: string;
 }
 
-export type ViewType = 'Dashboard' | 'Bookings' | 'Tasks' | 'Clients' | 'Inventory' | 'Studios' | 'StudioSettings' | 'UserSettings' | 'Reports' | 'Team';
+export type ViewType = 'Dashboard' | 'Tasks' | 'Clients' | 'Inventory' | 'Studios' | 'StudioSettings' | 'UserSettings' | 'Reports' | 'Team';
 
 
 

@@ -95,11 +95,25 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
   const today = new Date().toISOString().split('T')[0];
   const lowStockItems = useMemo(() => inventory.filter(i => i.minStock !== null && i.stock < i.minStock), [inventory]);
+  const completedBookings = useMemo(
+    () => bookings.filter(b => b.completedAt !== null),
+    [bookings],
+  );
   const todayBookings = useMemo(() => bookings.filter(b => b.scheduledAt.startsWith(today)).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)), [bookings, today]);
   const upcomingBookings = useMemo(() => bookings.filter(b => b.scheduledAt.startsWith(today) === false && b.scheduledAt > new Date().toISOString()).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)), [bookings, today]);
-  const activeCount = useMemo(() => bookings.filter(b => b.completedAt === null).length, [bookings]);
+  const activeCount = useMemo(
+    () => bookings.filter(b => b.status === BOOKING_STATUSES.UTWORZONA.name).length,
+    [bookings],
+  );
   const completedCount = useMemo(() => bookings.filter(b => b.completedAt !== null).length, [bookings]);
-  const todayRevenue = useMemo(() => todayBookings.reduce((sum, b) => sum + ((b.totalPrice || 0) / 100), 0), [todayBookings]);
+  const todayCompletedBookings = useMemo(
+    () => completedBookings.filter(b => b.scheduledAt.startsWith(today)),
+    [completedBookings, today],
+  );
+  const todayRevenue = useMemo(
+    () => todayCompletedBookings.reduce((sum, b) => sum + ((b.totalPrice || 0) / 100), 0),
+    [todayCompletedBookings],
+  );
 
   // Wykres przeniesiony do izolowanego komponentu w ./components/RevenueChart
 
@@ -466,7 +480,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           </div>
 
           {/* Revenue Chart */}
-          <RevenueChart bookings={bookings} />
+          <RevenueChart bookings={completedBookings} />
 
           {/* Upcoming Bookings */}
           <div className="floating-card-static p-6 lg:p-8">
@@ -693,11 +707,26 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                   <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input type="text" placeholder="Szukaj klienta po nazwie lub kontakcie..." value={vehicleClientSearch} onChange={e => setVehicleClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-xl font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/30" />
                 </div>
-                {vehicleClientSearch.trim() && filteredClientsOnlyResults.map(client => (
-                  <button key={client.id} type="button" onClick={() => { setSelectedClientForVehicle(client); setVehicleClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-cream-warm transition-all">
-                    <div className="text-left"><h5 className="font-semibold text-green-deep text-sm">{client.name}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{client.phone || client.email || 'Brak danych kontaktowych'}</p></div>
-                  </button>
-                ))}
+                <div style={{
+                  height: vehicleClientSearch.trim() ? '160px' : '0px',
+                  opacity: vehicleClientSearch.trim() ? 1 : 0,
+                  transition: 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  overflow: 'hidden',
+                }}>
+                  <div className="overflow-y-auto custom-scrollbar rounded-xl h-full space-y-2 pr-1">
+                    {filteredClientsOnlyResults.length === 0 ? (
+                      <div className="h-full flex items-center justify-center">
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak wyników</p>
+                      </div>
+                    ) : (
+                      filteredClientsOnlyResults.map(client => (
+                        <button key={client.id} type="button" onClick={() => { setSelectedClientForVehicle(client); setVehicleClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-cream-warm transition-all">
+                          <div className="text-left"><h5 className="font-semibold text-green-deep text-sm">{client.name}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{client.phone || client.email || 'Brak danych kontaktowych'}</p></div>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
                 {selectedClientForVehicle && (
                   <div className="p-6 bg-cream-warm/20 border-2 border-cream-warm/50 rounded-xl flex items-center gap-4">
                     <User size={24} className="text-green-light" />

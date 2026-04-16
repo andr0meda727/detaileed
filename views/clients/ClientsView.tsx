@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { PREDEFINED_SERVICES, BOOKING_STATUSES } from '../../constants';
 import { X as XIcon, Phone, Search, Car as CarIcon, Save, Plus, Check, Edit2, Trash2, Clock, User, MessageSquare, AlertCircle, Calendar, Hash, Wrench, UserPlus } from 'lucide-react';
 import GlobalHeader from '../../components/GlobalHeader';
@@ -25,6 +25,7 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   const updateClientMutation = useUpdateClient();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [selectedClientForDetails, setSelectedClientForDetails] = useState<ClientResponseDto | null>(null);
   const [viewingClientDetail, setViewingClientDetail] = useState<ClientResponseDto | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -42,6 +43,11 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   const [isEditingBooking, setIsEditingBooking] = useState(true);
   const [customServiceInput, setCustomServiceInput] = useState('');
   const [selectedTime, setSelectedTime] = useState('08:00');
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearchQuery(searchQuery), 140);
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
   const formatTime = (iso: string) => { const d = new Date(iso); return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0'); };
   const confirmStatusUpdate = (
     _e: React.MouseEvent,
@@ -74,10 +80,10 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   }, [viewingClientDetail, clients]);
 
   const filteredClients = useMemo(() => {
-    const q = searchQuery.toLowerCase();
+    const q = debouncedSearchQuery.toLowerCase();
     return clients.filter(c => c.name.toLowerCase().includes(q) || (c.phone || '').includes(q) || (c.email || '').toLowerCase().includes(q) ||
       c.vehicles.some(v => v.licensePlate.toLowerCase().includes(q) || (v.brand || '').toLowerCase().includes(q) || (v.model || '').toLowerCase().includes(q)));
-  }, [searchQuery, clients]);
+  }, [debouncedSearchQuery, clients]);
 
   const searchResults = useClientVehicleSearch(clients, clientSearch);
 
@@ -213,7 +219,7 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
         />
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden" style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.03)' }}>
+      <div className={`bg-white rounded-2xl border border-slate-100 overflow-hidden transition-opacity duration-200 ${searchQuery !== debouncedSearchQuery ? 'opacity-70' : 'opacity-100'}`} style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.03)' }}>
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse whitespace-nowrap min-w-[900px]">
             <thead>
@@ -660,7 +666,7 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
                     {activeClientDetail.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-semibold text-cream-warm/60 uppercase tracking-widest mb-1">Klient</p>
+                    <p className="text-[10px] font-semibold text-cream-warm uppercase tracking-widest mb-1">Klient</p>
                     <h3 className="font-extrabold text-white text-3xl tracking-tight truncate">{activeClientDetail.name}</h3>
                   </div>
                 </div>
@@ -669,14 +675,14 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
                   <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4">
                     <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-cream-warm shrink-0"><Phone size={16} /></div>
                     <div className="min-w-0">
-                      <p className="text-[9px] font-semibold text-cream-warm/50 uppercase tracking-wider">Telefon</p>
+                      <p className="text-[9px] font-semibold text-cream-warm uppercase tracking-wider">Telefon</p>
                       <p className="font-semibold text-white truncate">{activeClientDetail.phone || 'Brak'}</p>
                     </div>
                   </div>
                   <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4">
                     <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-cream-warm shrink-0"><Search size={16} /></div>
                     <div className="min-w-0">
-                      <p className="text-[9px] font-semibold text-cream-warm/50 uppercase tracking-wider">Email</p>
+                      <p className="text-[9px] font-semibold text-cream-warm uppercase tracking-wider">Email</p>
                       <p className="font-semibold text-white truncate">{activeClientDetail.email || 'Brak'}</p>
                     </div>
                   </div>

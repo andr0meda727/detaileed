@@ -5,7 +5,6 @@ import { User } from '@supabase/supabase-js';
 import Sidebar from './components/Sidebar';
 import Dashboard from './views/dashboard/Dashboard';
 import ClientsView from './views/clients/ClientsView';
-import BookingsView from './views/bookings/BookingsView';
 import InventoryView from './views/inventory/InventoryView';
 import ReportsView from './views/reports/ReportsView';
 import LoginView from './views/auth/LoginView';

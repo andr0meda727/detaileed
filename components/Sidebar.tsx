@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
   Users, Package, LayoutDashboard, CalendarClock,
-  LogOut, Zap, X, Building2, ChevronDown, Settings,
+  LogOut, X, Building2, ChevronDown, Settings,
   Wrench, UserCircle, LucideIcon, FileBarChart2, Shield
 } from 'lucide-react';
 import { ViewType } from '../types';
 import { useStudio } from '../contexts/StudioContext';
 import { isEmployeeRole } from '../utils/studioRole';
+import logo from '../images/logo.svg';
 
 interface SidebarProps {
   activeView: ViewType;
@@ -111,20 +112,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, 
             className="flex items-center gap-3 cursor-pointer group mb-7 px-1"
             onClick={() => setActiveView('Dashboard')}
           >
-            <div
-              className="w-10 h-10 rounded-[0.875rem] flex items-center justify-center shrink-0 transition-transform group-hover:rotate-12 duration-300"
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                boxShadow: '0 0 20px rgba(232,168,48,0.15), inset 0 1px 0 rgba(255,255,255,0.1)',
-              }}
-            >
-              <Zap className="text-amber" size={19} strokeWidth={2.5} />
-            </div>
+            <img src={logo} alt="Detaileed logo" className="h-10 w-auto shrink-0 transition-transform duration-300 group-hover:scale-105" />
             <div>
               <h1 style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 900, fontSize: '19px', letterSpacing: '-0.02em' }} className="text-white leading-none">
-                <span className="text-amber">D</span>etailFlow
+                <span className="text-amber">D</span>etaileed
               </h1>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: '8px', letterSpacing: '0.22em' }} className="text-white/35 uppercase mt-1 block">Studio OS</span>
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo, useEffect } from 'react';
 import { Plus, Search, Edit2, Package, Check, X, UserPlus, Car as CarIcon, Save, Calendar, Wrench } from 'lucide-react';
 import { InventoryCreateDto, ClientResponseDto, VehicleInfoDto, BookingCreateDto } from '../../types';
 import { useInventory, useCreateInventoryItem, useUpdateInventoryItem, useCategories, useCreateCategory } from '../../hooks';
@@ -44,6 +44,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
   const createCategory = useCreateCategory();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<ItemFormData>(defaultForm());
@@ -72,13 +73,18 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
   const [newVehicleModel, setNewVehicleModel] = useState('');
   const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearchQuery(searchQuery), 140);
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
   const filteredItems = useMemo(() => {
-    const q = searchQuery.toLowerCase();
+    const q = debouncedSearchQuery.toLowerCase();
     return items.filter(i =>
       i.name.toLowerCase().includes(q) ||
       (i.categoryName || '').toLowerCase().includes(q),
     );
-  }, [searchQuery, items]);
+  }, [debouncedSearchQuery, items]);
 
   const filteredClientResults = useClientVehicleSearch(clients, clientSearch);
 
@@ -293,7 +299,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
     <div className="space-y-6 sm:space-y-10">
       <GlobalHeader
         title="Magazyn"
-        subtitle="Baza Produktów Studio OS"
+        subtitle="Baza Produktów"
         onOpenMenu={onOpenMenu}
         onAddBooking={handleOpenNewBooking}
         onAddClient={() => setIsClientModalOpen(true)}
@@ -318,7 +324,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl lg:rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div className={`bg-white rounded-2xl lg:rounded-2xl shadow-sm border border-slate-100 overflow-hidden transition-opacity duration-200 ${searchQuery !== debouncedSearchQuery ? 'opacity-70' : 'opacity-100'}`}>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[750px]">
             <thead>
@@ -667,4 +673,5 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
 };
 
 export default InventoryView;
+
 

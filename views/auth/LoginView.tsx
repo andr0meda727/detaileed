@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Zap, ArrowRight, ShieldCheck, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
 import supabase from '../../utils/supabase';
+import logo from '../../images/logo.svg';
 
 interface LoginViewProps {
   onLogin: (email: string) => void;
@@ -59,10 +60,10 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
       <div className="max-w-[480px] w-full space-y-12 animate-zoom-in">
         <div className="text-center">
           <div className="inline-flex items-center justify-center bg-green-deep w-24 h-24 rounded-2xl mb-10 shadow-[0_30px_60px_rgba(16,44,38,0.25)] border border-[#1A3D33]">
-            <Zap size={44} className="text-cream-warm" strokeWidth={2.5} />
+            <img src={logo} alt="Detaileed logo" className="h-14 w-auto shrink-0 transition-transform duration-300 group-hover:scale-105" />
           </div>
-          <h1 className="text-5xl font-bold text-green-deep tracking-tighter">DetailFlow OS</h1>
-          <p className="text-green-light font-bold mt-3 uppercase tracking-[0.4em] text-[10px]">Secure Detailing Infrastructure</p>
+          <h1 className="text-5xl font-bold text-green-deep tracking-tighter">Detaileed</h1>
+          <p className="text-green-light font-bold mt-3 uppercase tracking-[0.4em] text-[10px]">Twój panel do zarządzania firmą</p>
         </div>
 
         <div className="bg-white p-12 rounded-2xl premium-shadow border border-[#EDD9B7]">
@@ -71,15 +72,15 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           {mode === 'login' && (
             <form onSubmit={handleLogin} className="space-y-8">
               <div className="space-y-3">
-                <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Operator ID</label>
+                <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Email</label>
                 <input
                   type="email" value={email} onChange={e => setEmail(e.target.value)} required
                   className="w-full px-8 py-6 bg-cream border-none rounded-xl focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
-                  placeholder="id@detailflow.pl"
+                  placeholder="email@detaileed.com"
                 />
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Security Token</label>
+                <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Hasło</label>
                 <input
                   type="password" value={password} onChange={e => setPassword(e.target.value)} required
                   className="w-full px-8 py-6 bg-cream border-none rounded-xl focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
@@ -93,7 +94,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
               <button type="submit" disabled={isLoading}
                 className="w-full flex items-center justify-center gap-4 bg-green-deep hover:bg-[#1A3D33] text-cream-warm font-semibold py-6 rounded-xl transition-all shadow-[0_20px_40px_rgba(16,44,38,0.2)] group text-[11px] uppercase tracking-[0.2em] disabled:opacity-70 disabled:cursor-not-allowed">
-                {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>Access System <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" strokeWidth={3} /></>}
+                {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>Zaloguj się <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" strokeWidth={3} /></>}
               </button>
 
               <button type="button" onClick={() => { setMode('reset'); setError(''); }}
@@ -114,7 +115,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 <p className="text-xs text-slate-400 mt-2">Wyślemy link resetujący na Twój email</p>
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Operator ID</label>
+                <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Email</label>
                 <input
                   type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus
                   className="w-full px-8 py-6 bg-cream border-none rounded-xl focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
@@ -159,10 +160,6 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
           )}
         </div>
 
-        <div className="flex items-center justify-center gap-3 text-green-light text-xs font-semibold uppercase tracking-widest">
-          <ShieldCheck size={18} className="text-cream-warm" strokeWidth={2.5} />
-          AES-256 Protected Workspace
-        </div>
       </div>
     </div>
   );

@@ -19,7 +19,11 @@ import Modal from '../../components/ui/Modal';
 import { useToast } from '../../contexts/ToastContext';
 import Skeleton from '../../components/ui/Skeleton';
 
-const TasksView: React.FC = () => {
+interface TasksViewProps {
+  onOpenMenu?: () => void;
+}
+
+const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
   const { data: bookings = [], isLoading: loading, refetch: refetchBookings } = useBookings();
 
   const { data: clients = [], refetch: refetchClients } = useClients();
@@ -51,12 +55,24 @@ const TasksView: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
   const [inProgressSearchQuery, setInProgressSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [debouncedInProgressSearchQuery, setDebouncedInProgressSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'UTWORZONA' | 'ZAKONCZONA' | 'ANULOWANA'>('all');
 
   const { addToast } = useToast();
   const [selectedBooking, setSelectedBooking] = useState<BookingResponseDto | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [confirmation, setConfirmation] = useState<{ id: string, type: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES], booking: BookingResponseDto } | null>(null);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearchQuery(searchQuery), 140);
+    return () => clearTimeout(timeout);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedInProgressSearchQuery(inProgressSearchQuery), 140);
+    return () => clearTimeout(timeout);
+  }, [inProgressSearchQuery]);
 
 
 
@@ -91,8 +107,8 @@ const TasksView: React.FC = () => {
     if (filterStatus !== 'all') {
       filtered = filtered.filter(b => b.status === BOOKING_STATUSES[filterStatus]?.name);
     }
-    if (inProgressSearchQuery.trim()) {
-      const q = inProgressSearchQuery.toLowerCase();
+    if (debouncedInProgressSearchQuery.trim()) {
+      const q = debouncedInProgressSearchQuery.toLowerCase();
       filtered = filtered.filter(b =>
         b.services.join(' ').toLowerCase().includes(q) ||
         b.client.name.toLowerCase().includes(q) ||
@@ -102,7 +118,7 @@ const TasksView: React.FC = () => {
       );
     }
     return filtered.sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
-  }, [activeBookings, filterStatus, inProgressSearchQuery]);
+  }, [activeBookings, filterStatus, debouncedInProgressSearchQuery]);
   const groupedInProgressBookings = useMemo(() => {
     const grouped = inProgressBookings.reduce((acc, booking) => {
       const date = booking.scheduledAt.split('T')[0];
@@ -117,12 +133,12 @@ const TasksView: React.FC = () => {
   const selectedDayBookings = useMemo(() => activeBookings.filter(b => b.scheduledAt.startsWith(selectedDate)).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)), [activeBookings, selectedDate]);
 
   const globalSearchResults = useMemo(() => {
-    if (!searchQuery) return [];
-    const q = searchQuery.toLowerCase();
+    if (!debouncedSearchQuery) return [];
+    const q = debouncedSearchQuery.toLowerCase();
     return activeBookings
       .filter(b => b.services.join(' ').toLowerCase().includes(q) || b.client.name.toLowerCase().includes(q) || (b.vehicle.brand || '').toLowerCase().includes(q) || (b.vehicle.model || '').toLowerCase().includes(q) || b.vehicle.licensePlate.toLowerCase().includes(q))
       .sort((a, b) => b.scheduledAt.localeCompare(a.scheduledAt));
-  }, [activeBookings, searchQuery]);
+  }, [activeBookings, debouncedSearchQuery]);
 
   const calendarDays = useMemo(() => {
     const y = currentMonth.getFullYear(); const m = currentMonth.getMonth();
@@ -309,9 +325,10 @@ const TasksView: React.FC = () => {
     <div className="space-y-8 pb-20">
       <GlobalHeader
         title="Rezerwacje"
-        subtitle="Harmonogram • Studio DetailFlow"
+        subtitle="Harmonogram"
         onAddBooking={handleOpenNewBooking}
         onAddClient={() => setIsClientModalOpen(true)}
+        onOpenMenu={onOpenMenu}
       />
 
       {/* Tab switcher */}
@@ -413,7 +430,7 @@ const TasksView: React.FC = () => {
               ))}
             </div>
           ) : (
-            <>
+            <div className={`transition-opacity duration-200 ${inProgressSearchQuery !== debouncedInProgressSearchQuery ? 'opacity-70' : 'opacity-100'}`}>
               {groupedInProgressBookings.length > 0 ? groupedInProgressBookings.map(group => (
                 <div key={group.date} className="space-y-4">
                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest pl-2 border-b border-slate-100 pb-2 mb-4">
@@ -430,7 +447,7 @@ const TasksView: React.FC = () => {
                   <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-2">Brak przypisanych rezerwacji.</p>
                 </div>
               )}
-            </>
+            </div>
           )}
         </div>
       ) : activeTab === 'search' ? (
@@ -461,7 +478,7 @@ const TasksView: React.FC = () => {
               <p className="text-slate-400 text-sm font-semibold">Wpisz frazę aby wyszukać rezerwację</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className={`space-y-4 transition-opacity duration-200 ${searchQuery !== debouncedSearchQuery ? 'opacity-70' : 'opacity-100'}`}>
               <div className="flex items-center justify-between px-1">
                 <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Wyniki dla: &ldquo;{searchQuery}&rdquo;</span>
                 <span className="text-[10px] font-semibold text-green-light uppercase tracking-widest">Znaleziono: {globalSearchResults.length}</span>
@@ -503,7 +520,9 @@ const TasksView: React.FC = () => {
                   if (!day) return <div key={`e-${idx}`} />;
                   const ds = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                   const isSel = ds === selectedDate;
-                  const hasB = bookings.some(b => b.scheduledAt.startsWith(ds));
+                  const hasB = bookings.some(
+                    b => b.scheduledAt.startsWith(ds) && b.status !== BOOKING_STATUSES.ANULOWANA.name && b.status !== BOOKING_STATUSES.ZAKONCZONA.name,
+                  );
                   return (
                     <button key={day} onClick={() => setSelectedDate(ds)}
                       className={`relative aspect-square rounded-[0.65rem] flex flex-col items-center justify-center text-sm font-semibold transition-all duration-200 ${isSel ? 'bg-green-deep text-cream-warm shadow-lg scale-105 z-10' : 'hover:bg-green-pale/30 text-green-deep/70'

@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useMemo, useState } from 'react';
 import {
   Wrench, Layers, Users, Plus, Trash2, X, Save,
   Loader2, Mail, CheckCircle, Edit2
@@ -12,6 +12,8 @@ import Modal from '../../components/ui/Modal';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../contexts/ToastContext';
+import { useStudio } from '../../contexts/StudioContext';
+import { isEmployeeRole } from '../../utils/studioRole';
 
 // ─── Card grid shared styles ─────────────────────────────────────────────────
 const CARD = `relative group bg-white border-2 border-slate-100 rounded-3xl p-6 flex flex-col gap-3
@@ -282,6 +284,18 @@ const TABS: { id: TabId; label: string; icon: React.FC<{ size?: number; classNam
 const StudioSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   const [activeTab, setActiveTab] = useState<TabId>('services');
   const { addToast } = useToast();
+  const { selectedStudio } = useStudio();
+  const isEmployee = isEmployeeRole(selectedStudio?.role);
+  const tabs = useMemo(
+    () => TABS.filter(tab => !(isEmployee && tab.id === 'employees')),
+    [isEmployee],
+  );
+
+  React.useEffect(() => {
+    if (isEmployee && activeTab === 'employees') {
+      setActiveTab('services');
+    }
+  }, [activeTab, isEmployee]);
 
   return (
     <div className="space-y-8 sm:space-y-10">
@@ -289,7 +303,7 @@ const StudioSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu 
 
       {/* Tab bar */}
       <div className="flex gap-1 bg-white border border-slate-100 rounded-2xl p-1.5 overflow-x-auto">
-        {TABS.map(tab => {
+        {tabs.map(tab => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
@@ -312,4 +326,5 @@ const StudioSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu 
 };
 
 export default StudioSettingsView;
+
 
