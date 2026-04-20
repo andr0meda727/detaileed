@@ -14,6 +14,7 @@ import { getClients, createClient } from '../../services/clientService';
 import { createVehicle } from '../../services/vehicleService';
 import { getInventory } from '../../services/inventoryService';
 import { getServices, createService } from '../../services/serviceService';
+import { getApiErrorMessage } from '../../utils/errorHandler';
 import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
 import { useBookings } from '../../hooks/useBookings';
 import { useInventory } from '../../hooks/useInventory';
@@ -131,7 +132,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       refetchServices();
     } catch (err) {
       console.error('Failed to create service:', err);
-      addToast('Wystąpił błąd podczas dodawania usługi.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania usługi.'), 'error');
     }
   };
 
@@ -163,7 +164,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       fetchData();
     } catch (err) {
       console.error('Failed to update booking status:', err);
-      addToast('Wystąpił błąd podczas zmiany statusu.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas zmiany statusu.'), 'error');
     } finally {
       setConfirmation(null);
     }
@@ -220,7 +221,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       addToast('Dodano i wybrano nowego klienta.', 'success');
     } catch (err) {
       console.error('Failed to create client:', err);
-      addToast('Wystąpił błąd podczas dodawania klienta.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania klienta.'), 'error');
     }
   };
 
@@ -245,7 +246,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       fetchData();
     } catch (err) {
       console.error('Failed to create booking:', err);
-      addToast('Wystąpił błąd podczas tworzenia rezerwacji.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia rezerwacji.'), 'error');
     }
   };
 
@@ -265,7 +266,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       fetchData();
     } catch (err) {
       console.error('Failed to create client:', err);
-      addToast('Wystąpił błąd podczas tworzenia klienta.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia klienta.'), 'error');
     }
   };
 
@@ -295,7 +296,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       fetchData();
     } catch (err) {
       console.error('Failed to create vehicle:', err);
-      addToast('Wystąpił błąd podczas dodawania pojazdu.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania pojazdu.'), 'error');
     }
   };
 
@@ -326,7 +327,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       fetchData();
     } catch (err) {
       console.error('Failed to create client with vehicle:', err);
-      addToast('Wystąpił błąd podczas tworzenia klienta.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia klienta.'), 'error');
     }
   };
 
@@ -453,23 +454,31 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                         </div>
                         <div className="flex-1 min-w-0">
                           <h5 className="text-lg font-sans font-bold text-green-deep truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
-                          <p className="text-[11px] font-bold text-green-deep/35 uppercase tracking-widest mt-0.5 truncate">{booking.services.join(', ') || 'Brak usług'}</p>
+                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            {booking.services.length > 0 ? booking.services.map((s, idx) => (
+                              <span key={idx} className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm">
+                                {s}
+                              </span>
+                            )) : (
+                              <span className="text-[10px] font-bold text-green-deep/30 uppercase tracking-widest mt-0.5">Brak usług</span>
+                            )}
+                          </div>
                           <p className="text-[12px] font-semibold text-green-light mt-1"><UserCheck size={10} className="inline mr-1" />{booking.client.name}</p>
                         </div>
-                        <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
                           {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
                             <>
                               <button onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA)} title="Zakończ"
-                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-green-pale/40 text-green-light hover:bg-green-pale/70 transition-all active:scale-95">
-                                <Check size={16} strokeWidth={2.5} />
+                                className="w-11 h-11 flex items-center justify-center rounded-xl bg-green-pale/40 text-green-light hover:bg-green-pale/70 transition-all active:scale-95">
+                                <Check size={20} strokeWidth={2.5} />
                               </button>
                               <button onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA)} title="Anuluj"
-                                className="w-9 h-9 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition-all active:scale-95">
-                                <X size={16} strokeWidth={2.5} />
+                                className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition-all active:scale-95">
+                                <X size={20} strokeWidth={2.5} />
                               </button>
                             </>
                           )}
-                          <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-xl font-mono text-[13px] font-bold tracking-wider uppercase shadow-md">{booking.vehicle.licensePlate}</div>
+                          <div className="bg-green-deep text-cream-warm px-4 py-2.5 rounded-xl font-mono text-[15px] font-bold tracking-wider uppercase shadow-md">{booking.vehicle.licensePlate}</div>
                         </div>
                       </div>
                     );
@@ -525,7 +534,15 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                         </div>
                         <div className="flex-1 min-w-0">
                           <h5 className="text-sm font-bold text-green-deep truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
-                          <p className="text-[9px] font-bold text-green-deep/30 uppercase tracking-widest truncate">{booking.services.join(', ') || 'Brak usług'}</p>
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {booking.services.length > 0 ? booking.services.map((s, idx) => (
+                              <span key={idx} className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm">
+                                {s}
+                              </span>
+                            )) : (
+                              <span className="text-[8px] font-bold text-green-deep/30 uppercase tracking-widest">Brak usług</span>
+                            )}
+                          </div>
                         </div>
                         <div className="text-right shrink-0">
                           <p className="text-base font-bold text-green-deep font-mono">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')} <span className="text-[9px] text-green-deep/35">zł</span></p>

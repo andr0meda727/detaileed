@@ -10,6 +10,7 @@ import { useServices } from '../../hooks/useServices';
 import { createBooking } from '../../services/bookingService';
 import { createClient } from '../../services/clientService';
 import { createService } from '../../services/serviceService';
+import { getApiErrorMessage } from '../../utils/errorHandler';
 import { ClientResponseDto, VehicleInfoDto } from '../../types';
 import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
 import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
@@ -150,7 +151,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
   const formatTime = (iso: string) => new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
   const formatDateShort = (iso: string) => { const d = new Date(iso); return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`; };
 
-  
+
   const filteredClientResults = useClientVehicleSearch(clients, clientSearch);
 
   const toggleService = (id: string) => setSelectedServices((prev) => toggleIdSelection(prev, id));
@@ -163,7 +164,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
       setCustomServiceInput('');
       refetchServices();
     } catch (err) {
-      addToast('Wystąpił błąd podczas dodawania usługi.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania usługi.'), 'error');
     }
   };
 
@@ -175,7 +176,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
     setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
     setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate(''); setIsBookingModalOpen(true);
   };
-  
+
   const handleCreateClient = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -185,7 +186,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
       addToast('Karta klienta została utworzona.', 'success');
       fetchData();
     } catch (err) {
-      addToast('Wystąpił błąd podczas tworzenia klienta.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia klienta.'), 'error');
     }
   };
 
@@ -214,7 +215,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
       fetchData();
       addToast('Dodano i wybrano nowego klienta.', 'success');
     } catch (err) {
-      addToast('Wystąpił błąd podczas dodawania klienta.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania klienta.'), 'error');
     }
   };
 
@@ -238,7 +239,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
       addToast('Rezerwacja została pomyślnie utworzona.', 'success');
       fetchData();
     } catch (err) {
-      addToast('Wystąpił błąd podczas tworzenia rezerwacji.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia rezerwacji.'), 'error');
     }
   };
 
@@ -275,7 +276,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
       fetchData();
     } catch (err) {
       console.error('Failed to update booking status:', err);
-      addToast('Wystąpił błąd podczas zmiany statusu.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas zmiany statusu.'), 'error');
     } finally {
       setConfirmation(null);
     }
@@ -284,7 +285,9 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
   const confirmStatusUpdate = (e: React.MouseEvent, booking: BookingResponseDto, targetStatus: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES]) => {
     e.stopPropagation();
     setConfirmation({ id: booking.id, type: targetStatus, booking });
-  }; const renderBookingCard = (booking: BookingResponseDto, index: number = 0) => (
+  };
+
+  const renderBookingCard = (booking: BookingResponseDto, index: number = 0) => (
     <div
       key={booking.id}
       onClick={() => handleViewBooking(booking)}
@@ -302,16 +305,40 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
       {/* Content */}
       <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="bg-green-deep text-cream-warm px-3 py-1 rounded-lg font-mono text-[10px] font-bold tracking-widest">{booking.vehicle.licensePlate}</span>
+          <span className="bg-green-deep text-cream-warm px-4 py-1.5 rounded-lg font-mono text-[13px] font-bold tracking-widest shadow-sm">{booking.vehicle.licensePlate}</span>
           <h4 className="font-sans font-bold text-green-deep text-base tracking-tight truncate">{booking.vehicle.brand} {booking.vehicle.model}</h4>
         </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-1">
-          <span className="text-[11px] font-semibold text-green-deep/40 uppercase tracking-wide">{booking.services.join(', ') || 'Brak usług'}</span>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+          <div className="flex flex-wrap gap-1.5">
+            {booking.services.length > 0 ? booking.services.map((s, idx) => (
+              <span key={idx} className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm">{s}</span>
+            )) : (
+              <span className="text-[11px] font-semibold text-green-deep/30 uppercase tracking-wide">Brak usług</span>
+            )}
+          </div>
           <span className="text-[11px] font-semibold text-green-light/70"><User size={10} className="inline mr-1" />{booking.client.name}</span>
         </div>
       </div>
-      {/* Status */}
-      <div className="px-5 sm:px-6 py-4 flex items-center justify-end sm:shrink-0" style={{ borderTop: '1px solid rgba(26,46,30,0.04)', background: 'rgba(26,46,30,0.01)' }}>
+      {/* Status + quick actions */}
+      <div className="px-5 sm:px-6 py-4 flex items-center justify-end gap-3 sm:shrink-0" style={{ borderTop: '1px solid rgba(26,46,30,0.04)', background: 'rgba(26,46,30,0.01)' }}>
+        {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
+          <>
+            <button
+              onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA)}
+              title="Zakończ"
+              className="w-11 h-11 flex items-center justify-center rounded-xl bg-green-pale/40 text-green-light hover:bg-green-pale/70 transition-all active:scale-95"
+            >
+              <Check size={20} strokeWidth={2.5} />
+            </button>
+            <button
+              onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA)}
+              title="Anuluj"
+              className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition-all active:scale-95"
+            >
+              <X size={20} strokeWidth={2.5} />
+            </button>
+          </>
+        )}
         <span className="px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border"
           style={{ color: booking.statusColor || 'var(--green-deep)', borderColor: (booking.statusColor || 'var(--green-deep)') + '35', backgroundColor: (booking.statusColor || 'var(--green-deep)') + '10' }}
         >{booking.status}</span>
@@ -430,7 +457,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
               ))}
             </div>
           ) : (
-            <div className={`transition-opacity duration-200 ${inProgressSearchQuery !== debouncedInProgressSearchQuery ? 'opacity-70' : 'opacity-100'}`}>
+            <div className={`space-y-8 transition-opacity duration-200 ${inProgressSearchQuery !== debouncedInProgressSearchQuery ? 'opacity-70' : 'opacity-100'}`}>
               {groupedInProgressBookings.length > 0 ? groupedInProgressBookings.map(group => (
                 <div key={group.date} className="space-y-4">
                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest pl-2 border-b border-slate-100 pb-2 mb-4">
@@ -860,7 +887,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
         )}
       </Modal>
 
-<Modal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} title="Nowy Klient">
+      <Modal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} title="Nowy Klient">
         <form className="space-y-6" onSubmit={handleCreateClient}>
           <div className="space-y-4">
             <input type="text" placeholder="Imię i Nazwisko" required value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
@@ -873,7 +900,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
         </form>
       </Modal>
 
-{/* Confirmation Modal */}
+      {/* Confirmation Modal */}
       <Modal isOpen={!!confirmation} onClose={() => setConfirmation(null)} title="Zmień Status">
         <div className="space-y-8">
           <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-2xl">

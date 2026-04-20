@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Plus, Search, Edit2, Package, Check, X, UserPlus, Car as CarIcon, Save, Calendar, Wrench } from 'lucide-react';
 import { InventoryCreateDto, ClientResponseDto, VehicleInfoDto, BookingCreateDto } from '../../types';
 import { useInventory, useCreateInventoryItem, useUpdateInventoryItem, useCategories, useCreateCategory } from '../../hooks';
@@ -12,6 +12,8 @@ import { useServices } from '../../hooks/useServices';
 import { createBooking } from '../../services/bookingService';
 import { createClient } from '../../services/clientService';
 import { createService } from '../../services/serviceService';
+import { getApiErrorMessage } from '../../utils/errorHandler';
+import { Filter, ChevronDown } from 'lucide-react';
 import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
 import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
 import { toggleIdSelection } from '../../utils/selection';
@@ -42,6 +44,10 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
   const createItem = useCreateInventoryItem();
   const updateItem = useUpdateInventoryItem();
   const createCategory = useCreateCategory();
+  
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isFormCategoryDropdownOpen, setIsFormCategoryDropdownOpen] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
@@ -80,11 +86,12 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
 
   const filteredItems = useMemo(() => {
     const q = debouncedSearchQuery.toLowerCase();
-    return items.filter(i =>
-      i.name.toLowerCase().includes(q) ||
-      (i.categoryName || '').toLowerCase().includes(q),
-    );
-  }, [debouncedSearchQuery, items]);
+    return items.filter(i => {
+      const matchSearch = i.name.toLowerCase().includes(q) || (i.categoryName || '').toLowerCase().includes(q);
+      const matchCategory = selectedCategoryName ? i.categoryName === selectedCategoryName : true;
+      return matchSearch && matchCategory;
+    });
+  }, [debouncedSearchQuery, items, selectedCategoryName]);
 
   const filteredClientResults = useClientVehicleSearch(clients, clientSearch);
 
@@ -145,7 +152,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
       addToast('Kategoria dodana', 'success');
     } catch (e) {
       console.error(e);
-      addToast('Błąd podczas dodawania kategorii', 'error');
+      addToast(getApiErrorMessage(e, 'Błąd podczas dodawania kategorii'), 'error');
     }
   };
 
@@ -166,7 +173,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
       addToast('Karta klienta została utworzona.', 'success');
     } catch (err) {
       console.error('Failed to create client:', err);
-      addToast('Wystąpił błąd podczas tworzenia klienta.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia klienta.'), 'error');
     }
   };
 
@@ -180,7 +187,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
       fetchBookingData();
     } catch (err) {
       console.error('Failed to create service:', err);
-      addToast('Wystąpił błąd podczas dodawania usługi.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania usługi.'), 'error');
     }
   };
 
@@ -217,7 +224,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
       addToast('Dodano i wybrano nowego klienta.', 'success');
     } catch (err) {
       console.error('Failed to create client for booking:', err);
-      addToast('Wystąpił błąd podczas dodawania klienta.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania klienta.'), 'error');
     }
   };
 
@@ -242,7 +249,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
       addToast('Zapisano produkt w magazynie', 'success');
     } catch (err) {
       console.error('Failed to save inventory item:', err);
-      addToast('Wystąpił błąd podczas zapisywania produktu', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas zapisywania produktu'), 'error');
     }
   };
 
@@ -267,7 +274,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
       addToast('Rezerwacja została pomyślnie utworzona.', 'success');
     } catch (err) {
       console.error('Failed to create booking:', err);
-      addToast('Wystąpił błąd podczas tworzenia rezerwacji.', 'error');
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia rezerwacji.'), 'error');
     }
   };
 
@@ -289,7 +296,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
       addToast('Zaktualizowano stan magazynowy', 'success');
     } catch (err) {
       console.error(err);
-      addToast('Błąd podczas aktualizacji stanu', 'error');
+      addToast(getApiErrorMessage(err, 'Błąd podczas aktualizacji stanu'), 'error');
     }
   };
 
@@ -306,7 +313,7 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
       />
 
       <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1 relative group">
+        <div className="flex-1 lg:flex-none lg:w-[400px] relative group">
           <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-light transition-colors" />
           <input
             type="text"
@@ -316,11 +323,61 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
             className="w-full pl-14 pr-6 py-5 bg-white border border-slate-200 rounded-xl outline-none shadow-sm focus:ring-8 focus:ring-cream-warm/20 focus:border-cream-warm/40 transition-all font-bold text-sm sm:text-base"
           />
         </div>
+
+        {/* Custom Category Dropdown */}
+        <div 
+          className="flex-1 relative"
+          tabIndex={0}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+              setIsCategoryDropdownOpen(false);
+            }
+          }}
+        >
+          <div 
+            onClick={() => setIsCategoryDropdownOpen(p => !p)}
+            className={`w-full pl-14 pr-12 py-5 bg-white border rounded-xl outline-none shadow-sm transition-all font-bold text-sm sm:text-base cursor-pointer flex items-center h-full hover:border-cream-warm/60 ${isCategoryDropdownOpen ? 'border-cream-warm/60 ring-8 ring-cream-warm/20 text-green-deep' : 'border-slate-200 text-slate-700'}`}
+          >
+            <div className={`absolute left-6 pointer-events-none transition-colors ${isCategoryDropdownOpen ? 'text-green-deep' : 'text-slate-400 group-hover:text-green-light'}`}>
+              <Filter size={18} />
+            </div>
+            <span className="truncate flex-1 select-none">{selectedCategoryName || 'Wszystkie Kategorie'}</span>
+            <div className={`absolute right-6 pointer-events-none transition-colors ${isCategoryDropdownOpen ? 'text-green-deep' : 'text-slate-400 group-hover:text-green-light'}`}>
+              <ChevronDown size={18} className={`transition-transform duration-300 ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
+            </div>
+          </div>
+
+          <div
+            className={`absolute z-10 top-[calc(100%+0.5rem)] left-0 right-0 bg-white rounded-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden py-2 transform origin-top transition-all duration-200 ease-out ${isCategoryDropdownOpen ? 'opacity-100 scale-y-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'}`}
+          >
+            <div className="max-h-[300px] overflow-y-auto w-full custom-scrollbar">
+              <button
+                type="button"
+                onClick={() => { setSelectedCategoryName(null); setIsCategoryDropdownOpen(false); }}
+                className={`w-full text-left px-6 py-3.5 text-sm font-bold transition-all border-b border-slate-50 block select-none ${!selectedCategoryName ? 'bg-amber/10 text-amber' : 'text-slate-500 hover:bg-slate-50 hover:text-green-deep'}`}
+              >
+                Wszystkie Kategorie
+              </button>
+              {categories.map(c => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => { setSelectedCategoryName(c.name); setIsCategoryDropdownOpen(false); }}
+                  className={`w-full text-left px-6 py-3.5 text-sm font-bold transition-all block select-none ${selectedCategoryName === c.name ? 'bg-amber/10 text-amber' : 'text-slate-500 hover:bg-slate-50 hover:text-green-deep'}`}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         <button
           onClick={() => handleOpenModal()}
-          className="bg-green-deep text-cream-warm px-10 py-5 rounded-xl font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all"
+          className="bg-green-deep text-cream-warm px-10 py-5 rounded-xl font-bold text-[11px] uppercase tracking-[0.15em] flex items-center justify-center gap-3 shadow-[0_8px_30px_rgb(33,52,40,0.15)] hover:shadow-[0_8px_30px_rgb(33,52,40,0.25)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300 shrink-0 border border-green-deep hover:border-green-light/30 relative overflow-hidden group/btn"
         >
-          <Plus size={18} /> Dodaj Produkt
+          <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 ease-out" />
+          <Plus size={18} strokeWidth={2.5} className="relative z-10" /> 
+          <span className="relative z-10">Dodaj Produkt</span>
         </button>
       </div>
 
@@ -454,17 +511,50 @@ const InventoryView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) =>
               </div>
             ) : (
               <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <select
-                    value={formData.categoryId || ''}
-                    onChange={e => setFormData({ ...formData, categoryId: e.target.value || null })}
-                    className="w-full px-6 py-5 bg-slate-50 border-none rounded-xl outline-none font-bold text-sm appearance-none cursor-pointer pr-10"
+                <div 
+                  className="relative flex-1"
+                  tabIndex={0}
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                      setIsFormCategoryDropdownOpen(false);
+                    }
+                  }}
+                >
+                  <div
+                    onClick={() => setIsFormCategoryDropdownOpen(p => !p)}
+                    className={`w-full px-6 py-5 bg-slate-50 border-2 rounded-xl outline-none transition-all font-bold text-sm cursor-pointer flex items-center h-full hover:border-cream-warm/40 ${isFormCategoryDropdownOpen ? 'border-cream-warm/60 ring-4 ring-cream-warm/20 text-green-deep' : 'border-transparent text-slate-700'}`}
                   >
-                    <option value="">Wybierz kategorię (opcjonalnie)</option>
-                    {categories.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
+                    <span className="truncate flex-1 select-none">
+                      {formData.categoryId ? categories.find(c => c.id === formData.categoryId)?.name || 'Wybierz kategorię (opcjonalnie)' : 'Wybierz kategorię (opcjonalnie)'}
+                    </span>
+                    <div className={`pointer-events-none transition-colors ml-3 ${isFormCategoryDropdownOpen ? 'text-green-deep' : 'text-slate-400'}`}>
+                      <ChevronDown size={18} className={`transition-transform duration-300 ${isFormCategoryDropdownOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </div>
+
+                  <div
+                    className={`absolute z-10 top-[calc(100%+0.5rem)] left-0 right-0 bg-white rounded-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden py-2 transform origin-top transition-all duration-200 ease-out ${isFormCategoryDropdownOpen ? 'opacity-100 scale-y-100 translate-y-0 pointer-events-auto' : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'}`}
+                  >
+                    <div className="max-h-[250px] overflow-y-auto w-full custom-scrollbar">
+                      <button
+                        type="button"
+                        onClick={() => { setFormData({ ...formData, categoryId: null }); setIsFormCategoryDropdownOpen(false); }}
+                        className={`w-full text-left px-6 py-3.5 text-sm font-bold transition-all border-b border-slate-50 block select-none ${!formData.categoryId ? 'bg-amber/10 text-amber' : 'text-slate-500 hover:bg-slate-50 hover:text-green-deep'}`}
+                      >
+                        Wybierz kategorię (opcjonalnie)
+                      </button>
+                      {categories.map(c => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => { setFormData({ ...formData, categoryId: c.id }); setIsFormCategoryDropdownOpen(false); }}
+                          className={`w-full text-left px-6 py-3.5 text-sm font-bold transition-all block select-none ${formData.categoryId === c.id ? 'bg-amber/10 text-amber' : 'text-slate-500 hover:bg-slate-50 hover:text-green-deep'}`}
+                        >
+                          {c.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
                 <button type="button" onClick={() => setIsAddingCategory(true)} className="px-5 bg-slate-50 text-green-deep font-bold rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center gap-2 border border-slate-100 shadow-sm">
                   <Plus size={18} /> Nowa
