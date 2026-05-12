@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Wrench, Layers, Users, Plus, Trash2, X, Save,
   Loader2, Mail, CheckCircle, Edit2
@@ -14,6 +14,20 @@ import EmptyState from '../../components/ui/EmptyState';
 import { useToast } from '../../contexts/ToastContext';
 import { useStudio } from '../../contexts/StudioContext';
 import { isEmployeeRole } from '../../utils/studioRole';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const nameSchema = z.object({
+  name: z.string().min(1, 'Nazwa jest wymagana'),
+});
+
+const inviteSchema = z.object({
+  email: z.string().min(1, 'Email jest wymagany').email('Niepoprawny format email'),
+});
+
+type NameFormValues = z.infer<typeof nameSchema>;
+type InviteFormValues = z.infer<typeof inviteSchema>;
 
 // ─── Card grid shared styles ─────────────────────────────────────────────────
 const CARD = `relative group bg-white border-2 border-slate-100 rounded-3xl p-6 flex flex-col gap-3
@@ -29,22 +43,23 @@ const NameForm: React.FC<{
   onSave: (name: string) => Promise<void>;
   saving: boolean;
 }> = ({ label, placeholder, onSave, saving }) => {
-  const [value, setValue] = useState('');
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<NameFormValues>({
+    resolver: zodResolver(nameSchema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!value.trim()) return;
-    await onSave(value.trim());
-    setValue('');
+  const onSubmit = async (data: NameFormValues) => {
+    await onSave(data.name.trim());
+    reset();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="space-y-2">
         <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-1">{label}</label>
-        <input type="text" value={value} required autoFocus onChange={e => setValue(e.target.value)}
+        <input type="text" {...register('name')} autoFocus
           placeholder={placeholder}
-          className="w-full px-5 py-4 bg-slate-50 rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all" />
+          className={`w-full px-5 py-4 bg-slate-50 rounded-2xl outline-none font-bold text-sm border-2 ${errors.name ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`} />
+        {errors.name && <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-1 mt-1">{errors.name.message}</p>}
       </div>
       <button type="submit" disabled={saving}
         className="w-full py-4 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-60">
@@ -215,19 +230,28 @@ const CategoriesTab: React.FC<{ addToast: (message: string, type: 'success' | 'e
 
 // ─── Tab: Employees ───────────────────────────────────────────────────────────
 const EmployeesTab: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({ addToast }) => {
-  const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
   const [lastSent, setLastSent] = useState<string | null>(null);
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<InviteFormValues>({
+    resolver: zodResolver(inviteSchema),
+  });
+
+  const onInvite = async (data: InviteFormValues) => {
     setSending(true);
     try {
-      await apiPost<void>('/Employees/invite', { email, roleId: 3 } as InviteEmployeeDto);
-      setLastSent(email);
-      setEmail('');
-      addToast(`Zaproszenie wysłane do ${email}`, 'success');
-    } catch { addToast('Nie udało się wysłać zaproszenia', 'error'); }
+      await apiPost<void>('/Employees/invite', { email: data.email, roleId: 3 } as InviteEmployeeDto);
+      setLastSent(data.email);
+      reset();
+      addToast(`Zaproszenie wysłane do ${data.email}`, 'success');
+    } catch (e: any) {
+      if (e?.data?.errors) {
+        const firstErrorKey = Object.keys(e.data.errors)[0];
+        addToast(e.data.errors[firstErrorKey][0], 'error');
+      } else {
+        addToast(e.message || 'Nie udało się wysłać zaproszenia', 'error');
+      }
+    }
     finally { setSending(false); }
   };
 
@@ -243,14 +267,17 @@ const EmployeesTab: React.FC<{ addToast: (message: string, type: 'success' | 'er
             <p className="text-sm text-slate-400 mt-0.5">Wyślij zaproszenie e-mailem. Pracownik otrzyma link do rejestracji.</p>
           </div>
         </div>
-        <form onSubmit={handleInvite} className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
-            <input type="email" value={email} required onChange={e => setEmail(e.target.value)} placeholder="adres@email.com"
-              className="w-full pl-10 pr-4 py-4 bg-white border border-slate-200 rounded-2xl outline-none font-semibold text-sm focus:ring-4 focus:ring-cream-warm/20 focus:border-cream-warm/40 transition-all" />
+        <form onSubmit={handleSubmit(onInvite)} className="flex flex-col sm:flex-row gap-3 items-start">
+          <div className="flex-1 w-full">
+            <div className="relative">
+              <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+              <input type="email" {...register('email')} placeholder="adres@email.com"
+                className={`w-full pl-10 pr-4 py-4 bg-white border-2 rounded-2xl outline-none font-semibold text-sm ${errors.email ? 'border-red-400 focus:ring-red-400/20' : 'border-slate-100 focus:ring-cream-warm/20 focus:border-cream-warm/40'} transition-all`} />
+            </div>
+            {errors.email && <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-1 mt-2">{errors.email.message}</p>}
           </div>
           <button type="submit" disabled={sending}
-            className="flex items-center justify-center gap-2 bg-green-deep text-cream-warm px-7 py-4 rounded-2xl font-semibold text-[11px] uppercase tracking-widest active:scale-95 transition-all whitespace-nowrap disabled:opacity-60">
+            className="h-[52px] flex items-center justify-center gap-2 bg-green-deep text-cream-warm px-7 rounded-2xl font-semibold text-[11px] uppercase tracking-widest active:scale-95 transition-all whitespace-nowrap disabled:opacity-60">
             {sending ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />} Wyślij zaproszenie
           </button>
         </form>

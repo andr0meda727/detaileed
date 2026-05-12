@@ -41,13 +41,13 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
   }, [bookings]);
 
   return (
-    <div className="floating-card p-6 lg:p-8">
+    <div className="floating-card-static p-6 lg:p-8">
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
         <div>
           <p className="text-[11px] font-semibold text-green-light/60 uppercase tracking-wide mb-1">Finanse Studia</p>
           <h3 className="text-3xl lg:text-4xl font-extrabold text-green-deep leading-none">
-            {revPeriod === 'weekly' 
-              ? chartData.weekly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL') 
+            {revPeriod === 'weekly'
+              ? chartData.weekly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL')
               : chartData.monthly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL')}
             <span className="text-[15px] font-bold text-green-light/60 ml-2">PLN</span>
           </h3>
@@ -56,19 +56,17 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
           className="flex p-1.5 rounded-lg h-fit shrink-0"
           style={{ background: 'rgba(26,46,30,0.04)', border: '1px solid rgba(26,46,30,0.07)' }}
         >
-          <button 
-            onClick={() => setRevPeriod('weekly')} 
-            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
-              revPeriod === 'weekly' ? 'bg-green-deep text-cream-warm shadow-md' : 'text-green-deep/40 hover:text-green-deep'
-            }`}
+          <button
+            onClick={() => setRevPeriod('weekly')}
+            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${revPeriod === 'weekly' ? 'bg-green-deep text-cream-warm shadow-md' : 'text-green-deep/40 hover:text-green-deep'
+              }`}
           >
             Tydzień
           </button>
-          <button 
-            onClick={() => setRevPeriod('monthly')} 
-            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
-              revPeriod === 'monthly' ? 'bg-green-deep text-cream-warm shadow-md' : 'text-green-deep/40 hover:text-green-deep'
-            }`}
+          <button
+            onClick={() => setRevPeriod('monthly')}
+            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${revPeriod === 'monthly' ? 'bg-green-deep text-cream-warm shadow-md' : 'text-green-deep/40 hover:text-green-deep'
+              }`}
           >
             Miesiąc
           </button>

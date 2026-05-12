@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { DollarSign, Clipboard, Users, CheckCircle2 } from 'lucide-react';
 import Skeleton from '../../../components/ui/Skeleton';
 
@@ -63,7 +63,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       {stats.map((card, i) => (
         <div
           key={i}
-          className="floating-card p-5 lg:p-6"
+          className="floating-card-static p-5 lg:p-6"
           style={{ animationDelay: `${i * 60}ms` }}
         >
           <div className="flex items-start justify-between mb-4">

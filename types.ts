@@ -148,6 +148,20 @@ export interface KanbanTask {
   deadline: string;
 }
 
+export interface CreateStudioDto {
+  name: string;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+}
+
+export interface UpdateStudioDto {
+  name: string;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+}
+
 export type ViewType = 'Dashboard' | 'Tasks' | 'Clients' | 'Inventory' | 'Studios' | 'StudioSettings' | 'UserSettings' | 'Reports' | 'Team';
 
 

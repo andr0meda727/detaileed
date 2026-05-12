@@ -1,5 +1,7 @@
-
 import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginFormSchema, passwordResetSchema, LoginFormValues, PasswordResetValues } from '../../utils/validations';
 import { Zap, ArrowRight, ShieldCheck, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
 import supabase from '../../utils/supabase';
 import logo from '../../images/logo.svg';
@@ -17,19 +19,35 @@ function getErrorMessage(error: unknown, fallbackMessage: string): string {
 
 const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<Mode>('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [resetEmailSentTo, setResetEmailSentTo] = useState('');
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register: registerLogin,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors },
+    reset: resetLogin,
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginFormSchema),
+  });
+
+  const {
+    register: registerReset,
+    handleSubmit: handleResetSubmit,
+    formState: { errors: resetErrors },
+    reset: resetResetForm,
+  } = useForm<PasswordResetValues>({
+    resolver: zodResolver(passwordResetSchema),
+  });
+
+  const onLoginSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     setError('');
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
       if (authError) throw new Error(authError.message);
-      if (data.session) { onLogin(email); }
+      if (authData.session) { onLogin(data.email); }
       else throw new Error('Nie otrzymano sesji autoryzacji');
     } catch (error) {
       setError(getErrorMessage(error, 'Wystąpił błąd podczas logowania'));
@@ -38,15 +56,15 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
     }
   };
 
-  const handleReset = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onResetSubmit = async (data: PasswordResetValues) => {
     setIsLoading(true);
     setError('');
     try {
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(data.email, {
         redirectTo: `${window.location.origin}/?type=recovery`,
       });
       if (resetError) throw new Error(resetError.message);
+      setResetEmailSentTo(data.email);
       setMode('reset-sent');
     } catch (error) {
       setError(getErrorMessage(error, 'Wystąpił błąd podczas resetowania hasła'));
@@ -70,22 +88,24 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
           {/* ── LOGIN MODE ── */}
           {mode === 'login' && (
-            <form onSubmit={handleLogin} className="space-y-8">
+            <form onSubmit={handleLoginSubmit(onLoginSubmit)} className="space-y-8">
               <div className="space-y-3">
                 <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Email</label>
                 <input
-                  type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                  className="w-full px-8 py-6 bg-cream border-none rounded-xl focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
+                  type="email" {...registerLogin('email')}
+                  className={`w-full px-8 py-6 bg-cream border-2 ${loginErrors.email ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-none transition-all font-bold text-sm text-green-deep`}
                   placeholder="email@detaileed.com"
                 />
+                {loginErrors.email && <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-6">{loginErrors.email.message}</p>}
               </div>
               <div className="space-y-3">
                 <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Hasło</label>
                 <input
-                  type="password" value={password} onChange={e => setPassword(e.target.value)} required
-                  className="w-full px-8 py-6 bg-cream border-none rounded-xl focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
+                  type="password" {...registerLogin('password')}
+                  className={`w-full px-8 py-6 bg-cream border-2 ${loginErrors.password ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-none transition-all font-bold text-sm text-green-deep`}
                   placeholder="••••••••"
                 />
+                {loginErrors.password && <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-6">{loginErrors.password.message}</p>}
               </div>
 
               {error && (
@@ -97,7 +117,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>Zaloguj się <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" strokeWidth={3} /></>}
               </button>
 
-              <button type="button" onClick={() => { setMode('reset'); setError(''); }}
+              <button type="button" onClick={() => { setMode('reset'); setError(''); resetResetForm(); }}
                 className="w-full text-center text-[10px] font-semibold text-green-light uppercase tracking-widest hover:text-green-deep transition-colors pt-2">
                 Nie pamiętam hasła →
               </button>
@@ -106,7 +126,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
           {/* ── RESET MODE ── */}
           {mode === 'reset' && (
-            <form onSubmit={handleReset} className="space-y-8">
+            <form onSubmit={handleResetSubmit(onResetSubmit)} className="space-y-8">
               <div className="text-center mb-2">
                 <div className="w-12 h-12 bg-cream-warm/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <KeyRound size={22} className="text-green-deep" />
@@ -117,10 +137,11 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
               <div className="space-y-3">
                 <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">Email</label>
                 <input
-                  type="email" value={email} onChange={e => setEmail(e.target.value)} required autoFocus
-                  className="w-full px-8 py-6 bg-cream border-none rounded-xl focus:ring-4 focus:ring-cream-warm/40 outline-none transition-all font-bold text-sm text-green-deep"
-                  placeholder="id@detailflow.pl"
+                  type="email" {...registerReset('email')} autoFocus
+                  className={`w-full px-8 py-6 bg-cream border-2 ${resetErrors.email ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-none transition-all font-bold text-sm text-green-deep`}
+                  placeholder="id@detaileed.pl"
                 />
+                {resetErrors.email && <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-6">{resetErrors.email.message}</p>}
               </div>
 
               {error && (
@@ -132,7 +153,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 {isLoading ? <Loader2 size={20} className="animate-spin" /> : <>Wyślij link resetujący <ArrowRight size={20} strokeWidth={3} /></>}
               </button>
 
-              <button type="button" onClick={() => { setMode('login'); setError(''); }}
+              <button type="button" onClick={() => { setMode('login'); setError(''); resetLogin(); }}
                 className="w-full flex items-center justify-center gap-2 text-[10px] font-semibold text-slate-400 uppercase tracking-widest hover:text-green-deep transition-colors pt-2">
                 <ArrowLeft size={14} /> Wróć do logowania
               </button>
@@ -148,7 +169,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
               <div>
                 <h2 className="font-extrabold text-green-deep text-xl tracking-tight mb-2">Sprawdź skrzynkę</h2>
                 <p className="text-sm text-slate-400 leading-relaxed">
-                  Wysłaliśmy link resetujący na <strong className="text-green-deep">{email}</strong>.<br />
+                  Wysłaliśmy link resetujący na <strong className="text-green-deep">{resetEmailSentTo}</strong>.<br />
                   Kliknij w link, aby ustawić nowe hasło.
                 </p>
               </div>

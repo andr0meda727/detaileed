@@ -1,20 +1,15 @@
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { CheckCircle2, X, Clock, Car as CarIcon, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight, LayoutList, Search, CalendarDays, Hash, Phone, MessageSquare, AlertCircle, Check, Plus, Wrench, UserPlus, Save, Calendar } from 'lucide-react';
+import { CheckCircle2, X, Clock, Car as CarIcon, User, Calendar as CalendarIcon, ChevronLeft, ChevronRight, LayoutList, Search, CalendarDays, Hash, Phone, MessageSquare, AlertCircle, Check, Plus, Wrench, UserPlus, Save, Calendar, MoreHorizontal } from 'lucide-react';
 import { BookingResponseDto, BookingCreateDto } from '../../types';
 import { BOOKING_STATUSES } from '../../constants';
 import { completeBooking, cancelBooking, updateBooking } from '../../services/bookingService';
 import { useBookings } from '../../hooks/useBookings';
 import { useClients } from '../../hooks/useClients';
 import { useServices } from '../../hooks/useServices';
-import { createBooking } from '../../services/bookingService';
-import { createClient } from '../../services/clientService';
-import { createService } from '../../services/serviceService';
 import { getApiErrorMessage } from '../../utils/errorHandler';
-import { ClientResponseDto, VehicleInfoDto } from '../../types';
-import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
-import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
-import { toggleIdSelection } from '../../utils/selection';
+import CreateBookingModal from '../../components/modals/CreateBookingModal';
+import CreateClientModal from '../../components/modals/CreateClientModal';
 import GlobalHeader from '../../components/GlobalHeader';
 import Modal from '../../components/ui/Modal';
 import { useToast } from '../../contexts/ToastContext';
@@ -31,25 +26,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
   const { data: availableServices = [], refetch: refetchServices } = useServices();
 
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
-  const [isEditingBooking, setIsEditingBooking] = useState(false);
-  const [clientSearch, setClientSearch] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto, vehicle: VehicleInfoDto } | null>(null);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [customServiceInput, setCustomServiceInput] = useState('');
-  const [priceInput, setPriceInput] = useState('0,00');
-  const [selectedTime, setSelectedTime] = useState('08:00');
-
-  const [newClientName, setNewClientName] = useState('');
-  const [newClientPhone, setNewClientPhone] = useState('');
-  const [newClientEmail, setNewClientEmail] = useState('');
-  const [newBookingClientNip, setNewBookingClientNip] = useState('');
-
-  const [newVehicleBrand, setNewVehicleBrand] = useState('');
-  const [newVehicleModel, setNewVehicleModel] = useState('');
-  const [newVehiclePlate, setNewVehiclePlate] = useState('');
-
-  const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
-
+  const [isCreateBookingModalOpen, setIsCreateBookingModalOpen] = useState(false);
   const fetchData = useCallback(() => { refetchBookings(); refetchClients(); refetchServices(); }, [refetchBookings, refetchClients, refetchServices]);
   const [activeTab, setActiveTab] = useState<'in-progress' | 'calendar' | 'search'>('in-progress');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
@@ -64,6 +41,7 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
   const [selectedBooking, setSelectedBooking] = useState<BookingResponseDto | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [confirmation, setConfirmation] = useState<{ id: string, type: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES], booking: BookingResponseDto } | null>(null);
+  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearchQuery(searchQuery), 140);
@@ -152,104 +130,13 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
   const formatDateShort = (iso: string) => { const d = new Date(iso); return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`; };
 
 
-  const filteredClientResults = useClientVehicleSearch(clients, clientSearch);
-
-  const toggleService = (id: string) => setSelectedServices((prev) => toggleIdSelection(prev, id));
-  const handleAddCustomService = async () => {
-    const name = customServiceInput.trim();
-    if (!name) return;
-    try {
-      const created = await createService({ name });
-      setSelectedServices(prev => [...prev, created.id]);
-      setCustomServiceInput('');
-      refetchServices();
-    } catch (err) {
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania usługi.'), 'error');
-    }
-  };
-
   const handleOpenNewBooking = () => {
-    setSelectedBooking(null); setSelectedVehicle(null); setClientSearch(''); setSelectedServices([]); setPriceInput('0,00');
-    // Ensure selectedDate tracks correctly - typically reset to today, but TasksView tracks it already via selectedDate so we just let it be or reset
-    setIsEditingBooking(true);
-    setBookingClientMode('existing');
-    setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
-    setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate(''); setIsBookingModalOpen(true);
-  };
-
-  const handleCreateClient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await createClient({ name: newClientName, phone: newClientPhone || null, email: newClientEmail || null, nip: null });
-      setIsClientModalOpen(false);
-      setNewClientName(''); setNewClientPhone(''); setNewClientEmail('');
-      addToast('Karta klienta została utworzona.', 'success');
-      fetchData();
-    } catch (err) {
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia klienta.'), 'error');
-    }
-  };
-
-  const handleAddNewClientForBooking = async () => {
-    if (!newClientName || !newClientPhone || !newVehiclePlate) {
-      addToast('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.', 'error');
-      return;
-    }
-    try {
-      const createdClient = await createClient({
-        name: newClientName,
-        phone: newClientPhone,
-        email: newClientEmail || null,
-        nip: newBookingClientNip || null,
-        vehicle: {
-          licensePlate: newVehiclePlate,
-          brand: newVehicleBrand || null,
-          model: newVehicleModel || null,
-        },
-      });
-      const vehicle = createdClient.vehicles?.[0];
-      if (vehicle) setSelectedVehicle({ client: createdClient, vehicle });
-      setBookingClientMode('existing');
-      setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
-      setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
-      fetchData();
-      addToast('Dodano i wybrano nowego klienta.', 'success');
-    } catch (err) {
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania klienta.'), 'error');
-    }
-  };
-
-  const handleCreateBooking = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedVehicle) {
-      addToast('Wybierz istniejącego klienta lub dodaj nowego.', 'error');
-      return;
-    }
-    try {
-      const dto = buildBookingCreateDto({
-        vehicleId: selectedVehicle.vehicle.id,
-        clientId: selectedVehicle.client.id,
-        date: selectedDate,
-        time: selectedTime,
-        serviceIds: selectedServices,
-        priceInput,
-      });
-      await createBooking(dto);
-      setIsBookingModalOpen(false);
-      addToast('Rezerwacja została pomyślnie utworzona.', 'success');
-      fetchData();
-    } catch (err) {
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia rezerwacji.'), 'error');
-    }
+    setIsCreateBookingModalOpen(true);
   };
 
   const handleViewBooking = (booking: BookingResponseDto) => {
-    setIsEditingBooking(false);
-    setSelectedServices(booking.services);
-    setPriceInput(booking.totalPrice ? (booking.totalPrice / 100).toFixed(2).replace('.', ',') : '0,00');
     const dt = new Date(booking.scheduledAt);
     setSelectedDate(dt.toISOString().split('T')[0]);
-    setSelectedTime(dt.toTimeString().slice(0, 5));
     setSelectedBooking(booking);
     setIsBookingModalOpen(true);
   };
@@ -291,12 +178,12 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
     <div
       key={booking.id}
       onClick={() => handleViewBooking(booking)}
-      className="floating-card flex flex-col sm:flex-row items-stretch cursor-pointer overflow-hidden"
+      className={`floating-card flex flex-col sm:flex-row items-stretch cursor-pointer ${activeDropdownId === booking.id ? 'relative z-50' : 'relative z-10'}`}
       style={{ animationDelay: `${index * 50}ms` }}
     >
       {/* Date/Time column */}
       <div
-        className="p-5 sm:p-6 flex flex-col items-center justify-center min-w-[110px] shrink-0"
+        className="p-5 sm:p-6 flex flex-col items-center justify-center min-w-[110px] shrink-0 rounded-t-[1rem] sm:rounded-t-none sm:rounded-l-[1rem]"
         style={{ borderRight: '1px solid rgba(26,46,30,0.05)', background: 'rgba(26,46,30,0.02)' }}
       >
         <span className="text-2xl font-bold text-green-deep font-mono leading-none">{formatDateShort(booking.scheduledAt)}</span>
@@ -320,24 +207,35 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
         </div>
       </div>
       {/* Status + quick actions */}
-      <div className="px-5 sm:px-6 py-4 flex items-center justify-end gap-3 sm:shrink-0" style={{ borderTop: '1px solid rgba(26,46,30,0.04)', background: 'rgba(26,46,30,0.01)' }}>
+      <div className="px-5 sm:px-6 py-4 flex items-center justify-end gap-3 sm:shrink-0 rounded-b-[1rem] sm:rounded-b-none sm:rounded-r-[1rem]" style={{ borderTop: '1px solid rgba(26,46,30,0.04)', background: 'rgba(26,46,30,0.01)' }}>
         {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
-          <>
-            <button
-              onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA)}
-              title="Zakończ"
-              className="w-11 h-11 flex items-center justify-center rounded-xl bg-green-pale/40 text-green-light hover:bg-green-pale/70 transition-all active:scale-95"
-            >
-              <Check size={20} strokeWidth={2.5} />
+          <div className="relative">
+            <button onClick={(e) => { e.stopPropagation(); setActiveDropdownId(activeDropdownId === booking.id ? null : booking.id); }} title="Więcej akcji"
+              className="w-11 h-11 flex items-center justify-center rounded-xl bg-white text-slate-500 hover:bg-slate-50 hover:text-green-deep transition-all active:scale-95 border border-slate-200 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]">
+              <MoreHorizontal size={22} strokeWidth={2.5} />
             </button>
-            <button
-              onClick={(e) => confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA)}
-              title="Anuluj"
-              className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-100 transition-all active:scale-95"
-            >
-              <X size={20} strokeWidth={2.5} />
-            </button>
-          </>
+            {activeDropdownId === booking.id && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setActiveDropdownId(null); }} />
+                <div className="absolute right-0 top-12 z-50 w-48 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-100 py-1.5 animate-zoom-in" onClick={e => e.stopPropagation()}>
+                  <button onClick={(e) => { setActiveDropdownId(null); confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA); }}
+                    className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-[12px] font-bold text-green-deep">
+                    <div className="w-7 h-7 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0">
+                      <Check size={14} strokeWidth={2.5} />
+                    </div>
+                    Zakończ zlecenie
+                  </button>
+                  <button onClick={(e) => { setActiveDropdownId(null); confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA); }}
+                    className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-red-50 transition-colors text-[12px] font-bold text-red-500">
+                    <div className="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                      <X size={14} strokeWidth={2.5} />
+                    </div>
+                    Anuluj zlecenie
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         )}
         <span className="px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border"
           style={{ color: booking.statusColor || 'var(--green-deep)', borderColor: (booking.statusColor || 'var(--green-deep)') + '35', backgroundColor: (booking.statusColor || 'var(--green-deep)') + '10' }}
@@ -594,8 +492,8 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
       )}
 
       {/* Booking Details Modal */}
-      <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title={isEditingBooking ? (selectedBooking ? 'Edytuj' : 'Nowa Rezerwacja') : 'Detale Zlecenia'}>
-        {!isEditingBooking && selectedBooking ? (
+      <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title="Detale Zlecenia">
+        {selectedBooking && (
           <div className="space-y-8">
             <div className="p-8 bg-green-deep rounded-2xl border border-white/5 relative overflow-hidden">
               <div className="relative z-10 flex items-center justify-between">
@@ -667,238 +565,18 @@ const TasksView: React.FC<TasksViewProps> = ({ onOpenMenu }) => {
               >Zamknij</button>
             </div>
           </div>
-        ) : (
-          <form className="space-y-5 pb-6" onSubmit={handleCreateBooking}>
-
-            {/* ── Pojazd i Klient ────────────────────────────── */}
-            <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white" style={{ boxShadow: '0 8px 20px rgba(26,46,30,0.12)' }}>
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-deep rounded-xl flex items-center justify-center shrink-0">
-                    <CarIcon size={14} className="text-cream-warm" />
-                  </div>
-                  <p className="text-[11px] font-bold text-green-deep uppercase tracking-widest">Pojazd i Klient</p>
-                </div>
-                <div className="flex bg-slate-50 p-1 rounded-xl">
-                  <button type="button" onClick={() => setBookingClientMode('existing')} className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${bookingClientMode === 'existing' ? 'bg-green-deep text-cream-warm shadow-sm' : 'text-slate-400 hover:text-green-deep'}`}>Wyszukaj</button>
-                  <button type="button" onClick={() => setBookingClientMode('new')} className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${bookingClientMode === 'new' ? 'bg-green-deep text-cream-warm shadow-sm' : 'text-slate-400 hover:text-green-deep'}`}>Dodaj Nowy</button>
-                </div>
-              </div>
-
-              <div className="p-4 space-y-3">
-                {bookingClientMode === 'existing' ? (
-                  <>
-                    <div className="relative">
-                      <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                      <input type="text" placeholder="Szukaj klienta lub pojazdu..." value={clientSearch} onChange={e => setClientSearch(e.target.value)} className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl font-semibold text-sm outline-none focus:border-cream-warm/50 transition-all" />
-                    </div>
-                    {/* Wyniki wyszukiwania – zawsze w DOM, animacja CSS height */}
-                    <div style={{
-                      height: clientSearch.trim() ? '130px' : '0px',
-                      opacity: clientSearch.trim() ? 1 : 0,
-                      transition: 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                      overflow: 'hidden',
-                    }}>
-                      <div className="overflow-y-auto custom-scrollbar rounded-xl h-full">
-                        {filteredClientResults.length === 0 ? (
-                          <div className="h-full flex items-center justify-center">
-                            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak wyników</p>
-                          </div>
-                        ) : (
-                          <div className="space-y-1.5">
-                            {filteredClientResults.map(res => (
-                              <button key={res.vehicle.id} type="button" onClick={() => { setSelectedVehicle(res); setClientSearch(''); }} className="w-full p-3.5 bg-white border-2 border-slate-100 rounded-xl flex items-center justify-between hover:border-cream-warm/60 hover:shadow-sm transition-all">
-                                <div className="text-left"><h5 className="font-bold text-green-deep text-sm">{res.vehicle.brand} {res.vehicle.model}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">{res.client.name}</p></div>
-                                <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-lg font-mono text-[10px] font-bold tracking-widest">{res.vehicle.licensePlate}</div>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    {selectedVehicle && (
-                      <div className="p-4 rounded-xl flex items-center justify-between" style={{ background: 'rgba(232,168,48,0.08)', border: '2px solid rgba(232,168,48,0.3)' }}>
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 bg-amber/15 rounded-xl flex items-center justify-center shrink-0">
-                            <CarIcon size={16} className="text-amber" />
-                          </div>
-                          <div><h5 className="font-bold text-green-deep text-sm">{selectedVehicle.vehicle.brand} {selectedVehicle.vehicle.model}</h5><p className="text-[9px] font-semibold text-green-light uppercase tracking-widest mt-0.5">{selectedVehicle.client.name}</p></div>
-                        </div>
-                        <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-lg font-mono text-[10px] font-bold tracking-widest">{selectedVehicle.vehicle.licensePlate}</div>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="space-y-2.5">
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Klienta</p>
-                      <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
-                      <div className="grid grid-cols-2 gap-2.5">
-                        <input type="tel" placeholder="Telefon *" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
-                        <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
-                      </div>
-                      <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
-                    </div>
-                    <div className="space-y-2.5 pt-3 border-t border-slate-100">
-                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Pojazdu</p>
-                      <div className="grid grid-cols-2 gap-2.5">
-                        <input type="text" placeholder="Marka" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
-                        <input type="text" placeholder="Model" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all" />
-                      </div>
-                      <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all uppercase" />
-                    </div>
-                    <button type="button" onClick={handleAddNewClientForBooking} className="w-full py-3.5 bg-green-deep text-cream-warm rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                      <UserPlus size={15} strokeWidth={2.5} /> Dodaj Klienta i Wybierz
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* ── Sekcja Usług ───────────────────────────────── */}
-            <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white" style={{ boxShadow: '0 8px 20px rgba(26,46,30,0.12)' }}>
-              {/* Nagłówek sekcji */}
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-green-deep rounded-xl flex items-center justify-center shrink-0">
-                    <Wrench size={14} className="text-cream-warm" />
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold text-green-deep uppercase tracking-widest leading-none">Wybierz Usługi</p>
-                    <p className="text-[9px] text-slate-400 font-semibold mt-0.5">
-                      {selectedServices.length === 0 ? 'Nic nie wybrano' : `${selectedServices.length} ${selectedServices.length === 1 ? 'wybrana' : 'wybranych'}`}
-                    </p>
-                  </div>
-                </div>
-                {selectedServices.length > 0 && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: '#1a2e1e' }}>
-                    <Check size={10} strokeWidth={3} className="text-cream-warm" />
-                    <span className="text-[9px] font-bold text-cream-warm tracking-widest">{selectedServices.length}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Siatka usług */}
-              <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {availableServices.map(svc => {
-                  const isSelected = selectedServices.includes(svc.id);
-                  return (
-                    <button
-                      key={svc.id}
-                      type="button"
-                      onClick={() => toggleService(svc.id)}
-                      className="group relative flex items-center gap-2.5 p-3 rounded-xl text-left transition-all duration-200 active:scale-[0.97]"
-                      style={isSelected
-                        ? { background: '#1a2e1e', border: '2px solid transparent', boxShadow: '0 4px 12px rgba(26,46,30,0.2)' }
-                        : { background: '#f8f9fa', border: '2px solid transparent' }
-                      }
-                    >
-                      {/* Checkbox indicator */}
-                      <div
-                        className="w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-all"
-                        style={isSelected
-                          ? { background: 'rgba(245,240,232,0.15)', border: '1.5px solid rgba(245,240,232,0.4)' }
-                          : { background: 'white', border: '1.5px solid rgba(0,0,0,0.12)' }
-                        }
-                      >
-                        {isSelected && <Check size={10} strokeWidth={3.5} className="text-cream-warm" />}
-                      </div>
-                      {/* Nazwa usługi */}
-                      <span
-                        className="text-[10px] font-bold uppercase tracking-wide leading-tight line-clamp-2"
-                        style={{ color: isSelected ? '#f5f0e8' : '#2d4f33' }}
-                      >
-                        {svc.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Dodaj niestandardową usługę */}
-              <div className="px-4 pb-4 flex gap-2">
-                <input
-                  type="text"
-                  value={customServiceInput}
-                  onChange={e => setCustomServiceInput(e.target.value)}
-                  placeholder="Dodaj inną usługę..."
-                  className="flex-1 px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddCustomService}
-                  className="w-12 h-12 bg-green-deep text-cream-warm rounded-xl flex items-center justify-center shadow-md active:scale-95 transition-all hover:shadow-lg shrink-0"
-                >
-                  <Plus size={18} strokeWidth={2.5} />
-                </button>
-              </div>
-            </div>
-
-            {/* ── Termin i Cena ──────────────────────────────── */}
-            <div className="rounded-2xl border border-slate-100 overflow-hidden bg-white" style={{ boxShadow: '0 8px 20px rgba(26,46,30,0.12)' }}>
-              <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(232,168,48,0.12)' }}>
-                  <Calendar size={14} className="text-amber" />
-                </div>
-                <p className="text-[11px] font-bold text-green-deep uppercase tracking-widest">Termin i Cena</p>
-              </div>
-              <div className="p-4 grid grid-cols-3 gap-3">
-                {/* Cena */}
-                <div className="col-span-1 flex flex-col gap-1.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Cena netto</label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      value={priceInput}
-                      onChange={e => setPriceInput(e.target.value)}
-                      className="w-full px-4 py-4 rounded-xl font-bold text-lg font-mono text-cream-warm outline-none border-none"
-                      style={{ background: '#1a2e1e' }}
-                    />
-                    <span className="absolute right-3 bottom-3.5 text-[9px] font-bold text-cream-warm/40 uppercase tracking-widest">ZŁ</span>
-                  </div>
-                </div>
-                {/* Data */}
-                <div className="col-span-1 flex flex-col gap-1.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Data</label>
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={e => setSelectedDate(e.target.value)}
-                    className="w-full px-4 py-4 bg-slate-50 border-2 border-transparent rounded-xl font-bold text-sm outline-none focus:border-cream-warm/50 transition-all text-green-deep"
-                  />
-                </div>
-                {/* Godzina */}
-                <div className="col-span-1 flex flex-col gap-1.5">
-                  <label className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">Godzina</label>
-                  <input
-                    type="time"
-                    value={selectedTime}
-                    onChange={e => setSelectedTime(e.target.value)}
-                    className="w-full px-4 py-4 bg-slate-50 border-2 border-transparent rounded-xl font-bold text-sm outline-none focus:border-cream-warm/50 transition-all text-green-deep"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <button type="submit" className="w-full py-5 bg-green-deep text-cream-warm rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 hover:shadow-2xl">
-              <Save size={16} strokeWidth={2.5} /> Zapisz Rezerwację
-            </button>
-          </form>
         )}
       </Modal>
 
-      <Modal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} title="Nowy Klient">
-        <form className="space-y-6" onSubmit={handleCreateClient}>
-          <div className="space-y-4">
-            <input type="text" placeholder="Imię i Nazwisko" required value={newClientName} onChange={e => setNewClientName(e.target.value)} className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
-            <div className="grid grid-cols-2 gap-4">
-              <input type="tel" placeholder="Telefon" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} className="px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
-              <input type="email" placeholder="Email" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm" />
-            </div>
-          </div>
-          <button type="submit" className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl">Załóż Kartę Klienta</button>
-        </form>
-      </Modal>
+      <CreateBookingModal 
+        isOpen={isCreateBookingModalOpen} 
+        onClose={() => setIsCreateBookingModalOpen(false)} 
+      />
+
+      <CreateClientModal 
+        isOpen={isClientModalOpen}
+        onClose={() => setIsClientModalOpen(false)}
+      />
 
       {/* Confirmation Modal */}
       <Modal isOpen={!!confirmation} onClose={() => setConfirmation(null)} title="Zmień Status">

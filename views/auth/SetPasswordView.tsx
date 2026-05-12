@@ -1,40 +1,36 @@
 import React, { useState } from 'react';
-import supabase from '../../utils/supabase.ts';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { setPasswordSchema, SetPasswordValues } from '../../utils/validations';
+import supabase from '../../utils/supabase';
 
 interface SetPasswordViewProps {
     onSuccess: () => void;
 }
 
 const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<SetPasswordValues>({
+        resolver: zodResolver(setPasswordSchema),
+    });
+
+    const onSubmit = async (data: SetPasswordValues) => {
         setError('');
-
-        if (password !== confirmPassword) {
-            setError('Hasła nie są identyczne!');
-            return;
-        }
-
-        if (password.length < 6) {
-            setError('Hasło musi mieć minimum 6 znaków.');
-            return;
-        }
-
         setLoading(true);
 
-        // TODO: Odkomentuj, gdy podepniesz klienta Supabase
-        const { error } = await supabase.auth.updateUser({
-            password: password,
+        const { error: updateError } = await supabase.auth.updateUser({
+            password: data.password,
             data: { needs_password: false }
         });
 
-        if (error) {
-            setError(error.message);
+        if (updateError) {
+            setError(updateError.message);
             setLoading(false);
             return;
         }
@@ -62,19 +58,18 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                     <div>
                         <label className="block text-sm font-semibold text-green-deep mb-2">
                             Nowe hasło
                         </label>
                         <input
                             type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-deep focus:ring-1 focus:ring-green-deep outline-none transition-all"
+                            {...register('password')}
+                            className={`w-full px-4 py-3 rounded-xl border ${errors.password ? 'border-red-400 focus:ring-red-400' : 'border-gray-200 focus:border-green-deep focus:ring-green-deep'} focus:ring-1 outline-none transition-all`}
                             placeholder="••••••••"
-                            required
                         />
+                        {errors.password && <p className="text-red-500 font-bold tracking-widest text-[10px] uppercase mt-2">{errors.password.message}</p>}
                     </div>
 
                     <div>
@@ -83,12 +78,11 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
                         </label>
                         <input
                             type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-green-deep focus:ring-1 focus:ring-green-deep outline-none transition-all"
+                            {...register('confirmPassword')}
+                            className={`w-full px-4 py-3 rounded-xl border ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400' : 'border-gray-200 focus:border-green-deep focus:ring-green-deep'} focus:ring-1 outline-none transition-all`}
                             placeholder="••••••••"
-                            required
                         />
+                        {errors.confirmPassword && <p className="text-red-500 font-bold tracking-widest text-[10px] uppercase mt-2">{errors.confirmPassword.message}</p>}
                     </div>
 
                     <button

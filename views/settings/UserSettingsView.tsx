@@ -1,5 +1,8 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyRound, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Shield } from 'lucide-react';
+import { setPasswordSchema, SetPasswordValues } from '../../utils/validations';
 import supabase from '../../utils/supabase';
 import GlobalHeader from '../../components/GlobalHeader';
 
@@ -10,33 +13,31 @@ function getErrorMessage(error: unknown, fallbackMessage: string): string {
 
 const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   // ── Change password state ──
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    reset,
+  } = useForm<SetPasswordValues>({
+    resolver: zodResolver(setPasswordSchema),
+  });
+
+  const passwordValue = watch('password', '');
+
+  const onSubmit = async (data: SetPasswordValues) => {
     setResult(null);
-
-    if (newPassword.length < 8) {
-      setResult({ type: 'error', message: 'Hasło musi mieć co najmniej 8 znaków.' });
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setResult({ type: 'error', message: 'Hasła nie są identyczne.' });
-      return;
-    }
-
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      const { error } = await supabase.auth.updateUser({ password: data.password });
       if (error) throw error;
       setResult({ type: 'success', message: 'Hasło zostało zmienione.' });
-      setNewPassword('');
-      setConfirmPassword('');
+      reset();
     } catch (error) {
       setResult({ type: 'error', message: getErrorMessage(error, 'Nie udało się zmienić hasła.') });
     } finally {
@@ -61,25 +62,23 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
             </div>
           </div>
 
-          <form onSubmit={handleChangePassword} className="p-8 space-y-5">
+          <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-5">
             {/* New password */}
             <div className="space-y-2">
               <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-1">Nowe hasło</label>
               <div className="relative">
                 <input
                   type={showNew ? 'text' : 'password'}
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  required
-                  minLength={8}
+                  {...register('password')}
                   placeholder="Minimum 8 znaków"
-                  className="w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all"
+                  className={`w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm border-2 ${errors.password ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`}
                 />
                 <button type="button" onClick={() => setShowNew(v => !v)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
                   {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {errors.password && <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-1 mt-1">{errors.password.message}</p>}
             </div>
 
             {/* Confirm password */}
@@ -88,24 +87,23 @@ const UserSettingsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu })
               <div className="relative">
                 <input
                   type={showConfirm ? 'text' : 'password'}
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  required
+                  {...register('confirmPassword')}
                   placeholder="Powtórz nowe hasło"
-                  className="w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all"
+                  className={`w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm border-2 ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`}
                 />
                 <button type="button" onClick={() => setShowConfirm(v => !v)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 transition-colors">
                   {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {errors.confirmPassword && <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-1 mt-1">{errors.confirmPassword.message}</p>}
             </div>
 
             {/* Strength hint */}
-            {newPassword.length > 0 && (
+            {passwordValue.length > 0 && (
               <div className="flex gap-1.5">
                 {[1, 2, 3, 4].map(i => (
-                  <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${newPassword.length >= i * 3
+                  <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-300 ${passwordValue.length >= i * 3
                       ? i <= 1 ? 'bg-red-400' : i <= 2 ? 'bg-amber-400' : i <= 3 ? 'bg-blue-400' : 'bg-emerald-400'
                       : 'bg-slate-100'
                     }`} />
