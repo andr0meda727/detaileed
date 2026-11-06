@@ -27,3 +27,6 @@ dist-ssr
 # Build artifacts
 *.tsbuildinfo
 coverage
+
+# Turborepo
+.turbo
