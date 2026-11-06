@@ -11,7 +11,7 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | Phase                   | State                                                                                        |
 | ----------------------- | -------------------------------------------------------------------------------------------- |
 | 0: hygiene              | done (merged to `main`)                                                                      |
-| 1: monorepo             | in progress                                                                                  |
+| 1: monorepo             | done (merged to `main`)                                                                      |
 | 2: generated API client | **on hold until the backend API is finished**; re-check the spec (`v6.json`) before starting |
 | 3–7                     | not started                                                                                  |
 
