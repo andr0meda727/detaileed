@@ -83,7 +83,7 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
             </defs>
             <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#f1f3f5" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#adb5bd', fontSize: 10, fontWeight: 700 }} />
-            <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', fontWeight: 700 }} formatter={(value: number) => value.toFixed(2) + ' PLN'} />
+            <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', fontWeight: 700 }} formatter={(value?: number) => (value ?? 0).toFixed(2) + ' PLN'} />
             <Area type="monotone" dataKey="rev" stroke="var(--green-deep)" strokeWidth={4} fill="url(#colorEmerald)" name="Przychód" />
           </AreaChart>
         </ResponsiveContainer>
