@@ -19,6 +19,7 @@ import { createVehicle } from '../../services/vehicleService';
 import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
 import { useToast } from '../../contexts/ToastContext';
 import { toggleIdSelection } from '../../utils/selection';
+import { getApiErrorMessage } from '../../utils/errorHandler';
 
 const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
   const { addToast } = useToast();
@@ -107,7 +108,9 @@ const ClientsView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
       setSelectedServices(prev => [...prev, created.id]);
       setCustomServiceInput('');
       if (refetchServices) refetchServices();
-    } catch (err) { }
+    } catch (err) {
+      addToast(getApiErrorMessage(err, 'Nie udało się dodać usługi.'), 'error');
+    }
   };
   
   if (isLoading) return <LoadingSpinner />;

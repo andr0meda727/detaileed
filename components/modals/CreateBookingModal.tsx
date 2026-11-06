@@ -13,6 +13,7 @@ import { createService } from '../../services/serviceService';
 import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
 import { useToast } from '../../contexts/ToastContext';
 import { toggleIdSelection } from '../../utils/selection';
+import { getApiErrorMessage } from '../../utils/errorHandler';
 import { ClientResponseDto, VehicleInfoDto } from '../../types';
 
 interface CreateBookingModalProps {
@@ -129,7 +130,9 @@ export default function CreateBookingModal({ isOpen, onClose, onSuccess }: Creat
       setValue('serviceIds', [...watchServiceIds, created.id], { shouldValidate: true });
       setCustomServiceInput('');
       if (refetchServices) refetchServices();
-    } catch (err) { }
+    } catch (err) {
+      addToast(getApiErrorMessage(err, 'Nie udało się dodać usługi.'), 'error');
+    }
   };
 
   const onSubmit = async (data: BookingFormValues) => {
