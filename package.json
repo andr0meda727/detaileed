@@ -16,7 +16,9 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "@detaileed/config": "workspace:*",
     "prettier": "^3.9.10",
     "turbo": "^2.11.10"
-  }
+  },
+  "prettier": "@detaileed/config/prettier"
 }
