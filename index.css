@@ -3,10 +3,31 @@
    Inspired by the landing page aesthetic
    ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=DM+Serif+Display:ital@0;1&family=Syne:wght@600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens ───────────────────────────────────────────── */
+:root {
+  --green-deep: #1a2e1e;
+  --green-dark: #1e3523;
+  --green-mid: #2a4a30;
+  --green-light: #3d6b46;
+  --green-pale: #c8dfc2;
+  --cream: #f5f0e8;
+  --cream-warm: #ede7d8;
+  --cream-dark: #d4ccc0;
+  --amber: #e8a830;
+  --amber-light: #f5c84a;
+  --white: #ffffff;
+  --text-dim: rgba(245, 240, 232, 0.55);
+  --text-mid: rgba(245, 240, 232, 0.75);
+}
 
 /* ── Base typography ─────────────────────────────────────────── */
 body {
+  background-color: var(--cream);
+  color: var(--green-deep);
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
