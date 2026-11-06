@@ -5,24 +5,15 @@ on:
     branches:
       - main
     paths:
-      - 'components/**'
-      - 'contexts/**'
-      - 'hooks/**'
-      - 'services/**'
-      - 'utils/**'
-      - 'views/**'
-      - '*.ts'
-      - '*.tsx'
-      - '*.css'
-      - '*.html'
-      - 'package*.json'
-      - 'vite.config.ts'
-      - 'tsconfig.json'
-      - 'Dockerfile'
-      - 'nginx.conf'
+      - 'apps/dashboard/**'
+      - 'packages/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'turbo.json'
+      - '.dockerignore'
       - '.github/workflows/docker-publish.yml'
       - '!**/*.md'
-      - '!docs/**'
 
 concurrency:
   group: prod-deploy
@@ -68,6 +59,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: apps/dashboard/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
