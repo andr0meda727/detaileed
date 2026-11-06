@@ -59,4 +59,4 @@ The work is done in phases; don't jump ahead unless asked:
 5. Shared design system in `packages/ui`
 6. Public marketplace (`apps/web`, Next.js SSR/ISR)
 
-New code should already follow the feature-slice layout where practical (see `features/bookings/`). Architecture notes: `docs/frontend-architecture.md`; manual regression checklist: `docs/refactor-baseline-checklist.md`.
+New code should already follow the feature-slice layout where practical (see `features/bookings/`). Full phase-by-phase plan (source of truth): `docs/re-architecture-plan.md`. Architecture notes: `docs/frontend-architecture.md`; manual regression checklist: `docs/refactor-baseline-checklist.md`.
