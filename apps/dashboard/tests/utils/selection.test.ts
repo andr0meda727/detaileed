@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toggleIdSelection } from '../../utils/selection';
+import { toggleIdSelection } from '@/utils/selection';
 
 describe('toggleIdSelection', () => {
   it('adds id when not selected', () => {

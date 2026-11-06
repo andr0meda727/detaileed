@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
-import { toggleIdSelection } from '../../utils/selection';
+import { buildBookingCreateDto } from '@/features/bookings/utils/buildBookingCreateDto';
+import { toggleIdSelection } from '@/utils/selection';
 
 describe('booking flow smoke', () => {
   it('creates payload for existing client and vehicle', () => {
