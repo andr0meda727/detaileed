@@ -1,0 +1,20 @@
+{
+  "name": "@detaileed/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@detaileed/config": "workspace:*",
+    "eslint": "^9.39.5",
+    "typescript": "~5.8.2",
+    "vitest": "^4.1.4"
+  }
+}
