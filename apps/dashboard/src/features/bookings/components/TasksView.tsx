@@ -1,55 +1,29 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   CheckCircle2,
-  X,
-  Clock,
-  Car as CarIcon,
-  User,
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
   LayoutList,
   Search,
   CalendarDays,
-  Hash,
-  Phone,
-  MessageSquare,
-  AlertCircle,
-  Check,
-  Plus,
-  Wrench,
-  UserPlus,
-  Save,
-  Calendar,
-  MoreHorizontal,
 } from 'lucide-react';
 import type { Booking } from '@/features/bookings/model/types';
-import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
-import { useBookings, useCancelBooking, useCompleteBooking } from '@/features/bookings/api/bookings';
-import { formatPln } from '@/shared/lib/money';
-import { useClients } from '@/hooks/useClients';
-import { useServices } from '@/hooks/useServices';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { BOOKING_STATUSES } from '@/features/bookings/model/statuses';
+import { useBookings } from '@/features/bookings/api/bookings';
+import { useBookingStatusChange } from '@/features/bookings/hooks/useBookingStatusChange';
+import BookingCard from '@/features/bookings/components/BookingCard';
+import BookingDetailsModal from '@/features/bookings/components/BookingDetailsModal';
 import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
 import CreateClientModal from '@/components/modals/CreateClientModal';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
-import Modal from '@/shared/ui/Modal';
-import { useToast } from '@/shared/ui/ToastContext';
 import Skeleton from '@/shared/ui/Skeleton';
 
 const TasksView: React.FC = () => {
-  const { data: bookings = [], isLoading: loading, refetch: refetchBookings } = useBookings();
-
-  const { data: clients = [], refetch: refetchClients } = useClients();
-  const { data: availableServices = [], refetch: refetchServices } = useServices();
+  const { data: bookings = [], isLoading: loading } = useBookings();
 
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isCreateBookingModalOpen, setIsCreateBookingModalOpen] = useState(false);
-  const fetchData = useCallback(() => {
-    refetchBookings();
-    refetchClients();
-    refetchServices();
-  }, [refetchBookings, refetchClients, refetchServices]);
   const [activeTab, setActiveTab] = useState<'in-progress' | 'calendar' | 'search'>('in-progress');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -59,17 +33,9 @@ const TasksView: React.FC = () => {
   const [debouncedInProgressSearchQuery, setDebouncedInProgressSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'UTWORZONA' | 'ZAKONCZONA' | 'ANULOWANA'>('all');
 
-  const { addToast } = useToast();
-  const completeBooking = useCompleteBooking();
-  const cancelBooking = useCancelBooking();
+  const { requestStatusChange, confirmDialog } = useBookingStatusChange();
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [confirmation, setConfirmation] = useState<{
-    id: string;
-    type: BookingStatus;
-    booking: Booking;
-  } | null>(null);
-  const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearchQuery(searchQuery), 140);
@@ -173,12 +139,6 @@ const TasksView: React.FC = () => {
     return d;
   }, [currentMonth]);
 
-  const formatTime = (iso: string) => new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-  const formatDateShort = (iso: string) => {
-    const d = new Date(iso);
-    return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
-  };
-
   const handleOpenNewBooking = () => {
     setIsCreateBookingModalOpen(true);
   };
@@ -189,147 +149,6 @@ const TasksView: React.FC = () => {
     setSelectedBooking(booking);
     setIsBookingModalOpen(true);
   };
-
-  const handleQuickUpdateStatus = async (booking: Booking, targetStatus: BookingStatus) => {
-    try {
-      // Quick actions only ever finish a booking: complete it or cancel it.
-      if (targetStatus.id === BOOKING_STATUSES.ZAKONCZONA.id) await completeBooking.mutateAsync(booking.id);
-      else await cancelBooking.mutateAsync(booking.id);
-      addToast(`Status rezerwacji zmieniony na: ${targetStatus.name}`, 'success');
-    } catch (err) {
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas zmiany statusu.'), 'error');
-    } finally {
-      setConfirmation(null);
-    }
-  };
-
-  const confirmStatusUpdate = (e: React.MouseEvent, booking: Booking, targetStatus: BookingStatus) => {
-    e.stopPropagation();
-    setConfirmation({ id: booking.id, type: targetStatus, booking });
-  };
-
-  const renderBookingCard = (booking: Booking, index: number = 0) => (
-    <div
-      key={booking.id}
-      onClick={() => handleViewBooking(booking)}
-      className={`floating-card flex flex-col sm:flex-row items-stretch cursor-pointer ${activeDropdownId === booking.id ? 'relative z-50' : 'relative z-10'}`}
-      style={{ animationDelay: `${index * 50}ms` }}
-    >
-      {/* Date/Time column */}
-      <div
-        className="p-5 sm:p-6 flex flex-col items-center justify-center min-w-[110px] shrink-0 rounded-t-[1rem] sm:rounded-t-none sm:rounded-l-[1rem]"
-        style={{ borderRight: '1px solid rgba(26,46,30,0.05)', background: 'rgba(26,46,30,0.02)' }}
-      >
-        <span className="text-2xl font-bold text-green-deep font-mono leading-none">
-          {formatDateShort(booking.scheduledAt)}
-        </span>
-        <span className="text-[10px] font-semibold text-green-deep/35 font-mono tracking-widest mt-2">
-          {formatTime(booking.scheduledAt)}
-        </span>
-      </div>
-      {/* Content */}
-      <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="bg-green-deep text-cream-warm px-4 py-1.5 rounded-lg font-mono text-[13px] font-bold tracking-widest shadow-sm">
-            {booking.vehicle.licensePlate}
-          </span>
-          <h4 className="font-sans font-bold text-green-deep text-base tracking-tight truncate">
-            {booking.vehicle.brand} {booking.vehicle.model}
-          </h4>
-        </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-          <div className="flex flex-wrap gap-1.5">
-            {booking.services.length > 0 ? (
-              booking.services.map((s, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm"
-                >
-                  {s}
-                </span>
-              ))
-            ) : (
-              <span className="text-[11px] font-semibold text-green-deep/30 uppercase tracking-wide">Brak usług</span>
-            )}
-          </div>
-          <span className="text-[11px] font-semibold text-green-light/70">
-            <User size={10} className="inline mr-1" />
-            {booking.client.name}
-          </span>
-        </div>
-      </div>
-      {/* Status + quick actions */}
-      <div
-        className="px-5 sm:px-6 py-4 flex items-center justify-end gap-3 sm:shrink-0 rounded-b-[1rem] sm:rounded-b-none sm:rounded-r-[1rem]"
-        style={{ borderTop: '1px solid rgba(26,46,30,0.04)', background: 'rgba(26,46,30,0.01)' }}
-      >
-        {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveDropdownId(activeDropdownId === booking.id ? null : booking.id);
-              }}
-              title="Więcej akcji"
-              className="w-11 h-11 flex items-center justify-center rounded-xl bg-white text-slate-500 hover:bg-slate-50 hover:text-green-deep transition-all active:scale-95 border border-slate-200 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]"
-            >
-              <MoreHorizontal size={22} strokeWidth={2.5} />
-            </button>
-            {activeDropdownId === booking.id && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveDropdownId(null);
-                  }}
-                />
-                <div
-                  className="absolute right-0 top-12 z-50 w-48 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-100 py-1.5 animate-zoom-in"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={(e) => {
-                      setActiveDropdownId(null);
-                      confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA);
-                    }}
-                    className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-[12px] font-bold text-green-deep"
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0">
-                      <Check size={14} strokeWidth={2.5} />
-                    </div>
-                    Zakończ zlecenie
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      setActiveDropdownId(null);
-                      confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA);
-                    }}
-                    className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-red-50 transition-colors text-[12px] font-bold text-red-500"
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
-                      <X size={14} strokeWidth={2.5} />
-                    </div>
-                    Anuluj zlecenie
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-        <span
-          className="px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest border"
-          style={{
-            color: booking.statusColor || 'var(--green-deep)',
-            borderColor: (booking.statusColor || 'var(--green-deep)') + '35',
-            backgroundColor: (booking.statusColor || 'var(--green-deep)') + '10',
-          }}
-        >
-          {booking.status}
-        </span>
-      </div>
-    </div>
-  );
 
   // Removed full-page loading to keep layout static
 
@@ -496,7 +315,17 @@ const TasksView: React.FC = () => {
                         month: 'long',
                       })}
                     </h3>
-                    <div className="space-y-4">{group.bookings.map((b, idx) => renderBookingCard(b, idx))}</div>
+                    <div className="space-y-4">
+                      {group.bookings.map((b, idx) => (
+                        <BookingCard
+                          key={b.id}
+                          booking={b}
+                          index={idx}
+                          onOpen={handleViewBooking}
+                          onRequestStatusChange={requestStatusChange}
+                        />
+                      ))}
+                    </div>
                   </div>
                 ))
               ) : (
@@ -557,7 +386,15 @@ const TasksView: React.FC = () => {
                 </span>
               </div>
               {globalSearchResults.length > 0 ? (
-                globalSearchResults.map((b, idx) => renderBookingCard(b, idx))
+                globalSearchResults.map((b, idx) => (
+                  <BookingCard
+                    key={b.id}
+                    booking={b}
+                    index={idx}
+                    onOpen={handleViewBooking}
+                    onRequestStatusChange={requestStatusChange}
+                  />
+                ))
               ) : (
                 <div className="bg-white rounded-2xl p-16 text-center border-2 border-dashed border-slate-100">
                   <p className="text-slate-400 text-sm font-semibold">Brak wyników</p>
@@ -668,7 +505,15 @@ const TasksView: React.FC = () => {
                 ) : (
                   <>
                     {selectedDayBookings.length > 0 ? (
-                      selectedDayBookings.map((b, idx) => renderBookingCard(b, idx))
+                      selectedDayBookings.map((b, idx) => (
+                        <BookingCard
+                          key={b.id}
+                          booking={b}
+                          index={idx}
+                          onOpen={handleViewBooking}
+                          onRequestStatusChange={requestStatusChange}
+                        />
+                      ))
                     ) : (
                       <div className="bg-[#f8f9fa] rounded-2xl p-16 text-center border-2 border-dashed border-slate-200">
                         <p className="text-slate-400 text-xs font-semibold uppercase tracking-widest">
@@ -684,183 +529,16 @@ const TasksView: React.FC = () => {
         </div>
       )}
 
-      {/* Booking Details Modal */}
-      <Modal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} title="Detale Zlecenia">
-        {selectedBooking && (
-          <div className="space-y-8">
-            <div className="p-8 bg-green-deep rounded-2xl border border-white/5 relative overflow-hidden">
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-cream-warm">
-                      <User size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest">Klient</p>
-                      <h4 className="text-xl font-normal text-white tracking-tighter">{selectedBooking.client.name}</h4>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    {selectedBooking.client.phone && (
-                      <a
-                        href={`tel:${selectedBooking.client.phone}`}
-                        className="flex items-center gap-2 text-cream-warm hover:text-white transition-colors"
-                      >
-                        <Phone size={14} />
-                        <span className="text-l font-semibold font-mono">{selectedBooking.client.phone}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  {selectedBooking.client.phone && (
-                    <a
-                      href={`tel:${selectedBooking.client.phone}`}
-                      className="w-12 h-12 bg-cream-warm text-green-deep rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-                    >
-                      <Phone size={20} />
-                    </a>
-                  )}
-                  {selectedBooking.client.phone && (
-                    <a
-                      href={`sms:${selectedBooking.client.phone}`}
-                      className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-                    >
-                      <MessageSquare size={20} />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-sm">
-                  <Clock size={28} />
-                </div>
-                <div>
-                  <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Termin</p>
-                  <p className="text-lg font-bold text-green-deep">
-                    {new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} •{' '}
-                    {formatTime(selectedBooking.scheduledAt)}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div
-                  className={`inline-block px-5 py-2.5 rounded-2xl border-2 mb-2 font-bold text-[11px] uppercase tracking-widest`}
-                  style={{
-                    color: selectedBooking.statusColor || 'var(--green-deep)',
-                    backgroundColor: (selectedBooking.statusColor || 'var(--green-deep)') + '15',
-                    borderColor: (selectedBooking.statusColor || 'var(--green-deep)') + '40',
-                  }}
-                >
-                  {selectedBooking.status}
-                </div>
-                <div className="flex flex-col items-end">
-                  <p className="text-3xl font-extrabold text-green-deep font-mono leading-none tracking-tighter">
-                    {formatPln(selectedBooking.totalPrice)}
-                  </p>
-                  <p className="text-[9px] font-semibold text-green-light uppercase mt-1 tracking-widest">PLN Netto</p>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <p className="text-[10px] font-semibold text-green-light uppercase tracking-[0.4em] ml-4">Zakres Prac</p>
-              <div className="flex flex-wrap gap-2">
-                {selectedBooking.services.map((s) => (
-                  <span
-                    key={s}
-                    className="px-5 py-3 bg-green-deep text-cream-warm rounded-xl text-[12px] font-semibold uppercase tracking-widest shadow-md"
-                  >
-                    {s}
-                  </span>
-                ))}
-                {selectedBooking.services.length === 0 && (
-                  <span className="text-sm text-slate-400">Brak przypisanych usług</span>
-                )}
-              </div>
-            </div>
-            {selectedBooking.notes && (
-              <div className="space-y-2">
-                <p className="text-[10px] font-semibold text-green-light uppercase tracking-[0.4em] ml-4">Notatki</p>
-                <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl">{selectedBooking.notes}</p>
-              </div>
-            )}
-            <div className="flex gap-4 pt-6">
-              {selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA);
-                      setIsBookingModalOpen(false);
-                    }}
-                    className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Check size={16} strokeWidth={2.5} /> Zakończ
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA);
-                      setIsBookingModalOpen(false);
-                    }}
-                    className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <X size={16} strokeWidth={2.5} /> Anuluj
-                  </button>
-                </>
-              )}
-              <button
-                onClick={() => setIsBookingModalOpen(false)}
-                className={`py-5 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
-              >
-                Zamknij
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
       <CreateBookingModal isOpen={isCreateBookingModalOpen} onClose={() => setIsCreateBookingModalOpen(false)} />
 
       <CreateClientModal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} />
 
-      {/* Confirmation Modal */}
-      <Modal isOpen={!!confirmation} onClose={() => setConfirmation(null)} title="Zmień Status">
-        <div className="space-y-8">
-          <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-2xl">
-            <div
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-cream-warm/20 text-green-deep' : 'bg-red-50 text-red-500'}`}
-            >
-              <AlertCircle size={32} />
-            </div>
-            <div>
-              <p className="text-lg font-bold text-green-deep leading-tight mb-2">
-                {confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id
-                  ? 'Zakończyć to zlecenie?'
-                  : 'Anulować tę rezerwację?'}
-              </p>
-              <p className="text-sm text-slate-500 font-semibold">
-                {confirmation?.booking.vehicle.brand} {confirmation?.booking.vehicle.model}
-              </p>
-              <p className="text-xs text-slate-400 font-mono mt-1">{confirmation?.booking.vehicle.licensePlate}</p>
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <button
-              onClick={() => setConfirmation(null)}
-              className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all"
-            >
-              Wróć
-            </button>
-            <button
-              onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)}
-              className={`flex-1 py-5 rounded-xl font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-green-deep text-cream-warm' : 'bg-red-500'}`}
-            >
-              Tak, kontynuuj
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <BookingDetailsModal
+        booking={isBookingModalOpen ? selectedBooking : null}
+        onClose={() => setIsBookingModalOpen(false)}
+        onRequestStatusChange={requestStatusChange}
+      />
+      {confirmDialog}
     </div>
   );
 };

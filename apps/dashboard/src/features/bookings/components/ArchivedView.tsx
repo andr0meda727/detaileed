@@ -1,5 +1,5 @@
-﻿import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Search, History, Car as CarIcon, User, Clock, CheckCircle2, XCircle, Download } from 'lucide-react';
+﻿import React, { useState, useMemo } from 'react';
+import { Search, User, Download } from 'lucide-react';
 import type { Booking } from '@/features/bookings/model/types';
 import { formatPln } from '@/shared/lib/money';
 import { useBookings } from '@/features/bookings/api/bookings';
