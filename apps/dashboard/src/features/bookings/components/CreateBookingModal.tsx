@@ -14,7 +14,7 @@ import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCre
 import { useToast } from '@/shared/ui/ToastContext';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import { ClientResponseDto, VehicleInfoDto } from '@/types';
+import { useCreateClient, type Client, type Vehicle } from '@/features/clients';
 
 interface CreateBookingModalProps {
   isOpen: boolean;
@@ -24,15 +24,14 @@ interface CreateBookingModalProps {
 
 export default function CreateBookingModal({ isOpen, onClose, onSuccess }: CreateBookingModalProps) {
   const { addToast } = useToast();
+  const createClient = useCreateClient();
   const createBooking = useCreateBooking();
   const { data: clients = [], refetch: refetchClients } = useClients();
   const { data: availableServices = [], refetch: refetchServices } = useServices();
 
   const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
   const [clientSearch, setClientSearch] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto; vehicle: VehicleInfoDto } | null>(
-    null,
-  );
+  const [selectedVehicle, setSelectedVehicle] = useState<{ client: Client; vehicle: Vehicle } | null>(null);
 
   // Custom service addition
   const [customServiceInput, setCustomServiceInput] = useState('');
@@ -104,8 +103,7 @@ export default function CreateBookingModal({ isOpen, onClose, onSuccess }: Creat
     }
 
     try {
-      const { createClient } = await import('@/features/clients/api/clientService');
-      const createdClient = await createClient({
+      const createdClient = await createClient.mutateAsync({
         name: newClientName,
         phone: newClientPhone,
         email: newClientEmail || null,

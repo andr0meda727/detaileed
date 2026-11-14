@@ -1,67 +1,54 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiPut, apiDelete } from '@/apiClient';
-import { ClientResponseDto, CreateClientDto, CreateVehicleDto, VehicleInfoDto } from '@/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  deleteApiClientsId,
+  deleteApiVehicleId,
+  getApiClients,
+  getGetApiClientsQueryKey,
+  postApiClients,
+  postApiVehicle,
+  putApiClientsId,
+  putApiVehicleId,
+} from '@detaileed/api-client';
+import { fetchAllPages, MAX_PAGE_SIZE } from '@/shared/lib/paging';
+import type { ClientInput, VehicleInput } from '@/features/clients/model/types';
 
-const QUERY_KEY = 'clients';
+/** Prefix of every client list query. Vehicles come nested in clients, so vehicle changes refresh it too. */
+const clientsKey = getGetApiClientsQueryKey();
 
+/** All clients (every page) with their vehicles; `search` matches name, email, phone, plate, brand, model. */
 export function useClients(search?: string) {
   return useQuery({
-    queryKey: [QUERY_KEY, search],
-    queryFn: () => apiGet<ClientResponseDto[]>('/Clients', search ? { search } : undefined),
+    queryKey: [...clientsKey, { search: search ?? '' }, 'all-pages'],
+    queryFn: ({ signal }) =>
+      fetchAllPages((page) =>
+        getApiClients({ search: search || undefined, Page: page, PageSize: MAX_PAGE_SIZE }, { signal }),
+      ),
     staleTime: 60_000,
   });
 }
 
-export function useCreateClient() {
-  const qc = useQueryClient();
+// The screens show their own error toasts for these, so the global one is skipped.
+const meta = { skipGlobalError: true };
+
+function useClientsMutation<TVariables, TResult>(mutationFn: (variables: TVariables) => Promise<TResult>) {
+  const queryClient = useQueryClient();
   return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (dto: CreateClientDto) => apiPost<ClientResponseDto>('/Clients', dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    meta,
+    mutationFn,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: clientsKey }),
   });
 }
 
-export function useUpdateClient() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: ({ id, dto }: { id: string; dto: CreateClientDto }) => apiPut<ClientResponseDto>(`/Clients/${id}`, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useCreateClient = () => useClientsMutation((body: ClientInput) => postApiClients(body));
 
-export function useDeleteClient() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (id: string) => apiDelete(`/Clients/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useUpdateClient = () =>
+  useClientsMutation(({ id, dto }: { id: string; dto: ClientInput }) => putApiClientsId(id, dto));
 
-export function useCreateVehicle() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (dto: CreateVehicleDto) => apiPost<VehicleInfoDto>('/Vehicle', dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useDeleteClient = () => useClientsMutation((id: string) => deleteApiClientsId(id));
 
-export function useUpdateVehicle() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: ({ id, dto }: { id: string; dto: CreateVehicleDto }) => apiPut<VehicleInfoDto>(`/Vehicle/${id}`, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useCreateVehicle = () => useClientsMutation((body: VehicleInput) => postApiVehicle(body));
 
-export function useDeleteVehicle() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (id: string) => apiDelete(`/Vehicle/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useUpdateVehicle = () =>
+  useClientsMutation(({ id, dto }: { id: string; dto: VehicleInput }) => putApiVehicleId(id, dto));
+
+export const useDeleteVehicle = () => useClientsMutation((id: string) => deleteApiVehicleId(id));

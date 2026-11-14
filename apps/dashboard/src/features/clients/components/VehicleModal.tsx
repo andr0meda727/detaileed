@@ -7,13 +7,13 @@ import FormInput from '@/shared/ui/FormInput';
 import { vehicleFormSchema, VehicleFormValues } from '@/shared/lib/validations';
 import { useToast } from '@/shared/ui/ToastContext';
 import { useCreateVehicle, useUpdateVehicle } from '@/features/clients/api/clients';
-import { VehicleInfoDto } from '@/types';
+import type { Vehicle } from '@/features/clients/model/types';
 
 interface VehicleModalProps {
   isOpen: boolean;
   onClose: () => void;
   clientId: string;
-  vehicleToEdit?: VehicleInfoDto | null;
+  vehicleToEdit?: Vehicle | null;
   onSuccess?: () => void;
 }
 
@@ -29,7 +29,7 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
     formState: { errors, isSubmitting },
   } = useForm<VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
-    defaultValues: { brand: '', model: '', licensePlate: '' }
+    defaultValues: { brand: '', model: '', licensePlate: '' },
   });
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
         reset({
           brand: vehicleToEdit.brand || '',
           model: vehicleToEdit.model || '',
-          licensePlate: vehicleToEdit.licensePlate
+          licensePlate: vehicleToEdit.licensePlate,
         });
       } else {
         reset({ brand: '', model: '', licensePlate: '' });
@@ -56,7 +56,7 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
             brand: data.brand || null,
             model: data.model || null,
             licensePlate: data.licensePlate,
-          }
+          },
         });
         addToast('Dane pojazdu zostały zaktualizowane.', 'success');
       } else {
@@ -77,21 +77,11 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={vehicleToEdit ? "Edytuj Pojazd" : "Nowy Pojazd"}>
+    <Modal isOpen={isOpen} onClose={onClose} title={vehicleToEdit ? 'Edytuj Pojazd' : 'Nowy Pojazd'}>
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-2 gap-4">
-          <FormInput
-            label="Marka"
-            placeholder="BMW"
-            error={errors.brand?.message}
-            {...register('brand')}
-          />
-          <FormInput
-            label="Model"
-            placeholder="Seria 3"
-            error={errors.model?.message}
-            {...register('model')}
-          />
+          <FormInput label="Marka" placeholder="BMW" error={errors.brand?.message} {...register('brand')} />
+          <FormInput label="Model" placeholder="Seria 3" error={errors.model?.message} {...register('model')} />
         </div>
         <FormInput
           label="Nr Rejestracyjny *"
@@ -100,14 +90,20 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
           error={errors.licensePlate?.message}
           {...register('licensePlate')}
         />
-        
+
         <div className="pt-2">
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isSubmitting}
             className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 hover:bg-[#152518] target:scale-95 transition-all disabled:opacity-50"
           >
-            {isSubmitting ? <span>TRWA ZAPIS...</span> : <><Save size={18} /> Zapisz Pojazd</>}
+            {isSubmitting ? (
+              <span>TRWA ZAPIS...</span>
+            ) : (
+              <>
+                <Save size={18} /> Zapisz Pojazd
+              </>
+            )}
           </button>
         </div>
       </form>

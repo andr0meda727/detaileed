@@ -1,60 +1,35 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
   Calendar,
   Package,
   Car as CarIcon,
   X,
-  Plus,
-  TrendingUp,
   AlertCircle,
   Search,
   CheckCircle2,
-  XCircle,
   Check,
   User,
-  UserPlus,
   Phone,
-  Mail,
   MessageSquare,
-  Edit2,
   Save,
   Clock,
-  Users,
-  DollarSign,
   Wrench,
-  ArrowRight,
-  Shield,
-  Droplets,
-  CircleDot,
   Activity,
   CreditCard,
   ChevronRight,
-  Star,
-  Zap,
-  BarChart3,
   AlertTriangle,
-  Timer,
   UserCheck,
-  Clipboard,
   MoreHorizontal,
 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import {
-  InventoryResponseDto,
-  ClientResponseDto,
-  VehicleInfoDto,
-  CreateClientDto,
-  ServiceResponseDto,
-} from '../../types';
-import { getClients, createClient } from '@/features/clients/api/clientService';
-import { createVehicle } from '@/features/clients/api/vehicleService';
-import { getInventory } from '../../services/inventoryService';
-import { getServices, createService } from '../../services/serviceService';
+
+import { useCreateClient, useCreateVehicle } from '@/features/clients';
+import type { Client, Vehicle } from '@/features/clients';
+
+import { createService } from '../../services/serviceService';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import {
   BOOKING_STATUSES,
-  buildBookingCreateDto,
   useBookings,
   useCancelBooking,
   useCompleteBooking,
@@ -124,6 +99,8 @@ const activityFeed = [
 
 const Dashboard: React.FC = () => {
   const { addToast } = useToast();
+  const createClient = useCreateClient();
+  const createVehicle = useCreateVehicle();
   const completeBooking = useCompleteBooking();
   const cancelBooking = useCancelBooking();
   const navigate = useNavigate();
@@ -162,10 +139,8 @@ const Dashboard: React.FC = () => {
   } | null>(null);
   const [clientSearch, setClientSearch] = useState('');
   const [vehicleClientSearch, setVehicleClientSearch] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto; vehicle: VehicleInfoDto } | null>(
-    null,
-  );
-  const [selectedClientForVehicle, setSelectedClientForVehicle] = useState<ClientResponseDto | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<{ client: Client; vehicle: Vehicle } | null>(null);
+  const [selectedClientForVehicle, setSelectedClientForVehicle] = useState<Client | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [customServiceInput, setCustomServiceInput] = useState('');
   const [priceInput, setPriceInput] = useState('0,00');
@@ -288,7 +263,7 @@ const Dashboard: React.FC = () => {
       return;
     }
     try {
-      await createVehicle({
+      await createVehicle.mutateAsync({
         clientId: selectedClientForVehicle.id,
         licensePlate: newVehiclePlate,
         brand: newVehicleBrand || null,
@@ -316,7 +291,7 @@ const Dashboard: React.FC = () => {
       return;
     }
     try {
-      await createClient({
+      await createClient.mutateAsync({
         name: newClientName,
         phone: newClientPhone,
         email: newClientEmail || null,

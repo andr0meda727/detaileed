@@ -27,7 +27,7 @@ export default function CreateClientModal({ isOpen, onClose, onSuccess, clientTo
     formState: { errors, isSubmitting },
   } = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),
-    defaultValues: { name: '', phone: '', email: '', nip: '' }
+    defaultValues: { name: '', phone: '', email: '', nip: '' },
   });
 
   const handleCreateClient = async (data: ClientFormValues) => {
@@ -37,16 +37,16 @@ export default function CreateClientModal({ isOpen, onClose, onSuccess, clientTo
           id: clientToEdit.id,
           dto: {
             name: data.name,
-            phone: data.phone || null,
+            phone: data.phone,
             email: data.email || null,
             nip: data.nip || null,
-          }
+          },
         });
         addToast('Dane klienta zostały zaktualizowane.', 'success');
       } else {
         await createClientMutation.mutateAsync({
           name: data.name,
-          phone: data.phone || null,
+          phone: data.phone,
           email: data.email || null,
           nip: data.nip || null,
         });
@@ -60,7 +60,10 @@ export default function CreateClientModal({ isOpen, onClose, onSuccess, clientTo
         addToast(e.data.errors[firstErrorKey][0], 'error');
       } else {
         console.error(e);
-        addToast(e.message || (clientToEdit ? 'Błąd podczas aktualizacji klienta.' : 'Błąd podczas dodawania klienta.'), 'error');
+        addToast(
+          e.message || (clientToEdit ? 'Błąd podczas aktualizacji klienta.' : 'Błąd podczas dodawania klienta.'),
+          'error',
+        );
       }
     }
   };
@@ -73,18 +76,18 @@ export default function CreateClientModal({ isOpen, onClose, onSuccess, clientTo
           name: clientToEdit.name,
           phone: clientToEdit.phone || '',
           email: clientToEdit.email || '',
-          nip: clientToEdit.nip || ''
+          nip: clientToEdit.nip || '',
         });
       } else {
         reset({ name: '', phone: '', email: '', nip: '' });
       }
     } else {
-        reset({ name: '', phone: '', email: '', nip: '' });
+      reset({ name: '', phone: '', email: '', nip: '' });
     }
   }, [isOpen, clientToEdit, reset]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={clientToEdit ? "Edytuj Klienta" : "Nowy Klient"}>
+    <Modal isOpen={isOpen} onClose={onClose} title={clientToEdit ? 'Edytuj Klienta' : 'Nowy Klient'}>
       <form className="space-y-4" onSubmit={handleSubmit(handleCreateClient)}>
         <FormInput
           label="Imię i Nazwisko *"
@@ -92,7 +95,7 @@ export default function CreateClientModal({ isOpen, onClose, onSuccess, clientTo
           error={errors.name?.message}
           {...register('name')}
         />
-        
+
         <div className="grid grid-cols-2 gap-4">
           <FormInput
             label="Telefon *"
@@ -109,7 +112,7 @@ export default function CreateClientModal({ isOpen, onClose, onSuccess, clientTo
             {...register('email')}
           />
         </div>
-        
+
         <FormInput
           label="NIP (opcjonalnie)"
           placeholder="1234567890"

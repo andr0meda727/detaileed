@@ -28,50 +28,6 @@ export interface EmployeeResponseDto {
   roleId: number;
 }
 
-export interface VehicleInfoDto {
-  id: string;
-  licensePlate: string;
-  brand: string | null;
-  model: string | null;
-}
-
-export interface CreateVehicleDto {
-  clientId: string;
-  licensePlate: string;
-  brand?: string | null;
-  model?: string | null;
-}
-
-export interface ClientInfoDto {
-  id: string;
-  name: string;
-  email: string | null;
-  phone: string | null;
-}
-
-export interface ClientResponseDto {
-  id: string;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  nip: string | null;
-  vehicles: VehicleInfoDto[];
-}
-
-export interface CreateClientVehicleDto {
-  licensePlate: string;
-  brand?: string | null;
-  model?: string | null;
-}
-
-export interface CreateClientDto {
-  name: string;
-  email?: string | null;
-  phone?: string | null;
-  nip?: string | null;
-  vehicle?: CreateClientVehicleDto | null;
-}
-
 export interface ServiceResponseDto {
   id: string;
   name: string;

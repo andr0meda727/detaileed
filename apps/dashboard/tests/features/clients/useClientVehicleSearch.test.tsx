@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useClientSearch, useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
-import { ClientResponseDto } from '@/types';
+import type { Client as ClientResponseDto, Vehicle } from '@/features/clients/model/types';
+
+// The API sends sizes as strings ("Medium"); the spec types them as numbers, so cast.
+const size = 'Medium' as unknown as Vehicle['size'];
 
 const clientsFixture: ClientResponseDto[] = [
   {
@@ -11,8 +14,8 @@ const clientsFixture: ClientResponseDto[] = [
     phone: '123456789',
     nip: null,
     vehicles: [
-      { id: 'v1', licensePlate: 'WX1234A', brand: 'BMW', model: 'M3' },
-      { id: 'v2', licensePlate: 'WW9988Z', brand: 'Audi', model: 'A6' },
+      { id: 'v1', licensePlate: 'WX1234A', brand: 'BMW', model: 'M3', size },
+      { id: 'v2', licensePlate: 'WW9988Z', brand: 'Audi', model: 'A6', size },
     ],
   },
   {
@@ -21,7 +24,7 @@ const clientsFixture: ClientResponseDto[] = [
     email: 'anna@example.com',
     phone: '987654321',
     nip: null,
-    vehicles: [{ id: 'v3', licensePlate: 'KR12345', brand: 'Tesla', model: 'Model 3' }],
+    vehicles: [{ id: 'v3', licensePlate: 'KR12345', brand: 'Tesla', model: 'Model 3', size }],
   },
 ];
 

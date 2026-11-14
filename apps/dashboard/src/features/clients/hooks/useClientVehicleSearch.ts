@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { ClientResponseDto, VehicleInfoDto } from '@/types';
+import type { Client, Vehicle } from '@/features/clients/model/types';
 
 export interface ClientVehicleMatch {
-  client: ClientResponseDto;
-  vehicle: VehicleInfoDto;
+  client: Client;
+  vehicle: Vehicle;
 }
 
-export function useClientVehicleSearch(clients: ClientResponseDto[], query: string, limit = 5): ClientVehicleMatch[] {
+export function useClientVehicleSearch(clients: Client[], query: string, limit = 5): ClientVehicleMatch[] {
   return useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return [];
@@ -30,7 +30,7 @@ export function useClientVehicleSearch(clients: ClientResponseDto[], query: stri
   }, [clients, query, limit]);
 }
 
-export function useClientSearch(clients: ClientResponseDto[], query: string, limit = 5): ClientResponseDto[] {
+export function useClientSearch(clients: Client[], query: string, limit = 5): Client[] {
   return useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) return [];

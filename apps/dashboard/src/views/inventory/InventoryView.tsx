@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
-import { Plus, Search, Edit2, Package, Check, X, UserPlus, Car as CarIcon, Save, Calendar, Wrench } from 'lucide-react';
-import { InventoryCreateDto, ClientResponseDto, VehicleInfoDto } from '../../types';
+import { Plus, Search, Edit2, Package, Check, X } from 'lucide-react';
+import { InventoryCreateDto } from '../../types';
 import {
   useInventory,
   useCreateInventoryItem,

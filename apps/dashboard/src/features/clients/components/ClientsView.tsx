@@ -1,11 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PREDEFINED_SERVICES } from '@/constants';
+
 import {
   X as XIcon,
   Phone,
   Search,
   Car as CarIcon,
-  Save,
   Plus,
   Check,
   Edit2,
@@ -13,11 +12,6 @@ import {
   Clock,
   User,
   MessageSquare,
-  AlertCircle,
-  Calendar,
-  Hash,
-  Wrench,
-  UserPlus,
 } from 'lucide-react';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
@@ -26,10 +20,9 @@ import LoadingSpinner from '@/shared/ui/LoadingSpinner';
 import CreateClientModal from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
 import VehicleModal from '@/features/clients/components/VehicleModal';
-import { ClientResponseDto, VehicleInfoDto, CreateClientDto } from '@/types';
+import type { Client, Vehicle } from '@/features/clients/model/types';
 import {
   useClients,
-  useCreateClient,
   useUpdateClient,
   useCreateVehicle,
   useUpdateVehicle,
@@ -38,8 +31,7 @@ import {
 import { useServices } from '@/hooks/useServices';
 import { useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
 import { createService } from '@/services/serviceService';
-import { createVehicle } from '@/features/clients/api/vehicleService';
-import { BOOKING_STATUSES, buildBookingCreateDto, type Booking, type BookingStatus } from '@/features/bookings';
+import { BOOKING_STATUSES, type Booking, type BookingStatus } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
 import { useToast } from '@/shared/ui/ToastContext';
 import { toggleIdSelection } from '@/shared/lib/selection';
@@ -53,8 +45,8 @@ const ClientsView: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-  const [selectedClientForDetails, setSelectedClientForDetails] = useState<ClientResponseDto | null>(null);
-  const [viewingClientDetail, setViewingClientDetail] = useState<ClientResponseDto | null>(null);
+  const [selectedClientForDetails, setSelectedClientForDetails] = useState<Client | null>(null);
+  const [viewingClientDetail, setViewingClientDetail] = useState<Client | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
@@ -63,9 +55,7 @@ const ClientsView: React.FC = () => {
   const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [clientSearch, setClientSearch] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto; vehicle: VehicleInfoDto } | null>(
-    null,
-  );
+  const [selectedVehicle, setSelectedVehicle] = useState<{ client: Client; vehicle: Vehicle } | null>(null);
   const [priceInput, setPriceInput] = useState('0,00');
 
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
