@@ -1,12 +1,5 @@
 // === API Response DTOs ===
 
-export interface StudioDto {
-  studioId: string;
-  name: string;
-  role: StudioRole | string;
-  address: string | null;
-}
-
 export type StudioRole = 'Owner' | 'Manager' | 'Employee';
 
 export interface CategoryResponseDto {

@@ -1,8 +1,8 @@
 import { apiPost, apiPut } from '@/apiClient';
-import { CreateStudioDto, UpdateStudioDto, StudioDto } from '@/types';
+import type { CreateStudioDto, UpdateStudioDto } from '@/types';
+import type { Studio } from '@/features/studios/model/types';
 
-export const createStudio = (dto: CreateStudioDto): Promise<StudioDto> =>
-  apiPost<StudioDto>('/Studios', dto);
+export const createStudio = (dto: CreateStudioDto): Promise<Studio> => apiPost<Studio>('/Studios', dto);
 
-export const updateStudio = (studioId: string, dto: UpdateStudioDto): Promise<StudioDto> =>
-  apiPut<StudioDto>(`/Studios/${studioId}`, dto);
+export const updateStudio = (studioId: string, dto: UpdateStudioDto): Promise<Studio> =>
+  apiPut<Studio>(`/Studios/${studioId}`, dto);

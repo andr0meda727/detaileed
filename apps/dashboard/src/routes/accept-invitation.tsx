@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import { STUDIOS_QUERY_KEY } from '@/features/studios/api/studios';
+import { studiosQueryKey } from '@/features/studios/api/studios';
 import AcceptInvitationView from '@/features/auth/components/AcceptInvitationView';
 
 export const Route = createFileRoute('/accept-invitation')({
@@ -18,7 +18,7 @@ function AcceptInvitationPage() {
       token={token}
       onSuccess={async () => {
         // The user just joined a studio, so the cached list is out of date.
-        await queryClient.invalidateQueries({ queryKey: [STUDIOS_QUERY_KEY] });
+        await queryClient.invalidateQueries({ queryKey: studiosQueryKey });
         await navigate({ to: '/', replace: true });
       }}
       onRequireLogin={() =>

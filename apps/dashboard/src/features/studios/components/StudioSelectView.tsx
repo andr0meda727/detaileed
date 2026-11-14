@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Building2, MapPin, CheckCircle2, Loader2, Crown, Shield, UserCheck, Plus, RefreshCw } from 'lucide-react';
-import { StudioDto } from '@/types';
+import type { Studio } from '@/features/studios/model/types';
 import { useStudios } from '@/features/studios/api/studios';
 import { getLastStudioId } from '@/features/studios/model/activeStudio';
 import LoadingSpinner from '@/shared/ui/LoadingSpinner';
 import CreateStudioModal from '@/features/studios/components/CreateStudioModal';
 
 interface StudioSelectViewProps {
-  onSelect: (studio: StudioDto) => void;
+  onSelect: (studio: Studio) => void;
 }
 
 // ─── Role config ─────────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ const getFallback = (role: string): RoleConfig => ({
 });
 
 /** Owner lub Manager mogą tworzyć nowe studio */
-const canCreateStudio = (studios: StudioDto[]) =>
+const canCreateStudio = (studios: Studio[]) =>
   studios.length === 0 || studios.some((s) => s.role === 'Owner' || s.role === 'Manager');
 
 // ─── View ─────────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
   // Można zamknąć tylko gdy user ma już jakieś studio
   const canClose = studios.length > 0;
 
-  const handleSelect = (studio: StudioDto) => {
+  const handleSelect = (studio: Studio) => {
     setSelecting(studio.studioId);
     setTimeout(() => {
       setSelecting(null);
@@ -86,7 +86,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
     }, 350);
   };
 
-  const handleCreateSuccess = (newStudio: StudioDto) => {
+  const handleCreateSuccess = (newStudio: Studio) => {
     setManualOpen(false);
     handleSelect(newStudio);
   };

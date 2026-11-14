@@ -3,9 +3,16 @@ import { QueryClient } from '@tanstack/react-query';
 
 vi.mock('@/shared/lib/supabase', () => ({ default: { auth: { getSession: vi.fn() } } }));
 
-const { activateStudio, forgetActiveStudio, getActiveStudioId, getLastStudioId } = await import('@/features/studios/model/activeStudio');
+const { activateStudio, forgetActiveStudio, getActiveStudioId, getLastStudioId } =
+  await import('@/features/studios/model/activeStudio');
 
-const studio = (studioId: string) => ({ studioId, name: studioId, role: 'Owner', address: null });
+const studio = (studioId: string) => ({
+  studioId,
+  name: studioId,
+  role: 'Owner',
+  address: null,
+  timeZone: 'Europe/Warsaw',
+});
 
 describe('activeStudio', () => {
   beforeEach(() => forgetActiveStudio());
@@ -23,7 +30,7 @@ describe('activeStudio', () => {
   it('drops cached studio data on a switch but keeps the studio list', () => {
     const client = new QueryClient();
     activateStudio(studio('a'), client);
-    client.setQueryData(['studios'], [studio('a'), studio('b')]);
+    client.setQueryData(['/api/Studios/my'], [studio('a'), studio('b')]);
     client.setQueryData(['clients'], []);
 
     activateStudio(studio('a'), client);
@@ -31,6 +38,6 @@ describe('activeStudio', () => {
 
     activateStudio(studio('b'), client);
     expect(client.getQueryData(['clients'])).toBeUndefined();
-    expect(client.getQueryData(['studios'])).toHaveLength(2);
+    expect(client.getQueryData(['/api/Studios/my'])).toHaveLength(2);
   });
 });

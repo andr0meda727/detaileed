@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { Building2, MapPin, Phone, Mail, Loader2, Sparkles, X } from 'lucide-react';
 import { useCreateStudio } from '@/features/studios/api/studios';
 import { useToast } from '@/shared/ui/ToastContext';
-import { StudioDto } from '@/types';
+import type { Studio } from '@/features/studios/model/types';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 const schema = z.object({
@@ -37,14 +37,10 @@ const Field: React.FC<{
       {required && <span className="text-amber-500">*</span>}
     </label>
     <div className="relative">
-      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none">
-        {icon}
-      </span>
+      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none">{icon}</span>
       {children}
     </div>
-    {error && (
-      <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-1">{error}</p>
-    )}
+    {error && <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-1">{error}</p>}
   </div>
 );
 
@@ -52,18 +48,13 @@ const Field: React.FC<{
 interface CreateStudioModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (studio: StudioDto) => void;
+  onSuccess: (studio: Studio) => void;
   /** false = onboarding (modal bez możliwości zamknięcia X) */
   canClose?: boolean;
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
-const CreateStudioModal: React.FC<CreateStudioModalProps> = ({
-  isOpen,
-  onClose,
-  onSuccess,
-  canClose = true,
-}) => {
+const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, onSuccess, canClose = true }) => {
   const { addToast } = useToast();
   const createStudio = useCreateStudio();
 
@@ -95,10 +86,9 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({
       reset();
       onSuccess(newStudio);
     } catch (e: any) {
-      const msg =
-        e?.data?.errors
-          ? Object.values(e.data.errors).flat().join(' ')
-          : e?.message || 'Nie udało się utworzyć studia';
+      const msg = e?.data?.errors
+        ? Object.values(e.data.errors).flat().join(' ')
+        : e?.message || 'Nie udało się utworzyć studia';
       addToast(msg, 'error');
     }
   };
@@ -121,10 +111,7 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top accent bar */}
-        <div
-          className="h-1.5 w-full"
-          style={{ background: 'linear-gradient(90deg, #1a2e1e 0%, #d4a853 100%)' }}
-        />
+        <div className="h-1.5 w-full" style={{ background: 'linear-gradient(90deg, #1a2e1e 0%, #d4a853 100%)' }} />
 
         {/* Header */}
         <div className="px-8 pt-8 pb-6 flex items-start justify-between gap-4">
@@ -136,12 +123,8 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({
               <Building2 size={22} className="text-amber-300" />
             </div>
             <div>
-              <h2 className="text-xl font-extrabold text-green-deep tracking-tight leading-tight">
-                Nowe Studio
-              </h2>
-              <p className="text-xs text-slate-400 font-medium mt-0.5">
-                Uzupełnij dane swojego detailingu
-              </p>
+              <h2 className="text-xl font-extrabold text-green-deep tracking-tight leading-tight">Nowe Studio</h2>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">Uzupełnij dane swojego detailingu</p>
             </div>
           </div>
 
@@ -161,8 +144,8 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({
           <div className="mx-8 mb-6 px-5 py-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-start gap-3">
             <Sparkles size={16} className="text-amber-500 shrink-0 mt-0.5" />
             <p className="text-xs text-amber-700 font-semibold leading-relaxed">
-              Witaj w Detaileed! Zanim zaczniesz, skonfiguruj swoje pierwsze studio.
-              Możesz je edytować w każdej chwili w ustawieniach.
+              Witaj w Detaileed! Zanim zaczniesz, skonfiguruj swoje pierwsze studio. Możesz je edytować w każdej chwili
+              w ustawieniach.
             </p>
           </div>
         )}
@@ -170,30 +153,22 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="px-8 pb-8 space-y-5">
           {/* Name */}
-          <Field
-            label="Nazwa studia"
-            icon={<Building2 size={15} />}
-            error={errors.name?.message}
-            required
-          >
+          <Field label="Nazwa studia" icon={<Building2 size={15} />} error={errors.name?.message} required>
             <input
               {...register('name')}
               placeholder="np. AutoDetail Pro, CarSpa Warszawa…"
               autoFocus
               className={`w-full pl-10 pr-4 py-4 bg-slate-50 rounded-2xl outline-none font-semibold text-sm border-2 transition-all
-                ${errors.name
-                  ? 'border-red-400 focus:ring-2 focus:ring-red-400/20'
-                  : 'border-transparent focus:border-green-deep/20 focus:bg-white focus:ring-2 focus:ring-green-deep/10'
+                ${
+                  errors.name
+                    ? 'border-red-400 focus:ring-2 focus:ring-red-400/20'
+                    : 'border-transparent focus:border-green-deep/20 focus:bg-white focus:ring-2 focus:ring-green-deep/10'
                 }`}
             />
           </Field>
 
           {/* Address */}
-          <Field
-            label="Adres"
-            icon={<MapPin size={15} />}
-            error={errors.address?.message}
-          >
+          <Field label="Adres" icon={<MapPin size={15} />} error={errors.address?.message}>
             <input
               {...register('address')}
               placeholder="ul. Przykładowa 1, 00-001 Warszawa"
@@ -203,11 +178,7 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({
 
           {/* Phone + Email row */}
           <div className="grid grid-cols-2 gap-4">
-            <Field
-              label="Telefon"
-              icon={<Phone size={15} />}
-              error={errors.phone?.message}
-            >
+            <Field label="Telefon" icon={<Phone size={15} />} error={errors.phone?.message}>
               <input
                 {...register('phone')}
                 placeholder="+48 123 456 789"
@@ -215,18 +186,15 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({
               />
             </Field>
 
-            <Field
-              label="Email"
-              icon={<Mail size={15} />}
-              error={errors.email?.message}
-            >
+            <Field label="Email" icon={<Mail size={15} />} error={errors.email?.message}>
               <input
                 {...register('email')}
                 placeholder="kontakt@studio.pl"
                 className={`w-full pl-10 pr-3 py-4 bg-slate-50 rounded-2xl outline-none font-semibold text-sm border-2 transition-all
-                  ${errors.email
-                    ? 'border-red-400 focus:ring-2 focus:ring-red-400/20'
-                    : 'border-transparent focus:border-green-deep/20 focus:bg-white focus:ring-2 focus:ring-green-deep/10'
+                  ${
+                    errors.email
+                      ? 'border-red-400 focus:ring-2 focus:ring-red-400/20'
+                      : 'border-transparent focus:border-green-deep/20 focus:bg-white focus:ring-2 focus:ring-green-deep/10'
                   }`}
               />
             </Field>

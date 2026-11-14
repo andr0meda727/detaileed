@@ -7,12 +7,12 @@ import Sidebar from '@/app/layout/Sidebar';
 import { StudioScope } from '@/features/studios/model/StudioContext';
 import { studiosQueryOptions } from '@/features/studios/api/studios';
 import supabase from '@/shared/lib/supabase';
-import type { StudioDto } from '@/types';
+import type { Studio } from '@/features/studios/model/types';
 
 /** Layout of every screen inside a studio. The studio comes from the URL. */
 export const Route = createFileRoute('/_auth/s/$studioId')({
   beforeLoad: async ({ context, params }) => {
-    const find = (studios: StudioDto[]) => studios.find((s) => s.studioId === params.studioId);
+    const find = (studios: Studio[]) => studios.find((s) => s.studioId === params.studioId);
     // A studio created or joined a moment ago may be missing from the cached list, so refetch once.
     const studio =
       find(await context.queryClient.ensureQueryData(studiosQueryOptions)) ??

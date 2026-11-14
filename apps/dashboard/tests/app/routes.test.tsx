@@ -6,8 +6,8 @@ import { render, screen } from '@testing-library/react';
 const session = { user: { email: 'a@b.pl', user_metadata: {} } };
 const auth = vi.hoisted(() => ({ session: null as unknown }));
 const studios = [
-  { studioId: 'owned', name: 'Owned', role: 'Owner', address: null },
-  { studioId: 'staff', name: 'Staff', role: 'Employee', address: null },
+  { studioId: 'owned', name: 'Owned', role: 'Owner', address: null, timeZone: 'Europe/Warsaw' },
+  { studioId: 'staff', name: 'Staff', role: 'Employee', address: null, timeZone: 'Europe/Warsaw' },
 ];
 
 vi.mock('@/shared/lib/supabase', () => ({
@@ -18,7 +18,8 @@ vi.mock('@/shared/lib/supabase', () => ({
     },
   },
 }));
-vi.mock('@/apiClient', () => ({ apiGet: async () => studios }));
+// GET /api/Studios/my is the only request the guards make.
+vi.stubGlobal('fetch', async () => Response.json(studios));
 
 const { routeTree } = await import('@/routeTree.gen');
 const { forgetActiveStudio } = await import('@/features/studios/model/activeStudio');
