@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { clearPasswordSetup, getSession } from '@/app/auth';
-import supabase from '@/utils/supabase';
+import supabase from '@/shared/lib/supabase';
 import SetPasswordView from '@/views/auth/SetPasswordView';
 
 export const Route = createFileRoute('/set-password')({

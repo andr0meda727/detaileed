@@ -3,7 +3,7 @@ import { Building2, MapPin, CheckCircle2, Loader2, Crown, Shield, UserCheck, Plu
 import { StudioDto } from '../../types';
 import { useStudios } from '../../hooks/useStudios';
 import { getLastStudioId } from '../../app/activeStudio';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import LoadingSpinner from '@/shared/ui/LoadingSpinner';
 import CreateStudioModal from '../../components/modals/CreateStudioModal';
 
 interface StudioSelectViewProps {

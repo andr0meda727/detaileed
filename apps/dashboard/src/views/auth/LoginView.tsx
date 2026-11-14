@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginFormSchema, passwordResetSchema, LoginFormValues, PasswordResetValues } from '../../utils/validations';
+import { loginFormSchema, passwordResetSchema, LoginFormValues, PasswordResetValues } from '@/shared/lib/validations';
 import { Zap, ArrowRight, ShieldCheck, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
-import supabase from '../../utils/supabase';
+import supabase from '@/shared/lib/supabase';
 import logo from '../../images/logo.svg';
 
 interface LoginViewProps {

@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
-import Modal from '../ui/Modal';
-import FormInput from '../ui/FormInput';
-import { vehicleFormSchema, VehicleFormValues } from '../../utils/validations';
-import { useToast } from '../../contexts/ToastContext';
+import Modal from '@/shared/ui/Modal';
+import FormInput from '@/shared/ui/FormInput';
+import { vehicleFormSchema, VehicleFormValues } from '@/shared/lib/validations';
+import { useToast } from '@/shared/ui/ToastContext';
 import { useCreateVehicle, useUpdateVehicle } from '../../hooks/useClients';
 import { VehicleInfoDto } from '../../types';
 

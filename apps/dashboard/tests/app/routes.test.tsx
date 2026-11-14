@@ -10,7 +10,7 @@ const studios = [
   { studioId: 'staff', name: 'Staff', role: 'Employee', address: null },
 ];
 
-vi.mock('@/utils/supabase', () => ({
+vi.mock('@/shared/lib/supabase', () => ({
   default: {
     auth: {
       getSession: async () => ({ data: { session: auth.session } }),

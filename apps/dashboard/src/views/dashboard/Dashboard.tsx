@@ -61,23 +61,23 @@ import { getClients, createClient } from '../../services/clientService';
 import { createVehicle } from '../../services/vehicleService';
 import { getInventory } from '../../services/inventoryService';
 import { getServices, createService } from '../../services/serviceService';
-import { getApiErrorMessage } from '../../utils/errorHandler';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
 import { useBookings } from '../../hooks/useBookings';
 import { useInventory } from '../../hooks/useInventory';
 import { useClients } from '../../hooks/useClients';
 import { useServices } from '../../hooks/useServices';
 import { useClientSearch, useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
-import { toggleIdSelection } from '../../utils/selection';
-import GlobalHeader from '../../components/GlobalHeader';
-import Modal from '../../components/ui/Modal';
+import { toggleIdSelection } from '@/shared/lib/selection';
+import GlobalHeader from '@/shared/ui/GlobalHeader';
+import Modal from '@/shared/ui/Modal';
 import DashboardStats from './components/DashboardStats';
 import RevenueChart from './components/RevenueChart';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 import CreateBookingModal from '../../components/modals/CreateBookingModal';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '@/shared/ui/ToastContext';
 import { useStudio } from '../../contexts/StudioContext';
-import Skeleton from '../../components/ui/Skeleton';
+import Skeleton from '@/shared/ui/Skeleton';
 
 // Chart data is now computed dynamically from fetched bookings
 

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { setPasswordSchema, SetPasswordValues } from '../../utils/validations';
-import supabase from '../../utils/supabase';
+import { setPasswordSchema, SetPasswordValues } from '@/shared/lib/validations';
+import supabase from '@/shared/lib/supabase';
 
 interface SetPasswordViewProps {
     onSuccess: () => void;

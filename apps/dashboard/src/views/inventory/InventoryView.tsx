@@ -9,12 +9,12 @@ import {
   useCategories,
   useCreateCategory,
 } from '../../hooks';
-import { useToast } from '../../contexts/ToastContext';
-import GlobalHeader from '../../components/GlobalHeader';
-import Modal from '../../components/ui/Modal';
-import Skeleton from '../../components/ui/Skeleton';
-import EmptyState from '../../components/ui/EmptyState';
-import { getApiErrorMessage } from '../../utils/errorHandler';
+import { useToast } from '@/shared/ui/ToastContext';
+import GlobalHeader from '@/shared/ui/GlobalHeader';
+import Modal from '@/shared/ui/Modal';
+import Skeleton from '@/shared/ui/Skeleton';
+import EmptyState from '@/shared/ui/EmptyState';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { Filter, ChevronDown } from 'lucide-react';
 import CreateBookingModal from '../../components/modals/CreateBookingModal';
 import CreateClientModal from '../../components/modals/CreateClientModal';

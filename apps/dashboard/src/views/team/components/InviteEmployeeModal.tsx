@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Shield, UserPlus, Loader2 } from 'lucide-react';
-import Modal from '../../../components/ui/Modal';
+import Modal from '@/shared/ui/Modal';
 import { InviteEmployeeDto } from '../../../types';
 
 interface InviteEmployeeModalProps {

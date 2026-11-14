@@ -1,4 +1,4 @@
-import { StudioRole } from '../types';
+import { StudioRole } from '@/types';
 
 const EMPLOYEE_ALIASES = new Set(['3', 'pracownik', 'employee']);
 const OWNER_ALIASES = new Set(['1', 'właściciel', 'wlasciciel', 'owner']);

@@ -16,9 +16,9 @@ import {
   FileBarChart2,
   Shield,
 } from 'lucide-react';
-import { useStudio } from '../contexts/StudioContext';
-import { isEmployeeRole } from '../utils/studioRole';
-import logo from '../images/logo.svg';
+import { useStudio } from '@/contexts/StudioContext';
+import { isEmployeeRole } from '@/shared/lib/studioRole';
+import logo from '@/images/logo.svg';
 
 type StudioPath =
   | '/s/$studioId'

@@ -29,13 +29,13 @@ import { completeBooking, cancelBooking, updateBooking } from '../../services/bo
 import { useBookings } from '../../hooks/useBookings';
 import { useClients } from '../../hooks/useClients';
 import { useServices } from '../../hooks/useServices';
-import { getApiErrorMessage } from '../../utils/errorHandler';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import CreateBookingModal from '../../components/modals/CreateBookingModal';
 import CreateClientModal from '../../components/modals/CreateClientModal';
-import GlobalHeader from '../../components/GlobalHeader';
-import Modal from '../../components/ui/Modal';
-import { useToast } from '../../contexts/ToastContext';
-import Skeleton from '../../components/ui/Skeleton';
+import GlobalHeader from '@/shared/ui/GlobalHeader';
+import Modal from '@/shared/ui/Modal';
+import { useToast } from '@/shared/ui/ToastContext';
+import Skeleton from '@/shared/ui/Skeleton';
 
 const TasksView: React.FC = () => {
   const { data: bookings = [], isLoading: loading, refetch: refetchBookings } = useBookings();

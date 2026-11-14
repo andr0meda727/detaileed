@@ -1,6 +1,6 @@
 import { configureApiClient } from '@detaileed/api-client';
 import { getSelectedStudioId } from '@/contexts/StudioContext';
-import supabase from '@/utils/supabase';
+import supabase from '@/shared/lib/supabase';
 
 /**
  * API origin without the `/api` suffix (request paths already start with `/api`).

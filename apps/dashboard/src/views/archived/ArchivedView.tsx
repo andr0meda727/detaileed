@@ -2,10 +2,10 @@
 import { Search, History, Car as CarIcon, User, Clock, CheckCircle2, XCircle, Download } from 'lucide-react';
 import { BookingResponseDto } from '../../types';
 import { useBookings } from '../../hooks/useBookings';
-import { useToast } from '../../contexts/ToastContext';
-import GlobalHeader from '../../components/GlobalHeader';
-import Modal from '../../components/ui/Modal';
-import Skeleton from '../../components/ui/Skeleton';
+import { useToast } from '@/shared/ui/ToastContext';
+import GlobalHeader from '@/shared/ui/GlobalHeader';
+import Modal from '@/shared/ui/Modal';
+import Skeleton from '@/shared/ui/Skeleton';
 
 const ArchivedView: React.FC = () => {
   const { addToast } = useToast();

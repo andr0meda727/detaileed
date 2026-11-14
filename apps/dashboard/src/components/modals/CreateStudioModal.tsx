@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Building2, MapPin, Phone, Mail, Loader2, Sparkles, X } from 'lucide-react';
 import { useCreateStudio } from '../../hooks/useStudios';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '@/shared/ui/ToastContext';
 import { StudioDto } from '../../types';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────

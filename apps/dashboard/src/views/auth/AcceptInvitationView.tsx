@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import supabase from '../../utils/supabase.ts';
+import supabase from '@/shared/lib/supabase';
 import { apiFetch } from '@detaileed/api-client';
-import { getApiErrorMessage } from '@/utils/errorHandler';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

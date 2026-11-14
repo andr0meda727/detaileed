@@ -1,4 +1,4 @@
-import supabase from './utils/supabase';
+import supabase from '@/shared/lib/supabase';
 import { getSelectedStudioId } from './contexts/StudioContext';
 import { ApiError, type ProblemDetails } from '@detaileed/api-client';
 import { API_ORIGIN } from './shared/api';

@@ -13,10 +13,10 @@ import {
   Save,
   Check,
 } from 'lucide-react';
-import GlobalHeader from '../../components/GlobalHeader';
+import GlobalHeader from '@/shared/ui/GlobalHeader';
 import { generateBookingsReport } from '../../apiClient';
-import { useToast } from '../../contexts/ToastContext';
-import Modal from '../../components/ui/Modal';
+import { useToast } from '@/shared/ui/ToastContext';
+import Modal from '@/shared/ui/Modal';
 import CreateBookingModal from '../../components/modals/CreateBookingModal';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 

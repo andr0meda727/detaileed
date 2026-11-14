@@ -2,18 +2,18 @@ import React, { useState, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save, Search, Car as CarIcon, Wrench, Check, Plus, Calendar, UserPlus } from 'lucide-react';
-import Modal from '../ui/Modal';
-import FormInput from '../ui/FormInput';
-import { bookingFormSchema, BookingFormValues, clientFormSchema, vehicleFormSchema } from '../../utils/validations';
+import Modal from '@/shared/ui/Modal';
+import FormInput from '@/shared/ui/FormInput';
+import { bookingFormSchema, BookingFormValues, clientFormSchema, vehicleFormSchema } from '@/shared/lib/validations';
 import { useClients } from '../../hooks/useClients';
 import { useServices } from '../../hooks/useServices';
 import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
 import { createBooking } from '../../services/bookingService';
 import { createService } from '../../services/serviceService';
 import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
-import { useToast } from '../../contexts/ToastContext';
-import { toggleIdSelection } from '../../utils/selection';
-import { getApiErrorMessage } from '../../utils/errorHandler';
+import { useToast } from '@/shared/ui/ToastContext';
+import { toggleIdSelection } from '@/shared/lib/selection';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { ClientResponseDto, VehicleInfoDto } from '../../types';
 
 interface CreateBookingModalProps {

@@ -19,10 +19,10 @@ import {
   Wrench,
   UserPlus,
 } from 'lucide-react';
-import GlobalHeader from '../../components/GlobalHeader';
-import Modal from '../../components/ui/Modal';
-import Skeleton from '../../components/ui/Skeleton';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import GlobalHeader from '@/shared/ui/GlobalHeader';
+import Modal from '@/shared/ui/Modal';
+import Skeleton from '@/shared/ui/Skeleton';
+import LoadingSpinner from '@/shared/ui/LoadingSpinner';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 import CreateBookingModal from '../../components/modals/CreateBookingModal';
 import VehicleModal from '../../components/modals/VehicleModal';
@@ -41,9 +41,9 @@ import { createService } from '../../services/serviceService';
 import { createBooking } from '../../services/bookingService';
 import { createVehicle } from '../../services/vehicleService';
 import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
-import { useToast } from '../../contexts/ToastContext';
-import { toggleIdSelection } from '../../utils/selection';
-import { getApiErrorMessage } from '../../utils/errorHandler';
+import { useToast } from '@/shared/ui/ToastContext';
+import { toggleIdSelection } from '@/shared/lib/selection';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 
 const ClientsView: React.FC = () => {
   const { addToast } = useToast();

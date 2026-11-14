@@ -3,10 +3,10 @@ import { Outlet, createFileRoute, redirect, useNavigate } from '@tanstack/react-
 import { useQueryClient } from '@tanstack/react-query';
 import { activateStudio, forgetActiveStudio } from '@/app/activeStudio';
 import { MobileMenuContext } from '@/app/mobileMenu';
-import Sidebar from '@/components/Sidebar';
+import Sidebar from '@/app/layout/Sidebar';
 import { StudioScope } from '@/contexts/StudioContext';
 import { studiosQueryOptions } from '@/hooks/useStudios';
-import supabase from '@/utils/supabase';
+import supabase from '@/shared/lib/supabase';
 import type { StudioDto } from '@/types';
 
 /** Layout of every screen inside a studio. The studio comes from the URL. */

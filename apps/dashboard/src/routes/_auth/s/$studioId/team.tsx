@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { isEmployeeRole } from '@/utils/studioRole';
+import { isEmployeeRole } from '@/shared/lib/studioRole';
 import TeamView from '@/views/team/TeamView';
 
 export const Route = createFileRoute('/_auth/s/$studioId/team')({

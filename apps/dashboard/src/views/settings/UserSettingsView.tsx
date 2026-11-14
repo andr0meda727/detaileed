@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyRound, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Shield } from 'lucide-react';
-import { setPasswordSchema, SetPasswordValues } from '../../utils/validations';
-import supabase from '../../utils/supabase';
-import GlobalHeader from '../../components/GlobalHeader';
+import { setPasswordSchema, SetPasswordValues } from '@/shared/lib/validations';
+import supabase from '@/shared/lib/supabase';
+import GlobalHeader from '@/shared/ui/GlobalHeader';
 
 function getErrorMessage(error: unknown, fallbackMessage: string): string {
   if (error instanceof Error && error.message) return error.message;

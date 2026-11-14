@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '@detaileed/api-client';
-import { getApiErrorMessage } from '@/utils/errorHandler';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 
 describe('getApiErrorMessage', () => {
   it('joins validation messages', () => {

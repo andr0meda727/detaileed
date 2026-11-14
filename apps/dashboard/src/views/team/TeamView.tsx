@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, User, Phone, Users, Search, Shield, Trash2, Mail, Loader2, RefreshCw } from 'lucide-react';
-import GlobalHeader from '../../components/GlobalHeader';
+import GlobalHeader from '@/shared/ui/GlobalHeader';
 import InviteEmployeeModal from './components/InviteEmployeeModal';
 import { useEmployees, useInviteEmployee, useChangeEmployeeRole, useRemoveEmployee } from '../../hooks/useEmployees';
-import { useToast } from '../../contexts/ToastContext';
+import { useToast } from '@/shared/ui/ToastContext';
 
 import { PREDEFINED_SERVICES, BOOKING_STATUSES } from '../../constants';
 import {
@@ -25,8 +25,8 @@ import CreateClientModal from '../../components/modals/CreateClientModal';
 
 import { EmployeeResponseDto } from '../../types';
 import { useStudio } from '../../contexts/StudioContext';
-import Skeleton from '../../components/ui/Skeleton';
-import { isOwnerRole } from '../../utils/studioRole';
+import Skeleton from '@/shared/ui/Skeleton';
+import { isOwnerRole } from '@/shared/lib/studioRole';
 
 const ROLES = [
   { id: 1, name: 'Właściciel', color: 'text-amber-600 bg-amber-50', badgeColor: 'bg-amber-500' },

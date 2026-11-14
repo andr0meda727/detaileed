@@ -1,5 +1,5 @@
 import { MutationCache, QueryClient } from '@tanstack/react-query';
-import { getApiErrorMessage } from '@/utils/errorHandler';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 
 declare module '@tanstack/react-query' {
   interface Register {
