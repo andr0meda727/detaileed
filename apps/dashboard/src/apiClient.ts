@@ -1,5 +1,6 @@
 import supabase from './utils/supabase';
 import { getSelectedStudioId } from './contexts/StudioContext';
+import { ApiError, type ProblemDetails } from '@detaileed/api-client';
 import { API_ORIGIN } from './shared/api';
 
 const API_BASE = `${API_ORIGIN}/api`;
@@ -24,33 +25,17 @@ async function getHeaders(isJson = false): Promise<HeadersInit> {
   return headers;
 }
 
-export class ApiError extends Error {
-  public status?: number;
-  public data?: any;
-
-  constructor(message: string, status?: number, data?: any) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.data = data;
-  }
-}
+export { ApiError };
 
 async function extractApiError(response: Response): Promise<never> {
-  let errorData;
-  let errorMessage = `API Error ${response.status}`;
+  const text = await response.text().catch(() => '');
+  let data: ProblemDetails | string = text;
   try {
-    const text = await response.text();
-    try {
-      errorData = JSON.parse(text);
-      errorMessage = errorData.message || errorData.title || text;
-    } catch {
-      errorMessage = text;
-    }
+    data = JSON.parse(text) as ProblemDetails;
   } catch {
-    errorMessage = 'Unknown network error';
+    // Not JSON: keep the text body as the message.
   }
-  throw new ApiError(errorMessage, response.status, errorData);
+  throw new ApiError(response.status, data);
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
