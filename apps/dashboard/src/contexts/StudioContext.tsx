@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { StudioDto } from '../types';
+import { activateStudio, forgetActiveStudio, getActiveStudioId } from '../app/activeStudio';
 
 const STORAGE_KEY = 'df_selected_studio';
 
@@ -23,20 +24,20 @@ export const StudioProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   });
 
-  const setSelectedStudio = useCallback((studio: StudioDto | null) => {
-    setSelectedStudioState(studio);
-    if (studio) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(studio));
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-    // Natychmiast wejdź we framework Query i wyczyść wszystko od innej firmy/salonu
-    queryClient.resetQueries();
-  }, [queryClient]);
+  const setSelectedStudio = useCallback(
+    (studio: StudioDto | null) => {
+      setSelectedStudioState(studio);
+      if (studio) activateStudio(studio, queryClient);
+      else forgetActiveStudio();
+      // Natychmiast wejdź we framework Query i wyczyść wszystko od innej firmy/salonu
+      queryClient.resetQueries();
+    },
+    [queryClient],
+  );
 
   const clearSelectedStudio = useCallback(() => {
     setSelectedStudioState(null);
-    localStorage.removeItem(STORAGE_KEY);
+    forgetActiveStudio();
     queryClient.resetQueries();
   }, [queryClient]);
 
@@ -53,14 +54,7 @@ export function useStudio(): StudioContextValue {
   return ctx;
 }
 
-/** Odczytuje studioId z localStorage bez hooków — do użycia w apiClient.ts */
+/** Studio the API calls work in (see app/activeStudio.ts). */
 export function getSelectedStudioId(): string | null {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved) return null;
-    const studio = JSON.parse(saved) as StudioDto & { id?: string };
-    return studio.studioId || studio.id || null;
-  } catch {
-    return null;
-  }
+  return getActiveStudioId();
 }
