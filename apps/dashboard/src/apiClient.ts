@@ -1,7 +1,8 @@
 import supabase from './utils/supabase';
 import { getSelectedStudioId } from './contexts/StudioContext';
+import { API_ORIGIN } from './shared/api';
 
-const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api.detaileed.com/api' : '/api');
+const API_BASE = `${API_ORIGIN}/api`;
 
 async function getHeaders(isJson = false): Promise<HeadersInit> {
   const {
