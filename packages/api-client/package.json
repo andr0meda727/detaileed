@@ -7,14 +7,20 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "generate": "orval",
     "test": "vitest run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@detaileed/config": "workspace:*",
+    "@tanstack/react-query": "^5.106.1",
     "eslint": "^9.39.5",
+    "orval": "^8.48.0",
     "typescript": "~5.8.2",
     "vitest": "^4.1.4"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "^5.90.0"
   }
 }
