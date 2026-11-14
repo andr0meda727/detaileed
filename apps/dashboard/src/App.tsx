@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { User } from '@supabase/supabase-js';
 
 import Sidebar from './components/Sidebar';
@@ -19,9 +19,11 @@ import TeamView from './views/team/TeamView';
 import { ViewType, StudioDto } from './types';
 import supabase from './utils/supabase';
 import { StudioProvider, useStudio } from './contexts/StudioContext';
-import { ToastProvider } from './contexts/ToastContext';
+import { ToastProvider, useToast } from './contexts/ToastContext';
+import { createQueryClient } from './shared/queryClient';
 
 const AppInner: React.FC = () => {
+  const queryClient = useQueryClient();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -208,23 +210,20 @@ const AppInner: React.FC = () => {
   );
 };
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      staleTime: 30_000,
-    },
-  },
-});
+const QueryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { addToast } = useToast();
+  const [queryClient] = useState(() => createQueryClient((message) => addToast(message, 'error')));
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+};
 
 const App: React.FC = () => (
-  <QueryClientProvider client={queryClient}>
-    <ToastProvider>
+  <ToastProvider>
+    <QueryProvider>
       <StudioProvider>
         <AppInner />
       </StudioProvider>
-    </ToastProvider>
-  </QueryClientProvider>
+    </QueryProvider>
+  </ToastProvider>
 );
 
 export default App;

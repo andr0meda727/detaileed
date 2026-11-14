@@ -15,8 +15,8 @@ export function useCategories() {
 export function useCreateCategory() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (dto: CategoryCreateDto) =>
-      apiPost<CategoryResponseDto>('/inventory-categories', dto),
+    meta: { skipGlobalError: true },
+    mutationFn: (dto: CategoryCreateDto) => apiPost<CategoryResponseDto>('/inventory-categories', dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
 }
@@ -24,6 +24,7 @@ export function useCreateCategory() {
 export function useUpdateCategory() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: ({ id, dto }: { id: string; dto: CategoryCreateDto }) =>
       apiPut<CategoryResponseDto>(`/inventory-categories/${id}`, dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
@@ -33,6 +34,7 @@ export function useUpdateCategory() {
 export function useDeleteCategory() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: (id: string) => apiDelete(`/inventory-categories/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });

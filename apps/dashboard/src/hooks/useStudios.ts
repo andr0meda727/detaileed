@@ -16,6 +16,7 @@ export function useStudios() {
 export function useCreateStudio() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: (dto: CreateStudioDto) => createStudio(dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });

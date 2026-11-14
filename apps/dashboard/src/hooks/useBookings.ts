@@ -13,11 +13,7 @@ const QUERY_KEY = 'bookings';
 export function useBookings(filters?: BookingFilters) {
   return useQuery({
     queryKey: [QUERY_KEY, filters],
-    queryFn: () =>
-      apiGet<BookingResponseDto[]>(
-        '/Bookings',
-        filters as Record<string, string | boolean | undefined>,
-      ),
+    queryFn: () => apiGet<BookingResponseDto[]>('/Bookings', filters as Record<string, string | boolean | undefined>),
     staleTime: 30_000,
   });
 }
@@ -25,6 +21,7 @@ export function useBookings(filters?: BookingFilters) {
 export function useCreateBooking() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: (dto: BookingCreateDto) => apiPost<BookingResponseDto>('/Bookings', dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
@@ -33,6 +30,7 @@ export function useCreateBooking() {
 export function useDeleteBooking() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: (id: string) => apiDelete(`/Bookings/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });

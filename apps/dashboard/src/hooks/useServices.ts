@@ -15,6 +15,7 @@ export function useServices() {
 export function useCreateService() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: (dto: CreateServiceDto) => apiPost<ServiceResponseDto>('/Service', dto),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
@@ -23,6 +24,7 @@ export function useCreateService() {
 export function useDeleteService() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: (id: string) => apiDelete(`/Service/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });

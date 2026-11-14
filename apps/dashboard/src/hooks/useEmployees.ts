@@ -15,6 +15,7 @@ export function useEmployees() {
 export function useInviteEmployee() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: ({ email, roleId }: { email: string; roleId: number }) => inviteEmployee({ email, roleId }),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
@@ -23,6 +24,7 @@ export function useInviteEmployee() {
 export function useChangeEmployeeRole() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: ({ userId, roleId }: { userId: string; roleId: number }) => changeEmployeeRole({ userId, roleId }),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
@@ -31,6 +33,7 @@ export function useChangeEmployeeRole() {
 export function useRemoveEmployee() {
   const qc = useQueryClient();
   return useMutation({
+    meta: { skipGlobalError: true },
     mutationFn: (userId: string) => removeEmployee(userId),
     onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
   });
