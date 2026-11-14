@@ -20,7 +20,7 @@ import {
   Edit2,
   Check,
 } from 'lucide-react';
-import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
+import { CreateBookingModal } from '@/features/bookings';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 
 import { EmployeeResponseDto } from '../../types';

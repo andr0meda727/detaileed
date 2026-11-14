@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
+import { buildBookingCreateDto } from '@/features/bookings';
 import { toggleIdSelection } from '@/shared/lib/selection';
 
 describe('booking flow smoke', () => {

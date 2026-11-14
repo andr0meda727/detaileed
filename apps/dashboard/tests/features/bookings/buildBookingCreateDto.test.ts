@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
-import { BOOKING_STATUSES } from '@/features/bookings/model/statuses';
+import { buildBookingCreateDto } from '@/features/bookings';
+import { BOOKING_STATUSES } from '@/features/bookings';
 
 describe('buildBookingCreateDto', () => {
   it('builds booking create payload from form values', () => {

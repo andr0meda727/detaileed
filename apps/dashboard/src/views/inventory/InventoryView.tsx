@@ -16,7 +16,7 @@ import Skeleton from '@/shared/ui/Skeleton';
 import EmptyState from '@/shared/ui/EmptyState';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { Filter, ChevronDown } from 'lucide-react';
-import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
+import { CreateBookingModal } from '@/features/bookings';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 
 const DEFAULT_UNITS = ['ml', 'L', 'szt', 'm²', 'kg'];

@@ -72,7 +72,7 @@ import Modal from '@/shared/ui/Modal';
 import DashboardStats from './components/DashboardStats';
 import RevenueChart from './components/RevenueChart';
 import CreateClientModal from '../../components/modals/CreateClientModal';
-import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
+import { CreateBookingModal } from '@/features/bookings';
 import { useToast } from '@/shared/ui/ToastContext';
 import { useStudio } from '@/features/studios';
 import Skeleton from '@/shared/ui/Skeleton';
