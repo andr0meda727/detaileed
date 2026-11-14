@@ -1,6 +1,6 @@
-
 import React from 'react';
 import { Plus, UserPlus, Menu } from 'lucide-react';
+import { useOpenMobileMenu } from '@/app/mobileMenu';
 
 interface GlobalHeaderProps {
   title: string;
@@ -11,19 +11,23 @@ interface GlobalHeaderProps {
 }
 
 const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooking, onAddClient, onOpenMenu }) => {
+  const openMenuFromLayout = useOpenMobileMenu();
+  const openMenu = onOpenMenu ?? openMenuFromLayout;
   return (
     <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 lg:mb-12 animate-slide-up">
       <div className="space-y-2">
         <div className="flex items-center gap-4">
-          {onOpenMenu && (
+          {openMenu && (
             <button
-              onClick={onOpenMenu}
+              onClick={openMenu}
               className="lg:hidden p-2.5 bg-green-deep text-cream-warm rounded-xl shadow-lg active:scale-95 transition-all"
             >
               <Menu size={20} strokeWidth={2.5} />
             </button>
           )}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-green-deep tracking-tight leading-none">{title}</h1>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-green-deep tracking-tight leading-none">
+            {title}
+          </h1>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-green-deep/8 text-green-deep rounded-lg text-[9px] font-bold uppercase tracking-[0.15em] border border-green-deep/10 shrink-0">
