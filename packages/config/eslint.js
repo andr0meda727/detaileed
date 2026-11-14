@@ -24,17 +24,26 @@ export const base = tseslint.config(
 );
 
 /** Base rules + React (hooks, fast refresh) for browser apps and UI packages. */
-export const react = tseslint.config(...base, {
-  files: ['**/*.{ts,tsx}'],
-  languageOptions: { globals: globals.browser },
-  plugins: {
-    'react-hooks': reactHooks,
-    'react-refresh': reactRefresh,
+export const react = tseslint.config(
+  ...base,
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: { globals: globals.browser },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      // Existing effects get rewritten in the router/feature migration; make this an error afterwards.
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+    },
   },
-  rules: {
-    ...reactHooks.configs.recommended.rules,
-    // Existing effects get rewritten in the router/feature migration; make this an error afterwards.
-    'react-hooks/set-state-in-effect': 'warn',
-    'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+  {
+    // TanStack Router route files export `Route` and keep their components private; the router
+    // plugin splits those components into their own modules, so fast refresh still works.
+    files: ['**/routes/**/*.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
   },
-});
+);
