@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { Wrench, Layers, Users, Plus, Trash2, X, Save, Loader2, Mail, CheckCircle, Edit2 } from 'lucide-react';
+import { Wrench, Layers, Users, Plus, Trash2, Loader2, Mail, CheckCircle, Edit2 } from 'lucide-react';
 import { CategoryCreateDto, InviteEmployeeDto } from '../../types';
-import { useServices, useCreateService, useDeleteService } from '@/features/services';
+import { ServicesSettings } from '@/features/services';
+import NameForm from '@/shared/ui/NameForm';
+import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '../../hooks/useCategories';
 import { apiPost } from '../../apiClient';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
@@ -15,150 +17,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
-const nameSchema = z.object({
-  name: z.string().min(1, 'Nazwa jest wymagana'),
-});
-
 const inviteSchema = z.object({
   email: z.string().min(1, 'Email jest wymagany').email('Niepoprawny format email'),
 });
 
-type NameFormValues = z.infer<typeof nameSchema>;
 type InviteFormValues = z.infer<typeof inviteSchema>;
-
-// ─── Card grid shared styles ─────────────────────────────────────────────────
-const CARD = `relative group bg-white border-2 border-slate-100 rounded-3xl p-6 flex flex-col gap-3
-  hover:border-green-deep/15 hover:shadow-xl hover:shadow-green-deep/5 transition-all duration-200`;
-
-const ADD_CARD = `border-2 border-dashed border-slate-200 rounded-3xl p-6 flex flex-col items-center justify-center
-  gap-2 text-slate-300 hover:border-green-deep/30 hover:text-green-deep/40 transition-all duration-200 min-h-[120px]`;
-
-// ─── Inline form for simple name input ───────────────────────────────────────
-const NameForm: React.FC<{
-  label: string;
-  placeholder: string;
-  onSave: (name: string) => Promise<void>;
-  saving: boolean;
-}> = ({ label, placeholder, onSave, saving }) => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<NameFormValues>({
-    resolver: zodResolver(nameSchema),
-  });
-
-  const onSubmit = async (data: NameFormValues) => {
-    await onSave(data.name.trim());
-    reset();
-  };
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <div className="space-y-2">
-        <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-1">{label}</label>
-        <input
-          type="text"
-          {...register('name')}
-          autoFocus
-          placeholder={placeholder}
-          className={`w-full px-5 py-4 bg-slate-50 rounded-2xl outline-none font-bold text-sm border-2 ${errors.name ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`}
-        />
-        {errors.name && (
-          <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-1 mt-1">
-            {errors.name.message}
-          </p>
-        )}
-      </div>
-      <button
-        type="submit"
-        disabled={saving}
-        className="w-full py-4 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-60"
-      >
-        {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Zapisz
-      </button>
-    </form>
-  );
-};
-
-// ─── Tab: Services ────────────────────────────────────────────────────────────
-const ServicesTab: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({ addToast }) => {
-  const { data: items = [], isLoading } = useServices();
-  const createService = useCreateService();
-  const deleteService = useDeleteService();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleAdd = async (name: string) => {
-    try {
-      await createService.mutateAsync({ name });
-      addToast('Usługa dodana', 'success');
-      setIsModalOpen(false);
-    } catch {
-      addToast('Nie udało się dodać usługi', 'error');
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteService.mutateAsync(id);
-      addToast('Usługa usunięta', 'success');
-    } catch {
-      addToast('Nie udało się usunąć usługi', 'error');
-    }
-  };
-
-  if (isLoading) return <LoadingSpinner />;
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-400 font-medium">{items.length} usług</p>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-green-deep text-cream-warm px-5 py-3 rounded-2xl font-semibold text-[11px] uppercase tracking-widest shadow-md active:scale-95 transition-all"
-        >
-          <Plus size={16} /> Dodaj usługę
-        </button>
-      </div>
-
-      {items.length === 0 ? (
-        <EmptyState message="Brak usług. Dodaj pierwszą!" icon={Wrench} />
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {items.map((item) => (
-            <div key={item.id} className={CARD}>
-              <div className="w-10 h-10 bg-green-deep/5 rounded-2xl flex items-center justify-center mb-1">
-                <Wrench size={18} className="text-green-deep/40" />
-              </div>
-              <p className="font-bold text-green-deep text-sm leading-tight">{item.name}</p>
-              <button
-                onClick={() => handleDelete(item.id)}
-                disabled={deleteService.isPending}
-                className="absolute top-4 right-4 p-1.5 rounded-xl text-slate-200 hover:bg-red-50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all active:scale-90"
-              >
-                {deleteService.isPending ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-              </button>
-            </div>
-          ))}
-          <button onClick={() => setIsModalOpen(true)} className={ADD_CARD}>
-            <Plus size={22} />
-            <span className="text-[10px] font-semibold uppercase tracking-widest">Dodaj</span>
-          </button>
-        </div>
-      )}
-
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Nowa Usługa" size="sm">
-        <NameForm
-          label="Nazwa usługi"
-          placeholder="np. Korekta lakieru..."
-          onSave={handleAdd}
-          saving={createService.isPending}
-        />
-      </Modal>
-    </div>
-  );
-};
 
 // ─── Tab: Categories ─────────────────────────────────────────────────────────
 const CategoriesTab: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({ addToast }) => {
@@ -408,7 +271,7 @@ const StudioSettingsView: React.FC = () => {
 
       {/* Tab content */}
       <div>
-        {activeTab === 'services' && <ServicesTab addToast={addToast} />}
+        {activeTab === 'services' && <ServicesSettings addToast={addToast} />}
         {activeTab === 'categories' && <CategoriesTab addToast={addToast} />}
         {activeTab === 'employees' && <EmployeesTab addToast={addToast} />}
       </div>
