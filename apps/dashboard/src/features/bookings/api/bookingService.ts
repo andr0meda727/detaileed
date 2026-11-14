@@ -1,5 +1,5 @@
-import { apiGet, apiPost, apiPut, apiDelete } from '../apiClient';
-import { BookingResponseDto, BookingCreateDto } from '../types';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/apiClient';
+import { BookingResponseDto, BookingCreateDto } from '@/types';
 
 export interface BookingFilters {
   isCompleted?: boolean;

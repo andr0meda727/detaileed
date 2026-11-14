@@ -17,7 +17,7 @@ import GlobalHeader from '@/shared/ui/GlobalHeader';
 import { generateBookingsReport } from '../../apiClient';
 import { useToast } from '@/shared/ui/ToastContext';
 import Modal from '@/shared/ui/Modal';
-import CreateBookingModal from '../../components/modals/CreateBookingModal';
+import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 
 const routeApi = getRouteApi('/_auth/s/$studioId/reports');

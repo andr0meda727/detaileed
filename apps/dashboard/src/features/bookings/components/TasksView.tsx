@@ -23,15 +23,15 @@ import {
   Calendar,
   MoreHorizontal,
 } from 'lucide-react';
-import { BookingResponseDto, BookingCreateDto } from '../../types';
-import { BOOKING_STATUSES } from '../../constants';
-import { completeBooking, cancelBooking, updateBooking } from '../../services/bookingService';
-import { useBookings } from '../../hooks/useBookings';
-import { useClients } from '../../hooks/useClients';
-import { useServices } from '../../hooks/useServices';
+import { BookingResponseDto, BookingCreateDto } from '@/types';
+import { BOOKING_STATUSES } from '@/constants';
+import { completeBooking, cancelBooking, updateBooking } from '@/features/bookings/api/bookingService';
+import { useBookings } from '@/features/bookings/api/bookings';
+import { useClients } from '@/hooks/useClients';
+import { useServices } from '@/hooks/useServices';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import CreateBookingModal from '../../components/modals/CreateBookingModal';
-import CreateClientModal from '../../components/modals/CreateClientModal';
+import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
+import CreateClientModal from '@/components/modals/CreateClientModal';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
 import { useToast } from '@/shared/ui/ToastContext';

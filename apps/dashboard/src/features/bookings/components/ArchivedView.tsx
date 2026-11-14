@@ -1,7 +1,7 @@
 ﻿import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Search, History, Car as CarIcon, User, Clock, CheckCircle2, XCircle, Download } from 'lucide-react';
-import { BookingResponseDto } from '../../types';
-import { useBookings } from '../../hooks/useBookings';
+import { BookingResponseDto } from '@/types';
+import { useBookings } from '@/features/bookings/api/bookings';
 import { useToast } from '@/shared/ui/ToastContext';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';

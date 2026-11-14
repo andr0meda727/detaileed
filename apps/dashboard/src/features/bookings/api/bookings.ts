@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiDelete } from '../apiClient';
-import { BookingResponseDto, BookingCreateDto } from '../types';
+import { apiGet, apiPost, apiDelete } from '@/apiClient';
+import { BookingResponseDto, BookingCreateDto } from '@/types';
 
 export interface BookingFilters {
   isCompleted?: boolean;

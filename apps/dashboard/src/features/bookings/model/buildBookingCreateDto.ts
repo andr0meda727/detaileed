@@ -1,5 +1,5 @@
-import { BookingCreateDto } from '../../../types';
-import { BOOKING_STATUSES } from '../../../constants';
+import { BookingCreateDto } from '@/types';
+import { BOOKING_STATUSES } from '@/constants';
 
 interface BuildBookingCreateDtoArgs {
   vehicleId: string;

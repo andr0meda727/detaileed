@@ -5,16 +5,16 @@ import { Save, Search, Car as CarIcon, Wrench, Check, Plus, Calendar, UserPlus }
 import Modal from '@/shared/ui/Modal';
 import FormInput from '@/shared/ui/FormInput';
 import { bookingFormSchema, BookingFormValues, clientFormSchema, vehicleFormSchema } from '@/shared/lib/validations';
-import { useClients } from '../../hooks/useClients';
-import { useServices } from '../../hooks/useServices';
-import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
-import { createBooking } from '../../services/bookingService';
-import { createService } from '../../services/serviceService';
-import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
+import { useClients } from '@/hooks/useClients';
+import { useServices } from '@/hooks/useServices';
+import { useClientVehicleSearch } from '@/hooks/useClientVehicleSearch';
+import { createBooking } from '@/features/bookings/api/bookingService';
+import { createService } from '@/services/serviceService';
+import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
 import { useToast } from '@/shared/ui/ToastContext';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import { ClientResponseDto, VehicleInfoDto } from '../../types';
+import { ClientResponseDto, VehicleInfoDto } from '@/types';
 
 interface CreateBookingModalProps {
   isOpen: boolean;
@@ -92,7 +92,7 @@ export default function CreateBookingModal({ isOpen, onClose, onSuccess }: Creat
     }
 
     try {
-      const { createClient } = await import('../../services/clientService');
+      const { createClient } = await import('@/services/clientService');
       const createdClient = await createClient({
         name: newClientName,
         phone: newClientPhone,

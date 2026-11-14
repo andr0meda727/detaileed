@@ -24,7 +24,7 @@ import Modal from '@/shared/ui/Modal';
 import Skeleton from '@/shared/ui/Skeleton';
 import LoadingSpinner from '@/shared/ui/LoadingSpinner';
 import CreateClientModal from '../../components/modals/CreateClientModal';
-import CreateBookingModal from '../../components/modals/CreateBookingModal';
+import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
 import VehicleModal from '../../components/modals/VehicleModal';
 import { BookingResponseDto, ClientResponseDto, VehicleInfoDto, CreateClientDto, BookingCreateDto } from '../../types';
 import {
@@ -38,9 +38,9 @@ import {
 import { useServices } from '../../hooks/useServices';
 import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
 import { createService } from '../../services/serviceService';
-import { createBooking } from '../../services/bookingService';
+import { createBooking } from '@/features/bookings/api/bookingService';
 import { createVehicle } from '../../services/vehicleService';
-import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
+import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
 import { useToast } from '@/shared/ui/ToastContext';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';

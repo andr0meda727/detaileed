@@ -56,14 +56,14 @@ import {
   updateBooking,
   completeBooking,
   cancelBooking,
-} from '../../services/bookingService';
+} from '@/features/bookings/api/bookingService';
 import { getClients, createClient } from '../../services/clientService';
 import { createVehicle } from '../../services/vehicleService';
 import { getInventory } from '../../services/inventoryService';
 import { getServices, createService } from '../../services/serviceService';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import { buildBookingCreateDto } from '../../features/bookings/utils/buildBookingCreateDto';
-import { useBookings } from '../../hooks/useBookings';
+import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
+import { useBookings } from '@/features/bookings/api/bookings';
 import { useInventory } from '../../hooks/useInventory';
 import { useClients } from '../../hooks/useClients';
 import { useServices } from '../../hooks/useServices';
@@ -74,7 +74,7 @@ import Modal from '@/shared/ui/Modal';
 import DashboardStats from './components/DashboardStats';
 import RevenueChart from './components/RevenueChart';
 import CreateClientModal from '../../components/modals/CreateClientModal';
-import CreateBookingModal from '../../components/modals/CreateBookingModal';
+import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
 import { useToast } from '@/shared/ui/ToastContext';
 import { useStudio } from '@/features/studios';
 import Skeleton from '@/shared/ui/Skeleton';

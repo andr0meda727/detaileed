@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildBookingCreateDto } from '@/features/bookings/utils/buildBookingCreateDto';
+import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
 import { BOOKING_STATUSES } from '@/constants';
 
 describe('buildBookingCreateDto', () => {
