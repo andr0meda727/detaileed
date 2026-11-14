@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ClientResponseDto, VehicleInfoDto } from '../types';
+import { ClientResponseDto, VehicleInfoDto } from '@/types';
 
 export interface ClientVehicleMatch {
   client: ClientResponseDto;

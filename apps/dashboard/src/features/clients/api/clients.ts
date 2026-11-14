@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiPut, apiDelete } from '../apiClient';
-import { ClientResponseDto, CreateClientDto, CreateVehicleDto, VehicleInfoDto } from '../types';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/apiClient';
+import { ClientResponseDto, CreateClientDto, CreateVehicleDto, VehicleInfoDto } from '@/types';
 
 const QUERY_KEY = 'clients';
 

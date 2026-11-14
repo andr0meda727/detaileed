@@ -5,9 +5,9 @@ import { Save, Search, Car as CarIcon, Wrench, Check, Plus, Calendar, UserPlus }
 import Modal from '@/shared/ui/Modal';
 
 import { bookingFormSchema, BookingFormValues, clientFormSchema, vehicleFormSchema } from '@/shared/lib/validations';
-import { useClients } from '@/hooks/useClients';
+import { useClients } from '@/features/clients/api/clients';
 import { useServices } from '@/hooks/useServices';
-import { useClientVehicleSearch } from '@/hooks/useClientVehicleSearch';
+import { useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
 import { useCreateBooking } from '@/features/bookings/api/bookings';
 import { createService } from '@/services/serviceService';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
@@ -104,7 +104,7 @@ export default function CreateBookingModal({ isOpen, onClose, onSuccess }: Creat
     }
 
     try {
-      const { createClient } = await import('@/services/clientService');
+      const { createClient } = await import('@/features/clients/api/clientService');
       const createdClient = await createClient({
         name: newClientName,
         phone: newClientPhone,

@@ -6,7 +6,7 @@ import Modal from '@/shared/ui/Modal';
 import FormInput from '@/shared/ui/FormInput';
 import { clientFormSchema, ClientFormValues } from '@/shared/lib/validations';
 import { useToast } from '@/shared/ui/ToastContext';
-import { useCreateClient, useUpdateClient } from '../../hooks/useClients';
+import { useCreateClient, useUpdateClient } from '@/features/clients/api/clients';
 
 interface CreateClientModalProps {
   isOpen: boolean;

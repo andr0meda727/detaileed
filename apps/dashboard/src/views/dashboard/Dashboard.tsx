@@ -47,8 +47,8 @@ import {
   CreateClientDto,
   ServiceResponseDto,
 } from '../../types';
-import { getClients, createClient } from '../../services/clientService';
-import { createVehicle } from '../../services/vehicleService';
+import { getClients, createClient } from '@/features/clients/api/clientService';
+import { createVehicle } from '@/features/clients/api/vehicleService';
 import { getInventory } from '../../services/inventoryService';
 import { getServices, createService } from '../../services/serviceService';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
@@ -63,15 +63,15 @@ import {
 } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
 import { useInventory } from '../../hooks/useInventory';
-import { useClients } from '../../hooks/useClients';
+import { useClients } from '@/features/clients/api/clients';
 import { useServices } from '../../hooks/useServices';
-import { useClientSearch, useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
+import { useClientSearch, useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
 import DashboardStats from './components/DashboardStats';
 import RevenueChart from './components/RevenueChart';
-import CreateClientModal from '../../components/modals/CreateClientModal';
+import CreateClientModal from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
 import { useToast } from '@/shared/ui/ToastContext';
 import { useStudio } from '@/features/studios';

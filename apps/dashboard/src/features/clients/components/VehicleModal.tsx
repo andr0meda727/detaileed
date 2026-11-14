@@ -6,8 +6,8 @@ import Modal from '@/shared/ui/Modal';
 import FormInput from '@/shared/ui/FormInput';
 import { vehicleFormSchema, VehicleFormValues } from '@/shared/lib/validations';
 import { useToast } from '@/shared/ui/ToastContext';
-import { useCreateVehicle, useUpdateVehicle } from '../../hooks/useClients';
-import { VehicleInfoDto } from '../../types';
+import { useCreateVehicle, useUpdateVehicle } from '@/features/clients/api/clients';
+import { VehicleInfoDto } from '@/types';
 
 interface VehicleModalProps {
   isOpen: boolean;

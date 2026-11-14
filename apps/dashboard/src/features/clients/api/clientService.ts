@@ -1,5 +1,5 @@
-import { apiGet, apiPost, apiPut, apiDelete } from '../apiClient';
-import { ClientResponseDto, CreateClientDto } from '../types';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/apiClient';
+import { ClientResponseDto, CreateClientDto } from '@/types';
 
 export async function getClients(search?: string): Promise<ClientResponseDto[]> {
   return apiGet<ClientResponseDto[]>('/Clients', search ? { search } : undefined);

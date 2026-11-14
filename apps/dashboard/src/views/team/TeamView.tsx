@@ -21,7 +21,7 @@ import {
   Check,
 } from 'lucide-react';
 import { CreateBookingModal } from '@/features/bookings';
-import CreateClientModal from '../../components/modals/CreateClientModal';
+import CreateClientModal from '@/features/clients/components/CreateClientModal';
 
 import { EmployeeResponseDto } from '../../types';
 import { useStudio } from '@/features/studios';

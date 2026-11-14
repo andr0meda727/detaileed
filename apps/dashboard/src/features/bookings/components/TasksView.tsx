@@ -10,7 +10,7 @@ import SearchTab from '@/features/bookings/components/SearchTab';
 import CalendarTab from '@/features/bookings/components/CalendarTab';
 import BookingDetailsModal from '@/features/bookings/components/BookingDetailsModal';
 import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
-import CreateClientModal from '@/components/modals/CreateClientModal';
+import CreateClientModal from '@/features/clients/components/CreateClientModal';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 
 const TasksView: React.FC = () => {

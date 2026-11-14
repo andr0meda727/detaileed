@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PREDEFINED_SERVICES } from '../../constants';
+import { PREDEFINED_SERVICES } from '@/constants';
 import {
   X as XIcon,
   Phone,
@@ -23,10 +23,10 @@ import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
 import Skeleton from '@/shared/ui/Skeleton';
 import LoadingSpinner from '@/shared/ui/LoadingSpinner';
-import CreateClientModal from '../../components/modals/CreateClientModal';
+import CreateClientModal from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
-import VehicleModal from '../../components/modals/VehicleModal';
-import { ClientResponseDto, VehicleInfoDto, CreateClientDto } from '../../types';
+import VehicleModal from '@/features/clients/components/VehicleModal';
+import { ClientResponseDto, VehicleInfoDto, CreateClientDto } from '@/types';
 import {
   useClients,
   useCreateClient,
@@ -34,11 +34,11 @@ import {
   useCreateVehicle,
   useUpdateVehicle,
   useDeleteVehicle,
-} from '../../hooks/useClients';
-import { useServices } from '../../hooks/useServices';
-import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
-import { createService } from '../../services/serviceService';
-import { createVehicle } from '../../services/vehicleService';
+} from '@/features/clients/api/clients';
+import { useServices } from '@/hooks/useServices';
+import { useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
+import { createService } from '@/services/serviceService';
+import { createVehicle } from '@/features/clients/api/vehicleService';
 import { BOOKING_STATUSES, buildBookingCreateDto, type Booking, type BookingStatus } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
 import { useToast } from '@/shared/ui/ToastContext';

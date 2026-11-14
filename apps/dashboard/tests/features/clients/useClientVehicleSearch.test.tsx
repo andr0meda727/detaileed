@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useClientSearch, useClientVehicleSearch } from '@/hooks/useClientVehicleSearch';
+import { useClientSearch, useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
 import { ClientResponseDto } from '@/types';
 
 const clientsFixture: ClientResponseDto[] = [
