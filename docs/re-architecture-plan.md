@@ -13,7 +13,8 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 0: hygiene              | done (merged to `main`)                                                           |
 | 1: monorepo             | done (merged to `main`)                                                           |
 | 2: generated API client | done (merged to `main`); views move to the generated hooks per feature in Phase 4 |
-| 3–7                     | not started                                                                       |
+| 3: router               | done (merged to `main`)                                                           |
+| 4–7                     | not started                                                                       |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
@@ -65,6 +66,8 @@ Use TanStack Router, file-based (`@tanstack/react-router`, `@tanstack/router-plu
 7. `test: render smoke test through memory router`
 
 Verify each screen by URL, refresh, back/forward, the employee `/team` redirect, the invite link and password recovery; nginx fallback in the Docker image.
+
+**As built:** the screen routes landed in one commit together with the removal of the view switch, because the old sidebar and the new routes could not coexist. Only the inventory category (`?category`) and the report range (`?from&to`) are in the URL; search boxes and the tasks tab still use component state. `/studios` renders without the sidebar.
 
 ## Phase 4: feature slices (one branch per feature, e.g. `refactor/phase-4-bookings`)
 

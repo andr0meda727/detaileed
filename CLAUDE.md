@@ -61,6 +61,8 @@ Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboa
 - **Modals:** use `components/ui/Modal.tsx`.
 - **Roles:** use the helpers in `utils/studioRole.ts` and the `StudioRole` type.
 - **Forms:** zod schemas live in `utils/validations.ts`. Use react-hook-form + `zodResolver`.
+- **Routing:** TanStack Router, file-based, in `src/routes` (`_auth` = signed-in layout, `_auth/s/$studioId/*` = screens inside a studio). Route files stay thin: guards in `beforeLoad`, URL state in `validateSearch` (zod), the screen component from `views/`/`features/`. Navigate with `<Link>`/`useNavigate`, never with component state. The vite plugin regenerates `src/routeTree.gen.ts`; commit it (CI fails if it's stale).
+- **Current studio:** `useStudio().selectedStudio` (from the URL, set by the `/s/$studioId` layout). API calls get it from `app/activeStudio.ts`; don't store the studio anywhere else.
 - Use the `@/` alias (→ `src/`) for imports in tests and new code.
 - Keep components under ~250 lines; split big views into smaller components.
 - Prefer deriving state over `useEffect` + `setState` (the `react-hooks/set-state-in-effect` rule is a warning for now and will become an error).
@@ -73,7 +75,7 @@ Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboa
 0. Hygiene (env-based API URL, Tailwind build, ESLint/Prettier, strict TS): done
 1. pnpm + Turborepo monorepo (`apps/dashboard`, `packages/config`, Docker + CI): done
 2. API client generated from the OpenAPI spec (`packages/api-client`, Orval): done
-3. TanStack Router (file-based) replaces the `useState<ViewType>` switch in `App.tsx`; the studio comes from the URL (`/s/$studioId/...`)
+3. TanStack Router (file-based); the studio comes from the URL (`/s/$studioId/...`): done
 4. Feature slices: `features/<name>/{api,components,hooks,model,index.ts}`. Imports flow `app → routes → features → shared`, and other code may import a feature only through its `index.ts`
 5. Shared design system in `packages/ui` (+ Tailwind v4)
 6. Public marketplace (`apps/web`, Next.js SSR/ISR)
