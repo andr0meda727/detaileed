@@ -8,14 +8,14 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 
 ## Status
 
-| Phase                   | State                                                                                                               |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| 0: hygiene              | done (merged to `main`)                                                                                             |
-| 1: monorepo             | done (merged to `main`)                                                                                             |
-| 2: generated API client | done (merged to `main`); views move to the generated hooks per feature in Phase 4                                   |
-| 3: router               | done (merged to `main`)                                                                                             |
-| 4: feature slices       | in progress: `shared`, `studios`, `auth`, `bookings`, `clients` (incl. vehicles), `services` done; next `inventory` |
-| 5–7                     | not started                                                                                                         |
+| Phase                   | State                                                                                                                       |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 0: hygiene              | done (merged to `main`)                                                                                                     |
+| 1: monorepo             | done (merged to `main`)                                                                                                     |
+| 2: generated API client | done (merged to `main`); views move to the generated hooks per feature in Phase 4                                           |
+| 3: router               | done (merged to `main`)                                                                                                     |
+| 4: feature slices       | in progress: `shared`, `studios`, `auth`, `bookings`, `clients` (incl. vehicles), `services`, `inventory` done; next `team` |
+| 5–7                     | not started                                                                                                                 |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
@@ -83,10 +83,12 @@ Order: `shared` (utils, ToastContext, delete the deprecated `components/ui/useTo
 
 **Progress notes (Phase 4):**
 
-- Layout so far: `src/app` (router, auth guards, api setup, layout/Sidebar), `src/routes`, `src/features/{auth,studios,bookings,clients,services}`, `src/shared/{lib,ui,hooks}`. Legacy dirs still in use: `views/` (dashboard, inventory, reports, settings/StudioSettingsView with the categories and employees tabs, team), `hooks/`, `services/`, `types.ts`, `apiClient.ts`.
+- Layout so far: `src/app` (router, auth guards, api setup, layout/Sidebar), `src/routes`, `src/features/{auth,studios,bookings,clients,services,inventory}`, `src/shared/{lib,ui,hooks}`. Legacy dirs still in use: `views/` (dashboard, reports, settings/StudioSettingsView with the employees tab, team), `hooks/useEmployees.ts`, `services/employeeService.ts`, `types.ts`, `apiClient.ts`.
 - Paged lists: `shared/lib/paging.ts#fetchAllPages` loads every page for screens that compute over the whole list (bookings today). Replace with server-side filtering/paging per screen later.
 - Money from the API is złoty (`formatPln` in `shared/lib/money.ts`); the old `/ 100` conversions were removed for bookings. Check the same for other features as they move.
 - Creating/editing a studio still uses the legacy client: those endpoints are not in the API spec yet.
+- `InventoryItemModal` is ~295 lines (one form); split the category picker out if it grows.
+- Inventory movements, recipes, consumptions and the forecast exist in the API but have no UI yet.
 - `CreateBookingModal` (bookings, ~560 lines) still needs splitting: client/vehicle picking, inline new client, services and price.
 - The API spec types `VehicleSize` as an integer although the API sends enum names ("Medium"); fix on the backend (enum schema) before the UI uses sizes.
 - Booking mutations skip the global error toast (`meta.skipGlobalError`) because the screens toast themselves.
