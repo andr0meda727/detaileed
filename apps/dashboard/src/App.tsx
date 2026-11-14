@@ -31,7 +31,9 @@ const AppInner: React.FC = () => {
   // Pobieramy synchronicznie przed ucięciem go przez auth object
   const [isSettingPassword, setIsSettingPassword] = useState(() => {
     const hash = window.location.hash;
-    return Boolean(hash && (hash.includes('type=invite') || hash.includes('type=recovery') || hash.includes('type=signup')));
+    return Boolean(
+      hash && (hash.includes('type=invite') || hash.includes('type=recovery') || hash.includes('type=signup')),
+    );
   });
 
   const [invitationToken, setInvitationToken] = useState<string | null>(null);
@@ -54,7 +56,9 @@ const AppInner: React.FC = () => {
       setIsLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLoggedIn(!!session);
       setCurrentUser(session?.user || null);
       if (event === 'PASSWORD_RECOVERY') setIsSettingPassword(true);
@@ -63,7 +67,9 @@ const AppInner: React.FC = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => { setIsSidebarOpen(false); }, [activeView]);
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [activeView]);
 
   const handleLogin = (_email: string) => setIsLoggedIn(true);
 
@@ -77,12 +83,10 @@ const AppInner: React.FC = () => {
       setSelectedStudio(null);
     }
 
-    // Clear API cache
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('df_api_cache_') || key === 'df_selected_studio') {
-        localStorage.removeItem(key);
-      }
-    });
+    // Remove data left behind by the old localStorage API cache.
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith('df_api_cache_'))
+      .forEach((key) => localStorage.removeItem(key));
 
     queryClient.clear(); // Clear react-query cache
 
@@ -102,16 +106,26 @@ const AppInner: React.FC = () => {
   const renderView = () => {
     const commonProps = { onOpenMenu };
     switch (activeView) {
-      case 'Studios': return <StudioSelectView onSelect={handleStudioSelect} onOpenMenu={onOpenMenu} />;
-      case 'StudioSettings': return <StudioSettingsView {...commonProps} />;
-      case 'UserSettings': return <UserSettingsView {...commonProps} />;
-      case 'Dashboard': return <Dashboard onNavigate={setActiveView} {...commonProps} />;
-      case 'Clients': return <ClientsView {...commonProps} />;
-      case 'Inventory': return <InventoryView {...commonProps} />;
-      case 'Tasks': return <TasksView {...commonProps} />;
-      case 'Team': return <TeamView {...commonProps} />;
-      case 'Reports': return <ReportsView {...commonProps} />;
-      default: return <Dashboard onNavigate={setActiveView} {...commonProps} />;
+      case 'Studios':
+        return <StudioSelectView onSelect={handleStudioSelect} onOpenMenu={onOpenMenu} />;
+      case 'StudioSettings':
+        return <StudioSettingsView {...commonProps} />;
+      case 'UserSettings':
+        return <UserSettingsView {...commonProps} />;
+      case 'Dashboard':
+        return <Dashboard onNavigate={setActiveView} {...commonProps} />;
+      case 'Clients':
+        return <ClientsView {...commonProps} />;
+      case 'Inventory':
+        return <InventoryView {...commonProps} />;
+      case 'Tasks':
+        return <TasksView {...commonProps} />;
+      case 'Team':
+        return <TeamView {...commonProps} />;
+      case 'Reports':
+        return <ReportsView {...commonProps} />;
+      default:
+        return <Dashboard onNavigate={setActiveView} {...commonProps} />;
     }
   };
 
@@ -127,12 +141,14 @@ const AppInner: React.FC = () => {
 
   if (isSettingPassword || needsPassword) {
     return (
-      <SetPasswordView onSuccess={async () => {
-        setIsSettingPassword(false);
-        setIsLoggedIn(true);
-        await supabase.auth.refreshSession();
-        window.history.replaceState(null, '', window.location.pathname);
-      }} />
+      <SetPasswordView
+        onSuccess={async () => {
+          setIsSettingPassword(false);
+          setIsLoggedIn(true);
+          await supabase.auth.refreshSession();
+          window.history.replaceState(null, '', window.location.pathname);
+        }}
+      />
     );
   }
 
@@ -140,7 +156,12 @@ const AppInner: React.FC = () => {
     return (
       <div className="relative">
         <div className="absolute top-4 left-4 z-50">
-          <button onClick={() => setForceLogin(false)} className="px-5 py-2 bg-white text-slate-500 rounded-xl shadow-sm text-xs font-bold uppercase tracking-widest hover:text-green-deep transition-all">Powrót do zaproszenia</button>
+          <button
+            onClick={() => setForceLogin(false)}
+            className="px-5 py-2 bg-white text-slate-500 rounded-xl shadow-sm text-xs font-bold uppercase tracking-widest hover:text-green-deep transition-all"
+          >
+            Powrót do zaproszenia
+          </button>
         </div>
         <LoginView onLogin={handleLogin} />
       </div>
@@ -151,7 +172,11 @@ const AppInner: React.FC = () => {
     return (
       <AcceptInvitationView
         token={invitationToken}
-        onSuccess={() => { setInvitationToken(null); setForceLogin(false); window.history.replaceState(null, '', '/'); }}
+        onSuccess={() => {
+          setInvitationToken(null);
+          setForceLogin(false);
+          window.history.replaceState(null, '', '/');
+        }}
         onRequireLogin={() => setForceLogin(true)}
       />
     );
@@ -174,11 +199,10 @@ const AppInner: React.FC = () => {
         userEmail={currentUser?.email ?? null}
       />
 
-      <main className={`flex-1 transition-all duration-300 lg:ml-72 ${isFullscreenView ? '' : 'p-4 sm:p-8 lg:p-12'} overflow-y-auto`}>
-
-        <div className={isFullscreenView ? '' : 'max-w-7xl mx-auto pb-24 pt-2 lg:pt-0'}>
-          {renderView()}
-        </div>
+      <main
+        className={`flex-1 transition-all duration-300 lg:ml-72 ${isFullscreenView ? '' : 'p-4 sm:p-8 lg:p-12'} overflow-y-auto`}
+      >
+        <div className={isFullscreenView ? '' : 'max-w-7xl mx-auto pb-24 pt-2 lg:pt-0'}>{renderView()}</div>
       </main>
     </div>
   );
@@ -202,6 +226,5 @@ const App: React.FC = () => (
     </ToastProvider>
   </QueryClientProvider>
 );
-
 
 export default App;

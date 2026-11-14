@@ -4,160 +4,128 @@ import { getSelectedStudioId } from './contexts/StudioContext';
 const API_BASE = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://api.detaileed.com/api' : '/api');
 
 async function getHeaders(isJson = false): Promise<HeadersInit> {
-    const { data: { session } } = await supabase.auth.getSession();
-    const headers: Record<string, string> = {
-        'Accept': 'application/json',
-    };
-    if (isJson) {
-        headers['Content-Type'] = 'application/json';
-    }
-    if (session?.access_token) {
-        headers['Authorization'] = `Bearer ${session.access_token}`;
-    }
-    const studioId = getSelectedStudioId();
-    if (studioId) {
-        headers['X-Studio-Id'] = studioId;
-    }
-    return headers;
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+  };
+  if (isJson) {
+    headers['Content-Type'] = 'application/json';
+  }
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  }
+  const studioId = getSelectedStudioId();
+  if (studioId) {
+    headers['X-Studio-Id'] = studioId;
+  }
+  return headers;
 }
 
 export class ApiError extends Error {
-    public status?: number;
-    public data?: any;
+  public status?: number;
+  public data?: any;
 
-    constructor(message: string, status?: number, data?: any) {
-        super(message);
-        this.name = 'ApiError';
-        this.status = status;
-        this.data = data;
-    }
+  constructor(message: string, status?: number, data?: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.data = data;
+  }
 }
 
 async function extractApiError(response: Response): Promise<never> {
-    let errorData;
-    let errorMessage = `API Error ${response.status}`;
+  let errorData;
+  let errorMessage = `API Error ${response.status}`;
+  try {
+    const text = await response.text();
     try {
-        const text = await response.text();
-        try {
-            errorData = JSON.parse(text);
-            errorMessage = errorData.message || errorData.title || text;
-        } catch {
-            errorMessage = text;
-        }
+      errorData = JSON.parse(text);
+      errorMessage = errorData.message || errorData.title || text;
     } catch {
-        errorMessage = 'Unknown network error';
+      errorMessage = text;
     }
-    throw new ApiError(errorMessage, response.status, errorData);
+  } catch {
+    errorMessage = 'Unknown network error';
+  }
+  throw new ApiError(errorMessage, response.status, errorData);
 }
 
 async function handleResponse<T>(response: Response): Promise<T> {
-    if (!response.ok) {
-        await extractApiError(response);
-    }
-    if (response.status === 204 || response.headers.get('content-length') === '0') {
-        return undefined as T;
-    }
-    return response.json();
+  if (!response.ok) {
+    await extractApiError(response);
+  }
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return undefined as T;
+  }
+  return response.json();
 }
 
-const CACHE_PREFIX = 'df_api_cache_';
-
-export async function apiGet<T>(
-    path: string,
-    params?: Record<string, string | boolean | undefined>,
-    onCacheHit?: (data: T) => void
-): Promise<T> {
-    const url = new URL(`${API_BASE}${path}`, window.location.origin);
-    if (params) {
-        Object.entries(params).forEach(([key, value]) => {
-            if (value !== undefined && value !== '') {
-                url.searchParams.set(key, String(value));
-            }
-        });
-    }
-
-    const urlString = url.toString();
-    const studioId = getSelectedStudioId() || 'global';
-    const cacheKey = `${CACHE_PREFIX}${studioId}_${urlString}`;
-
-    // 1. Try to serve from cache first
-    if (onCacheHit) {
-        try {
-            const cachedUrlData = localStorage.getItem(cacheKey);
-            if (cachedUrlData) {
-                const parsed = JSON.parse(cachedUrlData) as T;
-                onCacheHit(parsed);
-            }
-        } catch (e) {
-            console.warn('Failed to parse cached API data', e);
-        }
-    }
-
-    // 2. Fetch fresh data
-    const response = await fetch(urlString, {
-        headers: await getHeaders(),
+export async function apiGet<T>(path: string, params?: Record<string, string | boolean | undefined>): Promise<T> {
+  const url = new URL(`${API_BASE}${path}`, window.location.origin);
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== '') {
+        url.searchParams.set(key, String(value));
+      }
     });
+  }
 
-    // 3. Process and cache the fresh data
-    const freshData = await handleResponse<T>(response);
+  const urlString = url.toString();
+  const response = await fetch(urlString, {
+    headers: await getHeaders(),
+  });
 
-    try {
-        if (freshData !== undefined) {
-            localStorage.setItem(cacheKey, JSON.stringify(freshData));
-        }
-    } catch (e) {
-        console.warn('Failed to save API data to cache', e);
-    }
-
-    return freshData;
+  return handleResponse<T>(response);
 }
 
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {
-    const response = await fetch(`${API_BASE}${path}`, {
-        method: 'POST',
-        headers: await getHeaders(true),
-        body: JSON.stringify(body),
-    });
-    return handleResponse<T>(response);
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: await getHeaders(true),
+    body: JSON.stringify(body),
+  });
+  return handleResponse<T>(response);
 }
 
 export async function apiPut<T>(path: string, body: unknown): Promise<T> {
-    const response = await fetch(`${API_BASE}${path}`, {
-        method: 'PUT',
-        headers: await getHeaders(true),
-        body: JSON.stringify(body),
-    });
-    return handleResponse<T>(response);
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'PUT',
+    headers: await getHeaders(true),
+    body: JSON.stringify(body),
+  });
+  return handleResponse<T>(response);
 }
 
 export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
-    const response = await fetch(`${API_BASE}${path}`, {
-        method: 'PATCH',
-        headers: await getHeaders(true),
-        body: JSON.stringify(body),
-    });
-    return handleResponse<T>(response);
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'PATCH',
+    headers: await getHeaders(true),
+    body: JSON.stringify(body),
+  });
+  return handleResponse<T>(response);
 }
 
 export async function apiDelete(path: string): Promise<void> {
-    const response = await fetch(`${API_BASE}${path}`, {
-        method: 'DELETE',
-        headers: await getHeaders(),
-    });
-    if (!response.ok) {
-        await extractApiError(response);
-    }
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'DELETE',
+    headers: await getHeaders(),
+  });
+  if (!response.ok) {
+    await extractApiError(response);
+  }
 }
 
 export async function generateBookingsReport(dateFrom: string, dateTo: string): Promise<void> {
-    const response = await fetch(`${API_BASE}/Reports/bookings`, {
-        method: 'POST',
-        headers: await getHeaders(true),
-        body: JSON.stringify({ dateFrom, dateTo }),
-    });
+  const response = await fetch(`${API_BASE}/Reports/bookings`, {
+    method: 'POST',
+    headers: await getHeaders(true),
+    body: JSON.stringify({ dateFrom, dateTo }),
+  });
 
-    // Accept 200, 202 (Accepted) or 204
-    if (!response.ok) {
-        await extractApiError(response);
-    }
+  // Accept 200, 202 (Accepted) or 204
+  if (!response.ok) {
+    await extractApiError(response);
+  }
 }
