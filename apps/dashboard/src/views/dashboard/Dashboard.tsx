@@ -43,7 +43,7 @@ import {
   type BookingStatus,
 } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
-import { useInventory } from '../../hooks/useInventory';
+import { useInventory } from '@/features/inventory/api/inventory';
 import { useCreateService, useServices } from '@/features/services';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import GlobalHeader from '@/shared/ui/GlobalHeader';

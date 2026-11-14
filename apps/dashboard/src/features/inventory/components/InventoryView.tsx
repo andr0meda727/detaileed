@@ -1,14 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 import { Plus, Search, Edit2, Package, Check, X, Filter, ChevronDown } from 'lucide-react';
-import { InventoryCreateDto } from '../../types';
+import { InventoryCreateDto } from '@/types';
 import {
   useInventory,
   useCreateInventoryItem,
   useUpdateInventoryItem,
   useCategories,
   useCreateCategory,
-} from '../../hooks';
+} from '@/hooks';
 import { useToast } from '@/shared/ui/ToastContext';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';

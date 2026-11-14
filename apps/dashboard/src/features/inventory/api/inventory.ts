@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiPut } from '../apiClient';
-import { InventoryResponseDto, InventoryCreateDto } from '../types';
+import { apiGet, apiPost, apiPut } from '@/apiClient';
+import { InventoryResponseDto, InventoryCreateDto } from '@/types';
 
 const QUERY_KEY = 'inventory';
 

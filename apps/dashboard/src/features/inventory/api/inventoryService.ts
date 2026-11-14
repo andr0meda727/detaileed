@@ -1,5 +1,5 @@
-import { apiGet, apiPost, apiPut, apiDelete } from '../apiClient';
-import { InventoryResponseDto, InventoryCreateDto, CategoryResponseDto, CategoryCreateDto } from '../types';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/apiClient';
+import { InventoryResponseDto, InventoryCreateDto, CategoryResponseDto, CategoryCreateDto } from '@/types';
 
 export async function getInventory(isLowStock?: boolean): Promise<InventoryResponseDto[]> {
   return apiGet<InventoryResponseDto[]>('/Inventory', isLowStock !== undefined ? { isLowStock } : undefined);

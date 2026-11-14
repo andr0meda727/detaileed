@@ -4,7 +4,7 @@ import { CategoryCreateDto, InviteEmployeeDto } from '../../types';
 import { ServicesSettings } from '@/features/services';
 import NameForm from '@/shared/ui/NameForm';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
-import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '../../hooks/useCategories';
+import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/features/inventory/api/categories';
 import { apiPost } from '../../apiClient';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
