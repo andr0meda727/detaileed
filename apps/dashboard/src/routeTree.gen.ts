@@ -9,18 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SplatRouteImport } from './routes/$'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AcceptInvitationRouteImport } from './routes/accept-invitation'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
+import { Route as AuthIndexRouteImport } from './routes/_auth/index'
 import { Route as AuthStudiosRouteImport } from './routes/_auth/studios'
+import { Route as AuthSStudioIdRouteRouteImport } from './routes/_auth/s/$studioId/route'
+import { Route as AuthSStudioIdIndexRouteImport } from './routes/_auth/s/$studioId/index'
+import { Route as AuthSStudioIdArchivedRouteImport } from './routes/_auth/s/$studioId/archived'
+import { Route as AuthSStudioIdClientsRouteImport } from './routes/_auth/s/$studioId/clients'
+import { Route as AuthSStudioIdInventoryRouteImport } from './routes/_auth/s/$studioId/inventory'
+import { Route as AuthSStudioIdReportsRouteImport } from './routes/_auth/s/$studioId/reports'
+import { Route as AuthSStudioIdTasksRouteImport } from './routes/_auth/s/$studioId/tasks'
+import { Route as AuthSStudioIdTeamRouteImport } from './routes/_auth/s/$studioId/team'
+import { Route as AuthSStudioIdSettingsStudioRouteImport } from './routes/_auth/s/$studioId/settings/studio'
+import { Route as AuthSStudioIdSettingsUserRouteImport } from './routes/_auth/s/$studioId/settings/user'
 
-const SplatRoute = SplatRouteImport.update({
-  id: '/$',
-  path: '/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
@@ -40,56 +45,176 @@ const SetPasswordRoute = SetPasswordRouteImport.update({
   path: '/set-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRoute,
+} as any)
 const AuthStudiosRoute = AuthStudiosRouteImport.update({
   id: '/studios',
   path: '/studios',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthSStudioIdRouteRoute = AuthSStudioIdRouteRouteImport.update({
+  id: '/s/$studioId',
+  path: '/s/$studioId',
+  getParentRoute: () => AuthRoute,
+} as any)
+const AuthSStudioIdIndexRoute = AuthSStudioIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthSStudioIdRouteRoute,
+} as any)
+const AuthSStudioIdArchivedRoute = AuthSStudioIdArchivedRouteImport.update({
+  id: '/archived',
+  path: '/archived',
+  getParentRoute: () => AuthSStudioIdRouteRoute,
+} as any)
+const AuthSStudioIdClientsRoute = AuthSStudioIdClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
+  getParentRoute: () => AuthSStudioIdRouteRoute,
+} as any)
+const AuthSStudioIdInventoryRoute = AuthSStudioIdInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AuthSStudioIdRouteRoute,
+} as any)
+const AuthSStudioIdReportsRoute = AuthSStudioIdReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthSStudioIdRouteRoute,
+} as any)
+const AuthSStudioIdTasksRoute = AuthSStudioIdTasksRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => AuthSStudioIdRouteRoute,
+} as any)
+const AuthSStudioIdTeamRoute = AuthSStudioIdTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AuthSStudioIdRouteRoute,
+} as any)
+const AuthSStudioIdSettingsStudioRoute =
+  AuthSStudioIdSettingsStudioRouteImport.update({
+    id: '/settings/studio',
+    path: '/settings/studio',
+    getParentRoute: () => AuthSStudioIdRouteRoute,
+  } as any)
+const AuthSStudioIdSettingsUserRoute =
+  AuthSStudioIdSettingsUserRouteImport.update({
+    id: '/settings/user',
+    path: '/settings/user',
+    getParentRoute: () => AuthSStudioIdRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/$': typeof SplatRoute
-  '/': typeof AuthRouteWithChildren
+  '/': typeof AuthIndexRoute
   '/accept-invitation': typeof AcceptInvitationRoute
   '/login': typeof LoginRoute
   '/set-password': typeof SetPasswordRoute
   '/studios': typeof AuthStudiosRoute
+  '/s/$studioId': typeof AuthSStudioIdRouteRouteWithChildren
+  '/s/$studioId/archived': typeof AuthSStudioIdArchivedRoute
+  '/s/$studioId/clients': typeof AuthSStudioIdClientsRoute
+  '/s/$studioId/inventory': typeof AuthSStudioIdInventoryRoute
+  '/s/$studioId/reports': typeof AuthSStudioIdReportsRoute
+  '/s/$studioId/tasks': typeof AuthSStudioIdTasksRoute
+  '/s/$studioId/team': typeof AuthSStudioIdTeamRoute
+  '/s/$studioId/': typeof AuthSStudioIdIndexRoute
+  '/s/$studioId/settings/studio': typeof AuthSStudioIdSettingsStudioRoute
+  '/s/$studioId/settings/user': typeof AuthSStudioIdSettingsUserRoute
 }
 export interface FileRoutesByTo {
-  '/$': typeof SplatRoute
-  '/': typeof AuthRouteWithChildren
   '/accept-invitation': typeof AcceptInvitationRoute
   '/login': typeof LoginRoute
   '/set-password': typeof SetPasswordRoute
   '/studios': typeof AuthStudiosRoute
+  '/': typeof AuthIndexRoute
+  '/s/$studioId/archived': typeof AuthSStudioIdArchivedRoute
+  '/s/$studioId/clients': typeof AuthSStudioIdClientsRoute
+  '/s/$studioId/inventory': typeof AuthSStudioIdInventoryRoute
+  '/s/$studioId/reports': typeof AuthSStudioIdReportsRoute
+  '/s/$studioId/tasks': typeof AuthSStudioIdTasksRoute
+  '/s/$studioId/team': typeof AuthSStudioIdTeamRoute
+  '/s/$studioId': typeof AuthSStudioIdIndexRoute
+  '/s/$studioId/settings/studio': typeof AuthSStudioIdSettingsStudioRoute
+  '/s/$studioId/settings/user': typeof AuthSStudioIdSettingsUserRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/$': typeof SplatRoute
   '/_auth': typeof AuthRouteWithChildren
   '/accept-invitation': typeof AcceptInvitationRoute
   '/login': typeof LoginRoute
   '/set-password': typeof SetPasswordRoute
   '/_auth/studios': typeof AuthStudiosRoute
+  '/_auth/': typeof AuthIndexRoute
+  '/_auth/s/$studioId': typeof AuthSStudioIdRouteRouteWithChildren
+  '/_auth/s/$studioId/archived': typeof AuthSStudioIdArchivedRoute
+  '/_auth/s/$studioId/clients': typeof AuthSStudioIdClientsRoute
+  '/_auth/s/$studioId/inventory': typeof AuthSStudioIdInventoryRoute
+  '/_auth/s/$studioId/reports': typeof AuthSStudioIdReportsRoute
+  '/_auth/s/$studioId/tasks': typeof AuthSStudioIdTasksRoute
+  '/_auth/s/$studioId/team': typeof AuthSStudioIdTeamRoute
+  '/_auth/s/$studioId/': typeof AuthSStudioIdIndexRoute
+  '/_auth/s/$studioId/settings/studio': typeof AuthSStudioIdSettingsStudioRoute
+  '/_auth/s/$studioId/settings/user': typeof AuthSStudioIdSettingsUserRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/$' | '/' | '/accept-invitation' | '/login' | '/set-password' | '/studios'
+    | '/'
+    | '/accept-invitation'
+    | '/login'
+    | '/set-password'
+    | '/studios'
+    | '/s/$studioId'
+    | '/s/$studioId/archived'
+    | '/s/$studioId/clients'
+    | '/s/$studioId/inventory'
+    | '/s/$studioId/reports'
+    | '/s/$studioId/tasks'
+    | '/s/$studioId/team'
+    | '/s/$studioId/'
+    | '/s/$studioId/settings/studio'
+    | '/s/$studioId/settings/user'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/$' | '/' | '/accept-invitation' | '/login' | '/set-password' | '/studios'
+    | '/accept-invitation'
+    | '/login'
+    | '/set-password'
+    | '/studios'
+    | '/'
+    | '/s/$studioId/archived'
+    | '/s/$studioId/clients'
+    | '/s/$studioId/inventory'
+    | '/s/$studioId/reports'
+    | '/s/$studioId/tasks'
+    | '/s/$studioId/team'
+    | '/s/$studioId'
+    | '/s/$studioId/settings/studio'
+    | '/s/$studioId/settings/user'
   id:
     | '__root__'
-    | '/$'
     | '/_auth'
     | '/accept-invitation'
     | '/login'
     | '/set-password'
     | '/_auth/studios'
+    | '/_auth/'
+    | '/_auth/s/$studioId'
+    | '/_auth/s/$studioId/archived'
+    | '/_auth/s/$studioId/clients'
+    | '/_auth/s/$studioId/inventory'
+    | '/_auth/s/$studioId/reports'
+    | '/_auth/s/$studioId/tasks'
+    | '/_auth/s/$studioId/team'
+    | '/_auth/s/$studioId/'
+    | '/_auth/s/$studioId/settings/studio'
+    | '/_auth/s/$studioId/settings/user'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  SplatRoute: typeof SplatRoute
   AuthRoute: typeof AuthRouteWithChildren
   AcceptInvitationRoute: typeof AcceptInvitationRoute
   LoginRoute: typeof LoginRoute
@@ -98,13 +223,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/$': {
-      id: '/$'
-      path: '/$'
-      fullPath: '/$'
-      preLoaderRoute: typeof SplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_auth': {
       id: '/_auth'
       path: ''
@@ -133,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/': {
+      id: '/_auth/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/_auth/studios': {
       id: '/_auth/studios'
       path: '/studios'
@@ -140,21 +265,121 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthStudiosRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/s/$studioId': {
+      id: '/_auth/s/$studioId'
+      path: '/s/$studioId'
+      fullPath: '/s/$studioId'
+      preLoaderRoute: typeof AuthSStudioIdRouteRouteImport
+      parentRoute: typeof AuthRoute
+    }
+    '/_auth/s/$studioId/': {
+      id: '/_auth/s/$studioId/'
+      path: '/'
+      fullPath: '/s/$studioId/'
+      preLoaderRoute: typeof AuthSStudioIdIndexRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
+    '/_auth/s/$studioId/archived': {
+      id: '/_auth/s/$studioId/archived'
+      path: '/archived'
+      fullPath: '/s/$studioId/archived'
+      preLoaderRoute: typeof AuthSStudioIdArchivedRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
+    '/_auth/s/$studioId/clients': {
+      id: '/_auth/s/$studioId/clients'
+      path: '/clients'
+      fullPath: '/s/$studioId/clients'
+      preLoaderRoute: typeof AuthSStudioIdClientsRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
+    '/_auth/s/$studioId/inventory': {
+      id: '/_auth/s/$studioId/inventory'
+      path: '/inventory'
+      fullPath: '/s/$studioId/inventory'
+      preLoaderRoute: typeof AuthSStudioIdInventoryRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
+    '/_auth/s/$studioId/reports': {
+      id: '/_auth/s/$studioId/reports'
+      path: '/reports'
+      fullPath: '/s/$studioId/reports'
+      preLoaderRoute: typeof AuthSStudioIdReportsRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
+    '/_auth/s/$studioId/tasks': {
+      id: '/_auth/s/$studioId/tasks'
+      path: '/tasks'
+      fullPath: '/s/$studioId/tasks'
+      preLoaderRoute: typeof AuthSStudioIdTasksRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
+    '/_auth/s/$studioId/team': {
+      id: '/_auth/s/$studioId/team'
+      path: '/team'
+      fullPath: '/s/$studioId/team'
+      preLoaderRoute: typeof AuthSStudioIdTeamRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
+    '/_auth/s/$studioId/settings/studio': {
+      id: '/_auth/s/$studioId/settings/studio'
+      path: '/settings/studio'
+      fullPath: '/s/$studioId/settings/studio'
+      preLoaderRoute: typeof AuthSStudioIdSettingsStudioRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
+    '/_auth/s/$studioId/settings/user': {
+      id: '/_auth/s/$studioId/settings/user'
+      path: '/settings/user'
+      fullPath: '/s/$studioId/settings/user'
+      preLoaderRoute: typeof AuthSStudioIdSettingsUserRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
   }
 }
 
+interface AuthSStudioIdRouteRouteChildren {
+  AuthSStudioIdArchivedRoute: typeof AuthSStudioIdArchivedRoute
+  AuthSStudioIdClientsRoute: typeof AuthSStudioIdClientsRoute
+  AuthSStudioIdInventoryRoute: typeof AuthSStudioIdInventoryRoute
+  AuthSStudioIdReportsRoute: typeof AuthSStudioIdReportsRoute
+  AuthSStudioIdTasksRoute: typeof AuthSStudioIdTasksRoute
+  AuthSStudioIdTeamRoute: typeof AuthSStudioIdTeamRoute
+  AuthSStudioIdIndexRoute: typeof AuthSStudioIdIndexRoute
+  AuthSStudioIdSettingsStudioRoute: typeof AuthSStudioIdSettingsStudioRoute
+  AuthSStudioIdSettingsUserRoute: typeof AuthSStudioIdSettingsUserRoute
+}
+
+const AuthSStudioIdRouteRouteChildren: AuthSStudioIdRouteRouteChildren = {
+  AuthSStudioIdArchivedRoute: AuthSStudioIdArchivedRoute,
+  AuthSStudioIdClientsRoute: AuthSStudioIdClientsRoute,
+  AuthSStudioIdInventoryRoute: AuthSStudioIdInventoryRoute,
+  AuthSStudioIdReportsRoute: AuthSStudioIdReportsRoute,
+  AuthSStudioIdTasksRoute: AuthSStudioIdTasksRoute,
+  AuthSStudioIdTeamRoute: AuthSStudioIdTeamRoute,
+  AuthSStudioIdIndexRoute: AuthSStudioIdIndexRoute,
+  AuthSStudioIdSettingsStudioRoute: AuthSStudioIdSettingsStudioRoute,
+  AuthSStudioIdSettingsUserRoute: AuthSStudioIdSettingsUserRoute,
+}
+
+const AuthSStudioIdRouteRouteWithChildren =
+  AuthSStudioIdRouteRoute._addFileChildren(AuthSStudioIdRouteRouteChildren)
+
 interface AuthRouteChildren {
   AuthStudiosRoute: typeof AuthStudiosRoute
+  AuthIndexRoute: typeof AuthIndexRoute
+  AuthSStudioIdRouteRoute: typeof AuthSStudioIdRouteRouteWithChildren
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthStudiosRoute: AuthStudiosRoute,
+  AuthIndexRoute: AuthIndexRoute,
+  AuthSStudioIdRouteRoute: AuthSStudioIdRouteRouteWithChildren,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  SplatRoute: SplatRoute,
   AuthRoute: AuthRouteWithChildren,
   AcceptInvitationRoute: AcceptInvitationRoute,
   LoginRoute: LoginRoute,

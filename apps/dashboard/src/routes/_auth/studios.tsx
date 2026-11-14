@@ -7,5 +7,9 @@ export const Route = createFileRoute('/_auth/studios')({
 
 function StudiosPage() {
   const navigate = useNavigate();
-  return <StudioSelectView onSelect={() => void navigate({ href: '/' })} onOpenMenu={() => {}} />;
+  return (
+    <StudioSelectView
+      onSelect={(studio) => void navigate({ to: '/s/$studioId', params: { studioId: studio.studioId } })}
+    />
+  );
 }
