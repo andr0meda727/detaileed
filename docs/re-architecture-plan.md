@@ -8,12 +8,12 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 
 ## Status
 
-| Phase                   | State                                                                                        |
-| ----------------------- | -------------------------------------------------------------------------------------------- |
-| 0: hygiene              | done (merged to `main`)                                                                      |
-| 1: monorepo             | done (merged to `main`)                                                                      |
-| 2: generated API client | **on hold until the backend API is finished**; re-check the spec (`v6.json`) before starting |
-| 3–7                     | not started                                                                                  |
+| Phase                   | State                                                                             |
+| ----------------------- | --------------------------------------------------------------------------------- |
+| 0: hygiene              | done (merged to `main`)                                                           |
+| 1: monorepo             | done (merged to `main`)                                                           |
+| 2: generated API client | done (merged to `main`); views move to the generated hooks per feature in Phase 4 |
+| 3–7                     | not started                                                                       |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
