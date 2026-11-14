@@ -10,13 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AcceptInvitationRouteImport } from './routes/accept-invitation'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as SetPasswordRouteImport } from './routes/set-password'
+import { Route as AuthStudiosRouteImport } from './routes/_auth/studios'
 
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AcceptInvitationRoute = AcceptInvitationRouteImport.update({
@@ -34,36 +40,57 @@ const SetPasswordRoute = SetPasswordRouteImport.update({
   path: '/set-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthStudiosRoute = AuthStudiosRouteImport.update({
+  id: '/studios',
+  path: '/studios',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
+  '/': typeof AuthRouteWithChildren
   '/accept-invitation': typeof AcceptInvitationRoute
   '/login': typeof LoginRoute
   '/set-password': typeof SetPasswordRoute
+  '/studios': typeof AuthStudiosRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof SplatRoute
+  '/': typeof AuthRouteWithChildren
   '/accept-invitation': typeof AcceptInvitationRoute
   '/login': typeof LoginRoute
   '/set-password': typeof SetPasswordRoute
+  '/studios': typeof AuthStudiosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/$': typeof SplatRoute
+  '/_auth': typeof AuthRouteWithChildren
   '/accept-invitation': typeof AcceptInvitationRoute
   '/login': typeof LoginRoute
   '/set-password': typeof SetPasswordRoute
+  '/_auth/studios': typeof AuthStudiosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/$' | '/accept-invitation' | '/login' | '/set-password'
+  fullPaths:
+    '/$' | '/' | '/accept-invitation' | '/login' | '/set-password' | '/studios'
   fileRoutesByTo: FileRoutesByTo
-  to: '/$' | '/accept-invitation' | '/login' | '/set-password'
-  id: '__root__' | '/$' | '/accept-invitation' | '/login' | '/set-password'
+  to:
+    '/$' | '/' | '/accept-invitation' | '/login' | '/set-password' | '/studios'
+  id:
+    | '__root__'
+    | '/$'
+    | '/_auth'
+    | '/accept-invitation'
+    | '/login'
+    | '/set-password'
+    | '/_auth/studios'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute
+  AuthRoute: typeof AuthRouteWithChildren
   AcceptInvitationRoute: typeof AcceptInvitationRoute
   LoginRoute: typeof LoginRoute
   SetPasswordRoute: typeof SetPasswordRoute
@@ -76,6 +103,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accept-invitation': {
@@ -99,11 +133,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/studios': {
+      id: '/_auth/studios'
+      path: '/studios'
+      fullPath: '/studios'
+      preLoaderRoute: typeof AuthStudiosRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
+interface AuthRouteChildren {
+  AuthStudiosRoute: typeof AuthStudiosRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthStudiosRoute: AuthStudiosRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
+  AuthRoute: AuthRouteWithChildren,
   AcceptInvitationRoute: AcceptInvitationRoute,
   LoginRoute: LoginRoute,
   SetPasswordRoute: SetPasswordRoute,
