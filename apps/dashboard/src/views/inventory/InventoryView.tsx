@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { getRouteApi } from '@tanstack/react-router';
 import { Plus, Search, Edit2, Package, Check, X, UserPlus, Car as CarIcon, Save, Calendar, Wrench } from 'lucide-react';
 import { InventoryCreateDto, ClientResponseDto, VehicleInfoDto, BookingCreateDto } from '../../types';
 import {
@@ -40,6 +41,8 @@ const defaultForm = (): ItemFormData => ({
 });
 
 // ─── View ─────────────────────────────────────────────────────────────────────
+const routeApi = getRouteApi('/_auth/s/$studioId/inventory');
+
 const InventoryView: React.FC = () => {
   const { addToast } = useToast();
   const { data: items = [], isLoading: isInventoryLoading } = useInventory();
@@ -48,7 +51,10 @@ const InventoryView: React.FC = () => {
   const updateItem = useUpdateInventoryItem();
   const createCategory = useCreateCategory();
 
-  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
+  const { category: selectedCategoryName = null } = routeApi.useSearch();
+  const navigate = routeApi.useNavigate();
+  const setSelectedCategoryName = (category: string | null) =>
+    void navigate({ search: (prev) => ({ ...prev, category: category ?? undefined }), replace: true });
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isFormCategoryDropdownOpen, setIsFormCategoryDropdownOpen] = useState(false);
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getRouteApi } from '@tanstack/react-router';
 import {
   FileBarChart2,
   Download,
@@ -19,9 +20,15 @@ import Modal from '../../components/ui/Modal';
 import CreateBookingModal from '../../components/modals/CreateBookingModal';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 
+const routeApi = getRouteApi('/_auth/s/$studioId/reports');
+
 const ReportsView: React.FC = () => {
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const { from: dateFrom = '', to: dateTo = '' } = routeApi.useSearch();
+  const navigate = routeApi.useNavigate();
+  const setRange = (range: { from?: string; to?: string }) =>
+    void navigate({ search: (prev) => ({ ...prev, ...range }), replace: true });
+  const setDateFrom = (value: string) => setRange({ from: value || undefined });
+  const setDateTo = (value: string) => setRange({ to: value || undefined });
   const [isGenerating, setIsGenerating] = useState(false);
   const { addToast } = useToast();
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
@@ -48,8 +55,7 @@ const ReportsView: React.FC = () => {
 
       addToast('Rozpoczęto generowanie raportu. Zostanie on wysłany na Twój adres e-mail.', 'success');
 
-      setDateFrom('');
-      setDateTo('');
+      setRange({ from: undefined, to: undefined });
     } catch (err) {
       console.error('Failed to generate report', err);
       addToast('Wystąpił błąd podczas zlecania raportu', 'error');

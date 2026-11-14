@@ -69,6 +69,16 @@ describe('route guards', () => {
   });
 });
 
+describe('search params', () => {
+  it('keeps valid report dates and drops malformed ones', async () => {
+    auth.session = session;
+    const router = makeRouter('/s/owned/reports?from=yesterday&to=2026-01-31');
+    await router.load();
+    // location.search is the raw query; the match holds what validateSearch returned.
+    expect(router.state.matches.at(-1)?.search).toEqual({ to: '2026-01-31' });
+  });
+});
+
 describe('rendering', () => {
   it('renders the login screen at /login', async () => {
     auth.session = null;
