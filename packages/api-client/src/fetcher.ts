@@ -100,3 +100,6 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   }
   return body as T;
 }
+
+/** Error type of the generated hooks (Orval reads it from the mutator file). */
+export type ErrorType<_TError> = ApiError;

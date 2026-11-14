@@ -2,6 +2,10 @@
   "$schema": "https://turbo.build/schema.json",
   "ui": "stream",
   "tasks": {
+    "generate": {
+      "inputs": ["openapi.json", "orval.config.ts", "src/fetcher.ts"],
+      "outputs": ["src/generated/**"]
+    },
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
