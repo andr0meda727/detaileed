@@ -1,7 +1,10 @@
 import type { CategoryResponseDto, InventoryCreateDto, InventoryResponseDto } from '@detaileed/api-client';
 
 /** A stock item with quantities as numbers (the API may send decimals as strings). */
-export type InventoryItem = Omit<InventoryResponseDto, 'stock' | 'minStock'> & { stock: number; minStock: number | null };
+export type InventoryItem = Omit<InventoryResponseDto, 'stock' | 'minStock'> & {
+  stock: number;
+  minStock: number | null;
+};
 
 /** Body of `POST/PUT /api/Inventory`; a changed `stock` on update is recorded as a stocktake. */
 export type InventoryItemInput = InventoryCreateDto;
