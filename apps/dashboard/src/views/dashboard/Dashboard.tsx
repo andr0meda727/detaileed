@@ -23,7 +23,14 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 
-import { useCreateClient, useCreateVehicle } from '@/features/clients';
+import {
+  useCreateClient,
+  useCreateVehicle,
+  useClients,
+  useClientSearch,
+  useClientVehicleSearch,
+  CreateClientModal,
+} from '@/features/clients';
 import type { Client, Vehicle } from '@/features/clients';
 
 import { createService } from '../../services/serviceService';
@@ -38,15 +45,12 @@ import {
 } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
 import { useInventory } from '../../hooks/useInventory';
-import { useClients } from '@/features/clients/api/clients';
 import { useServices } from '../../hooks/useServices';
-import { useClientSearch, useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
 import DashboardStats from './components/DashboardStats';
 import RevenueChart from './components/RevenueChart';
-import CreateClientModal from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
 import { useToast } from '@/shared/ui/ToastContext';
 import { useStudio } from '@/features/studios';

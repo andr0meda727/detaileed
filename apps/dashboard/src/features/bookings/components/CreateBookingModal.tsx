@@ -5,16 +5,14 @@ import { Save, Search, Car as CarIcon, Wrench, Check, Plus, Calendar, UserPlus }
 import Modal from '@/shared/ui/Modal';
 
 import { bookingFormSchema, BookingFormValues, clientFormSchema, vehicleFormSchema } from '@/shared/lib/validations';
-import { useClients } from '@/features/clients/api/clients';
+import { useClients, useClientVehicleSearch, useCreateClient, type Client, type Vehicle } from '@/features/clients';
 import { useServices } from '@/hooks/useServices';
-import { useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
 import { useCreateBooking } from '@/features/bookings/api/bookings';
 import { createService } from '@/services/serviceService';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
 import { useToast } from '@/shared/ui/ToastContext';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import { useCreateClient, type Client, type Vehicle } from '@/features/clients';
 
 interface CreateBookingModalProps {
   isOpen: boolean;

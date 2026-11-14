@@ -18,7 +18,7 @@ import { generateBookingsReport } from '../../apiClient';
 import { useToast } from '@/shared/ui/ToastContext';
 import Modal from '@/shared/ui/Modal';
 import { CreateBookingModal } from '@/features/bookings';
-import CreateClientModal from '@/features/clients/components/CreateClientModal';
+import { CreateClientModal } from '@/features/clients';
 
 const routeApi = getRouteApi('/_auth/s/$studioId/reports');
 

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
-import { Plus, Search, Edit2, Package, Check, X } from 'lucide-react';
+import { Plus, Search, Edit2, Package, Check, X, Filter, ChevronDown } from 'lucide-react';
 import { InventoryCreateDto } from '../../types';
 import {
   useInventory,
@@ -15,9 +15,8 @@ import Modal from '@/shared/ui/Modal';
 import Skeleton from '@/shared/ui/Skeleton';
 import EmptyState from '@/shared/ui/EmptyState';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import { Filter, ChevronDown } from 'lucide-react';
 import { CreateBookingModal } from '@/features/bookings';
-import CreateClientModal from '@/features/clients/components/CreateClientModal';
+import { CreateClientModal } from '@/features/clients';
 
 const DEFAULT_UNITS = ['ml', 'L', 'szt', 'm²', 'kg'];
 
