@@ -4,3 +4,4 @@ node_modules
 package-lock.json
 pnpm-lock.yaml
 packages/api-client/openapi.json
+apps/dashboard/src/routeTree.gen.ts

@@ -21,8 +21,10 @@ import supabase from './utils/supabase';
 import { StudioProvider, useStudio } from './contexts/StudioContext';
 import { ToastProvider, useToast } from './contexts/ToastContext';
 import { createQueryClient } from './shared/queryClient';
+import { RouterProvider } from '@tanstack/react-router';
+import { router } from './app/router';
 
-const AppInner: React.FC = () => {
+export const LegacyApp: React.FC = () => {
   const queryClient = useQueryClient();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -210,6 +212,11 @@ const AppInner: React.FC = () => {
   );
 };
 
+const AppRouter: React.FC = () => {
+  const queryClient = useQueryClient();
+  return <RouterProvider router={router} context={{ queryClient }} />;
+};
+
 const QueryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { addToast } = useToast();
   const [queryClient] = useState(() => createQueryClient((message) => addToast(message, 'error')));
@@ -220,7 +227,7 @@ const App: React.FC = () => (
   <ToastProvider>
     <QueryProvider>
       <StudioProvider>
-        <AppInner />
+        <AppRouter />
       </StudioProvider>
     </QueryProvider>
   </ToastProvider>

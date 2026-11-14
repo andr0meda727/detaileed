@@ -1,3 +1,3 @@
 import { react } from '@detaileed/config/eslint';
 
-export default react;
+export default [{ ignores: ['src/routeTree.gen.ts'] }, ...react];
