@@ -43,7 +43,7 @@ import {
   type BookingStatus,
 } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
-import { useInventory } from '@/features/inventory/api/inventory';
+import { isLowStock, useInventory } from '@/features/inventory';
 import { useCreateService, useServices } from '@/features/services';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
@@ -168,10 +168,7 @@ const Dashboard: React.FC = () => {
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
   const today = new Date().toISOString().split('T')[0];
-  const lowStockItems = useMemo(
-    () => inventory.filter((i) => i.minStock !== null && i.stock < i.minStock),
-    [inventory],
-  );
+  const lowStockItems = useMemo(() => inventory.filter(isLowStock), [inventory]);
   const completedBookings = useMemo(() => bookings.filter((b) => b.completedAt !== null), [bookings]);
   const todayBookings = useMemo(
     () =>

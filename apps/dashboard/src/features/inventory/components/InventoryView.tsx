@@ -1,14 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 import { Plus, Search, Edit2, Package, Check, X, Filter, ChevronDown } from 'lucide-react';
-import { InventoryCreateDto } from '@/types';
-import {
-  useInventory,
-  useCreateInventoryItem,
-  useUpdateInventoryItem,
-  useCategories,
-  useCreateCategory,
-} from '@/hooks';
+import { isLowStock, type InventoryItemInput } from '@/features/inventory/model/types';
+import { useInventory, useCreateInventoryItem, useUpdateInventoryItem } from '@/features/inventory/api/inventory';
+import { useCategories, useCreateCategory } from '@/features/inventory/api/categories';
 import { useToast } from '@/shared/ui/ToastContext';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
@@ -86,8 +81,8 @@ const InventoryView: React.FC = () => {
     });
 
     return filtered.sort((a, b) => {
-      const aLow = a.minStock !== null && a.stock < a.minStock;
-      const bLow = b.minStock !== null && b.stock < b.minStock;
+      const aLow = isLowStock(a);
+      const bLow = isLowStock(b);
 
       if (aLow && !bLow) return -1;
       if (!aLow && bLow) return 1;
@@ -141,7 +136,7 @@ const InventoryView: React.FC = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const finalUnit = customUnit.trim() || formData.unit;
-    const dto: InventoryCreateDto = {
+    const dto: InventoryItemInput = {
       name: formData.name,
       categoryId: formData.categoryId,
       unit: finalUnit,
@@ -167,7 +162,7 @@ const InventoryView: React.FC = () => {
     const newStock = parseInt(quickEditStockValue);
     if (isNaN(newStock)) return;
     const foundCategory = categories.find((c) => c.name === item.categoryName);
-    const dto: InventoryCreateDto = {
+    const dto: InventoryItemInput = {
       name: item.name,
       categoryId: foundCategory ? foundCategory.id : null,
       unit: item.unit,

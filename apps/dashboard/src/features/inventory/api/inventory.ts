@@ -1,32 +1,45 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiPut } from '@/apiClient';
-import { InventoryResponseDto, InventoryCreateDto } from '@/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  getApiInventory,
+  getGetApiInventoryQueryKey,
+  postApiInventory,
+  putApiInventoryId,
+} from '@detaileed/api-client';
+import { fetchAllPages, MAX_PAGE_SIZE } from '@/shared/lib/paging';
+import { toInventoryItem, type InventoryItemInput } from '@/features/inventory/model/types';
 
-const QUERY_KEY = 'inventory';
+const inventoryKey = getGetApiInventoryQueryKey();
 
+/** All stock items (every page); `isLowStock` limits them to items below their minimum. */
 export function useInventory(isLowStock?: boolean) {
   return useQuery({
-    queryKey: [QUERY_KEY, isLowStock],
-    queryFn: () => apiGet<InventoryResponseDto[]>('/Inventory', isLowStock !== undefined ? { isLowStock } : undefined),
+    queryKey: [...inventoryKey, { isLowStock }, 'all-pages'],
+    queryFn: async ({ signal }) => {
+      const items = await fetchAllPages((page) =>
+        getApiInventory({ isLowStock, Page: page, PageSize: MAX_PAGE_SIZE }, { signal }),
+      );
+      return items.map(toInventoryItem);
+    },
     staleTime: 30_000,
   });
 }
 
-export function useCreateInventoryItem() {
-  const qc = useQueryClient();
+// The screens show their own error toasts for these, so the global one is skipped.
+const meta = { skipGlobalError: true };
+
+function useInventoryMutation<TVariables, TResult>(mutationFn: (variables: TVariables) => Promise<TResult>) {
+  const queryClient = useQueryClient();
   return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (dto: InventoryCreateDto) => apiPost<InventoryResponseDto>('/Inventory', dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    meta,
+    mutationFn,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: inventoryKey }),
   });
 }
 
-export function useUpdateInventoryItem() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: ({ id, dto }: { id: string; dto: InventoryCreateDto }) =>
-      apiPut<InventoryResponseDto>(`/Inventory/${id}`, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useCreateInventoryItem = () =>
+  useInventoryMutation((dto: InventoryItemInput) => postApiInventory(dto).then(toInventoryItem));
+
+export const useUpdateInventoryItem = () =>
+  useInventoryMutation(({ id, dto }: { id: string; dto: InventoryItemInput }) =>
+    putApiInventoryId(id, dto).then(toInventoryItem),
+  );

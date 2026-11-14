@@ -1,41 +1,45 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiPut, apiDelete } from '@/apiClient';
-import { CategoryResponseDto, CategoryCreateDto } from '@/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  deleteApiInventoryCategoriesId,
+  getApiInventoryCategories,
+  getGetApiInventoryCategoriesQueryKey,
+  getGetApiInventoryQueryKey,
+  postApiInventoryCategories,
+  putApiInventoryCategoriesId,
+} from '@detaileed/api-client';
 
-const QUERY_KEY = 'categories';
+const categoriesKey = getGetApiInventoryCategoriesQueryKey();
 
+/** Inventory categories of the studio (not paged). */
 export function useCategories() {
   return useQuery({
-    queryKey: [QUERY_KEY],
-    queryFn: () => apiGet<CategoryResponseDto[]>('/inventory-categories'),
+    queryKey: categoriesKey,
+    queryFn: ({ signal }) => getApiInventoryCategories({ signal }),
     staleTime: 60_000,
   });
 }
 
-export function useCreateCategory() {
-  const qc = useQueryClient();
+// The screens show their own error toasts for these, so the global one is skipped.
+const meta = { skipGlobalError: true };
+
+function useCategoriesMutation<TVariables, TResult>(mutationFn: (variables: TVariables) => Promise<TResult>) {
+  const queryClient = useQueryClient();
   return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (dto: CategoryCreateDto) => apiPost<CategoryResponseDto>('/inventory-categories', dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    meta,
+    mutationFn,
+    // Items show their category's name, so a rename or delete refreshes them too.
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: categoriesKey }),
+        queryClient.invalidateQueries({ queryKey: getGetApiInventoryQueryKey() }),
+      ]),
   });
 }
 
-export function useUpdateCategory() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: ({ id, dto }: { id: string; dto: CategoryCreateDto }) =>
-      apiPut<CategoryResponseDto>(`/inventory-categories/${id}`, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useCreateCategory = () =>
+  useCategoriesMutation((dto: { name: string }) => postApiInventoryCategories(dto));
 
-export function useDeleteCategory() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (id: string) => apiDelete(`/inventory-categories/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useUpdateCategory = () =>
+  useCategoriesMutation(({ id, dto }: { id: string; dto: { name: string } }) => putApiInventoryCategoriesId(id, dto));
+
+export const useDeleteCategory = () => useCategoriesMutation((id: string) => deleteApiInventoryCategoriesId(id));

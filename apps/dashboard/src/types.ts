@@ -2,15 +2,6 @@
 
 export type StudioRole = 'Owner' | 'Manager' | 'Employee';
 
-export interface CategoryResponseDto {
-  id: string;
-  name: string;
-}
-
-export interface CategoryCreateDto {
-  name: string;
-}
-
 export interface InviteEmployeeDto {
   email: string;
   roleId: number;
@@ -26,26 +17,6 @@ export interface EmployeeResponseDto {
   email: string;
   name?: string | null;
   roleId: number;
-}
-
-export interface InventoryResponseDto {
-  id: string;
-  studioId: string;
-  categoryName: string | null;
-  name: string;
-  description: string | null;
-  unit: string;
-  stock: number;
-  minStock: number | null;
-}
-
-export interface InventoryCreateDto {
-  categoryId?: string | null;
-  name: string;
-  description?: string | null;
-  unit: string;
-  stock: number;
-  minStock?: number | null;
 }
 
 // === Legacy types kept for UI compatibility ===

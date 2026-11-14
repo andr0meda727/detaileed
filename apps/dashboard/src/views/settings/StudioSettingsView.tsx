@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { Wrench, Layers, Users, Plus, Trash2, Loader2, Mail, CheckCircle, Edit2 } from 'lucide-react';
-import { CategoryCreateDto, InviteEmployeeDto } from '../../types';
+import { InviteEmployeeDto } from '../../types';
 import { ServicesSettings } from '@/features/services';
 import NameForm from '@/shared/ui/NameForm';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
-import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/features/inventory/api/categories';
+import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/features/inventory';
 import { apiPost } from '../../apiClient';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
@@ -43,7 +43,7 @@ const CategoriesTab: React.FC<{ addToast: (message: string, type: 'success' | 'e
   };
 
   const handleSave = async (name: string) => {
-    const dto: CategoryCreateDto = { name };
+    const dto = { name };
     try {
       if (editing) {
         await updateCategory.mutateAsync({ id: editing.id, dto });
