@@ -1,18 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 
-import {
-  X as XIcon,
-  Phone,
-  Search,
-  Car as CarIcon,
-  Plus,
-  Check,
-  Edit2,
-  Trash2,
-  Clock,
-  User,
-  MessageSquare,
-} from 'lucide-react';
+import { Phone, Search, Car as CarIcon, Plus, Edit2, Trash2 } from 'lucide-react';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
 import Skeleton from '@/shared/ui/Skeleton';
@@ -20,28 +8,14 @@ import LoadingSpinner from '@/shared/ui/LoadingSpinner';
 import CreateClientModal from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
 import VehicleModal from '@/features/clients/components/VehicleModal';
-import type { Client, Vehicle } from '@/features/clients/model/types';
-import {
-  useClients,
-  useUpdateClient,
-  useCreateVehicle,
-  useUpdateVehicle,
-  useDeleteVehicle,
-} from '@/features/clients/api/clients';
-import { useServices } from '@/hooks/useServices';
-import { useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
-import { createService } from '@/services/serviceService';
-import { BOOKING_STATUSES, type Booking, type BookingStatus } from '@/features/bookings';
-import { formatPln } from '@/shared/lib/money';
+import type { Client } from '@/features/clients/model/types';
+import { useClients, useDeleteVehicle } from '@/features/clients/api/clients';
+
 import { useToast } from '@/shared/ui/ToastContext';
-import { toggleIdSelection } from '@/shared/lib/selection';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 
 const ClientsView: React.FC = () => {
   const { addToast } = useToast();
   const { data: clients = [], isLoading, refetch: refetchClients } = useClients();
-  const { data: availableServices = [], refetch: refetchServices } = useServices();
-  const updateClientMutation = useUpdateClient();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
@@ -51,41 +25,13 @@ const ClientsView: React.FC = () => {
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [editingVehicleId, setEditingVehicleId] = useState<string | null>(null);
-  const [vehicleFormData, setVehicleFormData] = useState({ brand: '', model: '', licensePlate: '' });
   const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [clientSearch, setClientSearch] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState<{ client: Client; vehicle: Vehicle } | null>(null);
-  const [priceInput, setPriceInput] = useState('0,00');
-
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [isEditingBooking, setIsEditingBooking] = useState(true);
-  const [customServiceInput, setCustomServiceInput] = useState('');
-  const [selectedTime, setSelectedTime] = useState('08:00');
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedSearchQuery(searchQuery), 140);
     return () => clearTimeout(timeout);
   }, [searchQuery]);
-  const formatTime = (iso: string) => {
-    const d = new Date(iso);
-    return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-  };
-  const confirmStatusUpdate = (_e: React.MouseEvent, _booking: Booking, _targetStatus: BookingStatus) => {};
 
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-
-  const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
-  const [newBookingClientNip, setNewBookingClientNip] = useState('');
-  const [newVehicleBrand, setNewVehicleBrand] = useState('');
-  const [newVehicleModel, setNewVehicleModel] = useState('');
-  const [newVehiclePlate, setNewVehiclePlate] = useState('');
-  const [newClientNameForBooking, setNewClientNameForBooking] = useState('');
-  const [newClientPhoneForBooking, setNewClientPhoneForBooking] = useState('');
-  const [newClientEmailForBooking, setNewClientEmailForBooking] = useState('');
-
-  const createVehicleMut = useCreateVehicle();
-  const updateVehicleMut = useUpdateVehicle();
   const deleteVehicleMut = useDeleteVehicle();
 
   const activeClientDetail = useMemo(() => {
@@ -108,11 +54,6 @@ const ClientsView: React.FC = () => {
     );
   }, [debouncedSearchQuery, clients]);
 
-  const searchResults = useClientVehicleSearch(clients, clientSearch);
-
-  const toggleService = (serviceId: string) =>
-    setSelectedServices((selected) => toggleIdSelection(selected, serviceId));
-
   const executeDeleteVehicle = async () => {
     if (!deleteConfirmation) return;
     try {
@@ -126,19 +67,6 @@ const ClientsView: React.FC = () => {
     }
   };
 
-  const handleAddCustomService = async () => {
-    const name = customServiceInput.trim();
-    if (!name) return;
-    try {
-      const created = await createService({ name });
-      setSelectedServices((prev) => [...prev, created.id]);
-      setCustomServiceInput('');
-      if (refetchServices) refetchServices();
-    } catch (err) {
-      addToast(getApiErrorMessage(err, 'Nie udało się dodać usługi.'), 'error');
-    }
-  };
-
   if (isLoading) return <LoadingSpinner />;
 
   return (
@@ -146,11 +74,7 @@ const ClientsView: React.FC = () => {
       <GlobalHeader
         title="Klienci"
         subtitle="CRM • Zarządzanie Relacjami"
-        onAddBooking={() => {
-          setIsEditingBooking(true);
-          setSelectedBooking(null);
-          setIsBookingModalOpen(true);
-        }}
+        onAddBooking={() => setIsBookingModalOpen(true)}
         onAddClient={() => setIsClientModalOpen(true)}
       />
 
@@ -229,7 +153,7 @@ const ClientsView: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredClients.map((client, idx) => (
+                filteredClients.map((client) => (
                   <tr
                     key={client.id}
                     onClick={() => setViewingClientDetail(client)}
@@ -339,147 +263,8 @@ const ClientsView: React.FC = () => {
 
       <CreateClientModal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} />
 
-      <Modal
-        isOpen={isBookingModalOpen && !isEditingBooking}
-        onClose={() => setIsBookingModalOpen(false)}
-        title="Detale Zlecenia"
-      >
-        {selectedBooking && (
-          <div className="space-y-8">
-            <div className="p-8 bg-green-deep rounded-2xl border border-white/5 relative overflow-hidden">
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-cream-warm">
-                      <User size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest">Klient</p>
-                      <h4 className="text-xl font-normal text-white tracking-tighter">{selectedBooking.client.name}</h4>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    {selectedBooking.client.phone && (
-                      <a
-                        href={`tel:${selectedBooking.client.phone}`}
-                        className="flex items-center gap-2 text-cream-warm hover:text-white transition-colors"
-                      >
-                        <Phone size={14} />
-                        <span className="text-l font-semibold font-mono">{selectedBooking.client.phone}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  {selectedBooking.client.phone && (
-                    <a
-                      href={`tel:${selectedBooking.client.phone}`}
-                      className="w-12 h-12 bg-cream-warm text-green-deep rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-                    >
-                      <Phone size={20} />
-                    </a>
-                  )}
-                  {selectedBooking.client.phone && (
-                    <a
-                      href={`sms:${selectedBooking.client.phone}`}
-                      className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-                    >
-                      <MessageSquare size={20} />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-sm">
-                  <Clock size={28} />
-                </div>
-                <div>
-                  <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Termin</p>
-                  <p className="text-lg font-bold text-green-deep">
-                    {new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} •{' '}
-                    {formatTime(selectedBooking.scheduledAt)}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div
-                  className={`inline-block px-5 py-2.5 rounded-2xl border-2 mb-2 font-bold text-[11px] uppercase tracking-widest`}
-                  style={{
-                    color: selectedBooking.statusColor || 'var(--green-deep)',
-                    backgroundColor: (selectedBooking.statusColor || 'var(--green-deep)') + '15',
-                    borderColor: (selectedBooking.statusColor || 'var(--green-deep)') + '40',
-                  }}
-                >
-                  {selectedBooking.status}
-                </div>
-                <div className="flex flex-col items-end">
-                  <p className="text-3xl font-extrabold text-green-deep font-mono leading-none tracking-tighter">
-                    {formatPln(selectedBooking.totalPrice)}
-                  </p>
-                  <p className="text-[9px] font-semibold text-green-light uppercase mt-1 tracking-widest">PLN Netto</p>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <p className="text-[10px] font-semibold text-green-light uppercase tracking-[0.4em] ml-4">Zakres Prac</p>
-              <div className="flex flex-wrap gap-2">
-                {selectedBooking.services.map((s) => (
-                  <span
-                    key={s}
-                    className="px-5 py-3 bg-green-deep text-cream-warm rounded-xl text-[12px] font-semibold uppercase tracking-widest shadow-md"
-                  >
-                    {s}
-                  </span>
-                ))}
-                {selectedBooking.services.length === 0 && (
-                  <span className="text-sm text-slate-400">Brak przypisanych usług</span>
-                )}
-              </div>
-            </div>
-            {selectedBooking.notes && (
-              <div className="space-y-2">
-                <p className="text-[10px] font-semibold text-green-light uppercase tracking-[0.4em] ml-4">Notatki</p>
-                <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl">{selectedBooking.notes}</p>
-              </div>
-            )}
-            <div className="flex gap-4 pt-6">
-              {selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA);
-                      setIsBookingModalOpen(false);
-                    }}
-                    className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Check size={16} strokeWidth={2.5} /> Zakończ
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA);
-                      setIsBookingModalOpen(false);
-                    }}
-                    className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <XIcon size={16} strokeWidth={2.5} /> Anuluj
-                  </button>
-                </>
-              )}
-              <button
-                onClick={() => setIsBookingModalOpen(false)}
-                className={`py-5 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
-              >
-                Zamknij
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
       <CreateBookingModal
-        isOpen={isBookingModalOpen && isEditingBooking}
+        isOpen={isBookingModalOpen}
         onClose={() => {
           setIsBookingModalOpen(false);
           if (refetchClients) refetchClients();
