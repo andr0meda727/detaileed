@@ -6,9 +6,9 @@ import Modal from '@/shared/ui/Modal';
 
 import { bookingFormSchema, BookingFormValues, clientFormSchema, vehicleFormSchema } from '@/shared/lib/validations';
 import { useClients, useClientVehicleSearch, useCreateClient, type Client, type Vehicle } from '@/features/clients';
-import { useServices } from '@/hooks/useServices';
+import { useServices } from '@/features/services/api/services';
 import { useCreateBooking } from '@/features/bookings/api/bookings';
-import { createService } from '@/services/serviceService';
+import { createService } from '@/features/services/api/serviceService';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
 import { useToast } from '@/shared/ui/ToastContext';
 import { toggleIdSelection } from '@/shared/lib/selection';

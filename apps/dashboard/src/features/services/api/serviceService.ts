@@ -1,5 +1,5 @@
-import { apiGet, apiPost, apiDelete } from '../apiClient';
-import { ServiceResponseDto, CreateServiceDto } from '../types';
+import { apiGet, apiPost, apiDelete } from '@/apiClient';
+import { ServiceResponseDto, CreateServiceDto } from '@/types';
 
 export async function getServices(): Promise<ServiceResponseDto[]> {
   return apiGet<ServiceResponseDto[]>('/Service', undefined);

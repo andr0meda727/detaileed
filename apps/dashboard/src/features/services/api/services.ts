@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiDelete } from '../apiClient';
-import { ServiceResponseDto, CreateServiceDto } from '../types';
+import { apiGet, apiPost, apiDelete } from '@/apiClient';
+import { ServiceResponseDto, CreateServiceDto } from '@/types';
 
 const QUERY_KEY = 'services';
 

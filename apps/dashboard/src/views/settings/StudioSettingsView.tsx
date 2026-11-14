@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Wrench, Layers, Users, Plus, Trash2, X, Save, Loader2, Mail, CheckCircle, Edit2 } from 'lucide-react';
 import { CategoryCreateDto, CreateServiceDto, InviteEmployeeDto } from '../../types';
-import { useServices, useCreateService, useDeleteService } from '../../hooks/useServices';
+import { useServices, useCreateService, useDeleteService } from '@/features/services/api/services';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '../../hooks/useCategories';
 import { apiPost } from '../../apiClient';
 import GlobalHeader from '@/shared/ui/GlobalHeader';

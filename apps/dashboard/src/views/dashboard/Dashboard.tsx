@@ -33,7 +33,7 @@ import {
 } from '@/features/clients';
 import type { Client, Vehicle } from '@/features/clients';
 
-import { createService } from '../../services/serviceService';
+import { createService } from '@/features/services/api/serviceService';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import {
   BOOKING_STATUSES,
@@ -45,7 +45,7 @@ import {
 } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
 import { useInventory } from '../../hooks/useInventory';
-import { useServices } from '../../hooks/useServices';
+import { useServices } from '@/features/services/api/services';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
