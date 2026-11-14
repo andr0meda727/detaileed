@@ -10,33 +10,63 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as AcceptInvitationRouteImport } from './routes/accept-invitation'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as SetPasswordRouteImport } from './routes/set-password'
 
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AcceptInvitationRoute = AcceptInvitationRouteImport.update({
+  id: '/accept-invitation',
+  path: '/accept-invitation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SetPasswordRoute = SetPasswordRouteImport.update({
+  id: '/set-password',
+  path: '/set-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
+  '/accept-invitation': typeof AcceptInvitationRoute
+  '/login': typeof LoginRoute
+  '/set-password': typeof SetPasswordRoute
 }
 export interface FileRoutesByTo {
   '/$': typeof SplatRoute
+  '/accept-invitation': typeof AcceptInvitationRoute
+  '/login': typeof LoginRoute
+  '/set-password': typeof SetPasswordRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/$': typeof SplatRoute
+  '/accept-invitation': typeof AcceptInvitationRoute
+  '/login': typeof LoginRoute
+  '/set-password': typeof SetPasswordRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/$'
+  fullPaths: '/$' | '/accept-invitation' | '/login' | '/set-password'
   fileRoutesByTo: FileRoutesByTo
-  to: '/$'
-  id: '__root__' | '/$'
+  to: '/$' | '/accept-invitation' | '/login' | '/set-password'
+  id: '__root__' | '/$' | '/accept-invitation' | '/login' | '/set-password'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute
+  AcceptInvitationRoute: typeof AcceptInvitationRoute
+  LoginRoute: typeof LoginRoute
+  SetPasswordRoute: typeof SetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +78,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accept-invitation': {
+      id: '/accept-invitation'
+      path: '/accept-invitation'
+      fullPath: '/accept-invitation'
+      preLoaderRoute: typeof AcceptInvitationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/set-password': {
+      id: '/set-password'
+      path: '/set-password'
+      fullPath: '/set-password'
+      preLoaderRoute: typeof SetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
+  AcceptInvitationRoute: AcceptInvitationRoute,
+  LoginRoute: LoginRoute,
+  SetPasswordRoute: SetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -23,6 +23,7 @@ import { ToastProvider, useToast } from './contexts/ToastContext';
 import { createQueryClient } from './shared/queryClient';
 import { RouterProvider } from '@tanstack/react-router';
 import { router } from './app/router';
+import { subscribeToAuthChanges } from './app/auth';
 
 export const LegacyApp: React.FC = () => {
   const queryClient = useQueryClient();
@@ -214,6 +215,8 @@ export const LegacyApp: React.FC = () => {
 
 const AppRouter: React.FC = () => {
   const queryClient = useQueryClient();
+  // Route guards read the session in beforeLoad; re-run them whenever it changes.
+  useEffect(() => subscribeToAuthChanges(() => void router.invalidate()), []);
   return <RouterProvider router={router} context={{ queryClient }} />;
 };
 
