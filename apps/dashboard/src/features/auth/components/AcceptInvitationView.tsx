@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import supabase from '@/shared/lib/supabase';
-import { apiFetch } from '@detaileed/api-client';
+import React, { useState } from 'react';
+import {
+  useGetApiInvitationsToken,
+  usePostApiInvitationsTokenAccept,
+  usePostApiInvitationsTokenDecline,
+} from '@detaileed/api-client';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface InvitationPreview {
-  studioName: string;
-  role: string;
-  expiresAt: string;
-  email: string;
-}
-
 interface AcceptInvitationViewProps {
   token: string;
+  /** Accepting or declining needs a signed-in user. */
+  isSignedIn: boolean;
   onSuccess: () => void;
   onRequireLogin?: () => void;
 }
@@ -29,63 +27,44 @@ const ROLE_LABELS: Record<string, string> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSuccess, onRequireLogin }) => {
-  const [invitation, setInvitation] = useState<InvitationPreview | null>(null);
-  const [authToken, setAuthToken] = useState<string | null>(null);
-  const [loadingInvitation, setLoadingInvitation] = useState(true);
-  const [loadingAction, setLoadingAction] = useState(false);
-  const [fetchError, setFetchError] = useState('');
-  const [actionError, setActionError] = useState('');
+const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
+  token,
+  isSignedIn,
+  onSuccess,
+  onRequireLogin,
+}) => {
+  const {
+    data: invitation,
+    isLoading: loadingInvitation,
+    isError,
+  } = useGetApiInvitationsToken(token, {
+    query: { retry: false },
+  });
+  // Errors are shown inline below the buttons, not as a toast.
+  const meta = { skipGlobalError: true };
+  const accept = usePostApiInvitationsTokenAccept({ mutation: { meta } });
+  const decline = usePostApiInvitationsTokenDecline({ mutation: { meta } });
   const [decision, setDecision] = useState<'accepted' | 'declined' | null>(null);
 
-  // Pobierz JWT z aktywnej sesji Supabase
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setAuthToken(session?.access_token ?? null);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_e, session) => {
-      setAuthToken(session?.access_token ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Pobierz podgląd zaproszenia
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setInvitation(await apiFetch<InvitationPreview>(`/api/invitations/${encodeURIComponent(token)}`));
-      } catch {
-        setFetchError('Zaproszenie wygasło lub zostało już wykorzystane.');
-      } finally {
-        setLoadingInvitation(false);
-      }
-    };
-
-    load();
-  }, [token]);
+  const loadingAction = accept.isPending || decline.isPending;
+  const failed = accept.error ?? decline.error;
+  const actionError = failed ? getApiErrorMessage(failed, 'Wystąpił błąd. Spróbuj ponownie.') : '';
+  const fetchError =
+    isError || (!loadingInvitation && !invitation) ? 'Zaproszenie wygasło lub zostało już wykorzystane.' : '';
 
   const handleAction = async (action: 'accept' | 'decline') => {
-    if (!authToken) return;
-
-    setActionError('');
-    setLoadingAction(true);
-
+    if (!isSignedIn) return;
     try {
-      await apiFetch(`/api/invitations/${encodeURIComponent(token)}/${action}`, { method: 'POST' });
-
-      setDecision(action === 'accept' ? 'accepted' : 'declined');
-
       if (action === 'accept') {
+        await accept.mutateAsync({ token });
+        setDecision('accepted');
         setTimeout(onSuccess, 1800);
+      } else {
+        await decline.mutateAsync({ token });
+        setDecision('declined');
       }
-    } catch (err) {
-      setActionError(getApiErrorMessage(err, 'Wystąpił błąd. Spróbuj ponownie.'));
-    } finally {
-      setLoadingAction(false);
+    } catch {
+      // Shown through actionError.
     }
   };
 
@@ -172,7 +151,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
         </div>
 
         {/* Ostrzeżenie — niezalogowany */}
-        {!authToken && (
+        {!isSignedIn && (
           <div className="mb-5 p-4 bg-amber-50 text-amber-700 text-sm rounded-xl border border-amber-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
             <span>Musisz być zalogowany, aby odpowiedzieć na zaproszenie.</span>
             {onRequireLogin && (
@@ -195,7 +174,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
         <div className="flex gap-3">
           <button
             onClick={() => handleAction('decline')}
-            disabled={loadingAction || !authToken}
+            disabled={loadingAction || !isSignedIn}
             className="flex-1 border border-gray-200 text-green-deep font-semibold py-3.5 rounded-xl
   hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -203,7 +182,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({ token, onSu
           </button>
           <button
             onClick={() => handleAction('accept')}
-            disabled={loadingAction || !authToken}
+            disabled={loadingAction || !isSignedIn}
             className="flex-[2] bg-green-deep text-cream font-semibold py-3.5 rounded-xl
   hover:bg-[#1a423a] transition-all disabled:opacity-70 disabled:cursor-not-allowed
   flex items-center justify-center gap-2"
