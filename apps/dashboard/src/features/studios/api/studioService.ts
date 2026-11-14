@@ -1,5 +1,5 @@
-import { apiPost, apiPut } from '../apiClient';
-import { CreateStudioDto, UpdateStudioDto, StudioDto } from '../types';
+import { apiPost, apiPut } from '@/apiClient';
+import { CreateStudioDto, UpdateStudioDto, StudioDto } from '@/types';
 
 export const createStudio = (dto: CreateStudioDto): Promise<StudioDto> =>
   apiPost<StudioDto>('/Studios', dto);

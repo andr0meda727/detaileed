@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginFormSchema, passwordResetSchema, LoginFormValues, PasswordResetValues } from '@/shared/lib/validations';
 import { Zap, ArrowRight, ShieldCheck, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
 import supabase from '@/shared/lib/supabase';
-import logo from '../../images/logo.svg';
+import logo from '@/images/logo.svg';
 
 interface LoginViewProps {
   onLogin: (email: string) => void;

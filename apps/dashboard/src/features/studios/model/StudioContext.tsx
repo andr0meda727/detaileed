@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
-import { StudioDto } from '../types';
-import { getActiveStudioId } from '../app/activeStudio';
+import { StudioDto } from '@/types';
+import { getActiveStudioId } from '@/features/studios/model/activeStudio';
 
 const StudioContext = createContext<StudioDto | null>(null);
 

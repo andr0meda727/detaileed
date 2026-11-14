@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Outlet, createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { activateStudio, forgetActiveStudio } from '@/app/activeStudio';
+import { activateStudio, forgetActiveStudio } from '@/features/studios/model/activeStudio';
 import { MobileMenuContext } from '@/app/mobileMenu';
 import Sidebar from '@/app/layout/Sidebar';
-import { StudioScope } from '@/contexts/StudioContext';
-import { studiosQueryOptions } from '@/hooks/useStudios';
+import { StudioScope } from '@/features/studios/model/StudioContext';
+import { studiosQueryOptions } from '@/features/studios/api/studios';
 import supabase from '@/shared/lib/supabase';
 import type { StudioDto } from '@/types';
 

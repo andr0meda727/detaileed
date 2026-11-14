@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/shared/lib/supabase', () => ({ default: { auth: { getSession: vi.fn() } } }));
 
-const { resolveApiOrigin } = await import('@/shared/api');
+const { resolveApiOrigin } = await import('@/app/api');
 
 describe('resolveApiOrigin', () => {
   it('uses the configured origin', () => {

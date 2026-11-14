@@ -3,9 +3,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Building2, MapPin, Phone, Mail, Loader2, Sparkles, X } from 'lucide-react';
-import { useCreateStudio } from '../../hooks/useStudios';
+import { useCreateStudio } from '@/features/studios/api/studios';
 import { useToast } from '@/shared/ui/ToastContext';
-import { StudioDto } from '../../types';
+import { StudioDto } from '@/types';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 const schema = z.object({

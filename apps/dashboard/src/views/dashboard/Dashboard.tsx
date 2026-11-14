@@ -76,7 +76,7 @@ import RevenueChart from './components/RevenueChart';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 import CreateBookingModal from '../../components/modals/CreateBookingModal';
 import { useToast } from '@/shared/ui/ToastContext';
-import { useStudio } from '../../contexts/StudioContext';
+import { useStudio } from '@/features/studios/model/StudioContext';
 import Skeleton from '@/shared/ui/Skeleton';
 
 // Chart data is now computed dynamically from fetched bookings

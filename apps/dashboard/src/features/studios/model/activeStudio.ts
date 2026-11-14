@@ -1,5 +1,5 @@
 import type { QueryClient } from '@tanstack/react-query';
-import { STUDIOS_QUERY_KEY } from '@/hooks/useStudios';
+import { STUDIOS_QUERY_KEY } from '@/features/studios/api/studios';
 import type { StudioDto } from '@/types';
 
 /** Last opened studio, so `/` can reopen it after a reload. */

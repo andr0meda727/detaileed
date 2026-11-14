@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
-import { STUDIOS_QUERY_KEY } from '@/hooks/useStudios';
-import AcceptInvitationView from '@/views/auth/AcceptInvitationView';
+import { STUDIOS_QUERY_KEY } from '@/features/studios/api/studios';
+import AcceptInvitationView from '@/features/auth/components/AcceptInvitationView';
 
 export const Route = createFileRoute('/accept-invitation')({
   validateSearch: z.object({ token: z.string().catch('') }),

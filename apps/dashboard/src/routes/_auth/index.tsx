@@ -1,5 +1,5 @@
 import { createFileRoute, redirect } from '@tanstack/react-router';
-import { getLastStudioId } from '@/app/activeStudio';
+import { getLastStudioId } from '@/features/studios/model/activeStudio';
 
 /** `/` reopens the last studio, or asks the user to pick one. */
 export const Route = createFileRoute('/_auth/')({

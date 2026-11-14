@@ -1,7 +1,7 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router';
 import { z } from 'zod';
 import { getSession, safeRedirect } from '@/app/auth';
-import LoginView from '@/views/auth/LoginView';
+import LoginView from '@/features/auth/components/LoginView';
 
 export const Route = createFileRoute('/login')({
   validateSearch: z.object({ redirect: z.string().optional() }),

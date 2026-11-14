@@ -9,7 +9,7 @@ import Modal from '@/shared/ui/Modal';
 import LoadingSpinner from '@/shared/ui/LoadingSpinner';
 import EmptyState from '@/shared/ui/EmptyState';
 import { useToast } from '@/shared/ui/ToastContext';
-import { useStudio } from '../../contexts/StudioContext';
+import { useStudio } from '@/features/studios/model/StudioContext';
 import { isEmployeeRole } from '@/shared/lib/studioRole';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

@@ -21,7 +21,7 @@ vi.mock('@/shared/lib/supabase', () => ({
 vi.mock('@/apiClient', () => ({ apiGet: async () => studios }));
 
 const { routeTree } = await import('@/routeTree.gen');
-const { forgetActiveStudio } = await import('@/app/activeStudio');
+const { forgetActiveStudio } = await import('@/features/studios/model/activeStudio');
 
 function makeRouter(path: string) {
   return createRouter({

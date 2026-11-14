@@ -3,7 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 
 vi.mock('@/shared/lib/supabase', () => ({ default: { auth: { getSession: vi.fn() } } }));
 
-const { activateStudio, forgetActiveStudio, getActiveStudioId, getLastStudioId } = await import('@/app/activeStudio');
+const { activateStudio, forgetActiveStudio, getActiveStudioId, getLastStudioId } = await import('@/features/studios/model/activeStudio');
 
 const studio = (studioId: string) => ({ studioId, name: studioId, role: 'Owner', address: null });
 

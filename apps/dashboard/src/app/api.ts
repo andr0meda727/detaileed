@@ -1,5 +1,5 @@
 import { configureApiClient } from '@detaileed/api-client';
-import { getSelectedStudioId } from '@/contexts/StudioContext';
+import { getSelectedStudioId } from '@/features/studios/model/StudioContext';
 import supabase from '@/shared/lib/supabase';
 
 /**

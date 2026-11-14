@@ -1,7 +1,7 @@
 import supabase from '@/shared/lib/supabase';
-import { getSelectedStudioId } from './contexts/StudioContext';
+import { getSelectedStudioId } from '@/features/studios/model/StudioContext';
 import { ApiError, type ProblemDetails } from '@detaileed/api-client';
-import { API_ORIGIN } from './shared/api';
+import { API_ORIGIN } from '@/app/api';
 
 const API_BASE = `${API_ORIGIN}/api`;
 

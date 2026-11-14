@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Building2, MapPin, CheckCircle2, Loader2, Crown, Shield, UserCheck, Plus, RefreshCw } from 'lucide-react';
-import { StudioDto } from '../../types';
-import { useStudios } from '../../hooks/useStudios';
-import { getLastStudioId } from '../../app/activeStudio';
+import { StudioDto } from '@/types';
+import { useStudios } from '@/features/studios/api/studios';
+import { getLastStudioId } from '@/features/studios/model/activeStudio';
 import LoadingSpinner from '@/shared/ui/LoadingSpinner';
-import CreateStudioModal from '../../components/modals/CreateStudioModal';
+import CreateStudioModal from '@/features/studios/components/CreateStudioModal';
 
 interface StudioSelectViewProps {
   onSelect: (studio: StudioDto) => void;
