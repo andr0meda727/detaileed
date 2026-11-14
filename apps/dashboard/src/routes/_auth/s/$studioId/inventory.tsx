@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-import InventoryView from '@/features/inventory/components/InventoryView';
+import { InventoryView } from '@/features/inventory';
 
 export const Route = createFileRoute('/_auth/s/$studioId/inventory')({
   // ?category=<name> keeps the category filter across reloads and links.
