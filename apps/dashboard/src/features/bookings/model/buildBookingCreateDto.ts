@@ -1,5 +1,5 @@
-import { BookingCreateDto } from '@/types';
-import { BOOKING_STATUSES } from '@/constants';
+import type { BookingInput } from '@/features/bookings/model/types';
+import { BOOKING_STATUSES } from '@/features/bookings/model/statuses';
 
 interface BuildBookingCreateDtoArgs {
   vehicleId: string;
@@ -19,7 +19,7 @@ export function buildBookingCreateDto({
   serviceIds,
   priceInput,
   notes = null,
-}: BuildBookingCreateDtoArgs): BookingCreateDto {
+}: BuildBookingCreateDtoArgs): BookingInput {
   return {
     vehicleId,
     clientId,

@@ -41,29 +41,27 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import {
-  BookingResponseDto,
   InventoryResponseDto,
   ClientResponseDto,
   VehicleInfoDto,
-  BookingCreateDto,
   CreateClientDto,
   ServiceResponseDto,
 } from '../../types';
-import { BOOKING_STATUSES } from '../../constants';
-import {
-  getBookings,
-  createBooking,
-  updateBooking,
-  completeBooking,
-  cancelBooking,
-} from '@/features/bookings/api/bookingService';
 import { getClients, createClient } from '../../services/clientService';
 import { createVehicle } from '../../services/vehicleService';
 import { getInventory } from '../../services/inventoryService';
 import { getServices, createService } from '../../services/serviceService';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
-import { useBookings } from '@/features/bookings/api/bookings';
+import {
+  BOOKING_STATUSES,
+  buildBookingCreateDto,
+  useBookings,
+  useCancelBooking,
+  useCompleteBooking,
+  type Booking,
+  type BookingStatus,
+} from '@/features/bookings';
+import { formatPln } from '@/shared/lib/money';
 import { useInventory } from '../../hooks/useInventory';
 import { useClients } from '../../hooks/useClients';
 import { useServices } from '../../hooks/useServices';
@@ -126,6 +124,8 @@ const activityFeed = [
 
 const Dashboard: React.FC = () => {
   const { addToast } = useToast();
+  const completeBooking = useCompleteBooking();
+  const cancelBooking = useCancelBooking();
   const navigate = useNavigate();
   const { data: bookings = [], isLoading: bookingsLoading, refetch: refetchBookings } = useBookings();
   const { data: inventory = [], isLoading: inventoryLoading, refetch: refetchInventory } = useInventory();
@@ -154,11 +154,11 @@ const Dashboard: React.FC = () => {
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isEditingBooking, setIsEditingBooking] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<BookingResponseDto | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [confirmation, setConfirmation] = useState<{
     id: string;
-    type: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES];
-    booking: BookingResponseDto;
+    type: BookingStatus;
+    booking: Booking;
   } | null>(null);
   const [clientSearch, setClientSearch] = useState('');
   const [vehicleClientSearch, setVehicleClientSearch] = useState('');
@@ -218,7 +218,7 @@ const Dashboard: React.FC = () => {
     [completedBookings, today],
   );
   const todayRevenue = useMemo(
-    () => todayCompletedBookings.reduce((sum, b) => sum + (b.totalPrice || 0) / 100, 0),
+    () => todayCompletedBookings.reduce((sum, b) => sum + b.totalPrice, 0),
     [todayCompletedBookings],
   );
 
@@ -242,48 +242,20 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const handleQuickUpdateStatus = async (
-    booking: BookingResponseDto,
-    targetStatus: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES],
-  ) => {
+  const handleQuickUpdateStatus = async (booking: Booking, targetStatus: BookingStatus) => {
     try {
-      if (targetStatus.id === BOOKING_STATUSES.ZAKONCZONA.id) {
-        await completeBooking(booking.id);
-      } else if (targetStatus.id === BOOKING_STATUSES.ANULOWANA.id) {
-        await cancelBooking(booking.id);
-      } else {
-        // Fallback or generic update for other statuses
-        const serviceIds = booking.services
-          .map((name) => availableServices.find((s) => s.name === name)?.id)
-          .filter((id): id is string => !!id);
-
-        const dto: BookingCreateDto = {
-          vehicleId: booking.vehicle.id,
-          clientId: booking.client.id,
-          scheduledAt: booking.scheduledAt,
-          statusId: targetStatus.id,
-          serviceIds: serviceIds,
-          price: booking.totalPrice ? booking.totalPrice / 100 : undefined,
-          notes: booking.notes,
-        };
-        await updateBooking(booking.id, dto);
-      }
-
+      // Quick actions only ever finish a booking: complete it or cancel it.
+      if (targetStatus.id === BOOKING_STATUSES.ZAKONCZONA.id) await completeBooking.mutateAsync(booking.id);
+      else await cancelBooking.mutateAsync(booking.id);
       addToast(`Status rezerwacji zmieniony na: ${targetStatus.name}`, 'success');
-      fetchData();
     } catch (err) {
-      console.error('Failed to update booking status:', err);
       addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas zmiany statusu.'), 'error');
     } finally {
       setConfirmation(null);
     }
   };
 
-  const confirmStatusUpdate = (
-    e: React.MouseEvent,
-    booking: BookingResponseDto,
-    targetStatus: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES],
-  ) => {
+  const confirmStatusUpdate = (e: React.MouseEvent, booking: Booking, targetStatus: BookingStatus) => {
     e.stopPropagation();
     setConfirmation({ id: booking.id, type: targetStatus, booking });
   };
@@ -293,10 +265,10 @@ const Dashboard: React.FC = () => {
     setSelectedBooking(null);
     setIsBookingModalOpen(true);
   };
-  const handleViewBooking = (booking: BookingResponseDto) => {
+  const handleViewBooking = (booking: Booking) => {
     setSelectedBooking(booking);
     setSelectedServices(booking.services);
-    setPriceInput(booking.totalPrice ? (booking.totalPrice / 100).toFixed(2).replace('.', ',') : '0,00');
+    setPriceInput(formatPln(booking.totalPrice));
     const dt = new Date(booking.scheduledAt);
     setSelectedDate(dt.toISOString().split('T')[0]);
     setSelectedTime(dt.toTimeString().slice(0, 5));
@@ -743,8 +715,7 @@ const Dashboard: React.FC = () => {
                           </div>
                           <div className="text-right shrink-0">
                             <p className="text-base font-bold text-green-deep font-mono">
-                              {((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}{' '}
-                              <span className="text-[9px] text-green-deep/35">zł</span>
+                              {formatPln(booking.totalPrice)} <span className="text-[9px] text-green-deep/35">zł</span>
                             </p>
                           </div>
                         </div>
@@ -1225,7 +1196,7 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="flex flex-col items-end">
                   <p className="text-3xl font-extrabold text-green-deep font-mono leading-none tracking-tighter">
-                    {((selectedBooking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}
+                    {formatPln(selectedBooking.totalPrice)}
                   </p>
                   <p className="text-[9px] font-semibold text-green-light uppercase mt-1 tracking-widest">PLN Netto</p>
                 </div>

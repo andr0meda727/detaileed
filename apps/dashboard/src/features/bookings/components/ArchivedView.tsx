@@ -1,6 +1,7 @@
 ﻿import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Search, History, Car as CarIcon, User, Clock, CheckCircle2, XCircle, Download } from 'lucide-react';
-import { BookingResponseDto } from '@/types';
+import type { Booking } from '@/features/bookings/model/types';
+import { formatPln } from '@/shared/lib/money';
 import { useBookings } from '@/features/bookings/api/bookings';
 import { useToast } from '@/shared/ui/ToastContext';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
@@ -11,7 +12,7 @@ const ArchivedView: React.FC = () => {
   const { addToast } = useToast();
   const { data: bookings = [], isLoading: loading } = useBookings({ isCompleted: true });
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedBooking, setSelectedBooking] = useState<BookingResponseDto | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   const filteredBookings = useMemo(() => {
     const q = searchQuery.toLowerCase();
@@ -115,7 +116,7 @@ const ArchivedView: React.FC = () => {
                 </div>
                 <div className="flex flex-col items-end justify-center shrink-0">
                   <p className="text-xl font-extrabold text-green-deep font-mono leading-none">
-                    {((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}
+                    {formatPln(booking.totalPrice)}
                   </p>
                   <span
                     className="text-[9px] font-semibold uppercase mt-1"
@@ -164,7 +165,7 @@ const ArchivedView: React.FC = () => {
               <div className="flex justify-between items-center border-t border-slate-200 pt-4">
                 <span className="text-xs font-bold text-slate-400 uppercase">Cena Netto</span>
                 <span className="text-xl font-semibold text-green-deep font-mono">
-                  {((selectedBooking.totalPrice || 0) / 100).toFixed(2)} PLN
+                  {formatPln(selectedBooking.totalPrice)} PLN
                 </span>
               </div>
               {selectedBooking.notes && (

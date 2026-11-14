@@ -23,10 +23,10 @@ import {
   Calendar,
   MoreHorizontal,
 } from 'lucide-react';
-import { BookingResponseDto, BookingCreateDto } from '@/types';
-import { BOOKING_STATUSES } from '@/constants';
-import { completeBooking, cancelBooking, updateBooking } from '@/features/bookings/api/bookingService';
-import { useBookings } from '@/features/bookings/api/bookings';
+import type { Booking } from '@/features/bookings/model/types';
+import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
+import { useBookings, useCancelBooking, useCompleteBooking } from '@/features/bookings/api/bookings';
+import { formatPln } from '@/shared/lib/money';
 import { useClients } from '@/hooks/useClients';
 import { useServices } from '@/hooks/useServices';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
@@ -60,12 +60,14 @@ const TasksView: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | 'UTWORZONA' | 'ZAKONCZONA' | 'ANULOWANA'>('all');
 
   const { addToast } = useToast();
-  const [selectedBooking, setSelectedBooking] = useState<BookingResponseDto | null>(null);
+  const completeBooking = useCompleteBooking();
+  const cancelBooking = useCancelBooking();
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [confirmation, setConfirmation] = useState<{
     id: string;
-    type: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES];
-    booking: BookingResponseDto;
+    type: BookingStatus;
+    booking: Booking;
   } | null>(null);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
@@ -131,7 +133,7 @@ const TasksView: React.FC = () => {
         acc[date].push(booking);
         return acc;
       },
-      {} as Record<string, BookingResponseDto[]>,
+      {} as Record<string, Booking[]>,
     );
     return Object.entries(grouped)
       .map(([date, bks]) => ({ date, bookings: bks }))
@@ -181,54 +183,32 @@ const TasksView: React.FC = () => {
     setIsCreateBookingModalOpen(true);
   };
 
-  const handleViewBooking = (booking: BookingResponseDto) => {
+  const handleViewBooking = (booking: Booking) => {
     const dt = new Date(booking.scheduledAt);
     setSelectedDate(dt.toISOString().split('T')[0]);
     setSelectedBooking(booking);
     setIsBookingModalOpen(true);
   };
 
-  const handleQuickUpdateStatus = async (
-    booking: BookingResponseDto,
-    targetStatus: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES],
-  ) => {
+  const handleQuickUpdateStatus = async (booking: Booking, targetStatus: BookingStatus) => {
     try {
-      if (targetStatus.id === BOOKING_STATUSES.ZAKONCZONA.id) {
-        await completeBooking(booking.id);
-      } else if (targetStatus.id === BOOKING_STATUSES.ANULOWANA.id) {
-        await cancelBooking(booking.id);
-      } else {
-        const dto: BookingCreateDto = {
-          vehicleId: booking.vehicle.id,
-          clientId: booking.client.id,
-          scheduledAt: booking.scheduledAt,
-          statusId: targetStatus.id,
-          serviceIds: [], // We don't have availableServices easily here, but usually for just status we might not need it if backend allows partial update or ignores it if not changed. Wait, backend might require it. Better to just use complete/cancel for now as requested.
-        };
-        // If we really need to update status to something else, we might need availableServices.
-        // For now, let's keep it simple as dashboard mostly uses complete/cancel quick actions.
-      }
-
+      // Quick actions only ever finish a booking: complete it or cancel it.
+      if (targetStatus.id === BOOKING_STATUSES.ZAKONCZONA.id) await completeBooking.mutateAsync(booking.id);
+      else await cancelBooking.mutateAsync(booking.id);
       addToast(`Status rezerwacji zmieniony na: ${targetStatus.name}`, 'success');
-      fetchData();
     } catch (err) {
-      console.error('Failed to update booking status:', err);
       addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas zmiany statusu.'), 'error');
     } finally {
       setConfirmation(null);
     }
   };
 
-  const confirmStatusUpdate = (
-    e: React.MouseEvent,
-    booking: BookingResponseDto,
-    targetStatus: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES],
-  ) => {
+  const confirmStatusUpdate = (e: React.MouseEvent, booking: Booking, targetStatus: BookingStatus) => {
     e.stopPropagation();
     setConfirmation({ id: booking.id, type: targetStatus, booking });
   };
 
-  const renderBookingCard = (booking: BookingResponseDto, index: number = 0) => (
+  const renderBookingCard = (booking: Booking, index: number = 0) => (
     <div
       key={booking.id}
       onClick={() => handleViewBooking(booking)}
@@ -778,7 +758,7 @@ const TasksView: React.FC = () => {
                 </div>
                 <div className="flex flex-col items-end">
                   <p className="text-3xl font-extrabold text-green-deep font-mono leading-none tracking-tighter">
-                    {((selectedBooking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}
+                    {formatPln(selectedBooking.totalPrice)}
                   </p>
                   <p className="text-[9px] font-semibold text-green-light uppercase mt-1 tracking-widest">PLN Netto</p>
                 </div>

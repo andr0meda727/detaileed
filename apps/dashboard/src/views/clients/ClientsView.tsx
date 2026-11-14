@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PREDEFINED_SERVICES, BOOKING_STATUSES } from '../../constants';
+import { PREDEFINED_SERVICES } from '../../constants';
 import {
   X as XIcon,
   Phone,
@@ -26,7 +26,7 @@ import LoadingSpinner from '@/shared/ui/LoadingSpinner';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
 import VehicleModal from '../../components/modals/VehicleModal';
-import { BookingResponseDto, ClientResponseDto, VehicleInfoDto, CreateClientDto, BookingCreateDto } from '../../types';
+import { ClientResponseDto, VehicleInfoDto, CreateClientDto } from '../../types';
 import {
   useClients,
   useCreateClient,
@@ -38,9 +38,9 @@ import {
 import { useServices } from '../../hooks/useServices';
 import { useClientVehicleSearch } from '../../hooks/useClientVehicleSearch';
 import { createService } from '../../services/serviceService';
-import { createBooking } from '@/features/bookings/api/bookingService';
 import { createVehicle } from '../../services/vehicleService';
-import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
+import { BOOKING_STATUSES, buildBookingCreateDto, type Booking, type BookingStatus } from '@/features/bookings';
+import { formatPln } from '@/shared/lib/money';
 import { useToast } from '@/shared/ui/ToastContext';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
@@ -68,7 +68,7 @@ const ClientsView: React.FC = () => {
   );
   const [priceInput, setPriceInput] = useState('0,00');
 
-  const [selectedBooking, setSelectedBooking] = useState<BookingResponseDto | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isEditingBooking, setIsEditingBooking] = useState(true);
   const [customServiceInput, setCustomServiceInput] = useState('');
   const [selectedTime, setSelectedTime] = useState('08:00');
@@ -81,11 +81,7 @@ const ClientsView: React.FC = () => {
     const d = new Date(iso);
     return d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
   };
-  const confirmStatusUpdate = (
-    _e: React.MouseEvent,
-    _booking: BookingResponseDto,
-    _targetStatus: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES],
-  ) => {};
+  const confirmStatusUpdate = (_e: React.MouseEvent, _booking: Booking, _targetStatus: BookingStatus) => {};
 
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
@@ -430,7 +426,7 @@ const ClientsView: React.FC = () => {
                 </div>
                 <div className="flex flex-col items-end">
                   <p className="text-3xl font-extrabold text-green-deep font-mono leading-none tracking-tighter">
-                    {((selectedBooking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}
+                    {formatPln(selectedBooking.totalPrice)}
                   </p>
                   <p className="text-[9px] font-semibold text-green-light uppercase mt-1 tracking-widest">PLN Netto</p>
                 </div>

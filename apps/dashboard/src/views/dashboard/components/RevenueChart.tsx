@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { BookingResponseDto } from '../../../types';
+import type { Booking } from '@/features/bookings';
 
 interface RevenueChartProps {
-  bookings: BookingResponseDto[];
+  bookings: Booking[];
 }
 
 const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
@@ -20,20 +20,20 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
       const d = new Date();
       d.setDate(now.getDate() - i);
       const dateString = d.toISOString().split('T')[0];
-      const dayBookings = bookings.filter(b => b.scheduledAt.startsWith(dateString));
-      const rev = Math.round(dayBookings.reduce((sum, b) => sum + ((b.totalPrice || 0) / 100), 0) * 100) / 100;
+      const dayBookings = bookings.filter((b) => b.scheduledAt.startsWith(dateString));
+      const rev = Math.round(dayBookings.reduce((sum, b) => sum + b.totalPrice, 0) * 100) / 100;
       wData.push({ name: dNames[d.getDay()], rev, orders: dayBookings.length });
     }
 
     // Monthly Data - Last 4 Weeks
     for (let i = 3; i >= 0; i--) {
-      const weekBookings = bookings.filter(b => {
+      const weekBookings = bookings.filter((b) => {
         const bDate = new Date(b.scheduledAt);
         const diffTime = Math.abs(now.getTime() - bDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays >= (i * 7) && diffDays < ((i + 1) * 7);
+        return diffDays >= i * 7 && diffDays < (i + 1) * 7;
       });
-      const rev = Math.round(weekBookings.reduce((sum, b) => sum + ((b.totalPrice || 0) / 100), 0) * 100) / 100;
+      const rev = Math.round(weekBookings.reduce((sum, b) => sum + b.totalPrice, 0) * 100) / 100;
       mData.push({ name: `Tydz ${4 - i}`, rev, orders: weekBookings.length });
     }
 
@@ -58,15 +58,21 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
         >
           <button
             onClick={() => setRevPeriod('weekly')}
-            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${revPeriod === 'weekly' ? 'bg-green-deep text-cream-warm shadow-md' : 'text-green-deep/40 hover:text-green-deep'
-              }`}
+            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
+              revPeriod === 'weekly'
+                ? 'bg-green-deep text-cream-warm shadow-md'
+                : 'text-green-deep/40 hover:text-green-deep'
+            }`}
           >
             Tydzień
           </button>
           <button
             onClick={() => setRevPeriod('monthly')}
-            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${revPeriod === 'monthly' ? 'bg-green-deep text-cream-warm shadow-md' : 'text-green-deep/40 hover:text-green-deep'
-              }`}
+            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
+              revPeriod === 'monthly'
+                ? 'bg-green-deep text-cream-warm shadow-md'
+                : 'text-green-deep/40 hover:text-green-deep'
+            }`}
           >
             Miesiąc
           </button>
@@ -82,9 +88,29 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#f1f3f5" />
-            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#adb5bd', fontSize: 10, fontWeight: 700 }} />
-            <Tooltip contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 40px rgba(0,0,0,0.1)', fontWeight: 700 }} formatter={(value) => Number(value ?? 0).toFixed(2) + ' PLN'} />
-            <Area type="monotone" dataKey="rev" stroke="var(--green-deep)" strokeWidth={4} fill="url(#colorEmerald)" name="Przychód" />
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: '#adb5bd', fontSize: 10, fontWeight: 700 }}
+            />
+            <Tooltip
+              contentStyle={{
+                borderRadius: '1rem',
+                border: 'none',
+                boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                fontWeight: 700,
+              }}
+              formatter={(value) => Number(value ?? 0).toFixed(2) + ' PLN'}
+            />
+            <Area
+              type="monotone"
+              dataKey="rev"
+              stroke="var(--green-deep)"
+              strokeWidth={4}
+              fill="url(#colorEmerald)"
+              name="Przychód"
+            />
           </AreaChart>
         </ResponsiveContainer>
       </div>

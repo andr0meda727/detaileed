@@ -49,29 +49,6 @@ export interface ClientInfoDto {
   phone: string | null;
 }
 
-export interface BookingResponseDto {
-  id: string;
-  scheduledAt: string;
-  completedAt: string | null;
-  totalPrice: number;
-  status: string;
-  statusColor: string;
-  notes: string | null;
-  vehicle: VehicleInfoDto;
-  client: ClientInfoDto;
-  services: string[];
-}
-
-export interface BookingCreateDto {
-  vehicleId: string;
-  clientId: string;
-  scheduledAt: string;
-  statusId?: string;
-  serviceIds?: string[];
-  price?: number;
-  notes?: string | null;
-}
-
 export interface ClientResponseDto {
   id: string;
   name: string;
