@@ -16,7 +16,7 @@ import {
   FileBarChart2,
   Shield,
 } from 'lucide-react';
-import { useStudio } from '@/features/studios/model/StudioContext';
+import { useStudio } from '@/features/studios';
 import { isEmployeeRole } from '@/shared/lib/studioRole';
 import logo from '@/images/logo.svg';
 

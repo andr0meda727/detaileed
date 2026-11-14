@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyRound, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Shield } from 'lucide-react';
-import { setPasswordSchema, SetPasswordValues } from '@/shared/lib/validations';
+import { setPasswordSchema, SetPasswordValues } from '@/features/auth/model/schemas';
 import supabase from '@/shared/lib/supabase';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 

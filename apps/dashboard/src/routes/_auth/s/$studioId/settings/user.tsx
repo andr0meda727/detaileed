@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
-import UserSettingsView from '@/features/auth/components/UserSettingsView';
+import { UserSettingsView } from '@/features/auth';
 
 export const Route = createFileRoute('/_auth/s/$studioId/settings/user')({
   component: UserSettingsView,

@@ -24,7 +24,7 @@ import CreateBookingModal from '../../components/modals/CreateBookingModal';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 
 import { EmployeeResponseDto } from '../../types';
-import { useStudio } from '@/features/studios/model/StudioContext';
+import { useStudio } from '@/features/studios';
 import Skeleton from '@/shared/ui/Skeleton';
 import { isOwnerRole } from '@/shared/lib/studioRole';
 
