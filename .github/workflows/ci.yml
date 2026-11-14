@@ -48,3 +48,12 @@ jobs:
 
       - name: Lint, typecheck, test, build
         run: pnpm check
+
+      # The vite build regenerates the route tree from src/routes; typecheck uses the committed copy.
+      - name: Check the generated route tree is up to date
+        run: |
+          if [ -n "$(git status --porcelain -- apps/dashboard/src/routeTree.gen.ts)" ]; then
+            git diff -- apps/dashboard/src/routeTree.gen.ts
+            echo "::error::routeTree.gen.ts is out of date. Run 'pnpm build' (or 'pnpm dev') and commit it."
+            exit 1
+          fi
