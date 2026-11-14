@@ -1,4 +1,3 @@
-
 // === API Response DTOs ===
 
 export interface StudioDto {
@@ -161,8 +160,3 @@ export interface UpdateStudioDto {
   email?: string | null;
   address?: string | null;
 }
-
-export type ViewType = 'Dashboard' | 'Tasks' | 'Clients' | 'Inventory' | 'Studios' | 'StudioSettings' | 'UserSettings' | 'Reports' | 'Team';
-
-
-

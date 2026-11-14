@@ -6,7 +6,20 @@ import { useEmployees, useInviteEmployee, useChangeEmployeeRole, useRemoveEmploy
 import { useToast } from '../../contexts/ToastContext';
 
 import { PREDEFINED_SERVICES, BOOKING_STATUSES } from '../../constants';
-import { X as XIcon, Clock, MessageSquare, AlertCircle, Calendar, Hash, Wrench, UserPlus, Save, Car as CarIcon, Edit2, Check } from 'lucide-react';
+import {
+  X as XIcon,
+  Clock,
+  MessageSquare,
+  AlertCircle,
+  Calendar,
+  Hash,
+  Wrench,
+  UserPlus,
+  Save,
+  Car as CarIcon,
+  Edit2,
+  Check,
+} from 'lucide-react';
 import CreateBookingModal from '../../components/modals/CreateBookingModal';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 
@@ -21,7 +34,7 @@ const ROLES = [
   { id: 3, name: 'Pracownik', color: 'text-emerald-600 bg-emerald-50', badgeColor: 'bg-emerald-500' },
 ];
 
-export const TeamView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) => {
+export const TeamView: React.FC = () => {
   const { data: employees = [], isLoading: loading, refetch } = useEmployees();
   const inviteEmployeeMut = useInviteEmployee();
   const changeEmployeeRoleMut = useChangeEmployeeRole();
@@ -36,10 +49,7 @@ export const TeamView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) 
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
-
   const isOwner = isOwnerRole(selectedStudio?.role);
-
-
 
   const onAddBooking = () => {
     setIsBookingModalOpen(true);
@@ -77,21 +87,30 @@ export const TeamView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) 
     }
   };
 
-  const filteredEmployees = employees.filter(emp =>
-    (emp.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (emp.email || '').toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredEmployees = employees.filter(
+    (emp) =>
+      (emp.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (emp.email || '').toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   // Removed full-page loading to keep layout static
 
   return (
     <div className="space-y-8 pb-20">
-      <GlobalHeader title="Zespół" subtitle="Zarządzaj Pracownikami w Studiu" onAddBooking={onAddBooking} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
+      <GlobalHeader
+        title="Zespół"
+        subtitle="Zarządzaj Pracownikami w Studiu"
+        onAddBooking={onAddBooking}
+        onAddClient={() => setIsClientModalOpen(true)}
+      />
 
       {/* Akcje / Panel Górny */}
       <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
         <div className="flex-1 relative group max-w-sm">
-          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-light transition-colors" />
+          <Search
+            size={20}
+            className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-light transition-colors"
+          />
           <input
             type="text"
             placeholder="Szukaj osoby..."
@@ -115,17 +134,25 @@ export const TeamView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) 
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-xl sm:text-2xl font-bold text-green-deep tracking-tight flex items-center gap-3">
             <Users className="text-amber-500" /> Kadra Pracownicza
-            <span className="text-xs font-semibold text-slate-400 py-1 px-3 bg-slate-50 rounded-full">{employees.length} OSÓB</span>
+            <span className="text-xs font-semibold text-slate-400 py-1 px-3 bg-slate-50 rounded-full">
+              {employees.length} OSÓB
+            </span>
           </h3>
-          <button onClick={() => refetch()} className="text-slate-400 hover:text-green-deep transition-colors p-2 bg-slate-50 hover:bg-slate-100 rounded-full">
+          <button
+            onClick={() => refetch()}
+            className="text-slate-400 hover:text-green-deep transition-colors p-2 bg-slate-50 hover:bg-slate-100 rounded-full"
+          >
             <RefreshCw size={18} />
           </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
-            [1, 2, 3].map(i => (
-              <div key={i} className="p-6 rounded-3xl border border-slate-100 bg-slate-50/50 flex flex-col justify-between h-[180px]">
+            [1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="p-6 rounded-3xl border border-slate-100 bg-slate-50/50 flex flex-col justify-between h-[180px]"
+              >
                 <div>
                   <div className="flex items-start justify-between mb-4">
                     <Skeleton width="48px" height="48px" className="rounded-2xl shrink-0" />
@@ -141,13 +168,19 @@ export const TeamView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) 
             ))
           ) : (
             <>
-              {filteredEmployees.map(emp => {
-                const roleDetails = ROLES.find(r => r.id === emp.roleId) || ROLES[2];
+              {filteredEmployees.map((emp) => {
+                const roleDetails = ROLES.find((r) => r.id === emp.roleId) || ROLES[2];
                 return (
-                  <div key={emp.userId} className="p-6 rounded-3xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-lg transition-all group relative overflow-hidden flex flex-col justify-between">
+                  <div
+                    key={emp.userId}
+                    className="p-6 rounded-3xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-lg transition-all group relative overflow-hidden flex flex-col justify-between"
+                  >
                     <div>
                       <div className="flex items-start justify-between mb-4">
-                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg" style={{ backgroundColor: '#1a2e1e', color: '#fbf8f1' }}>
+                        <div
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg"
+                          style={{ backgroundColor: '#1a2e1e', color: '#fbf8f1' }}
+                        >
                           {(emp.name || emp.email || 'N')[0].toUpperCase()}
                         </div>
                         {isOwner ? (
@@ -156,12 +189,16 @@ export const TeamView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) 
                             onChange={(e) => handleRoleChange(emp.userId, parseInt(e.target.value))}
                             className={`text-[10px] font-bold uppercase tracking-widest pl-3 pr-8 py-2 rounded-xl outline-none cursor-pointer appearance-none ${roleDetails.color} border-none`}
                           >
-                            {ROLES.map(r => (
-                              <option key={r.id} value={r.id}>{r.name}</option>
+                            {ROLES.map((r) => (
+                              <option key={r.id} value={r.id}>
+                                {r.name}
+                              </option>
                             ))}
                           </select>
                         ) : (
-                          <span className={`text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded-xl ${roleDetails.color}`}>
+                          <span
+                            className={`text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded-xl ${roleDetails.color}`}
+                          >
                             {roleDetails.name}
                           </span>
                         )}
@@ -211,7 +248,6 @@ export const TeamView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) 
         onClose={() => setIsInviteModalOpen(false)}
         onInvite={handleInvite}
       />
-    
 
       <CreateClientModal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} />
       <CreateBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} />
@@ -220,4 +256,3 @@ export const TeamView: React.FC<{ onOpenMenu?: () => void }> = ({ onOpenMenu }) 
 };
 
 export default TeamView;
-

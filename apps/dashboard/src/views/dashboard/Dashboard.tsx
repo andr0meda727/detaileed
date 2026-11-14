@@ -1,15 +1,62 @@
-
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import {
-  Calendar, Package, Car as CarIcon, X, Plus, TrendingUp, AlertCircle, Search, CheckCircle2, XCircle, Check,
-  User, UserPlus, Phone, Mail, MessageSquare, Edit2, Save, Clock, Users, DollarSign, Wrench, ArrowRight,
-  Shield, Droplets, CircleDot, Activity, CreditCard, ChevronRight, Star, Zap, BarChart3,
-  AlertTriangle, Timer, UserCheck, Clipboard, MoreHorizontal
+  Calendar,
+  Package,
+  Car as CarIcon,
+  X,
+  Plus,
+  TrendingUp,
+  AlertCircle,
+  Search,
+  CheckCircle2,
+  XCircle,
+  Check,
+  User,
+  UserPlus,
+  Phone,
+  Mail,
+  MessageSquare,
+  Edit2,
+  Save,
+  Clock,
+  Users,
+  DollarSign,
+  Wrench,
+  ArrowRight,
+  Shield,
+  Droplets,
+  CircleDot,
+  Activity,
+  CreditCard,
+  ChevronRight,
+  Star,
+  Zap,
+  BarChart3,
+  AlertTriangle,
+  Timer,
+  UserCheck,
+  Clipboard,
+  MoreHorizontal,
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
-import { BookingResponseDto, InventoryResponseDto, ViewType, ClientResponseDto, VehicleInfoDto, BookingCreateDto, CreateClientDto, ServiceResponseDto } from '../../types';
+import {
+  BookingResponseDto,
+  InventoryResponseDto,
+  ClientResponseDto,
+  VehicleInfoDto,
+  BookingCreateDto,
+  CreateClientDto,
+  ServiceResponseDto,
+} from '../../types';
 import { BOOKING_STATUSES } from '../../constants';
-import { getBookings, createBooking, updateBooking, completeBooking, cancelBooking } from '../../services/bookingService';
+import {
+  getBookings,
+  createBooking,
+  updateBooking,
+  completeBooking,
+  cancelBooking,
+} from '../../services/bookingService';
 import { getClients, createClient } from '../../services/clientService';
 import { createVehicle } from '../../services/vehicleService';
 import { getInventory } from '../../services/inventoryService';
@@ -35,27 +82,65 @@ import Skeleton from '../../components/ui/Skeleton';
 // Chart data is now computed dynamically from fetched bookings
 
 const activityFeed = [
-  { id: 1, text: 'Nowe zlecenie dodane', sub: 'Sprawdź zakładkę rezerwacji', time: '14 min temu', icon: CheckCircle2, color: 'text-green-deep bg-cream-warm/30' },
-  { id: 2, text: 'Nowa rezerwacja w systemie', sub: 'Klient dodany automatycznie', time: '32 min temu', icon: Calendar, color: 'text-blue-500 bg-blue-50' },
-  { id: 3, text: 'Niski stan magazynowy', sub: 'Sprawdź magazyn', time: '1 godz. temu', icon: AlertTriangle, color: 'text-amber-500 bg-amber-50' },
-  { id: 4, text: 'System zaktualizowany', sub: 'Synchronizacja z backendem', time: '2 godz. temu', icon: CreditCard, color: 'text-violet-500 bg-violet-50' },
-  { id: 5, text: 'Dane załadowane poprawnie', sub: 'API połączone', time: '3 godz. temu', icon: Wrench, color: 'text-cyan-500 bg-cyan-50' },
+  {
+    id: 1,
+    text: 'Nowe zlecenie dodane',
+    sub: 'Sprawdź zakładkę rezerwacji',
+    time: '14 min temu',
+    icon: CheckCircle2,
+    color: 'text-green-deep bg-cream-warm/30',
+  },
+  {
+    id: 2,
+    text: 'Nowa rezerwacja w systemie',
+    sub: 'Klient dodany automatycznie',
+    time: '32 min temu',
+    icon: Calendar,
+    color: 'text-blue-500 bg-blue-50',
+  },
+  {
+    id: 3,
+    text: 'Niski stan magazynowy',
+    sub: 'Sprawdź magazyn',
+    time: '1 godz. temu',
+    icon: AlertTriangle,
+    color: 'text-amber-500 bg-amber-50',
+  },
+  {
+    id: 4,
+    text: 'System zaktualizowany',
+    sub: 'Synchronizacja z backendem',
+    time: '2 godz. temu',
+    icon: CreditCard,
+    color: 'text-violet-500 bg-violet-50',
+  },
+  {
+    id: 5,
+    text: 'Dane załadowane poprawnie',
+    sub: 'API połączone',
+    time: '3 godz. temu',
+    icon: Wrench,
+    color: 'text-cyan-500 bg-cyan-50',
+  },
 ];
 
-const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: () => void }> = ({ onNavigate, onOpenMenu }) => {
+const Dashboard: React.FC = () => {
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const { data: bookings = [], isLoading: bookingsLoading, refetch: refetchBookings } = useBookings();
   const { data: inventory = [], isLoading: inventoryLoading, refetch: refetchInventory } = useInventory();
   const { data: clients = [], isLoading: clientsLoading, refetch: refetchClients } = useClients();
   const { data: availableServices = [], isLoading: servicesLoading, refetch: refetchServices } = useServices();
 
   // Natywne rozwiązanie Anti-Flicker z pominięciem opóźnień:
-  // Hook isPending z React Query zgłosi brak danych tylko początkowo. 
+  // Hook isPending z React Query zgłosi brak danych tylko początkowo.
   // Aby chronić się przed "tikami" przeglądarki podczas odmountowywania, żądamy wymuszenia flagi na podstawie obiektywnej zawartości zwrotnej (czy faktycznie nie ma żadnych rezerwacji, usług, stoku, ani klientów w pamięci lokalnej/cache).
   const isDataFound = bookings.length > 0 || clients.length > 0 || inventory.length > 0 || availableServices.length > 0;
   const loading = (bookingsLoading || inventoryLoading || clientsLoading || servicesLoading) && !isDataFound;
   const showLoading = loading;
   const { selectedStudio } = useStudio();
+  const goTo = (to: '/s/$studioId/tasks' | '/s/$studioId/inventory') =>
+    void navigate({ to, params: { studioId: selectedStudio?.studioId ?? '' } });
 
   const fetchData = useCallback(() => {
     refetchBookings();
@@ -70,10 +155,16 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
   const [isEditingBooking, setIsEditingBooking] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<BookingResponseDto | null>(null);
-  const [confirmation, setConfirmation] = useState<{ id: string, type: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES], booking: BookingResponseDto } | null>(null);
+  const [confirmation, setConfirmation] = useState<{
+    id: string;
+    type: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES];
+    booking: BookingResponseDto;
+  } | null>(null);
   const [clientSearch, setClientSearch] = useState('');
   const [vehicleClientSearch, setVehicleClientSearch] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto, vehicle: VehicleInfoDto } | null>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<{ client: ClientResponseDto; vehicle: VehicleInfoDto } | null>(
+    null,
+  );
   const [selectedClientForVehicle, setSelectedClientForVehicle] = useState<ClientResponseDto | null>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [customServiceInput, setCustomServiceInput] = useState('');
@@ -98,24 +189,36 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
   const today = new Date().toISOString().split('T')[0];
-  const lowStockItems = useMemo(() => inventory.filter(i => i.minStock !== null && i.stock < i.minStock), [inventory]);
-  const completedBookings = useMemo(
-    () => bookings.filter(b => b.completedAt !== null),
-    [bookings],
+  const lowStockItems = useMemo(
+    () => inventory.filter((i) => i.minStock !== null && i.stock < i.minStock),
+    [inventory],
   );
-  const todayBookings = useMemo(() => bookings.filter(b => b.scheduledAt.startsWith(today)).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)), [bookings, today]);
-  const upcomingBookings = useMemo(() => bookings.filter(b => b.scheduledAt.startsWith(today) === false && b.scheduledAt > new Date().toISOString()).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)), [bookings, today]);
+  const completedBookings = useMemo(() => bookings.filter((b) => b.completedAt !== null), [bookings]);
+  const todayBookings = useMemo(
+    () =>
+      bookings
+        .filter((b) => b.scheduledAt.startsWith(today))
+        .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)),
+    [bookings, today],
+  );
+  const upcomingBookings = useMemo(
+    () =>
+      bookings
+        .filter((b) => b.scheduledAt.startsWith(today) === false && b.scheduledAt > new Date().toISOString())
+        .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)),
+    [bookings, today],
+  );
   const activeCount = useMemo(
-    () => bookings.filter(b => b.status === BOOKING_STATUSES.UTWORZONA.name).length,
+    () => bookings.filter((b) => b.status === BOOKING_STATUSES.UTWORZONA.name).length,
     [bookings],
   );
-  const completedCount = useMemo(() => bookings.filter(b => b.completedAt !== null).length, [bookings]);
+  const completedCount = useMemo(() => bookings.filter((b) => b.completedAt !== null).length, [bookings]);
   const todayCompletedBookings = useMemo(
-    () => completedBookings.filter(b => b.scheduledAt.startsWith(today)),
+    () => completedBookings.filter((b) => b.scheduledAt.startsWith(today)),
     [completedBookings, today],
   );
   const todayRevenue = useMemo(
-    () => todayCompletedBookings.reduce((sum, b) => sum + ((b.totalPrice || 0) / 100), 0),
+    () => todayCompletedBookings.reduce((sum, b) => sum + (b.totalPrice || 0) / 100, 0),
     [todayCompletedBookings],
   );
 
@@ -130,7 +233,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
     if (!name) return;
     try {
       const created = await createService({ name });
-      setSelectedServices(prev => [...prev, created.id]);
+      setSelectedServices((prev) => [...prev, created.id]);
       setCustomServiceInput('');
       refetchServices();
     } catch (err) {
@@ -139,7 +242,10 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
     }
   };
 
-  const handleQuickUpdateStatus = async (booking: BookingResponseDto, targetStatus: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES]) => {
+  const handleQuickUpdateStatus = async (
+    booking: BookingResponseDto,
+    targetStatus: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES],
+  ) => {
     try {
       if (targetStatus.id === BOOKING_STATUSES.ZAKONCZONA.id) {
         await completeBooking(booking.id);
@@ -148,7 +254,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       } else {
         // Fallback or generic update for other statuses
         const serviceIds = booking.services
-          .map(name => availableServices.find(s => s.name === name)?.id)
+          .map((name) => availableServices.find((s) => s.name === name)?.id)
           .filter((id): id is string => !!id);
 
         const dto: BookingCreateDto = {
@@ -173,7 +279,11 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
     }
   };
 
-  const confirmStatusUpdate = (e: React.MouseEvent, booking: BookingResponseDto, targetStatus: typeof BOOKING_STATUSES[keyof typeof BOOKING_STATUSES]) => {
+  const confirmStatusUpdate = (
+    e: React.MouseEvent,
+    booking: BookingResponseDto,
+    targetStatus: (typeof BOOKING_STATUSES)[keyof typeof BOOKING_STATUSES],
+  ) => {
     e.stopPropagation();
     setConfirmation({ id: booking.id, type: targetStatus, booking });
   };
@@ -210,7 +320,7 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
         clientId: selectedClientForVehicle.id,
         licensePlate: newVehiclePlate,
         brand: newVehicleBrand || null,
-        model: newVehicleModel || null
+        model: newVehicleModel || null,
       });
       addToast('Nowy pojazd został pomyślnie dodany do klienta.', 'success');
 
@@ -218,7 +328,9 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       setVehicleClientMode('existing');
       setSelectedClientForVehicle(null);
       setVehicleClientSearch('');
-      setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+      setNewVehicleBrand('');
+      setNewVehicleModel('');
+      setNewVehiclePlate('');
       fetchData();
     } catch (err) {
       console.error('Failed to create vehicle:', err);
@@ -248,8 +360,13 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       // Close modal and reset state as the goal (adding a vehicle) is achieved by creating the new client & vehicle
       setIsVehicleModalOpen(false);
       setVehicleClientMode('existing');
-      setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
-      setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+      setNewClientName('');
+      setNewClientPhone('');
+      setNewClientEmail('');
+      setNewBookingClientNip('');
+      setNewVehicleBrand('');
+      setNewVehicleModel('');
+      setNewVehiclePlate('');
       fetchData();
     } catch (err) {
       console.error('Failed to create client with vehicle:', err);
@@ -261,12 +378,18 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
     setVehicleClientMode('existing');
     setSelectedClientForVehicle(null);
     setVehicleClientSearch('');
-    setNewClientName(''); setNewClientPhone(''); setNewClientEmail(''); setNewBookingClientNip('');
-    setNewVehicleBrand(''); setNewVehicleModel(''); setNewVehiclePlate('');
+    setNewClientName('');
+    setNewClientPhone('');
+    setNewClientEmail('');
+    setNewBookingClientNip('');
+    setNewVehicleBrand('');
+    setNewVehicleModel('');
+    setNewVehiclePlate('');
     setIsVehicleModalOpen(true);
   };
 
-  const formatBookingTime = (iso: string) => new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+  const formatBookingTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
   const formatBookingDate = (iso: string) => {
     const d = new Date(iso);
     return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -276,7 +399,20 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   const hour = now.getHours();
   const greeting = hour < 12 ? 'Dzień dobry' : hour < 18 ? 'Cześć' : 'Dobry wieczór';
   const dayNames = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
-  const monthNames = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia'];
+  const monthNames = [
+    'stycznia',
+    'lutego',
+    'marca',
+    'kwietnia',
+    'maja',
+    'czerwca',
+    'lipca',
+    'sierpnia',
+    'września',
+    'października',
+    'listopada',
+    'grudnia',
+  ];
   const dateStr = `${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
 
   if (loading && !bookings.length && !clients.length && !inventory.length && !availableServices.length) {
@@ -285,12 +421,35 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <GlobalHeader title="Panel" subtitle={`Studio ${selectedStudio?.name}`} onAddBooking={handleOpenNewBooking} onAddClient={() => setIsClientModalOpen(true)} onOpenMenu={onOpenMenu} />
+      <GlobalHeader
+        title="Panel"
+        subtitle={`Studio ${selectedStudio?.name}`}
+        onAddBooking={handleOpenNewBooking}
+        onAddClient={() => setIsClientModalOpen(true)}
+      />
 
       {/* Greeting Banner */}
-      <div className="relative rounded-xl p-6 lg:p-8 overflow-hidden" style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #1e3523 50%, #152b1a 100%)', border: '1px solid rgba(255,255,255,0.05)' }}>
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(237,231,216,0.1) 0%, transparent 70%)', filter: 'blur(40px)' }} />
-        <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(232,168,48,0.06) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+      <div
+        className="relative rounded-xl p-6 lg:p-8 overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #1a2e1e 0%, #1e3523 50%, #152b1a 100%)',
+          border: '1px solid rgba(255,255,255,0.05)',
+        }}
+      >
+        <div
+          className="absolute top-0 right-0 w-80 h-80 rounded-full pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle, rgba(237,231,216,0.1) 0%, transparent 70%)',
+            filter: 'blur(40px)',
+          }}
+        />
+        <div
+          className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle, rgba(232,168,48,0.06) 0%, transparent 70%)',
+            filter: 'blur(30px)',
+          }}
+        />
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div>
             <p className="text-[11px] font-bold text-cream-warm uppercase tracking-[0.4em] mb-3">{dateStr}</p>
@@ -300,7 +459,9 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 <Skeleton width="200px" height="14px" className="bg-white/10" />
               ) : (
                 <span className="">
-                  Masz <span className="text-cream-warm font-bold">{todayBookings.length}</span> {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} na dziś i <span className="text-cream-warm font-bold">{upcomingBookings.length}</span> nadchodzących.
+                  Masz <span className="text-cream-warm font-bold">{todayBookings.length}</span>{' '}
+                  {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} na dziś i{' '}
+                  <span className="text-cream-warm font-bold">{upcomingBookings.length}</span> nadchodzących.
                 </span>
               )}
             </div>
@@ -320,10 +481,8 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
 
       {/* Main Content Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-
         {/* === LEFT COLUMN === */}
         <div className="lg:col-span-8 flex flex-col gap-6 lg:gap-8">
-
           {/* Today's Schedule */}
           <div className="floating-card-static p-6 lg:p-7 flex flex-col">
             <div className="flex items-center justify-between mb-6">
@@ -333,16 +492,23 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                   {showLoading ? (
                     <Skeleton width="120px" height="10px" />
                   ) : (
-                    <span className="">{todayBookings.length} {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} zaplanowanych</span>
+                    <span className="">
+                      {todayBookings.length} {todayBookings.length === 1 ? 'zlecenie' : 'zleceń'} zaplanowanych
+                    </span>
                   )}
                 </p>
               </div>
-              <div className="w-10 h-10 bg-green-deep text-cream-warm rounded-[0.875rem] flex items-center justify-center shadow-lg shrink-0"><Calendar size={17} /></div>
+              <div className="w-10 h-10 bg-green-deep text-cream-warm rounded-[0.875rem] flex items-center justify-center shadow-lg shrink-0">
+                <Calendar size={17} />
+              </div>
             </div>
             <div className="space-y-3">
               {showLoading ? (
-                [1, 2, 3].map(i => (
-                  <div key={i} className="p-4 sm:p-5 rounded-xl flex items-center gap-6 bg-slate-50 border border-slate-100">
+                [1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="p-4 sm:p-5 rounded-xl flex items-center gap-6 bg-slate-50 border border-slate-100"
+                  >
                     <div className="w-20 border-r pr-6 shrink-0 border-slate-200 flex flex-col items-center justify-center gap-2">
                       <Skeleton width="40px" height="14px" className="rounded" />
                       <Skeleton width="54px" height="18px" className="rounded-md" />
@@ -357,55 +523,113 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 <>
                   {todayBookings.length === 0 && (
                     <div className="flex flex-col items-center justify-center py-14 text-center">
-                      <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-5" style={{ background: 'rgba(26,46,30,0.05)' }}><Calendar size={24} className="text-green-deep/20" /></div>
+                      <div
+                        className="w-14 h-14 rounded-xl flex items-center justify-center mb-5"
+                        style={{ background: 'rgba(26,46,30,0.05)' }}
+                      >
+                        <Calendar size={24} className="text-green-deep/20" />
+                      </div>
                       <p className="text-base font-semibold text-green-deep/25">Brak zleceń na dziś</p>
-                      <p className="text-xs text-green-deep/20 mt-1 font-medium">Dodaj nową rezerwację klikając + powyżej</p>
+                      <p className="text-xs text-green-deep/20 mt-1 font-medium">
+                        Dodaj nową rezerwację klikając + powyżej
+                      </p>
                     </div>
                   )}
                   {todayBookings.map((booking) => {
                     const time = formatBookingTime(booking.scheduledAt);
                     return (
-                      <div key={booking.id} onClick={() => handleViewBooking(booking)}
+                      <div
+                        key={booking.id}
+                        onClick={() => handleViewBooking(booking)}
                         className={`p-4 sm:p-5 rounded-xl flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 cursor-pointer group transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.08)] ${activeDropdownId === booking.id ? 'relative z-50' : 'relative z-10'}`}
                         style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}
                       >
-                        <div className="flex items-center justify-between sm:flex-col sm:justify-center sm:min-w-[90px] sm:border-r sm:pr-6 shrink-0" style={{ borderColor: 'rgba(26,46,30,0.08)' }}>
+                        <div
+                          className="flex items-center justify-between sm:flex-col sm:justify-center sm:min-w-[90px] sm:border-r sm:pr-6 shrink-0"
+                          style={{ borderColor: 'rgba(26,46,30,0.08)' }}
+                        >
                           <span className="text-xl font-bold text-green-deep font-mono">{time}</span>
-                          <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border mt-1.5" style={{ color: booking.statusColor || 'var(--green-deep)', borderColor: (booking.statusColor || 'var(--green-deep)') + '40', backgroundColor: (booking.statusColor || 'var(--green-deep)') + '12' }}>{booking.status}</span>
+                          <span
+                            className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border mt-1.5"
+                            style={{
+                              color: booking.statusColor || 'var(--green-deep)',
+                              borderColor: (booking.statusColor || 'var(--green-deep)') + '40',
+                              backgroundColor: (booking.statusColor || 'var(--green-deep)') + '12',
+                            }}
+                          >
+                            {booking.status}
+                          </span>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h5 className="text-lg font-sans font-bold text-green-deep truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
+                          <h5 className="text-lg font-sans font-bold text-green-deep truncate">
+                            {booking.vehicle.brand} {booking.vehicle.model}
+                          </h5>
                           <div className="flex flex-wrap gap-1.5 mt-1.5">
-                            {booking.services.length > 0 ? booking.services.map((s, idx) => (
-                              <span key={idx} className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm">
-                                {s}
+                            {booking.services.length > 0 ? (
+                              booking.services.map((s, idx) => (
+                                <span
+                                  key={idx}
+                                  className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm"
+                                >
+                                  {s}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-[10px] font-bold text-green-deep/30 uppercase tracking-widest mt-0.5">
+                                Brak usług
                               </span>
-                            )) : (
-                              <span className="text-[10px] font-bold text-green-deep/30 uppercase tracking-widest mt-0.5">Brak usług</span>
                             )}
                           </div>
-                          <p className="text-[12px] font-semibold text-green-light mt-1"><UserCheck size={10} className="inline mr-1" />{booking.client.name}</p>
+                          <p className="text-[12px] font-semibold text-green-light mt-1">
+                            <UserCheck size={10} className="inline mr-1" />
+                            {booking.client.name}
+                          </p>
                         </div>
                         <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
                           {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
                             <div className="relative">
-                              <button onClick={(e) => { e.stopPropagation(); setActiveDropdownId(activeDropdownId === booking.id ? null : booking.id); }} title="Więcej akcji"
-                                className="w-11 h-11 flex items-center justify-center rounded-xl bg-white text-slate-500 hover:bg-slate-50 hover:text-green-deep transition-all active:scale-95 border border-slate-200 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveDropdownId(activeDropdownId === booking.id ? null : booking.id);
+                                }}
+                                title="Więcej akcji"
+                                className="w-11 h-11 flex items-center justify-center rounded-xl bg-white text-slate-500 hover:bg-slate-50 hover:text-green-deep transition-all active:scale-95 border border-slate-200 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]"
+                              >
                                 <MoreHorizontal size={22} strokeWidth={2.5} />
                               </button>
                               {activeDropdownId === booking.id && (
                                 <>
-                                  <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setActiveDropdownId(null); }} />
-                                  <div className="absolute right-0 top-12 z-50 w-48 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-100 py-1.5 animate-zoom-in" onClick={e => e.stopPropagation()}>
-                                    <button onClick={(e) => { setActiveDropdownId(null); confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA); }}
-                                      className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-[12px] font-bold text-green-deep">
+                                  <div
+                                    className="fixed inset-0 z-40"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveDropdownId(null);
+                                    }}
+                                  />
+                                  <div
+                                    className="absolute right-0 top-12 z-50 w-48 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-100 py-1.5 animate-zoom-in"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <button
+                                      onClick={(e) => {
+                                        setActiveDropdownId(null);
+                                        confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA);
+                                      }}
+                                      className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-[12px] font-bold text-green-deep"
+                                    >
                                       <div className="w-7 h-7 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0">
                                         <Check size={14} strokeWidth={2.5} />
                                       </div>
                                       Zakończ zlecenie
                                     </button>
-                                    <button onClick={(e) => { setActiveDropdownId(null); confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA); }}
-                                      className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-red-50 transition-colors text-[12px] font-bold text-red-500">
+                                    <button
+                                      onClick={(e) => {
+                                        setActiveDropdownId(null);
+                                        confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA);
+                                      }}
+                                      className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-red-50 transition-colors text-[12px] font-bold text-red-500"
+                                    >
                                       <div className="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
                                         <X size={14} strokeWidth={2.5} />
                                       </div>
@@ -416,7 +640,9 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                               )}
                             </div>
                           )}
-                          <div className="bg-green-deep text-cream-warm px-4 py-2.5 rounded-xl font-mono text-[15px] font-bold tracking-wider uppercase shadow-md">{booking.vehicle.licensePlate}</div>
+                          <div className="bg-green-deep text-cream-warm px-4 py-2.5 rounded-xl font-mono text-[15px] font-bold tracking-wider uppercase shadow-md">
+                            {booking.vehicle.licensePlate}
+                          </div>
                         </div>
                       </div>
                     );
@@ -435,69 +661,102 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h4 className="text-lg lg:text-xl font-sans font-bold text-green-deep">Nadchodzące</h4>
-                  <p className="text-[11px] font-semibold text-green-light/60 uppercase tracking-wide mt-1">następne {upcomingBookings.length} rezerwacji</p>
+                  <p className="text-[11px] font-semibold text-green-light/60 uppercase tracking-wide mt-1">
+                    następne {upcomingBookings.length} rezerwacji
+                  </p>
                 </div>
-                <button onClick={() => onNavigate?.('Tasks')} className="text-[9px] font-semibold text-green-light uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">Wszystkie <ChevronRight size={13} /></button>
+                <button
+                  onClick={() => goTo('/s/$studioId/tasks')}
+                  className="text-[9px] font-semibold text-green-light uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all"
+                >
+                  Wszystkie <ChevronRight size={13} />
+                </button>
               </div>
               <div className="space-y-2">
-                {loading ? (
-                  Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="p-4 rounded-xl flex items-center gap-5" style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}>
-                      <div className="text-center shrink-0 min-w-[50px] border-r pr-4" style={{ borderColor: 'rgba(26,46,30,0.08)' }}>
-                        <Skeleton width="30px" height="24px" className="mx-auto mb-1 rounded-md" />
-                        <Skeleton width="24px" height="10px" className="mx-auto" />
-                      </div>
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <Skeleton width="100px" height="16px" className="rounded-md" />
-                        <Skeleton width="60%" height="12px" className="rounded-md" />
-                      </div>
-                      <div className="text-right shrink-0">
-                        <Skeleton width="60px" height="20px" className="rounded-md" />
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  upcomingBookings.slice(0, 4).map(booking => {
-                    const dt = new Date(booking.scheduledAt);
-                    const day = String(dt.getDate()).padStart(2, '0');
-                    const monthIdx = dt.getMonth();
-                    return (
-                      <div key={booking.id} onClick={() => handleViewBooking(booking)}
-                        className="p-4 rounded-xl flex items-center gap-5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.07)]"
+                {loading
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="p-4 rounded-xl flex items-center gap-5"
                         style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}
                       >
-                        <div className="text-center shrink-0 min-w-[50px] border-r pr-4" style={{ borderColor: 'rgba(26,46,30,0.08)' }}>
-                          <p className="text-xl font-bold text-green-deep font-mono leading-none">{day}</p>
-                          <p className="text-[8px] font-bold text-green-light/60 uppercase tracking-wider">{['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'][monthIdx]}</p>
+                        <div
+                          className="text-center shrink-0 min-w-[50px] border-r pr-4"
+                          style={{ borderColor: 'rgba(26,46,30,0.08)' }}
+                        >
+                          <Skeleton width="30px" height="24px" className="mx-auto mb-1 rounded-md" />
+                          <Skeleton width="24px" height="10px" className="mx-auto" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h5 className="text-sm font-bold text-green-deep truncate">{booking.vehicle.brand} {booking.vehicle.model}</h5>
-                          <div className="flex flex-wrap gap-1 mt-1.5">
-                            {booking.services.length > 0 ? booking.services.map((s, idx) => (
-                              <span key={idx} className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm">
-                                {s}
-                              </span>
-                            )) : (
-                              <span className="text-[8px] font-bold text-green-deep/30 uppercase tracking-widest">Brak usług</span>
-                            )}
-                          </div>
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <Skeleton width="100px" height="16px" className="rounded-md" />
+                          <Skeleton width="60%" height="12px" className="rounded-md" />
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-base font-bold text-green-deep font-mono">{((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')} <span className="text-[9px] text-green-deep/35">zł</span></p>
+                          <Skeleton width="60px" height="20px" className="rounded-md" />
                         </div>
                       </div>
-                    );
-                  })
-                )}
+                    ))
+                  : upcomingBookings.slice(0, 4).map((booking) => {
+                      const dt = new Date(booking.scheduledAt);
+                      const day = String(dt.getDate()).padStart(2, '0');
+                      const monthIdx = dt.getMonth();
+                      return (
+                        <div
+                          key={booking.id}
+                          onClick={() => handleViewBooking(booking)}
+                          className="p-4 rounded-xl flex items-center gap-5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_8px_24px_-6px_rgba(0,0,0,0.07)]"
+                          style={{ background: 'rgba(26,46,30,0.03)', border: '1px solid rgba(26,46,30,0.05)' }}
+                        >
+                          <div
+                            className="text-center shrink-0 min-w-[50px] border-r pr-4"
+                            style={{ borderColor: 'rgba(26,46,30,0.08)' }}
+                          >
+                            <p className="text-xl font-bold text-green-deep font-mono leading-none">{day}</p>
+                            <p className="text-[8px] font-bold text-green-light/60 uppercase tracking-wider">
+                              {
+                                ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'][
+                                  monthIdx
+                                ]
+                              }
+                            </p>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h5 className="text-sm font-bold text-green-deep truncate">
+                              {booking.vehicle.brand} {booking.vehicle.model}
+                            </h5>
+                            <div className="flex flex-wrap gap-1 mt-1.5">
+                              {booking.services.length > 0 ? (
+                                booking.services.map((s, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm"
+                                  >
+                                    {s}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-[8px] font-bold text-green-deep/30 uppercase tracking-widest">
+                                  Brak usług
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-base font-bold text-green-deep font-mono">
+                              {((booking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}{' '}
+                              <span className="text-[9px] text-green-deep/35">zł</span>
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
               </div>
             </div>
           </div>
-
         </div>
 
         {/* === RIGHT COLUMN === */}
         <div className="lg:col-span-4 flex flex-col gap-6 lg:gap-8">
-
           {/* Quick Actions */}
           <div className="floating-card-static p-6 sm:p-7">
             <h4 className="text-lg font-sans font-bold text-green-deep mb-5">Szybkie Akcje</h4>
@@ -527,14 +786,21 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 {
                   label: 'Magazyn',
                   icon: Package,
-                  action: () => onNavigate?.('Inventory'),
-                  style: { background: 'linear-gradient(135deg, #f0ebe0 0%, #e8e0d0 100%)', color: '#1a2e1e', border: '1px solid rgba(26,46,30,0.1)' },
+                  action: () => goTo('/s/$studioId/inventory'),
+                  style: {
+                    background: 'linear-gradient(135deg, #f0ebe0 0%, #e8e0d0 100%)',
+                    color: '#1a2e1e',
+                    border: '1px solid rgba(26,46,30,0.1)',
+                  },
                   iconColor: '#3d6b46',
                 },
               ].map((qa, i) => (
-                <button key={i} onClick={qa.action}
+                <button
+                  key={i}
+                  onClick={qa.action}
                   className="p-4 rounded-2xl flex flex-col items-center gap-2.5 transition-all active:scale-95 hover:-translate-y-1 hover:shadow-lg duration-200"
-                  style={qa.style}>
+                  style={qa.style}
+                >
                   <qa.icon size={22} strokeWidth={2} color={qa.iconColor} />
                   <span className="text-[10px] font-bold uppercase tracking-widest">{qa.label}</span>
                 </button>
@@ -546,12 +812,19 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           <div className="floating-card-static p-6 sm:p-7">
             <div className="flex items-center justify-between mb-5">
               <h4 className="text-lg font-sans font-bold text-green-deep">Alerty Magazynowe</h4>
-              <div className={`w-9 h-9 rounded-[0.875rem] flex items-center justify-center ${lowStockItems.length > 0 ? 'bg-amber/15 text-amber' : 'bg-green-pale/40 text-green-light'}`}><Package size={16} /></div>
+              <div
+                className={`w-9 h-9 rounded-[0.875rem] flex items-center justify-center ${lowStockItems.length > 0 ? 'bg-amber/15 text-amber' : 'bg-green-pale/40 text-green-light'}`}
+              >
+                <Package size={16} />
+              </div>
             </div>
             {showLoading ? (
               <div className="space-y-2">
-                {[1, 2].map(i => (
-                  <div key={i} className="p-4 rounded-2xl flex items-center justify-between bg-slate-50 border border-slate-100">
+                {[1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="p-4 rounded-2xl flex items-center justify-between bg-slate-50 border border-slate-100"
+                  >
                     <div className="flex-1 flex flex-col justify-center gap-2">
                       <Skeleton width="60%" height="14px" className="rounded-md" />
                       <Skeleton width="40%" height="10px" className="rounded" />
@@ -571,14 +844,23 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {lowStockItems.map(item => (
-                      <div key={item.id} className="p-4 rounded-2xl flex items-center justify-between" style={{ background: 'rgba(232,168,48,0.07)', border: '1px solid rgba(232,168,48,0.15)' }}>
+                    {lowStockItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-4 rounded-2xl flex items-center justify-between"
+                        style={{ background: 'rgba(232,168,48,0.07)', border: '1px solid rgba(232,168,48,0.15)' }}
+                      >
                         <div>
                           <h5 className="text-[13px] font-bold text-green-deep truncate">{item.name}</h5>
-                          <p className="text-[10px] font-semibold text-amber uppercase tracking-widest">{item.categoryName || 'Brak kategorii'}</p>
+                          <p className="text-[10px] font-semibold text-amber uppercase tracking-widest">
+                            {item.categoryName || 'Brak kategorii'}
+                          </p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-base font-bold text-amber font-mono">{item.stock}<span className="text-[11px] ml-0.5 opacity-60">{item.unit}</span></p>
+                          <p className="text-base font-bold text-amber font-mono">
+                            {item.stock}
+                            <span className="text-[11px] ml-0.5 opacity-60">{item.unit}</span>
+                          </p>
                           <p className="text-[10px] font-semibold text-green-deep/35 uppercase">min. {item.minStock}</p>
                         </div>
                       </div>
@@ -593,24 +875,31 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
           <div className="floating-card-static p-6 sm:p-7">
             <div className="flex items-center justify-between mb-5">
               <h4 className="text-lg font-sans font-bold text-green-deep">Aktywność</h4>
-              <div className="w-9 h-9 bg-green-deep text-cream-warm rounded-[0.875rem] flex items-center justify-center"><Activity size={16} /></div>
+              <div className="w-9 h-9 bg-green-deep text-cream-warm rounded-[0.875rem] flex items-center justify-center">
+                <Activity size={16} />
+              </div>
             </div>
             <div className="space-y-0.5">
-              {activityFeed.map(item => (
-                <div key={item.id} className="flex items-start gap-3.5 p-3 rounded-2xl cursor-pointer transition-all duration-200 hover:bg-[rgba(26,46,30,0.04)]"
+              {activityFeed.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-start gap-3.5 p-3 rounded-2xl cursor-pointer transition-all duration-200 hover:bg-[rgba(26,46,30,0.04)]"
                   style={{ borderRadius: '1rem' }}
                 >
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}><item.icon size={14} /></div>
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${item.color}`}>
+                    <item.icon size={14} />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-bold text-green-deep leading-tight">{item.text}</p>
                     <p className="text-[9px] font-semibold text-green-deep/35 mt-0.5 truncate">{item.sub}</p>
                   </div>
-                  <span className="text-[8px] font-semibold text-green-deep/25 whitespace-nowrap shrink-0 mt-0.5">{item.time}</span>
+                  <span className="text-[8px] font-semibold text-green-deep/25 whitespace-nowrap shrink-0 mt-0.5">
+                    {item.time}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
-
         </div>
       </div>
 
@@ -618,16 +907,36 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
       <Modal isOpen={!!confirmation} onClose={() => setConfirmation(null)} title="Zmień Status">
         <div className="space-y-8">
           <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-2xl">
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-cream-warm/20 text-green-deep' : 'bg-red-50 text-red-500'}`}><AlertCircle size={32} /></div>
+            <div
+              className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-cream-warm/20 text-green-deep' : 'bg-red-50 text-red-500'}`}
+            >
+              <AlertCircle size={32} />
+            </div>
             <div>
-              <p className="text-lg font-bold text-green-deep leading-tight mb-2">{confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'Zakończyć to zlecenie?' : 'Anulować tę rezerwację?'}</p>
-              <p className="text-sm text-slate-500 font-semibold">{confirmation?.booking.vehicle.brand} {confirmation?.booking.vehicle.model}</p>
+              <p className="text-lg font-bold text-green-deep leading-tight mb-2">
+                {confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id
+                  ? 'Zakończyć to zlecenie?'
+                  : 'Anulować tę rezerwację?'}
+              </p>
+              <p className="text-sm text-slate-500 font-semibold">
+                {confirmation?.booking.vehicle.brand} {confirmation?.booking.vehicle.model}
+              </p>
               <p className="text-xs text-slate-400 font-mono mt-1">{confirmation?.booking.vehicle.licensePlate}</p>
             </div>
           </div>
           <div className="flex gap-4">
-            <button onClick={() => setConfirmation(null)} className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all">Wróć</button>
-            <button onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)} className={`flex-1 py-5 rounded-xl font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-green-deep text-cream-warm' : 'bg-red-500'}`}>Tak, kontynuuj</button>
+            <button
+              onClick={() => setConfirmation(null)}
+              className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all"
+            >
+              Wróć
+            </button>
+            <button
+              onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)}
+              className={`flex-1 py-5 rounded-xl font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-green-deep text-cream-warm' : 'bg-red-500'}`}
+            >
+              Tak, kontynuuj
+            </button>
           </div>
         </div>
       </Modal>
@@ -644,8 +953,20 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
             <div className="flex items-center justify-between ml-4 mb-2">
               <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest">Właściciel</label>
               <div className="flex bg-slate-50 p-1 rounded-xl">
-                <button type="button" onClick={() => setVehicleClientMode('existing')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${vehicleClientMode === 'existing' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}>Znajdź Właściciela</button>
-                <button type="button" onClick={() => setVehicleClientMode('new')} className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${vehicleClientMode === 'new' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}>Nowy Klient</button>
+                <button
+                  type="button"
+                  onClick={() => setVehicleClientMode('existing')}
+                  className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${vehicleClientMode === 'existing' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}
+                >
+                  Znajdź Właściciela
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVehicleClientMode('new')}
+                  className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${vehicleClientMode === 'new' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}
+                >
+                  Nowy Klient
+                </button>
               </div>
             </div>
 
@@ -653,23 +974,46 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               <>
                 <div className="relative">
                   <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input type="text" placeholder="Szukaj klienta po nazwie lub kontakcie..." value={vehicleClientSearch} onChange={e => setVehicleClientSearch(e.target.value)} className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-xl font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/30" />
+                  <input
+                    type="text"
+                    placeholder="Szukaj klienta po nazwie lub kontakcie..."
+                    value={vehicleClientSearch}
+                    onChange={(e) => setVehicleClientSearch(e.target.value)}
+                    className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-xl font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/30"
+                  />
                 </div>
-                <div style={{
-                  height: vehicleClientSearch.trim() ? '160px' : '0px',
-                  opacity: vehicleClientSearch.trim() ? 1 : 0,
-                  transition: 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  overflow: 'hidden',
-                }}>
+                <div
+                  style={{
+                    height: vehicleClientSearch.trim() ? '160px' : '0px',
+                    opacity: vehicleClientSearch.trim() ? 1 : 0,
+                    transition: 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                    overflow: 'hidden',
+                  }}
+                >
                   <div className="overflow-y-auto custom-scrollbar rounded-xl h-full space-y-2 pr-1">
                     {filteredClientsOnlyResults.length === 0 ? (
                       <div className="h-full flex items-center justify-center">
-                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak wyników</p>
+                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                          Brak wyników
+                        </p>
                       </div>
                     ) : (
-                      filteredClientsOnlyResults.map(client => (
-                        <button key={client.id} type="button" onClick={() => { setSelectedClientForVehicle(client); setVehicleClientSearch(''); }} className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-cream-warm transition-all">
-                          <div className="text-left"><h5 className="font-semibold text-green-deep text-sm">{client.name}</h5><p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">{client.phone || client.email || 'Brak danych kontaktowych'}</p></div>
+                      filteredClientsOnlyResults.map((client) => (
+                        <button
+                          key={client.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedClientForVehicle(client);
+                            setVehicleClientSearch('');
+                          }}
+                          className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-cream-warm transition-all"
+                        >
+                          <div className="text-left">
+                            <h5 className="font-semibold text-green-deep text-sm">{client.name}</h5>
+                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">
+                              {client.phone || client.email || 'Brak danych kontaktowych'}
+                            </p>
+                          </div>
                         </button>
                       ))
                     )}
@@ -678,21 +1022,50 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                 {selectedClientForVehicle && (
                   <div className="p-6 bg-cream-warm/20 border-2 border-cream-warm/50 rounded-xl flex items-center gap-4">
                     <User size={24} className="text-green-light" />
-                    <div><h5 className="font-semibold text-green-deep text-sm">{selectedClientForVehicle.name}</h5><p className="text-[9px] font-semibold text-green-light uppercase tracking-widest">{selectedClientForVehicle.phone || selectedClientForVehicle.email}</p></div>
+                    <div>
+                      <h5 className="font-semibold text-green-deep text-sm">{selectedClientForVehicle.name}</h5>
+                      <p className="text-[9px] font-semibold text-green-light uppercase tracking-widest">
+                        {selectedClientForVehicle.phone || selectedClientForVehicle.email}
+                      </p>
+                    </div>
                   </div>
                 )}
 
                 <div className="space-y-4 pt-4">
-                  <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-4">Nowy Pojazd</label>
+                  <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-4">
+                    Nowy Pojazd
+                  </label>
                   <div className="space-y-3 bg-slate-50 p-6 rounded-xl border border-slate-100">
                     <div className="grid grid-cols-2 gap-3">
-                      <input type="text" placeholder="Marka (opcjonalnie)" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
-                      <input type="text" placeholder="Model (opcjonalnie)" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
+                      <input
+                        type="text"
+                        placeholder="Marka (opcjonalnie)"
+                        value={newVehicleBrand}
+                        onChange={(e) => setNewVehicleBrand(e.target.value)}
+                        className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Model (opcjonalnie)"
+                        value={newVehicleModel}
+                        onChange={(e) => setNewVehicleModel(e.target.value)}
+                        className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
+                      />
                     </div>
-                    <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50 uppercase" />
+                    <input
+                      type="text"
+                      placeholder="Nr Rejestracyjny *"
+                      value={newVehiclePlate}
+                      onChange={(e) => setNewVehiclePlate(e.target.value)}
+                      className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50 uppercase"
+                    />
                   </div>
                 </div>
-                <button type="button" onClick={handleAddNewVehicleToExisting} className="w-full mt-8 py-6 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleAddNewVehicleToExisting}
+                  className="w-full mt-8 py-6 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3"
+                >
                   <Save size={18} /> Zapisz Pojazd
                 </button>
               </>
@@ -700,22 +1073,73 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
               <div className="space-y-4 bg-slate-50 p-6 rounded-xl mt-2 border border-slate-100">
                 <div className="space-y-3">
                   <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
-                  <input type="text" placeholder="Imię i Nazwisko *" value={newClientName} onChange={e => setNewClientName(e.target.value)} required className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
+                  <input
+                    type="text"
+                    placeholder="Imię i Nazwisko *"
+                    value={newClientName}
+                    onChange={(e) => setNewClientName(e.target.value)}
+                    required
+                    className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
+                  />
                   <div className="grid grid-cols-2 gap-3">
-                    <input type="tel" placeholder="Telefon *" value={newClientPhone} onChange={e => setNewClientPhone(e.target.value)} required className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
-                    <input type="email" placeholder="Email (opcjonalnie)" value={newClientEmail} onChange={e => setNewClientEmail(e.target.value)} className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
+                    <input
+                      type="tel"
+                      placeholder="Telefon *"
+                      value={newClientPhone}
+                      onChange={(e) => setNewClientPhone(e.target.value)}
+                      required
+                      className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
+                    />
+                    <input
+                      type="email"
+                      placeholder="Email (opcjonalnie)"
+                      value={newClientEmail}
+                      onChange={(e) => setNewClientEmail(e.target.value)}
+                      className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
+                    />
                   </div>
-                  <input type="text" placeholder="NIP (opcjonalnie)" value={newBookingClientNip} onChange={e => setNewBookingClientNip(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
+                  <input
+                    type="text"
+                    placeholder="NIP (opcjonalnie)"
+                    value={newBookingClientNip}
+                    onChange={(e) => setNewBookingClientNip(e.target.value)}
+                    className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
+                  />
                 </div>
                 <div className="space-y-3 pt-4 border-t border-slate-200">
-                  <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">Pojazd Klienta</h5>
+                  <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">
+                    Pojazd Klienta
+                  </h5>
                   <div className="grid grid-cols-2 gap-3">
-                    <input type="text" placeholder="Marka (opcjonalnie)" value={newVehicleBrand} onChange={e => setNewVehicleBrand(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
-                    <input type="text" placeholder="Model (opcjonalnie)" value={newVehicleModel} onChange={e => setNewVehicleModel(e.target.value)} className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50" />
+                    <input
+                      type="text"
+                      placeholder="Marka (opcjonalnie)"
+                      value={newVehicleBrand}
+                      onChange={(e) => setNewVehicleBrand(e.target.value)}
+                      className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Model (opcjonalnie)"
+                      value={newVehicleModel}
+                      onChange={(e) => setNewVehicleModel(e.target.value)}
+                      className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
+                    />
                   </div>
-                  <input type="text" placeholder="Nr Rejestracyjny *" value={newVehiclePlate} onChange={e => setNewVehiclePlate(e.target.value)} required className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50 uppercase" />
+                  <input
+                    type="text"
+                    placeholder="Nr Rejestracyjny *"
+                    value={newVehiclePlate}
+                    onChange={(e) => setNewVehiclePlate(e.target.value)}
+                    required
+                    className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50 uppercase"
+                  />
                 </div>
-                <button type="button" onClick={handleCreateClientWithVehicle} className="w-full py-4 bg-green-deep text-cream-warm rounded-xl font-semibold text-[10px] uppercase tracking-wider">
+                <button
+                  type="button"
+                  onClick={handleCreateClientWithVehicle}
+                  className="w-full py-4 bg-green-deep text-cream-warm rounded-xl font-semibold text-[10px] uppercase tracking-wider"
+                >
                   Utwórz Klienta i Pojazd
                 </button>
               </div>
@@ -724,14 +1148,20 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
         </div>
       </Modal>
 
-      <Modal isOpen={isBookingModalOpen && !isEditingBooking} onClose={() => setIsBookingModalOpen(false)} title="Detale Zlecenia">
+      <Modal
+        isOpen={isBookingModalOpen && !isEditingBooking}
+        onClose={() => setIsBookingModalOpen(false)}
+        title="Detale Zlecenia"
+      >
         {selectedBooking && (
           <div className="space-y-8">
             <div className="p-8 bg-green-deep rounded-2xl border border-white/5 relative overflow-hidden">
               <div className="relative z-10 flex items-center justify-between">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-cream-warm"><User size={24} /></div>
+                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-cream-warm">
+                      <User size={24} />
+                    </div>
                     <div>
                       <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest">Klient</p>
                       <h4 className="text-xl font-normal text-white tracking-tighter">{selectedBooking.client.name}</h4>
@@ -739,32 +1169,64 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
                   </div>
                   <div className="flex gap-4">
                     {selectedBooking.client.phone && (
-                      <a href={`tel:${selectedBooking.client.phone}`} className="flex items-center gap-2 text-cream-warm hover:text-white transition-colors">
-                        <Phone size={14} /><span className="text-l font-semibold font-mono">{selectedBooking.client.phone}</span>
+                      <a
+                        href={`tel:${selectedBooking.client.phone}`}
+                        className="flex items-center gap-2 text-cream-warm hover:text-white transition-colors"
+                      >
+                        <Phone size={14} />
+                        <span className="text-l font-semibold font-mono">{selectedBooking.client.phone}</span>
                       </a>
                     )}
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
-                  {selectedBooking.client.phone && <a href={`tel:${selectedBooking.client.phone}`} className="w-12 h-12 bg-cream-warm text-green-deep rounded-xl flex items-center justify-center active:scale-90 transition-transform"><Phone size={20} /></a>}
-                  {selectedBooking.client.phone && <a href={`sms:${selectedBooking.client.phone}`} className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center active:scale-90 transition-transform"><MessageSquare size={20} /></a>}
+                  {selectedBooking.client.phone && (
+                    <a
+                      href={`tel:${selectedBooking.client.phone}`}
+                      className="w-12 h-12 bg-cream-warm text-green-deep rounded-xl flex items-center justify-center active:scale-90 transition-transform"
+                    >
+                      <Phone size={20} />
+                    </a>
+                  )}
+                  {selectedBooking.client.phone && (
+                    <a
+                      href={`sms:${selectedBooking.client.phone}`}
+                      className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center active:scale-90 transition-transform"
+                    >
+                      <MessageSquare size={20} />
+                    </a>
+                  )}
                 </div>
               </div>
             </div>
             <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-5">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-sm"><Clock size={28} /></div>
+                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-sm">
+                  <Clock size={28} />
+                </div>
                 <div>
                   <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Termin</p>
-                  <p className="text-lg font-bold text-green-deep">{new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} • {formatBookingTime(selectedBooking.scheduledAt)}</p>
+                  <p className="text-lg font-bold text-green-deep">
+                    {new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} •{' '}
+                    {formatBookingTime(selectedBooking.scheduledAt)}
+                  </p>
                 </div>
               </div>
               <div className="text-right">
-                <div className={`inline-block px-5 py-2.5 rounded-2xl border-2 mb-2 font-bold text-[11px] uppercase tracking-widest`} style={{ color: selectedBooking.statusColor || 'var(--green-deep)', backgroundColor: (selectedBooking.statusColor || 'var(--green-deep)') + '15', borderColor: (selectedBooking.statusColor || 'var(--green-deep)') + '40' }}>
+                <div
+                  className={`inline-block px-5 py-2.5 rounded-2xl border-2 mb-2 font-bold text-[11px] uppercase tracking-widest`}
+                  style={{
+                    color: selectedBooking.statusColor || 'var(--green-deep)',
+                    backgroundColor: (selectedBooking.statusColor || 'var(--green-deep)') + '15',
+                    borderColor: (selectedBooking.statusColor || 'var(--green-deep)') + '40',
+                  }}
+                >
                   {selectedBooking.status}
                 </div>
                 <div className="flex flex-col items-end">
-                  <p className="text-3xl font-extrabold text-green-deep font-mono leading-none tracking-tighter">{((selectedBooking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}</p>
+                  <p className="text-3xl font-extrabold text-green-deep font-mono leading-none tracking-tighter">
+                    {((selectedBooking.totalPrice || 0) / 100).toFixed(2).replace('.', ',')}
+                  </p>
                   <p className="text-[9px] font-semibold text-green-light uppercase mt-1 tracking-widest">PLN Netto</p>
                 </div>
               </div>
@@ -772,10 +1234,17 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
             <div className="space-y-4">
               <p className="text-[10px] font-semibold text-green-light uppercase tracking-[0.4em] ml-4">Zakres Prac</p>
               <div className="flex flex-wrap gap-2">
-                {selectedBooking.services.map(s => (
-                  <span key={s} className="px-5 py-3 bg-green-deep text-cream-warm rounded-xl text-[12px] font-semibold uppercase tracking-widest shadow-md">{s}</span>
+                {selectedBooking.services.map((s) => (
+                  <span
+                    key={s}
+                    className="px-5 py-3 bg-green-deep text-cream-warm rounded-xl text-[12px] font-semibold uppercase tracking-widest shadow-md"
+                  >
+                    {s}
+                  </span>
                 ))}
-                {selectedBooking.services.length === 0 && <span className="text-sm text-slate-400">Brak przypisanych usług</span>}
+                {selectedBooking.services.length === 0 && (
+                  <span className="text-sm text-slate-400">Brak przypisanych usług</span>
+                )}
               </div>
             </div>
             {selectedBooking.notes && (
@@ -787,14 +1256,32 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
             <div className="flex gap-4 pt-6">
               {selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name && (
                 <>
-                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><Check size={16} strokeWidth={2.5} /> Zakończ</button>
-                  <button onClick={(e) => { confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA); setIsBookingModalOpen(false); }} className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"><X size={16} strokeWidth={2.5} /> Anuluj</button>
+                  <button
+                    onClick={(e) => {
+                      confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA);
+                      setIsBookingModalOpen(false);
+                    }}
+                    className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Check size={16} strokeWidth={2.5} /> Zakończ
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA);
+                      setIsBookingModalOpen(false);
+                    }}
+                    className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
+                  >
+                    <X size={16} strokeWidth={2.5} /> Anuluj
+                  </button>
                 </>
               )}
               <button
                 onClick={() => setIsBookingModalOpen(false)}
                 className={`py-5 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
-              >Zamknij</button>
+              >
+                Zamknij
+              </button>
             </div>
           </div>
         )}
@@ -811,7 +1298,4 @@ const Dashboard: React.FC<{ onNavigate?: (view: ViewType) => void, onOpenMenu?: 
   );
 };
 
-
 export default Dashboard;
-
-

@@ -19,11 +19,7 @@ import Modal from '../../components/ui/Modal';
 import CreateBookingModal from '../../components/modals/CreateBookingModal';
 import CreateClientModal from '../../components/modals/CreateClientModal';
 
-interface ReportsViewProps {
-  onOpenMenu?: () => void;
-}
-
-const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
+const ReportsView: React.FC = () => {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -71,7 +67,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
       <GlobalHeader
         title="Raporty"
         subtitle="Eksport Danych i Analizy"
-        onOpenMenu={onOpenMenu}
         onAddBooking={handleOpenNewBooking}
         onAddClient={() => setIsClientModalOpen(true)}
       />
@@ -83,7 +78,9 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
           </div>
           <div>
             <h3 className="text-xl sm:text-2xl font-bold text-green-deep tracking-tight">Raport Rezerwacji</h3>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-1">Wygeneruj zestawienie finansowe wizyt</p>
+            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-1">
+              Wygeneruj zestawienie finansowe wizyt
+            </p>
           </div>
         </div>
 
@@ -137,15 +134,9 @@ const ReportsView: React.FC<ReportsViewProps> = ({ onOpenMenu }) => {
         </form>
       </div>
 
-      <CreateBookingModal 
-        isOpen={isBookingModalOpen} 
-        onClose={() => setIsBookingModalOpen(false)} 
-      />
+      <CreateBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} />
 
-      <CreateClientModal 
-        isOpen={isClientModalOpen}
-        onClose={() => setIsClientModalOpen(false)}
-      />
+      <CreateClientModal isOpen={isClientModalOpen} onClose={() => setIsClientModalOpen(false)} />
     </div>
   );
 };

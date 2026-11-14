@@ -7,12 +7,10 @@ interface GlobalHeaderProps {
   subtitle: string;
   onAddBooking?: () => void;
   onAddClient?: () => void;
-  onOpenMenu?: () => void;
 }
 
-const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooking, onAddClient, onOpenMenu }) => {
-  const openMenuFromLayout = useOpenMobileMenu();
-  const openMenu = onOpenMenu ?? openMenuFromLayout;
+const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooking, onAddClient }) => {
+  const openMenu = useOpenMobileMenu();
   return (
     <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 lg:mb-12 animate-slide-up">
       <div className="space-y-2">
