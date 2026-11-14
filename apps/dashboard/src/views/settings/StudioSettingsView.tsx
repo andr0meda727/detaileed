@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Wrench, Layers, Users, Plus, Trash2, X, Save, Loader2, Mail, CheckCircle, Edit2 } from 'lucide-react';
-import { CategoryCreateDto, CreateServiceDto, InviteEmployeeDto } from '../../types';
-import { useServices, useCreateService, useDeleteService } from '@/features/services/api/services';
+import { CategoryCreateDto, InviteEmployeeDto } from '../../types';
+import { useServices, useCreateService, useDeleteService } from '@/features/services';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '../../hooks/useCategories';
 import { apiPost } from '../../apiClient';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
@@ -91,7 +91,7 @@ const ServicesTab: React.FC<{ addToast: (message: string, type: 'success' | 'err
 
   const handleAdd = async (name: string) => {
     try {
-      await createService.mutateAsync({ name } as CreateServiceDto);
+      await createService.mutateAsync({ name });
       addToast('Usługa dodana', 'success');
       setIsModalOpen(false);
     } catch {

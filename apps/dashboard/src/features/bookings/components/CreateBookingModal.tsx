@@ -6,9 +6,8 @@ import Modal from '@/shared/ui/Modal';
 
 import { bookingFormSchema, BookingFormValues, clientFormSchema, vehicleFormSchema } from '@/shared/lib/validations';
 import { useClients, useClientVehicleSearch, useCreateClient, type Client, type Vehicle } from '@/features/clients';
-import { useServices } from '@/features/services/api/services';
+import { useCreateService, useServices } from '@/features/services';
 import { useCreateBooking } from '@/features/bookings/api/bookings';
-import { createService } from '@/features/services/api/serviceService';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
 import { useToast } from '@/shared/ui/ToastContext';
 import { toggleIdSelection } from '@/shared/lib/selection';
@@ -23,6 +22,7 @@ interface CreateBookingModalProps {
 export default function CreateBookingModal({ isOpen, onClose, onSuccess }: CreateBookingModalProps) {
   const { addToast } = useToast();
   const createClient = useCreateClient();
+  const createService = useCreateService();
   const createBooking = useCreateBooking();
   const { data: clients = [], refetch: refetchClients } = useClients();
   const { data: availableServices = [], refetch: refetchServices } = useServices();
@@ -143,7 +143,7 @@ export default function CreateBookingModal({ isOpen, onClose, onSuccess }: Creat
     const name = customServiceInput.trim();
     if (!name) return;
     try {
-      const created = await createService({ name });
+      const created = await createService.mutateAsync({ name });
       setValue('serviceIds', [...watchServiceIds, created.id], { shouldValidate: true });
       setCustomServiceInput('');
       if (refetchServices) refetchServices();

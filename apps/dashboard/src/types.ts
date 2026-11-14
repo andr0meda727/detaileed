@@ -28,15 +28,6 @@ export interface EmployeeResponseDto {
   roleId: number;
 }
 
-export interface ServiceResponseDto {
-  id: string;
-  name: string;
-}
-
-export interface CreateServiceDto {
-  name: string;
-}
-
 export interface InventoryResponseDto {
   id: string;
   studioId: string;

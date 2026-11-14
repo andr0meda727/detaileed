@@ -33,7 +33,6 @@ import {
 } from '@/features/clients';
 import type { Client, Vehicle } from '@/features/clients';
 
-import { createService } from '@/features/services/api/serviceService';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import {
   BOOKING_STATUSES,
@@ -45,7 +44,7 @@ import {
 } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
 import { useInventory } from '../../hooks/useInventory';
-import { useServices } from '@/features/services/api/services';
+import { useCreateService, useServices } from '@/features/services';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
@@ -104,6 +103,7 @@ const activityFeed = [
 const Dashboard: React.FC = () => {
   const { addToast } = useToast();
   const createClient = useCreateClient();
+  const createService = useCreateService();
   const createVehicle = useCreateVehicle();
   const completeBooking = useCompleteBooking();
   const cancelBooking = useCancelBooking();
@@ -211,7 +211,7 @@ const Dashboard: React.FC = () => {
     const name = customServiceInput.trim();
     if (!name) return;
     try {
-      const created = await createService({ name });
+      const created = await createService.mutateAsync({ name });
       setSelectedServices((prev) => [...prev, created.id]);
       setCustomServiceInput('');
       refetchServices();

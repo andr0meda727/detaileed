@@ -1,31 +1,40 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPost, apiDelete } from '@/apiClient';
-import { ServiceResponseDto, CreateServiceDto } from '@/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  deleteApiServiceId,
+  getApiService,
+  getGetApiServiceQueryKey,
+  postApiService,
+  putApiServiceId,
+} from '@detaileed/api-client';
+import type { ServiceInput } from '@/features/services/model/types';
 
-const QUERY_KEY = 'services';
+const servicesKey = getGetApiServiceQueryKey();
 
+/** Active services of the studio (not paged). */
 export function useServices() {
   return useQuery({
-    queryKey: [QUERY_KEY],
-    queryFn: () => apiGet<ServiceResponseDto[]>('/Service'),
+    queryKey: servicesKey,
+    queryFn: ({ signal }) => getApiService({ signal }),
     staleTime: 60_000,
   });
 }
 
-export function useCreateService() {
-  const qc = useQueryClient();
+// The screens show their own error toasts for these, so the global one is skipped.
+const meta = { skipGlobalError: true };
+
+function useServicesMutation<TVariables, TResult>(mutationFn: (variables: TVariables) => Promise<TResult>) {
+  const queryClient = useQueryClient();
   return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (dto: CreateServiceDto) => apiPost<ServiceResponseDto>('/Service', dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    meta,
+    mutationFn,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: servicesKey }),
   });
 }
 
-export function useDeleteService() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (id: string) => apiDelete(`/Service/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useCreateService = () => useServicesMutation((body: ServiceInput) => postApiService(body));
+
+export const useUpdateService = () =>
+  useServicesMutation(({ id, body }: { id: string; body: ServiceInput }) => putApiServiceId(id, body));
+
+/** Deactivates the service; past bookings keep it. */
+export const useDeleteService = () => useServicesMutation((id: string) => deleteApiServiceId(id));

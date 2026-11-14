@@ -5,7 +5,6 @@ import InviteEmployeeModal from './components/InviteEmployeeModal';
 import { useEmployees, useInviteEmployee, useChangeEmployeeRole, useRemoveEmployee } from '../../hooks/useEmployees';
 import { useToast } from '@/shared/ui/ToastContext';
 
-import { PREDEFINED_SERVICES } from '../../constants';
 import {
   X as XIcon,
   Clock,
