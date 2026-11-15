@@ -14,3 +14,6 @@ export type { Booking, BookingInput } from './model/types';
 export { default as CreateBookingModal } from './components/CreateBookingModal';
 export { default as TasksView } from './components/TasksView';
 export { default as ArchivedView } from './components/ArchivedView';
+export { default as BookingDetailsModal } from './components/BookingDetailsModal';
+export { default as BookingStatusBadge } from './components/BookingStatusBadge';
+export { useBookingStatusChange } from './hooks/useBookingStatusChange';

@@ -5,15 +5,11 @@ import {
   Package,
   Car as CarIcon,
   X,
-  AlertCircle,
   Search,
   CheckCircle2,
   Check,
   User,
-  Phone,
-  MessageSquare,
   Save,
-  Clock,
   Wrench,
   Activity,
   CreditCard,
@@ -23,34 +19,20 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 
-import {
-  useCreateClient,
-  useCreateVehicle,
-  useClients,
-  useClientSearch,
-  useClientVehicleSearch,
-  CreateClientModal,
-} from '@/features/clients';
-import type { Client, Vehicle } from '@/features/clients';
+import { useCreateClient, useCreateVehicle, useClients, useClientSearch, CreateClientModal } from '@/features/clients';
+import type { Client } from '@/features/clients';
 
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import {
-  BOOKING_STATUSES,
-  useBookings,
-  useCancelBooking,
-  useCompleteBooking,
-  type Booking,
-  type BookingStatus,
-} from '@/features/bookings';
+import { BOOKING_STATUSES, useBookings, type Booking } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
 import { isLowStock, useInventory } from '@/features/inventory';
-import { useCreateService, useServices } from '@/features/services';
-import { toggleIdSelection } from '@/shared/lib/selection';
+import { useServices } from '@/features/services';
+
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import Modal from '@/shared/ui/Modal';
 import DashboardStats from '@/features/dashboard-home/components/DashboardStats';
 import RevenueChart from '@/features/dashboard-home/components/RevenueChart';
-import { CreateBookingModal } from '@/features/bookings';
+import { BookingDetailsModal, CreateBookingModal, useBookingStatusChange } from '@/features/bookings';
 import { useToast } from '@/shared/ui/ToastContext';
 import { useStudio } from '@/features/studios';
 import Skeleton from '@/shared/ui/Skeleton';
@@ -103,10 +85,8 @@ const activityFeed = [
 const Dashboard: React.FC = () => {
   const { addToast } = useToast();
   const createClient = useCreateClient();
-  const createService = useCreateService();
   const createVehicle = useCreateVehicle();
-  const completeBooking = useCompleteBooking();
-  const cancelBooking = useCancelBooking();
+  const { requestStatusChange, confirmDialog } = useBookingStatusChange();
   const navigate = useNavigate();
   const { data: bookings = [], isLoading: bookingsLoading, refetch: refetchBookings } = useBookings();
   const { data: inventory = [], isLoading: inventoryLoading, refetch: refetchInventory } = useInventory();
@@ -130,26 +110,12 @@ const Dashboard: React.FC = () => {
     refetchServices();
   }, [refetchBookings, refetchInventory, refetchClients, refetchServices]);
 
-  const [revPeriod, setRevPeriod] = useState<'weekly' | 'monthly'>('weekly');
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
-  const [isEditingBooking, setIsEditingBooking] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [confirmation, setConfirmation] = useState<{
-    id: string;
-    type: BookingStatus;
-    booking: Booking;
-  } | null>(null);
-  const [clientSearch, setClientSearch] = useState('');
   const [vehicleClientSearch, setVehicleClientSearch] = useState('');
-  const [selectedVehicle, setSelectedVehicle] = useState<{ client: Client; vehicle: Vehicle } | null>(null);
   const [selectedClientForVehicle, setSelectedClientForVehicle] = useState<Client | null>(null);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [customServiceInput, setCustomServiceInput] = useState('');
-  const [priceInput, setPriceInput] = useState('0,00');
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedTime, setSelectedTime] = useState('08:00');
 
   // New client form state
   const [newClientName, setNewClientName] = useState('');
@@ -163,7 +129,6 @@ const Dashboard: React.FC = () => {
   const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
   // Form mode
-  const [bookingClientMode, setBookingClientMode] = useState<'existing' | 'new'>('existing');
   const [vehicleClientMode, setVehicleClientMode] = useState<'existing' | 'new'>('existing');
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
@@ -200,57 +165,10 @@ const Dashboard: React.FC = () => {
 
   // Wykres przeniesiony do izolowanego komponentu w ./components/RevenueChart
 
-  const filteredClientResults = useClientVehicleSearch(clients, clientSearch);
   const filteredClientsOnlyResults = useClientSearch(clients, vehicleClientSearch);
 
-  const toggleService = (id: string) => setSelectedServices((prev) => toggleIdSelection(prev, id));
-  const handleAddCustomService = async () => {
-    const name = customServiceInput.trim();
-    if (!name) return;
-    try {
-      const created = await createService.mutateAsync({ name });
-      setSelectedServices((prev) => [...prev, created.id]);
-      setCustomServiceInput('');
-      refetchServices();
-    } catch (err) {
-      console.error('Failed to create service:', err);
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania usługi.'), 'error');
-    }
-  };
-
-  const handleQuickUpdateStatus = async (booking: Booking, targetStatus: BookingStatus) => {
-    try {
-      // Quick actions only ever finish a booking: complete it or cancel it.
-      if (targetStatus.id === BOOKING_STATUSES.ZAKONCZONA.id) await completeBooking.mutateAsync(booking.id);
-      else await cancelBooking.mutateAsync(booking.id);
-      addToast(`Status rezerwacji zmieniony na: ${targetStatus.name}`, 'success');
-    } catch (err) {
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas zmiany statusu.'), 'error');
-    } finally {
-      setConfirmation(null);
-    }
-  };
-
-  const confirmStatusUpdate = (e: React.MouseEvent, booking: Booking, targetStatus: BookingStatus) => {
-    e.stopPropagation();
-    setConfirmation({ id: booking.id, type: targetStatus, booking });
-  };
-
-  const handleOpenNewBooking = () => {
-    setIsEditingBooking(true);
-    setSelectedBooking(null);
-    setIsBookingModalOpen(true);
-  };
-  const handleViewBooking = (booking: Booking) => {
-    setSelectedBooking(booking);
-    setSelectedServices(booking.services);
-    setPriceInput(formatPln(booking.totalPrice));
-    const dt = new Date(booking.scheduledAt);
-    setSelectedDate(dt.toISOString().split('T')[0]);
-    setSelectedTime(dt.toTimeString().slice(0, 5));
-    setIsEditingBooking(false);
-    setIsBookingModalOpen(true);
-  };
+  const handleOpenNewBooking = () => setIsBookingModalOpen(true);
+  const handleViewBooking = (booking: Booking) => setSelectedBooking(booking);
 
   // CreateClient form refactored to use CreateClientModal
 
@@ -338,10 +256,6 @@ const Dashboard: React.FC = () => {
 
   const formatBookingTime = (iso: string) =>
     new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-  const formatBookingDate = (iso: string) => {
-    const d = new Date(iso);
-    return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
-  };
 
   const now = new Date();
   const hour = now.getHours();
@@ -562,7 +476,8 @@ const Dashboard: React.FC = () => {
                                     <button
                                       onClick={(e) => {
                                         setActiveDropdownId(null);
-                                        confirmStatusUpdate(e, booking, BOOKING_STATUSES.ZAKONCZONA);
+                                        e.stopPropagation();
+                                        requestStatusChange(booking, BOOKING_STATUSES.ZAKONCZONA);
                                       }}
                                       className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-[12px] font-bold text-green-deep"
                                     >
@@ -574,7 +489,8 @@ const Dashboard: React.FC = () => {
                                     <button
                                       onClick={(e) => {
                                         setActiveDropdownId(null);
-                                        confirmStatusUpdate(e, booking, BOOKING_STATUSES.ANULOWANA);
+                                        e.stopPropagation();
+                                        requestStatusChange(booking, BOOKING_STATUSES.ANULOWANA);
                                       }}
                                       className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-red-50 transition-colors text-[12px] font-bold text-red-500"
                                     >
@@ -851,42 +767,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* === MODALS === */}
-      <Modal isOpen={!!confirmation} onClose={() => setConfirmation(null)} title="Zmień Status">
-        <div className="space-y-8">
-          <div className="flex items-center gap-6 p-8 bg-slate-50 rounded-2xl">
-            <div
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-cream-warm/20 text-green-deep' : 'bg-red-50 text-red-500'}`}
-            >
-              <AlertCircle size={32} />
-            </div>
-            <div>
-              <p className="text-lg font-bold text-green-deep leading-tight mb-2">
-                {confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id
-                  ? 'Zakończyć to zlecenie?'
-                  : 'Anulować tę rezerwację?'}
-              </p>
-              <p className="text-sm text-slate-500 font-semibold">
-                {confirmation?.booking.vehicle.brand} {confirmation?.booking.vehicle.model}
-              </p>
-              <p className="text-xs text-slate-400 font-mono mt-1">{confirmation?.booking.vehicle.licensePlate}</p>
-            </div>
-          </div>
-          <div className="flex gap-4">
-            <button
-              onClick={() => setConfirmation(null)}
-              className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all"
-            >
-              Wróć
-            </button>
-            <button
-              onClick={() => confirmation && handleQuickUpdateStatus(confirmation.booking, confirmation.type)}
-              className={`flex-1 py-5 rounded-xl font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-green-deep text-cream-warm' : 'bg-red-500'}`}
-            >
-              Tak, kontynuuj
-            </button>
-          </div>
-        </div>
-      </Modal>
+      {confirmDialog}
 
       <CreateClientModal
         isOpen={isClientModalOpen}
@@ -1095,152 +976,13 @@ const Dashboard: React.FC = () => {
         </div>
       </Modal>
 
-      <Modal
-        isOpen={isBookingModalOpen && !isEditingBooking}
-        onClose={() => setIsBookingModalOpen(false)}
-        title="Detale Zlecenia"
-      >
-        {selectedBooking && (
-          <div className="space-y-8">
-            <div className="p-8 bg-green-deep rounded-2xl border border-white/5 relative overflow-hidden">
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-cream-warm">
-                      <User size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest">Klient</p>
-                      <h4 className="text-xl font-normal text-white tracking-tighter">{selectedBooking.client.name}</h4>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    {selectedBooking.client.phone && (
-                      <a
-                        href={`tel:${selectedBooking.client.phone}`}
-                        className="flex items-center gap-2 text-cream-warm hover:text-white transition-colors"
-                      >
-                        <Phone size={14} />
-                        <span className="text-l font-semibold font-mono">{selectedBooking.client.phone}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  {selectedBooking.client.phone && (
-                    <a
-                      href={`tel:${selectedBooking.client.phone}`}
-                      className="w-12 h-12 bg-cream-warm text-green-deep rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-                    >
-                      <Phone size={20} />
-                    </a>
-                  )}
-                  {selectedBooking.client.phone && (
-                    <a
-                      href={`sms:${selectedBooking.client.phone}`}
-                      className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-                    >
-                      <MessageSquare size={20} />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-sm">
-                  <Clock size={28} />
-                </div>
-                <div>
-                  <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Termin</p>
-                  <p className="text-lg font-bold text-green-deep">
-                    {new Date(selectedBooking.scheduledAt).toLocaleDateString('pl-PL')} •{' '}
-                    {formatBookingTime(selectedBooking.scheduledAt)}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div
-                  className={`inline-block px-5 py-2.5 rounded-2xl border-2 mb-2 font-bold text-[11px] uppercase tracking-widest`}
-                  style={{
-                    color: selectedBooking.statusColor || 'var(--green-deep)',
-                    backgroundColor: (selectedBooking.statusColor || 'var(--green-deep)') + '15',
-                    borderColor: (selectedBooking.statusColor || 'var(--green-deep)') + '40',
-                  }}
-                >
-                  {selectedBooking.status}
-                </div>
-                <div className="flex flex-col items-end">
-                  <p className="text-3xl font-extrabold text-green-deep font-mono leading-none tracking-tighter">
-                    {formatPln(selectedBooking.totalPrice)}
-                  </p>
-                  <p className="text-[9px] font-semibold text-green-light uppercase mt-1 tracking-widest">PLN Netto</p>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <p className="text-[10px] font-semibold text-green-light uppercase tracking-[0.4em] ml-4">Zakres Prac</p>
-              <div className="flex flex-wrap gap-2">
-                {selectedBooking.services.map((s) => (
-                  <span
-                    key={s}
-                    className="px-5 py-3 bg-green-deep text-cream-warm rounded-xl text-[12px] font-semibold uppercase tracking-widest shadow-md"
-                  >
-                    {s}
-                  </span>
-                ))}
-                {selectedBooking.services.length === 0 && (
-                  <span className="text-sm text-slate-400">Brak przypisanych usług</span>
-                )}
-              </div>
-            </div>
-            {selectedBooking.notes && (
-              <div className="space-y-2">
-                <p className="text-[10px] font-semibold text-green-light uppercase tracking-[0.4em] ml-4">Notatki</p>
-                <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl">{selectedBooking.notes}</p>
-              </div>
-            )}
-            <div className="flex gap-4 pt-6">
-              {selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name && (
-                <>
-                  <button
-                    onClick={(e) => {
-                      confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ZAKONCZONA);
-                      setIsBookingModalOpen(false);
-                    }}
-                    className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Check size={16} strokeWidth={2.5} /> Zakończ
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      confirmStatusUpdate(e, selectedBooking, BOOKING_STATUSES.ANULOWANA);
-                      setIsBookingModalOpen(false);
-                    }}
-                    className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <X size={16} strokeWidth={2.5} /> Anuluj
-                  </button>
-                </>
-              )}
-              <button
-                onClick={() => setIsBookingModalOpen(false)}
-                className={`py-5 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${selectedBooking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
-              >
-                Zamknij
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
-
-      <CreateBookingModal
-        isOpen={isBookingModalOpen && isEditingBooking}
-        onClose={() => {
-          setIsBookingModalOpen(false);
-          if (refetchBookings) refetchBookings();
-        }}
+      <BookingDetailsModal
+        booking={selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+        onRequestStatusChange={requestStatusChange}
       />
+
+      <CreateBookingModal isOpen={isBookingModalOpen} onClose={() => setIsBookingModalOpen(false)} />
     </div>
   );
 };

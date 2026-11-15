@@ -17,7 +17,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   clientsCount,
   completedCount,
   todayBookingsCount,
-  loading
+  loading,
 }) => {
   const stats = [
     {
@@ -61,18 +61,12 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
       {stats.map((card, i) => (
-        <div
-          key={i}
-          className="floating-card-static p-5 lg:p-6"
-          style={{ animationDelay: `${i * 60}ms` }}
-        >
+        <div key={i} className="floating-card-static p-5 lg:p-6" style={{ animationDelay: `${i * 60}ms` }}>
           <div className="flex items-start justify-between mb-4">
             <div className={`w-11 h-11 ${card.iconBg} rounded-[0.875rem] flex items-center justify-center shadow-md`}>
               <card.icon size={18} className={card.iconColor} strokeWidth={2.5} />
             </div>
-            <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${card.trendStyle}`}>
-              {card.trend}
-            </span>
+            <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${card.trendStyle}`}>{card.trend}</span>
           </div>
           <h3 className="text-3xl lg:text-4xl font-extrabold text-green-deep leading-none flex items-baseline">
             {loading ? (
@@ -89,4 +83,3 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
 };
 
 export default DashboardStats;
-
