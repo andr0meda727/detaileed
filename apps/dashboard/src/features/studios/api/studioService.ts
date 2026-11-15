@@ -1,8 +1,8 @@
-import { apiPost, apiPut } from '@/apiClient';
-import type { CreateStudioDto, UpdateStudioDto } from '@/types';
-import type { Studio } from '@/features/studios/model/types';
+import { apiFetch } from '@detaileed/api-client';
+import type { CreateStudioInput, Studio } from '@/features/studios/model/types';
 
-export const createStudio = (dto: CreateStudioDto): Promise<Studio> => apiPost<Studio>('/Studios', dto);
+// These endpoints are not in the API spec yet (backend work in progress), so there is no generated
+// function; they call apiFetch directly. Replace them with the generated ones once the spec has them.
 
-export const updateStudio = (studioId: string, dto: UpdateStudioDto): Promise<Studio> =>
-  apiPut<Studio>(`/Studios/${studioId}`, dto);
+export const createStudio = (dto: CreateStudioInput): Promise<Studio> =>
+  apiFetch<Studio>('/api/Studios', { method: 'POST', body: JSON.stringify(dto) });

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getGetApiStudiosMyQueryKey, getGetApiStudiosMyQueryOptions, useGetApiStudiosMy } from '@detaileed/api-client';
-import { CreateStudioDto } from '@/types';
+import type { CreateStudioInput } from '@/features/studios/model/types';
 import { createStudio } from '@/features/studios/api/studioService';
 
 const STALE_TIME = 5 * 60_000;
@@ -19,7 +19,7 @@ export function useCreateStudio() {
   const queryClient = useQueryClient();
   return useMutation({
     meta: { skipGlobalError: true },
-    mutationFn: (dto: CreateStudioDto) => createStudio(dto),
+    mutationFn: (dto: CreateStudioInput) => createStudio(dto),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: studiosQueryKey }),
   });
 }

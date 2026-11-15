@@ -1,4 +1,5 @@
-import { StudioRole } from '@/types';
+/** A member's role in a studio. */
+export type StudioRole = 'Owner' | 'Manager' | 'Employee';
 
 const EMPLOYEE_ALIASES = new Set(['3', 'pracownik', 'employee']);
 const OWNER_ALIASES = new Set(['1', 'właściciel', 'wlasciciel', 'owner']);

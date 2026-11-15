@@ -1,5 +1,5 @@
 import { configureApiClient } from '@detaileed/api-client';
-import { getSelectedStudioId } from '@/features/studios';
+import { getActiveStudioId } from '@/features/studios';
 import supabase from '@/shared/lib/supabase';
 
 /**
@@ -17,5 +17,5 @@ export const API_ORIGIN = resolveApiOrigin(import.meta.env.VITE_API_URL, import.
 configureApiClient({
   baseUrl: API_ORIGIN,
   getToken: async () => (await supabase.auth.getSession()).data.session?.access_token ?? null,
-  getStudioId: getSelectedStudioId,
+  getStudioId: getActiveStudioId,
 });

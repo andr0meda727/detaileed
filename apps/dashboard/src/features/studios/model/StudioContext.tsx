@@ -1,6 +1,5 @@
 import React, { createContext, useContext } from 'react';
 import type { Studio } from '@/features/studios/model/types';
-import { getActiveStudioId } from '@/features/studios/model/activeStudio';
 
 const StudioContext = createContext<Studio | null>(null);
 
@@ -13,10 +12,4 @@ export const StudioScope: React.FC<{ studio: Studio; children: React.ReactNode }
 // eslint-disable-next-line react-refresh/only-export-components -- the hook belongs next to its context
 export function useStudio(): { selectedStudio: Studio | null } {
   return { selectedStudio: useContext(StudioContext) };
-}
-
-/** Studio the API calls work in (see app/activeStudio.ts). */
-// eslint-disable-next-line react-refresh/only-export-components -- read by the legacy api client
-export function getSelectedStudioId(): string | null {
-  return getActiveStudioId();
 }
