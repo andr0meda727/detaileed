@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getEmployees, inviteEmployee, changeEmployeeRole, removeEmployee } from '../services/employeeService';
-import { EmployeeResponseDto } from '../types';
+import { getEmployees, inviteEmployee, changeEmployeeRole, removeEmployee } from '@/features/team/api/employeeService';
+import { EmployeeResponseDto } from '@/types';
 
 const QUERY_KEY = 'employees';
 

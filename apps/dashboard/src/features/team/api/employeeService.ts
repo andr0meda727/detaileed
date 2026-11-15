@@ -1,5 +1,5 @@
-import { apiGet, apiPost, apiDelete, apiPatch } from '../apiClient';
-import { EmployeeResponseDto, InviteEmployeeDto, ChangeEmployeeRoleDto } from '../types';
+import { apiGet, apiPost, apiDelete, apiPatch } from '@/apiClient';
+import { EmployeeResponseDto, InviteEmployeeDto, ChangeEmployeeRoleDto } from '@/types';
 
 export async function getEmployees(): Promise<EmployeeResponseDto[]> {
   return apiGet<EmployeeResponseDto[]>('/Employees', undefined);

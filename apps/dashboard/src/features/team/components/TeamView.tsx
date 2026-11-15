@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, User, Phone, Users, Search, Shield, Trash2, Mail, Loader2, RefreshCw } from 'lucide-react';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
-import InviteEmployeeModal from './components/InviteEmployeeModal';
-import { useEmployees, useInviteEmployee, useChangeEmployeeRole, useRemoveEmployee } from '../../hooks/useEmployees';
+import InviteEmployeeModal from '@/features/team/components/InviteEmployeeModal';
+import { useEmployees, useInviteEmployee, useChangeEmployeeRole, useRemoveEmployee } from '@/features/team/api/employees';
 import { useToast } from '@/shared/ui/ToastContext';
 
 import {
@@ -22,7 +22,7 @@ import {
 import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
 
-import { EmployeeResponseDto } from '../../types';
+import { EmployeeResponseDto } from '@/types';
 import { useStudio } from '@/features/studios';
 import Skeleton from '@/shared/ui/Skeleton';
 import { isOwnerRole } from '@/shared/lib/studioRole';
