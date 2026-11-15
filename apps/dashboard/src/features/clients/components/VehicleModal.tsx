@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
 import FormInput from '@/shared/ui/FormInput';
-import { vehicleFormSchema, VehicleFormValues } from '@/shared/lib/validations';
+import { vehicleFormSchema, type VehicleFormValues } from '@/features/clients/model/schemas';
 import { useToast } from '@/shared/ui/useToast';
 import { useCreateVehicle, useUpdateVehicle } from '@/features/clients/api/clients';
 import type { Vehicle } from '@/features/clients/model/types';

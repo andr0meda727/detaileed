@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
 import FormInput from '@/shared/ui/FormInput';
-import { clientFormSchema, ClientFormValues } from '@/shared/lib/validations';
+import { clientFormSchema, type ClientFormValues } from '@/features/clients/model/schemas';
 import { useToast } from '@/shared/ui/useToast';
 import { useCreateClient, useUpdateClient } from '@/features/clients/api/clients';
 

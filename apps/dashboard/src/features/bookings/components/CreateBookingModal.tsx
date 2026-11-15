@@ -4,8 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Save, Search, Car as CarIcon, Wrench, Check, Plus, Calendar, UserPlus } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
 
-import { bookingFormSchema, BookingFormValues, clientFormSchema, vehicleFormSchema } from '@/shared/lib/validations';
-import { useClients, useClientVehicleSearch, useCreateClient, type Client, type Vehicle } from '@/features/clients';
+import { bookingFormSchema, type BookingFormValues } from '@/features/bookings/model/schemas';
+import {
+  clientFormSchema,
+  vehicleFormSchema,
+  useClients,
+  useClientVehicleSearch,
+  useCreateClient,
+  type Client,
+  type Vehicle,
+} from '@/features/clients';
 import { useCreateService, useServices } from '@/features/services';
 import { useCreateBooking } from '@/features/bookings/api/bookings';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
