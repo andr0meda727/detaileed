@@ -1,15 +1,13 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import {
   Calendar,
   Package,
   Car as CarIcon,
   X,
-  Search,
   CheckCircle2,
   Check,
   User,
-  Save,
   Wrench,
   Activity,
   CreditCard,
@@ -19,21 +17,20 @@ import {
   MoreHorizontal,
 } from 'lucide-react';
 
-import { useCreateClient, useCreateVehicle, useClients, useClientSearch, CreateClientModal } from '@/features/clients';
-import type { Client } from '@/features/clients';
+import { useClients, CreateClientModal } from '@/features/clients';
 
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { BOOKING_STATUSES, useBookings, type Booking } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
 import { isLowStock, useInventory } from '@/features/inventory';
 import { useServices } from '@/features/services';
 
 import GlobalHeader from '@/shared/ui/GlobalHeader';
-import Modal from '@/shared/ui/Modal';
+
 import DashboardStats from '@/features/dashboard-home/components/DashboardStats';
 import RevenueChart from '@/features/dashboard-home/components/RevenueChart';
 import { BookingDetailsModal, CreateBookingModal, useBookingStatusChange } from '@/features/bookings';
-import { useToast } from '@/shared/ui/ToastContext';
+import { AddVehicleModal } from '@/features/clients';
+
 import { useStudio } from '@/features/studios';
 import Skeleton from '@/shared/ui/Skeleton';
 
@@ -83,15 +80,12 @@ const activityFeed = [
 ];
 
 const Dashboard: React.FC = () => {
-  const { addToast } = useToast();
-  const createClient = useCreateClient();
-  const createVehicle = useCreateVehicle();
   const { requestStatusChange, confirmDialog } = useBookingStatusChange();
   const navigate = useNavigate();
-  const { data: bookings = [], isLoading: bookingsLoading, refetch: refetchBookings } = useBookings();
-  const { data: inventory = [], isLoading: inventoryLoading, refetch: refetchInventory } = useInventory();
+  const { data: bookings = [], isLoading: bookingsLoading } = useBookings();
+  const { data: inventory = [], isLoading: inventoryLoading } = useInventory();
   const { data: clients = [], isLoading: clientsLoading, refetch: refetchClients } = useClients();
-  const { data: availableServices = [], isLoading: servicesLoading, refetch: refetchServices } = useServices();
+  const { data: availableServices = [], isLoading: servicesLoading } = useServices();
 
   // Natywne rozwiązanie Anti-Flicker z pominięciem opóźnień:
   // Hook isPending z React Query zgłosi brak danych tylko początkowo.
@@ -103,33 +97,22 @@ const Dashboard: React.FC = () => {
   const goTo = (to: '/s/$studioId/tasks' | '/s/$studioId/inventory') =>
     void navigate({ to, params: { studioId: selectedStudio?.studioId ?? '' } });
 
-  const fetchData = useCallback(() => {
-    refetchBookings();
-    refetchInventory();
-    refetchClients();
-    refetchServices();
-  }, [refetchBookings, refetchInventory, refetchClients, refetchServices]);
-
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+  // A new key per opening gives the vehicle form a fresh state.
+  const [vehicleModalKey, setVehicleModalKey] = useState(0);
+  const handleOpenNewVehicle = () => {
+    setVehicleModalKey((k) => k + 1);
+    setIsVehicleModalOpen(true);
+  };
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [vehicleClientSearch, setVehicleClientSearch] = useState('');
-  const [selectedClientForVehicle, setSelectedClientForVehicle] = useState<Client | null>(null);
 
   // New client form state
-  const [newClientName, setNewClientName] = useState('');
-  const [newClientPhone, setNewClientPhone] = useState('');
-  const [newClientEmail, setNewClientEmail] = useState('');
-  const [newBookingClientNip, setNewBookingClientNip] = useState('');
 
   // New vehicle form state
-  const [newVehicleBrand, setNewVehicleBrand] = useState('');
-  const [newVehicleModel, setNewVehicleModel] = useState('');
-  const [newVehiclePlate, setNewVehiclePlate] = useState('');
 
   // Form mode
-  const [vehicleClientMode, setVehicleClientMode] = useState<'existing' | 'new'>('existing');
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
 
   const today = new Date().toISOString().split('T')[0];
@@ -165,94 +148,10 @@ const Dashboard: React.FC = () => {
 
   // Wykres przeniesiony do izolowanego komponentu w ./components/RevenueChart
 
-  const filteredClientsOnlyResults = useClientSearch(clients, vehicleClientSearch);
-
   const handleOpenNewBooking = () => setIsBookingModalOpen(true);
   const handleViewBooking = (booking: Booking) => setSelectedBooking(booking);
 
   // CreateClient form refactored to use CreateClientModal
-
-  const handleAddNewVehicleToExisting = async () => {
-    if (!newVehiclePlate) {
-      addToast('Numer Rejestracyjny jest wymagany.', 'error');
-      return;
-    }
-    if (!selectedClientForVehicle) {
-      addToast('Wybierz istniejącego klienta lub dodaj nowego.', 'error');
-      return;
-    }
-    try {
-      await createVehicle.mutateAsync({
-        clientId: selectedClientForVehicle.id,
-        licensePlate: newVehiclePlate,
-        brand: newVehicleBrand || null,
-        model: newVehicleModel || null,
-      });
-      addToast('Nowy pojazd został pomyślnie dodany do klienta.', 'success');
-
-      setIsVehicleModalOpen(false);
-      setVehicleClientMode('existing');
-      setSelectedClientForVehicle(null);
-      setVehicleClientSearch('');
-      setNewVehicleBrand('');
-      setNewVehicleModel('');
-      setNewVehiclePlate('');
-      fetchData();
-    } catch (err) {
-      console.error('Failed to create vehicle:', err);
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas dodawania pojazdu.'), 'error');
-    }
-  };
-
-  const handleCreateClientWithVehicle = async () => {
-    if (!newClientName || !newClientPhone || !newVehiclePlate) {
-      addToast('Wypełnij wymagane pola: Imię i Nazwisko, Telefon oraz Numer Rejestracyjny.', 'error');
-      return;
-    }
-    try {
-      await createClient.mutateAsync({
-        name: newClientName,
-        phone: newClientPhone,
-        email: newClientEmail || null,
-        nip: newBookingClientNip || null,
-        vehicle: {
-          licensePlate: newVehiclePlate,
-          brand: newVehicleBrand || null,
-          model: newVehicleModel || null,
-        },
-      });
-      addToast('Dodano nowego klienta wraz z pojazdem.', 'success');
-
-      // Close modal and reset state as the goal (adding a vehicle) is achieved by creating the new client & vehicle
-      setIsVehicleModalOpen(false);
-      setVehicleClientMode('existing');
-      setNewClientName('');
-      setNewClientPhone('');
-      setNewClientEmail('');
-      setNewBookingClientNip('');
-      setNewVehicleBrand('');
-      setNewVehicleModel('');
-      setNewVehiclePlate('');
-      fetchData();
-    } catch (err) {
-      console.error('Failed to create client with vehicle:', err);
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia klienta.'), 'error');
-    }
-  };
-
-  const handleOpenNewVehicle = () => {
-    setVehicleClientMode('existing');
-    setSelectedClientForVehicle(null);
-    setVehicleClientSearch('');
-    setNewClientName('');
-    setNewClientPhone('');
-    setNewClientEmail('');
-    setNewBookingClientNip('');
-    setNewVehicleBrand('');
-    setNewVehicleModel('');
-    setNewVehiclePlate('');
-    setIsVehicleModalOpen(true);
-  };
 
   const formatBookingTime = (iso: string) =>
     new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
@@ -775,206 +674,7 @@ const Dashboard: React.FC = () => {
         onSuccess={() => refetchClients()}
       />
 
-      <Modal isOpen={isVehicleModalOpen} onClose={() => setIsVehicleModalOpen(false)} title="Dodaj Nowy Pojazd">
-        <div className="space-y-8 pb-10">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between ml-4 mb-2">
-              <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest">Właściciel</label>
-              <div className="flex bg-slate-50 p-1 rounded-xl">
-                <button
-                  type="button"
-                  onClick={() => setVehicleClientMode('existing')}
-                  className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${vehicleClientMode === 'existing' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}
-                >
-                  Znajdź Właściciela
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVehicleClientMode('new')}
-                  className={`px-4 py-1.5 rounded-lg text-[9px] font-semibold uppercase tracking-widest transition-all ${vehicleClientMode === 'new' ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep'}`}
-                >
-                  Nowy Klient
-                </button>
-              </div>
-            </div>
-
-            {vehicleClientMode === 'existing' ? (
-              <>
-                <div className="relative">
-                  <Search size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Szukaj klienta po nazwie lub kontakcie..."
-                    value={vehicleClientSearch}
-                    onChange={(e) => setVehicleClientSearch(e.target.value)}
-                    className="w-full pl-14 pr-6 py-5 bg-slate-50 border-none rounded-xl font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/30"
-                  />
-                </div>
-                <div
-                  style={{
-                    height: vehicleClientSearch.trim() ? '160px' : '0px',
-                    opacity: vehicleClientSearch.trim() ? 1 : 0,
-                    transition: 'height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div className="overflow-y-auto custom-scrollbar rounded-xl h-full space-y-2 pr-1">
-                    {filteredClientsOnlyResults.length === 0 ? (
-                      <div className="h-full flex items-center justify-center">
-                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
-                          Brak wyników
-                        </p>
-                      </div>
-                    ) : (
-                      filteredClientsOnlyResults.map((client) => (
-                        <button
-                          key={client.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedClientForVehicle(client);
-                            setVehicleClientSearch('');
-                          }}
-                          className="w-full p-4 bg-white border border-slate-100 rounded-2xl flex items-center justify-between hover:border-cream-warm transition-all"
-                        >
-                          <div className="text-left">
-                            <h5 className="font-semibold text-green-deep text-sm">{client.name}</h5>
-                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest">
-                              {client.phone || client.email || 'Brak danych kontaktowych'}
-                            </p>
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-                {selectedClientForVehicle && (
-                  <div className="p-6 bg-cream-warm/20 border-2 border-cream-warm/50 rounded-xl flex items-center gap-4">
-                    <User size={24} className="text-green-light" />
-                    <div>
-                      <h5 className="font-semibold text-green-deep text-sm">{selectedClientForVehicle.name}</h5>
-                      <p className="text-[9px] font-semibold text-green-light uppercase tracking-widest">
-                        {selectedClientForVehicle.phone || selectedClientForVehicle.email}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-4 pt-4">
-                  <label className="text-[10px] font-semibold text-green-light uppercase tracking-widest ml-4">
-                    Nowy Pojazd
-                  </label>
-                  <div className="space-y-3 bg-slate-50 p-6 rounded-xl border border-slate-100">
-                    <div className="grid grid-cols-2 gap-3">
-                      <input
-                        type="text"
-                        placeholder="Marka (opcjonalnie)"
-                        value={newVehicleBrand}
-                        onChange={(e) => setNewVehicleBrand(e.target.value)}
-                        className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
-                      />
-                      <input
-                        type="text"
-                        placeholder="Model (opcjonalnie)"
-                        value={newVehicleModel}
-                        onChange={(e) => setNewVehicleModel(e.target.value)}
-                        className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
-                      />
-                    </div>
-                    <input
-                      type="text"
-                      placeholder="Nr Rejestracyjny *"
-                      value={newVehiclePlate}
-                      onChange={(e) => setNewVehiclePlate(e.target.value)}
-                      className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50 uppercase"
-                    />
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleAddNewVehicleToExisting}
-                  className="w-full mt-8 py-6 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3"
-                >
-                  <Save size={18} /> Zapisz Pojazd
-                </button>
-              </>
-            ) : (
-              <div className="space-y-4 bg-slate-50 p-6 rounded-xl mt-2 border border-slate-100">
-                <div className="space-y-3">
-                  <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">Dane Klienta</h5>
-                  <input
-                    type="text"
-                    placeholder="Imię i Nazwisko *"
-                    value={newClientName}
-                    onChange={(e) => setNewClientName(e.target.value)}
-                    required
-                    className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      type="tel"
-                      placeholder="Telefon *"
-                      value={newClientPhone}
-                      onChange={(e) => setNewClientPhone(e.target.value)}
-                      required
-                      className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
-                    />
-                    <input
-                      type="email"
-                      placeholder="Email (opcjonalnie)"
-                      value={newClientEmail}
-                      onChange={(e) => setNewClientEmail(e.target.value)}
-                      className="px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
-                    />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="NIP (opcjonalnie)"
-                    value={newBookingClientNip}
-                    onChange={(e) => setNewBookingClientNip(e.target.value)}
-                    className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
-                  />
-                </div>
-                <div className="space-y-3 pt-4 border-t border-slate-200">
-                  <h5 className="font-semibold text-green-deep text-xs uppercase tracking-widest mb-3">
-                    Pojazd Klienta
-                  </h5>
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      type="text"
-                      placeholder="Marka (opcjonalnie)"
-                      value={newVehicleBrand}
-                      onChange={(e) => setNewVehicleBrand(e.target.value)}
-                      className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Model (opcjonalnie)"
-                      value={newVehicleModel}
-                      onChange={(e) => setNewVehicleModel(e.target.value)}
-                      className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50"
-                    />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Nr Rejestracyjny *"
-                    value={newVehiclePlate}
-                    onChange={(e) => setNewVehiclePlate(e.target.value)}
-                    required
-                    className="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl outline-none font-bold text-sm focus:ring-2 focus:ring-cream-warm/50 uppercase"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleCreateClientWithVehicle}
-                  className="w-full py-4 bg-green-deep text-cream-warm rounded-xl font-semibold text-[10px] uppercase tracking-wider"
-                >
-                  Utwórz Klienta i Pojazd
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </Modal>
+      <AddVehicleModal key={vehicleModalKey} isOpen={isVehicleModalOpen} onClose={() => setIsVehicleModalOpen(false)} />
 
       <BookingDetailsModal
         booking={selectedBooking}

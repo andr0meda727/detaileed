@@ -13,3 +13,4 @@ export type { Client, ClientInput, Vehicle, VehicleInput } from './model/types';
 export { default as ClientsView } from './components/ClientsView';
 export { default as CreateClientModal } from './components/CreateClientModal';
 export { default as VehicleModal } from './components/VehicleModal';
+export { default as AddVehicleModal } from './components/AddVehicleModal';
