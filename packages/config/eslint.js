@@ -3,6 +3,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
+import boundaries from 'eslint-plugin-boundaries';
 
 /** Shared rules for TypeScript code in every package. */
 export const base = tseslint.config(
@@ -35,8 +36,8 @@ export const react = tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      // Existing effects get rewritten in the router/feature migration; make this an error afterwards.
-      'react-hooks/set-state-in-effect': 'warn',
+      // Derive state, remount with a key, or use an event handler instead.
+      'react-hooks/set-state-in-effect': 'error',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
@@ -47,3 +48,48 @@ export const react = tseslint.config(
     rules: { 'react-refresh/only-export-components': 'off' },
   },
 );
+
+/**
+ * Feature-slice architecture for an app's `src`: imports flow app → routes → features → shared, a feature
+ * uses another feature only through its index.ts, and network calls go through @detaileed/api-client.
+ */
+export const featureSlices = tseslint.config({
+  files: ['src/**/*.{ts,tsx}'],
+  plugins: { boundaries },
+  settings: {
+    'import/resolver': { typescript: { alwaysTryTypes: true } },
+    'boundaries/elements': [
+      { type: 'app', pattern: 'src/app' },
+      { type: 'routes', pattern: 'src/routes' },
+      { type: 'features', pattern: 'src/features/*', capture: ['feature'] },
+      { type: 'shared', pattern: 'src/shared' },
+    ],
+  },
+  rules: {
+    'boundaries/dependencies': [
+      'error',
+      {
+        default: 'disallow',
+        policies: [
+          // Anything inside the same element (one feature, shared, routes, app).
+          { allow: { dependency: { relationship: { to: 'internal' } } } },
+          // npm packages and workspace packages.
+          { allow: { to: { module: { origin: ['external', 'core'] } } } },
+          {
+            from: { element: { types: ['app', 'routes'] } },
+            allow: { to: { element: { types: ['app', 'routes', 'shared'] } } },
+          },
+          {
+            from: { element: { types: ['app', 'routes', 'features'] } },
+            allow: { to: { element: { type: 'features', fileInternalPath: 'index.ts' } } },
+          },
+          { from: { element: { type: 'features' } }, allow: { to: { element: { type: 'shared' } } } },
+        ],
+      },
+    ],
+    'no-restricted-globals': [
+      'error',
+      { name: 'fetch', message: 'Call the API through @detaileed/api-client (generated hooks or apiFetch).' },
+    ],
+  },
+});
