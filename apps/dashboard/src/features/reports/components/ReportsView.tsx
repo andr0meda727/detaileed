@@ -14,7 +14,7 @@ import {
   Check,
 } from 'lucide-react';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
-import { generateBookingsReport } from '../../apiClient';
+import { generateBookingsReport } from '@/apiClient';
 import { useToast } from '@/shared/ui/ToastContext';
 import Modal from '@/shared/ui/Modal';
 import { CreateBookingModal } from '@/features/bookings';
