@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plus, UserPlus, Menu } from 'lucide-react';
-import { useOpenMobileMenu } from '@/app/mobileMenu';
+import { useOpenMobileMenu } from '@/shared/ui/mobileMenu';
 
 interface GlobalHeaderProps {
   title: string;

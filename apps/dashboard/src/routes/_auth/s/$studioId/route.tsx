@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet, createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { activateStudio, forgetActiveStudio, StudioScope, studiosQueryOptions } from '@/features/studios';
-import { MobileMenuContext } from '@/app/mobileMenu';
+import { MobileMenuContext } from '@/shared/ui/mobileMenu';
 import Sidebar from '@/app/layout/Sidebar';
 import supabase from '@/shared/lib/supabase';
 import type { Studio } from '@/features/studios';
