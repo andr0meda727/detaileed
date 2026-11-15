@@ -1,37 +1,23 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, User, Phone, Users, Search, Shield, Trash2, Mail, Loader2, RefreshCw } from 'lucide-react';
+import React, { useState } from 'react';
+import { ASSIGNABLE_ROLES, OWNER_ROLE_ID, roleById } from '@/features/team/model/roles';
+import { Users, Search, Trash2, Mail, RefreshCw } from 'lucide-react';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import InviteEmployeeModal from '@/features/team/components/InviteEmployeeModal';
-import { useEmployees, useInviteEmployee, useChangeEmployeeRole, useRemoveEmployee } from '@/features/team/api/employees';
+import {
+  useEmployees,
+  useInviteEmployee,
+  useChangeEmployeeRole,
+  useRemoveEmployee,
+} from '@/features/team/api/employees';
 import { useToast } from '@/shared/ui/ToastContext';
 
-import {
-  X as XIcon,
-  Clock,
-  MessageSquare,
-  AlertCircle,
-  Calendar,
-  Hash,
-  Wrench,
-  UserPlus,
-  Save,
-  Car as CarIcon,
-  Edit2,
-  Check,
-} from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
 
-import { EmployeeResponseDto } from '@/types';
 import { useStudio } from '@/features/studios';
 import Skeleton from '@/shared/ui/Skeleton';
 import { isOwnerRole } from '@/shared/lib/studioRole';
-
-const ROLES = [
-  { id: 1, name: 'Właściciel', color: 'text-amber-600 bg-amber-50', badgeColor: 'bg-amber-500' },
-  { id: 2, name: 'Manager', color: 'text-indigo-600 bg-indigo-50', badgeColor: 'bg-indigo-500' },
-  { id: 3, name: 'Pracownik', color: 'text-emerald-600 bg-emerald-50', badgeColor: 'bg-emerald-500' },
-];
 
 export const TeamView: React.FC = () => {
   const { data: employees = [], isLoading: loading, refetch } = useEmployees();
@@ -168,7 +154,7 @@ export const TeamView: React.FC = () => {
           ) : (
             <>
               {filteredEmployees.map((emp) => {
-                const roleDetails = ROLES.find((r) => r.id === emp.roleId) || ROLES[2];
+                const roleDetails = roleById(emp.roleId);
                 return (
                   <div
                     key={emp.userId}
@@ -182,13 +168,13 @@ export const TeamView: React.FC = () => {
                         >
                           {(emp.name || emp.email || 'N')[0].toUpperCase()}
                         </div>
-                        {isOwner ? (
+                        {isOwner && emp.roleId !== OWNER_ROLE_ID ? (
                           <select
                             value={emp.roleId}
                             onChange={(e) => handleRoleChange(emp.userId, parseInt(e.target.value))}
                             className={`text-[10px] font-bold uppercase tracking-widest pl-3 pr-8 py-2 rounded-xl outline-none cursor-pointer appearance-none ${roleDetails.color} border-none`}
                           >
-                            {ROLES.map((r) => (
+                            {ASSIGNABLE_ROLES.map((r) => (
                               <option key={r.id} value={r.id}>
                                 {r.name}
                               </option>

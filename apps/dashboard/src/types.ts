@@ -2,23 +2,6 @@
 
 export type StudioRole = 'Owner' | 'Manager' | 'Employee';
 
-export interface InviteEmployeeDto {
-  email: string;
-  roleId: number;
-}
-
-export interface ChangeEmployeeRoleDto {
-  userId: string;
-  roleId: number;
-}
-
-export interface EmployeeResponseDto {
-  userId: string;
-  email: string;
-  name?: string | null;
-  roleId: number;
-}
-
 // === Legacy types kept for UI compatibility ===
 
 export type KanbanStage = 'Do zrobienia' | 'W trakcie' | 'Kontrola jakości' | 'Gotowe';

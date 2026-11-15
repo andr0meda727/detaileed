@@ -1,19 +1,13 @@
 import React, { useState } from 'react';
+import { ASSIGNABLE_ROLES } from '@/features/team/model/roles';
 import { Mail, Shield, UserPlus, Loader2 } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
-import { InviteEmployeeDto } from '@/types';
 
 interface InviteEmployeeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onInvite: (selectedRole: number, email: string) => Promise<void>;
 }
-
-const ROLES = [
-  { id: 1, name: 'Właściciel', description: 'Pełen dostęp, fakturowanie, statystyki, zarządzanie zespołem' },
-  { id: 2, name: 'Manager', description: 'Zarządzanie rezerwacjami, magazynem i klientami' },
-  { id: 3, name: 'Pracownik', description: 'Tylko odczyt grafiku i listy zadań' },
-];
 
 const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClose, onInvite }) => {
   const [email, setEmail] = useState('');
@@ -56,7 +50,7 @@ const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClo
           <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest ml-4 flex items-center gap-2 mb-4">
             <Shield size={12} /> Uprawnienia
           </label>
-          {ROLES.map(role => (
+          {ASSIGNABLE_ROLES.map((role) => (
             <div
               key={role.id}
               onClick={() => !isSubmitting && setSelectedRole(role.id)}
@@ -64,10 +58,16 @@ const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClo
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className={`font-bold text-sm ${selectedRole === role.id ? 'text-green-deep' : 'text-slate-700'}`}>{role.name}</h4>
+                  <h4
+                    className={`font-bold text-sm ${selectedRole === role.id ? 'text-green-deep' : 'text-slate-700'}`}
+                  >
+                    {role.name}
+                  </h4>
                   <p className="text-xs font-semibold text-slate-400 mt-0.5">{role.description}</p>
                 </div>
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedRole === role.id ? 'border-green-deep' : 'border-slate-300'}`}>
+                <div
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedRole === role.id ? 'border-green-deep' : 'border-slate-300'}`}
+                >
                   {selectedRole === role.id && <div className="w-2.5 h-2.5 bg-green-deep rounded-full" />}
                 </div>
               </div>

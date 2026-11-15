@@ -1,40 +1,45 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getEmployees, inviteEmployee, changeEmployeeRole, removeEmployee } from '@/features/team/api/employeeService';
-import { EmployeeResponseDto } from '@/types';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  deleteApiEmployeesUserId,
+  getApiEmployees,
+  getGetApiEmployeesQueryKey,
+  patchApiEmployeesRole,
+  postApiEmployeesInvite,
+} from '@detaileed/api-client';
+import { toEmployee } from '@/features/team/model/types';
 
-const QUERY_KEY = 'employees';
+const employeesKey = getGetApiEmployeesQueryKey();
 
+/** Members of the current studio (owner only, not paged). */
 export function useEmployees() {
   return useQuery({
-    queryKey: [QUERY_KEY],
-    queryFn: () => getEmployees(),
+    queryKey: employeesKey,
+    queryFn: async ({ signal }) => (await getApiEmployees({ signal })).map(toEmployee),
     staleTime: 30_000,
   });
 }
 
-export function useInviteEmployee() {
-  const qc = useQueryClient();
+// The screens show their own error toasts for these, so the global one is skipped.
+const meta = { skipGlobalError: true };
+
+function useEmployeesMutation<TVariables, TResult>(mutationFn: (variables: TVariables) => Promise<TResult>) {
+  const queryClient = useQueryClient();
   return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: ({ email, roleId }: { email: string; roleId: number }) => inviteEmployee({ email, roleId }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
+    meta,
+    mutationFn,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: employeesKey }),
   });
 }
 
-export function useChangeEmployeeRole() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: ({ userId, roleId }: { userId: string; roleId: number }) => changeEmployeeRole({ userId, roleId }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+/** Sends an invitation email; the person joins once they accept it. */
+export const useInviteEmployee = () =>
+  useEmployeesMutation(({ email, roleId }: { email: string; roleId: number }) =>
+    postApiEmployeesInvite({ email, roleId }),
+  );
 
-export function useRemoveEmployee() {
-  const qc = useQueryClient();
-  return useMutation({
-    meta: { skipGlobalError: true },
-    mutationFn: (userId: string) => removeEmployee(userId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: [QUERY_KEY] }),
-  });
-}
+export const useChangeEmployeeRole = () =>
+  useEmployeesMutation(({ userId, roleId }: { userId: string; roleId: number }) =>
+    patchApiEmployeesRole({ userId, roleId }),
+  );
+
+export const useRemoveEmployee = () => useEmployeesMutation((userId: string) => deleteApiEmployeesUserId(userId));
