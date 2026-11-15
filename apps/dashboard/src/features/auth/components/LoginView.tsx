@@ -7,7 +7,7 @@ import {
   LoginFormValues,
   PasswordResetValues,
 } from '@/features/auth/model/schemas';
-import { Zap, ArrowRight, ShieldCheck, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowRight, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
 import supabase from '@/shared/lib/supabase';
 import logo from '@/images/logo.svg';
 

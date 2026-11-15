@@ -1,11 +1,12 @@
 import React from 'react';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
 import FormInput from '@/shared/ui/FormInput';
 import { clientFormSchema, ClientFormValues } from '@/shared/lib/validations';
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 import { useCreateClient, useUpdateClient } from '@/features/clients/api/clients';
 
 interface CreateClientModalProps {
@@ -54,17 +55,11 @@ export default function CreateClientModal({ isOpen, onClose, onSuccess, clientTo
       }
       onClose();
       if (onSuccess) onSuccess();
-    } catch (e: any) {
-      if (e?.data?.errors) {
-        const firstErrorKey = Object.keys(e.data.errors)[0];
-        addToast(e.data.errors[firstErrorKey][0], 'error');
-      } else {
-        console.error(e);
-        addToast(
-          e.message || (clientToEdit ? 'Błąd podczas aktualizacji klienta.' : 'Błąd podczas dodawania klienta.'),
-          'error',
-        );
-      }
+    } catch (e) {
+      addToast(
+        getApiErrorMessage(e, clientToEdit ? 'Błąd podczas aktualizacji klienta.' : 'Błąd podczas dodawania klienta.'),
+        'error',
+      );
     }
   };
 

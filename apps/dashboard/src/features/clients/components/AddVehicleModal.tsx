@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, User, Save } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useClients, useCreateClient, useCreateVehicle } from '@/features/clients/api/clients';
 import { useClientSearch } from '@/features/clients/hooks/useClientVehicleSearch';

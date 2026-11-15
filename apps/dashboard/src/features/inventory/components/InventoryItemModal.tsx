@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Check, X, ChevronDown } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useCreateInventoryItem, useUpdateInventoryItem } from '@/features/inventory/api/inventory';
 import { useCategories, useCreateCategory } from '@/features/inventory/api/categories';

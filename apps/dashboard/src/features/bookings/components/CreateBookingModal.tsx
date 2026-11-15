@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, useWatch, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save, Search, Car as CarIcon, Wrench, Check, Plus, Calendar, UserPlus } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
@@ -9,7 +9,7 @@ import { useClients, useClientVehicleSearch, useCreateClient, type Client, type 
 import { useCreateService, useServices } from '@/features/services';
 import { useCreateBooking } from '@/features/bookings/api/bookings';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 
@@ -19,7 +19,12 @@ interface CreateBookingModalProps {
   onSuccess?: () => void;
 }
 
-export default function CreateBookingModal({ isOpen, onClose, onSuccess }: CreateBookingModalProps) {
+/** New booking form. It remounts whenever it opens or closes, so every opening starts with an empty form. */
+export default function CreateBookingModal(props: CreateBookingModalProps) {
+  return <CreateBookingForm key={props.isOpen ? 'open' : 'closed'} {...props} />;
+}
+
+function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalProps) {
   const { addToast } = useToast();
   const createClient = useCreateClient();
   const createService = useCreateService();
@@ -49,8 +54,6 @@ export default function CreateBookingModal({ isOpen, onClose, onSuccess }: Creat
     control,
     handleSubmit,
     setValue,
-    watch,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
@@ -64,16 +67,7 @@ export default function CreateBookingModal({ isOpen, onClose, onSuccess }: Creat
     },
   });
 
-  const watchServiceIds = watch('serviceIds');
-
-  React.useEffect(() => {
-    if (!isOpen) {
-      reset();
-      setSelectedVehicle(null);
-      setBookingClientMode('existing');
-      setClientSearch('');
-    }
-  }, [isOpen, reset]);
+  const watchServiceIds = useWatch({ control, name: 'serviceIds' });
 
   const handleAddNewClientForBooking = async () => {
     // 1. Zod local validation
@@ -128,14 +122,8 @@ export default function CreateBookingModal({ isOpen, onClose, onSuccess }: Creat
       setNewVehiclePlate('');
       if (refetchClients) refetchClients();
       addToast('Dodano i wybrano nowego klienta.', 'success');
-    } catch (err: any) {
-      // 2. ApiError handling fallback
-      if (err?.data?.errors) {
-        const firstErrorKey = Object.keys(err.data.errors)[0];
-        addToast(err.data.errors[firstErrorKey][0], 'error');
-      } else {
-        addToast(err.message || 'Wystąpił błąd podczas szybkiego tworzenia klienta', 'error');
-      }
+    } catch (err) {
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas szybkiego tworzenia klienta'), 'error');
     }
   };
 
@@ -170,13 +158,8 @@ export default function CreateBookingModal({ isOpen, onClose, onSuccess }: Creat
       addToast('Rezerwacja została pomyślnie utworzona.', 'success');
       onClose();
       if (onSuccess) onSuccess();
-    } catch (err: any) {
-      if (err?.data?.errors) {
-        const firstErrorKey = Object.keys(err.data.errors)[0];
-        addToast(err.data.errors[firstErrorKey][0], 'error');
-      } else {
-        addToast(err.message || 'Wystąpił błąd podczas tworzenia rezerwacji.', 'error');
-      }
+    } catch (err) {
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia rezerwacji.'), 'error');
     }
   };
 

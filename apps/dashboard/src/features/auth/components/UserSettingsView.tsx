@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyRound, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Shield } from 'lucide-react';
 import { setPasswordSchema, SetPasswordValues } from '@/features/auth/model/schemas';
@@ -20,15 +20,15 @@ const UserSettingsView: React.FC = () => {
 
   const {
     register,
+    control,
     handleSubmit,
-    watch,
     formState: { errors },
     reset,
   } = useForm<SetPasswordValues>({
     resolver: zodResolver(setPasswordSchema),
   });
 
-  const passwordValue = watch('password', '');
+  const passwordValue = useWatch({ control, name: 'password', defaultValue: '' });
 
   const onSubmit = async (data: SetPasswordValues) => {
     setResult(null);

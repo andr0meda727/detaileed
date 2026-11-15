@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import Modal from '@/shared/ui/Modal';
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useCancelBooking, useCompleteBooking } from '@/features/bookings/api/bookings';
 import type { Booking } from '@/features/bookings/model/types';

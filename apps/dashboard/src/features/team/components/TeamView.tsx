@@ -9,7 +9,7 @@ import {
   useChangeEmployeeRole,
   useRemoveEmployee,
 } from '@/features/team/api/employees';
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 
 import { UserPlus } from 'lucide-react';
 import { CreateBookingModal } from '@/features/bookings';

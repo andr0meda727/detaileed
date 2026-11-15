@@ -11,7 +11,7 @@ import VehicleModal from '@/features/clients/components/VehicleModal';
 import type { Client } from '@/features/clients/model/types';
 import { useClients, useDeleteVehicle } from '@/features/clients/api/clients';
 
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import ClientDetailsModal from '@/features/clients/components/ClientDetailsModal';
 import ClientsTable from '@/features/clients/components/ClientsTable';

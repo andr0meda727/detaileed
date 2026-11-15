@@ -6,7 +6,7 @@ import { CategoriesSettings } from '@/features/inventory';
 import { EmployeesSettings } from '@/features/team';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 import { useStudio } from '@/features/studios';
 import { isEmployeeRole } from '@/shared/lib/studioRole';
 

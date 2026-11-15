@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Building2, MapPin, Phone, Mail, Loader2, Sparkles, X } from 'lucide-react';
 import { useCreateStudio } from '@/features/studios/api/studios';
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 import type { Studio } from '@/features/studios/model/types';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -85,11 +86,8 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, 
       addToast(`Studio „${newStudio.name}" zostało utworzone!`, 'success');
       reset();
       onSuccess(newStudio);
-    } catch (e: any) {
-      const msg = e?.data?.errors
-        ? Object.values(e.data.errors).flat().join(' ')
-        : e?.message || 'Nie udało się utworzyć studia';
-      addToast(msg, 'error');
+    } catch (e) {
+      addToast(getApiErrorMessage(e, 'Nie udało się utworzyć studia'), 'error');
     }
   };
 

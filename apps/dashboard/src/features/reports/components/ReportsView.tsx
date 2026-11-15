@@ -5,7 +5,7 @@ import GlobalHeader from '@/shared/ui/GlobalHeader';
 import { useGenerateBookingsReport } from '@/features/reports/api/reports';
 import { reportRangeError } from '@/features/reports/model/reportRange';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import { useToast } from '@/shared/ui/ToastContext';
+import { useToast } from '@/shared/ui/useToast';
 
 import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
