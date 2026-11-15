@@ -1,7 +1,7 @@
 const MAX_DAYS = 366;
 
 /**
- * Checks a report range of \`YYYY-MM-DD\` dates before it is sent; returns the Polish error message, or null
+ * Checks a report range of `YYYY-MM-DD` dates before it is sent; returns the Polish error message, or null
  * when the range is fine. The API accepts at most a year.
  */
 export function reportRangeError(dateFrom: string, dateTo: string): string | null {
