@@ -1,22 +1,12 @@
 import React, { useState } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
-import {
-  FileBarChart2,
-  Download,
-  Calendar as CalendarIcon,
-  Loader2,
-  Search,
-  Plus,
-  UserPlus,
-  Car as CarIcon,
-  Wrench,
-  Save,
-  Check,
-} from 'lucide-react';
+import { FileBarChart2, Download, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
-import { generateBookingsReport } from '@/apiClient';
+import { useGenerateBookingsReport } from '@/features/reports/api/reports';
+import { reportRangeError } from '@/features/reports/model/reportRange';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useToast } from '@/shared/ui/ToastContext';
-import Modal from '@/shared/ui/Modal';
+
 import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
 
@@ -29,38 +19,29 @@ const ReportsView: React.FC = () => {
     void navigate({ search: (prev) => ({ ...prev, ...range }), replace: true });
   const setDateFrom = (value: string) => setRange({ from: value || undefined });
   const setDateTo = (value: string) => setRange({ to: value || undefined });
-  const [isGenerating, setIsGenerating] = useState(false);
+  const generateReport = useGenerateBookingsReport();
+  const isGenerating = generateReport.isPending;
   const { addToast } = useToast();
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!dateFrom || !dateTo) {
-      addToast('Wybierz zakres dat', 'error');
-      return;
-    }
-
-    if (new Date(dateFrom) > new Date(dateTo)) {
-      addToast('Data od nie może być późniejsza niż data do', 'error');
+    const rangeError = reportRangeError(dateFrom, dateTo);
+    if (rangeError) {
+      addToast(rangeError, 'error');
       return;
     }
 
     try {
-      setIsGenerating(true);
-      const fromTimestamp = `${dateFrom}T00:00:00Z`;
-      const toTimestamp = `${dateTo}T23:59:59Z`;
-
-      await generateBookingsReport(fromTimestamp, toTimestamp);
+      // The API takes plain studio days (DateOnly), not timestamps.
+      await generateReport.mutateAsync({ dateFrom, dateTo });
 
       addToast('Rozpoczęto generowanie raportu. Zostanie on wysłany na Twój adres e-mail.', 'success');
 
       setRange({ from: undefined, to: undefined });
     } catch (err) {
-      console.error('Failed to generate report', err);
-      addToast('Wystąpił błąd podczas zlecania raportu', 'error');
-    } finally {
-      setIsGenerating(false);
+      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas zlecania raportu'), 'error');
     }
   };
 

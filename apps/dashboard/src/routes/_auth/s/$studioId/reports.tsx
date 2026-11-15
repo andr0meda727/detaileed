@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { z } from 'zod';
-import ReportsView from '@/features/reports/components/ReportsView';
+import { ReportsView } from '@/features/reports';
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 

@@ -102,16 +102,3 @@ export async function apiDelete(path: string): Promise<void> {
     await extractApiError(response);
   }
 }
-
-export async function generateBookingsReport(dateFrom: string, dateTo: string): Promise<void> {
-  const response = await fetch(`${API_BASE}/Reports/bookings`, {
-    method: 'POST',
-    headers: await getHeaders(true),
-    body: JSON.stringify({ dateFrom, dateTo }),
-  });
-
-  // Accept 200, 202 (Accepted) or 204
-  if (!response.ok) {
-    await extractApiError(response);
-  }
-}
