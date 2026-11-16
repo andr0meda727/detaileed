@@ -1,3 +1,5 @@
+'use client';
+
 import { useId, type ComponentPropsWithRef } from 'react';
 import { ChevronDown } from 'lucide-react';
 
