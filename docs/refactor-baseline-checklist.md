@@ -1,6 +1,7 @@
 # Frontend Refactor Baseline Checklist
 
 ## Scope map
+
 - Booking creation/editing flow appears in:
   - `views/dashboard/Dashboard.tsx`
   - `views/bookings/BookingsView.tsx`
@@ -12,6 +13,7 @@
   - Compatibility re-export: `components/Modal.tsx`
 
 ## Regression checklist
+
 - Create booking with existing client/vehicle.
 - Create booking with newly created client + vehicle.
 - Add custom service and select it in booking.
@@ -21,8 +23,8 @@
 - Verify toasts display for success/error/info paths in reports, inventory, archived, bookings, studio settings.
 
 ## Data consistency checks
+
 - Booking list refreshes after `createBooking`.
 - Clients list refreshes after `createClient`.
 - Services list refreshes after `createService`.
 - No `alert()` usage in `views`.
-

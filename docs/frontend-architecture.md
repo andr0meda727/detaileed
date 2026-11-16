@@ -37,7 +37,8 @@ features/<name>/
 Features: `auth`, `studios`, `bookings`, `clients` (clients and their vehicles), `services`, `inventory`,
 `team`, `settings` (the studio settings screen, composed of tabs from services, inventory and team),
 `reports`, `dashboard-home`, `marketplace` (the studio's public profile on the customer map: listing form, pin, publish),
-`booking-requests` (requests customers send from the map: list, plan, accept/reject; pending count in the sidebar).
+`booking-requests` (requests customers send from the map: list, plan, accept/reject; pending count in the sidebar),
+`planning` (bays, opening hours, rules, closures in the settings; the day board; free slots for the booking form).
 
 ## Data
 

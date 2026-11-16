@@ -19,7 +19,8 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 6: foundations          | done (merged to `main`); spec refresh, studio time zone, vehicle size, services   |
 | 7: studio marketplace   | done (merged to `main`); maps, public profile, booking-request inbox              |
 | 8: customer site        | done (merged to `main`); `apps/web` Next.js, map search, studio pages, requests   |
-| 9–10: backend catch-up  | planned (see "Catching up with the backend")                                      |
+| 9: planning             | done (merged to `main`); bays, hours, closures, day board, slots in bookings      |
+| 10: inventory ledger    | planned (see "Catching up with the backend")                                      |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
