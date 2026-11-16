@@ -6,15 +6,16 @@ import {
   postApiService,
   putApiServiceId,
 } from '@detaileed/api-client';
-import type { ServiceInput } from '@/features/services/model/types';
+import { toService, type ServiceInput } from '@/features/services/model/types';
 
 const servicesKey = getGetApiServiceQueryKey();
 
-/** Active services of the studio (not paged). */
+/** Active services of the studio (not paged), with numbers normalised. */
 export function useServices() {
   return useQuery({
     queryKey: servicesKey,
     queryFn: ({ signal }) => getApiService({ signal }),
+    select: (services) => services.map(toService),
     staleTime: 60_000,
   });
 }
