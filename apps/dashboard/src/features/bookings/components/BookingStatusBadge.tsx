@@ -1,4 +1,4 @@
-import React from 'react';
+import { Badge } from '@detaileed/ui';
 import type { Booking } from '@/features/bookings/model/types';
 
 interface BookingStatusBadgeProps {
@@ -7,25 +7,11 @@ interface BookingStatusBadgeProps {
   className?: string;
 }
 
-/** The booking's status name, tinted with the status colour the API sends. */
-const BookingStatusBadge: React.FC<BookingStatusBadgeProps> = ({ booking, size = 'md', className = '' }) => {
-  const color = booking.statusColor || 'var(--green-deep)';
-  const shape =
-    size === 'lg'
-      ? 'inline-block px-5 py-2.5 rounded-2xl border-2 text-[11px]'
-      : 'px-4 py-2 rounded-full border text-[10px]';
+/** The booking's status name, tinted with the status colour the API sends (brand green without one). */
+export default function BookingStatusBadge({ booking, size = 'md', className }: BookingStatusBadgeProps) {
   return (
-    <span
-      className={`${shape} font-bold uppercase tracking-widest ${className}`}
-      style={{
-        color,
-        borderColor: color + (size === 'lg' ? '40' : '35'),
-        backgroundColor: color + (size === 'lg' ? '15' : '10'),
-      }}
-    >
+    <Badge color={booking.statusColor} size={size} className={className}>
       {booking.status}
-    </span>
+    </Badge>
   );
-};
-
-export default BookingStatusBadge;
+}
