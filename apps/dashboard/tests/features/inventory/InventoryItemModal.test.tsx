@@ -41,18 +41,18 @@ describe('InventoryItemModal', () => {
     expect(createItem).not.toHaveBeenCalled();
   });
 
-  it('saves an edit with decimal stock and keeps the category', async () => {
+  it('saves an edit with the stock read-only (it changes through deliveries) and keeps the category', async () => {
     const onClose = vi.fn();
     render(<InventoryItemModal isOpen item={item} onClose={onClose} />, { wrapper });
     expect(screen.getAllByText('Chemia')[0].tagName).toBe('SPAN'); // the picked label, not a dropdown option
 
-    fireEvent.change(screen.getByDisplayValue('2,5'), { target: { value: '3,75' } });
+    expect(screen.getByDisplayValue('2,5')).toHaveAttribute('readonly');
     fireEvent.click(screen.getByText('Zapisz'));
 
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(updateItem).toHaveBeenCalledWith({
       id: 'i1',
-      dto: { name: 'Szampon', description: null, categoryId: 'cat1', unit: 'L', stock: 3.75, minStock: 1 },
+      dto: { name: 'Szampon', description: null, categoryId: 'cat1', unit: 'L', stock: 2.5, minStock: 1 },
     });
   });
 

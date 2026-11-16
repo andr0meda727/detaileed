@@ -4,6 +4,7 @@ import { Plus, Search, Filter, ChevronDown } from 'lucide-react';
 import { type InventoryItem } from '@/features/inventory/model/types';
 import InventoryItemModal from '@/features/inventory/components/InventoryItemModal';
 import InventoryTable from '@/features/inventory/components/InventoryTable';
+import ItemHistoryModal from '@/features/inventory/components/ItemHistoryModal';
 import { filterInventory } from '@/features/inventory/model/filterInventory';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { useInventory } from '@/features/inventory/api/inventory';
@@ -32,6 +33,8 @@ const InventoryView: React.FC = () => {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [itemModal, setItemModal] = useState<{ item: InventoryItem | null; key: number } | null>(null);
   const handleOpenModal = (item?: InventoryItem) => setItemModal({ item: item ?? null, key: Date.now() });
+  // The id only: the item is read from the list, so its stock updates after a delivery or stocktake.
+  const [historyItemId, setHistoryItemId] = useState<string | null>(null);
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
 
   const debouncedSearchQuery = useDebouncedValue(searchQuery);
@@ -146,6 +149,11 @@ const InventoryView: React.FC = () => {
         isLoading={isInventoryLoading}
         dimmed={searchQuery !== debouncedSearchQuery}
         onEdit={handleOpenModal}
+        onOpenHistory={(item) => setHistoryItemId(item.id)}
+      />
+      <ItemHistoryModal
+        item={items.find((i) => i.id === historyItemId) ?? null}
+        onClose={() => setHistoryItemId(null)}
       />
 
       <InventoryItemModal

@@ -1,10 +1,8 @@
-import React, { useState } from 'react';
-import { Edit2, Package, Check, X } from 'lucide-react';
-import { Skeleton, EmptyState, useToast } from '@detaileed/ui';
-import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
-import { useUpdateInventoryItem } from '@/features/inventory/api/inventory';
-import { useCategories } from '@/features/inventory/api/categories';
-import { type InventoryItem, type InventoryItemInput } from '@/features/inventory/model/types';
+import React from 'react';
+import { Edit2, History, Package } from 'lucide-react';
+import { formatQuantity } from '@/features/inventory/model/ledger';
+import { Skeleton, EmptyState } from '@detaileed/ui';
+import type { InventoryItem } from '@/features/inventory/model/types';
 
 interface InventoryTableProps {
   items: InventoryItem[];
@@ -12,38 +10,12 @@ interface InventoryTableProps {
   /** Fades the list while a new search is pending. */
   dimmed: boolean;
   onEdit: (item: InventoryItem) => void;
+  /** Opens the item's stock history with deliveries and stocktakes. */
+  onOpenHistory: (item: InventoryItem) => void;
 }
 
 /** Stock items with low-stock highlighting and an inline stock editor. */
-const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading, dimmed, onEdit }) => {
-  const { addToast } = useToast();
-  const { data: categories = [] } = useCategories();
-  const updateItem = useUpdateInventoryItem();
-  const [quickEditStockId, setQuickEditStockId] = useState<string | null>(null);
-  const [quickEditStockValue, setQuickEditStockValue] = useState('');
-
-  const handleQuickStockSave = async (item: InventoryItem) => {
-    const newStock = Number(quickEditStockValue.replace(',', '.'));
-    if (quickEditStockValue.trim() === '' || Number.isNaN(newStock)) return;
-    const foundCategory = categories.find((c) => c.name === item.categoryName);
-    const dto: InventoryItemInput = {
-      name: item.name,
-      categoryId: foundCategory ? foundCategory.id : null,
-      unit: item.unit,
-      stock: newStock,
-      minStock: item.minStock || null,
-      description: item.description || null,
-    };
-    try {
-      await updateItem.mutateAsync({ id: item.id, dto });
-      setQuickEditStockId(null);
-      addToast('Zaktualizowano stan magazynowy', 'success');
-    } catch (err) {
-      console.error(err);
-      addToast(getApiErrorMessage(err, 'Błąd podczas aktualizacji stanu'), 'error');
-    }
-  };
-
+const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading, dimmed, onEdit, onOpenHistory }) => {
   return (
     <div
       className={`bg-white rounded-2xl lg:rounded-2xl shadow-xs border border-slate-100 overflow-hidden transition-opacity duration-200 ${dimmed ? 'opacity-70' : 'opacity-100'}`}
@@ -107,45 +79,18 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading, dimme
                     <td
                       className={`px-10 py-8 text-right font-mono text-xl lg:text-2xl font-extrabold ${item.minStock !== null && item.stock < item.minStock ? 'text-red-500' : 'text-green-deep'}`}
                     >
-                      {quickEditStockId === item.id ? (
-                        <div className="flex items-center justify-end gap-2">
-                          <input
-                            type="number"
-                            autoFocus
-                            value={quickEditStockValue}
-                            onChange={(e) => setQuickEditStockValue(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleQuickStockSave(item)}
-                            className="w-24 px-3 py-2 text-right bg-slate-50 border border-slate-200 rounded-xl outline-hidden focus:ring-4 focus:ring-cream-warm/50 font-bold text-lg text-green-deep"
-                          />
-                          <button
-                            onClick={() => handleQuickStockSave(item)}
-                            disabled={updateItem.isPending}
-                            className="p-2 bg-green-deep text-cream-warm rounded-lg hover:bg-green-deep/90 disabled:opacity-50 transition-all"
-                          >
-                            <Check size={16} />
-                          </button>
-                          <button
-                            onClick={() => setQuickEditStockId(null)}
-                            className="p-2 bg-slate-100 text-slate-500 rounded-lg hover:bg-slate-200 transition-all"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <div
-                          className="group/stock inline-flex items-center justify-end cursor-pointer hover:opacity-80 transition-all relative"
-                          onClick={() => {
-                            setQuickEditStockId(item.id);
-                            setQuickEditStockValue(item.stock.toString());
-                          }}
-                        >
-                          {item.stock}
-                          <span className="text-[10px] ml-1 opacity-40 uppercase">{item.unit}</span>
-                          <div className="absolute -left-6 opacity-0 group-hover/stock:opacity-100 transition-opacity bg-slate-100 p-1.5 rounded-lg text-slate-400">
-                            <Edit2 size={12} />
-                          </div>
-                        </div>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => onOpenHistory(item)}
+                        aria-label={`Historia i dostawy: ${item.name}`}
+                        className="group/stock inline-flex items-center justify-end hover:opacity-80 transition-all relative"
+                      >
+                        {formatQuantity(item.stock)}
+                        <span className="text-[10px] ml-1 opacity-40 uppercase">{item.unit}</span>
+                        <span className="absolute -left-6 opacity-0 group-hover/stock:opacity-100 transition-opacity bg-slate-100 p-1.5 rounded-lg text-slate-400">
+                          <History size={12} />
+                        </span>
+                      </button>
                     </td>
                     <td className="px-10 py-8 text-center">
                       <button

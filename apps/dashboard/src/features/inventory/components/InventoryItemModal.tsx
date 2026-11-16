@@ -113,10 +113,15 @@ function ItemForm({ item, categories, onClose }: ItemFormProps) {
         />
       </Field>
       <div className="grid grid-cols-2 gap-6">
-        <Field label="Stan Aktualny" tone="text-slate-400" error={errors.stock?.message}>
+        <Field
+          label={item ? 'Stan (zmiana przez dostawę lub inwentaryzację)' : 'Stan początkowy'}
+          tone="text-slate-400"
+          error={errors.stock?.message}
+        >
           <input
             type="text"
             inputMode="decimal"
+            readOnly={!!item}
             {...register('stock')}
             className="w-full px-6 py-5 bg-green-deep text-cream-warm border-none rounded-xl font-extrabold text-2xl font-mono shadow-xl"
           />
