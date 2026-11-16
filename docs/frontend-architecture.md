@@ -58,7 +58,10 @@ Features: `auth`, `studios`, `bookings`, `clients` (clients and their vehicles),
 - URL state (filters worth sharing) goes in the route's `validateSearch`.
 - Derive values instead of syncing them with `useEffect` + `setState` (an ESLint error). To reset a form
   when a modal opens, remount it with a new `key`.
-- Toasts: `useToast()` from `shared/ui/useToast.ts`. Modals: `shared/ui/Modal.tsx`.
+- Toasts: `useToast()` from `shared/ui/useToast.ts`. Modals: `shared/ui/Modal.tsx`; steps of a longer form:
+  `shared/ui/FormSection.tsx`.
+- Picking a client/vehicle (or creating a client with a vehicle) inside another form: `ClientVehiclePicker`
+  from `features/clients`. Nested parts that cannot be a `<form>` submit with `handleSubmit` on a button.
 - Keep components under about 250 lines.
 
 ## Tests
