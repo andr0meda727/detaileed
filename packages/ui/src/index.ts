@@ -8,3 +8,7 @@ export { default as LoadingSpinner } from './LoadingSpinner';
 export { ToastProvider } from './ToastContext';
 export { useToast } from './useToast';
 export type { ToastMessage, ToastType } from './useToast';
+export { default as Button } from './Button';
+export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
+export { default as Badge } from './Badge';
+export type { BadgeProps, BadgeSize, BadgeTone } from './Badge';
