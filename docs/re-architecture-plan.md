@@ -178,48 +178,128 @@ them and send requests), then planning, which makes requests precise, then the i
 5. Services: category, prices per vehicle size ("na zapytanie" when empty) and duration in the services settings;
    labels for categories.
 
-### Phase 7: marketplace, studio side (branch `feat/phase-7-studio-marketplace`)
+Decisions for phases 7–10: the customer site lives on **detaileed.com** (+ www; the dashboard stays on
+app.detaileed.com); maps use **MapLibre with OpenFreeMap** tiles (style URL in an env var). The backend changes they
+need are merged on `bugs-fixing`: CORS origins from configuration (dev includes localhost:3000/3001), `timeZone` on
+the public listing and availability, email links to `/s/{studioId}/requests?id=` (dashboard) and `/konto/rezerwacje`
+(web). Manual step: Supabase redirect URLs for `https://detaileed.com/**`, `https://www.detaileed.com/**`,
+`http://localhost:3001/**`.
 
-1. `packages/ui`: `MapView`/`MapPicker` on MapLibre GL with OpenFreeMap tiles (free, no key; swappable style URL in an
-   env var). Shared with `apps/web`.
-2. Public profile tab in studio settings (owner edits, staff read): name, description, address, city, phone, pin on
-   the map; publish/unpublish with `LISTING_HAS_NO_SERVICES` explained; rating and review count.
-3. Booking requests inbox (`/s/$studioId/requests`): list with a status filter (pending first), details (customer, car,
-   services with estimate, notes), accept (optional time, price, bay) and reject (reason). With planning on, the
-   request plan (does the preferred time fit, closest alternatives, competing requests). Pending count in the sidebar.
+### Phase 7: studio side of the marketplace (branch `feat/phase-7-studio-marketplace`)
 
-### Phase 8: customer marketplace (`apps/web`, branch `feat/phase-8-web`)
+0. `build: update the api spec` (copy `detailflow-api/docs/openapi.json`, `pnpm generate`; `timeZone` on listing and
+   public availability).
+1. `build: add maplibre to the ui package`: `maplibre-gl` + `react-map-gl` (peer deps of `@detaileed/ui`).
+2. `feat: add MapView and MapPicker to the ui package` (`packages/ui/src/map/`): `MapPicker({ value, onChange, styleUrl })`
+   (click/drag a pin, "use my location"), `MapView({ pins, selectedId, onPinClick, onBoundsChange, styleUrl })`; pure
+   helpers (`boundsToQuery`, rounding to 4 decimals) tested; components tested with maplibre mocked (no WebGL in jsdom).
+   Apps import `maplibre-gl/dist/maplibre-gl.css`; the dashboard lazy-loads the map (`React.lazy`) to keep the bundle small.
+   Env `VITE_MAP_STYLE_URL` (+ `.env.example`, Dockerfile build arg, deploy workflow var), `VITE_WEB_URL` for preview links.
+3. `feat: add the marketplace listing api` (`features/marketplace/api/listing.ts`): `useListing()` (404 `LISTING_NOT_FOUND`
+   → `null`, i.e. not created yet), `useSaveListing()`, `usePublishListing()`, `useUnpublishListing()`; `model/types.ts`
+   (`toListing` normaliser: lat/lng/rating/count to numbers), `model/schemas.ts` (name, description ≤ 2000, address, city,
+   phone with the API's phone regex, required pin), `model/listingForm.ts` (defaults/mapper) + tests.
+4. `feat: edit the public profile in studio settings`: tab "Profil publiczny" in `features/settings/.../StudioSettingsView.tsx`
+   (owner edits, staff read-only): form + `MapPicker`; status card (published/not, rating, review count, number of services
+   with a link to the services tab); publish/unpublish with `LISTING_HAS_NO_SERVICES` explained; "Zobacz stronę" link to
+   `${VITE_WEB_URL}/studio/{studioId}` when published. Component tests.
+5. `feat: add the booking requests api` (`features/booking-requests/`): `useBookingRequests({ status, page })`,
+   `usePendingRequestsCount()` (status=Pending, pageSize 1 → `totalCount`, refetch every 60 s), `useRequestPlan(id)`,
+   `useAcceptRequest()`, `useRejectRequest()` (invalidate requests, bookings, schedule day); `model/types.ts`
+   (`toBookingRequest` normaliser), `model/statuses.ts` (Pending/Accepted/Rejected/Withdrawn labels + badge tones),
+   `model/errors.ts` (code → Polish message: `BOOKING_REQUEST_ALREADY_DECIDED`, `NO_BAY_AVAILABLE`, `BAY_TAKEN`,
+   `BOOKING_REQUEST_NOT_FOUND`) + tests.
+6. `feat: add the booking requests screen`: route `src/routes/_auth/s/$studioId/requests.tsx` with `validateSearch`
+   `{ status?, id? }`; `RequestsView` (status filter, cards: customer + phone, car + size, services with prices or
+   "na zapytanie", preferred time in the studio zone, estimate, notes, age); `RequestDetailsModal` opened by `?id=`:
+   details; with `planningEnabled` the plan (preferred fits / outside hours, alternatives as selectable chips with bay,
+   competing requests); accept form (date + time in studio zone defaulting to preferred or the picked alternative, price
+   defaulting to the estimate, bay from the plan), reject form (reason ≤ 500). Accepted shows the booking. Tests.
+7. `feat: show pending requests in the sidebar`: nav item "Zapytania" (`app/layout/Sidebar.tsx`) with a pending badge.
+8. `docs:` CLAUDE.md/frontend-architecture (marketplace + booking-requests features, map env), plan status.
 
-1. Scaffold Next.js (App Router, standalone output, Tailwind v4 + `@detaileed/ui` theme, `@detaileed/api-client` with a
-   server-side fetcher), lint/typecheck/test in turbo, Dockerfile and CI like the dashboard.
-2. Map search (`/`): visible-area search, category and vehicle-size filters, pins and a list with rating and "from"
-   price; the URL keeps the map area and filters.
-3. Studio page (`/studio/[id]`, ISR 60 s, JSON-LD `AutoRepair`, metadata): profile, services with prices for the
-   chosen size, live estimate, reviews ("show more" by cursor), free times when the studio plans.
-4. Customer auth: Supabase sign-up/sign-in (`@supabase/ssr`), profile (`/api/me/profile`) required before booking.
-5. Booking request flow: services + car (garage or one-off) + time (free slots or a preferred time) + notes; errors
-   mapped from codes (`BOOKING_REQUEST_LIMIT`, `OUTSIDE_OPENING_HOURS`, …).
-6. Account: garage (`/api/me/vehicles`), request history with withdraw, reviews to write and the review form.
-7. `sitemap.xml`/`robots.txt`, error and not-found pages.
+### Phase 8: customer site `apps/web` (branch `feat/phase-8-web`)
 
-### Phase 9: planning (branch `feat/phase-9-planning`)
+1. `refactor: move domain helpers into a shared package`: new `packages/domain` (`@detaileed/domain`, pure TS): `git mv`
+   `studioTime.ts`, `vehicleSize.ts`, `serviceCategory.ts`, `money.ts` (+ their tests) from `apps/dashboard/src/shared/lib`;
+   imports rewritten (move-only commit; scaffold the package in a commit before it).
+2. `build: mark interactive ui components as client components`: `'use client'` at the top of `packages/ui` files that use
+   hooks/handlers (Modal, Toast*, useToast, Button, Select, map/*); check the Vite build has no new warnings.
+3. `feat: scaffold the web app`: Next.js 16 App Router, TypeScript strict (`@detaileed/config`), ESLint (base + Next plugin),
+   Tailwind v4 via `@tailwindcss/postcss` importing `@detaileed/ui/theme.css` (+ `@source` for packages/ui), fonts with
+   `next/font/google` (DM Sans, DM Serif Display, Syne), `output: 'standalone'`, `transpilePackages` for the workspace
+   packages, dev port 3001, rewrite `/api/:path*` → `NEXT_PUBLIC_API_URL` in dev; turbo outputs `.next/**` (minus cache);
+   vitest for model tests; `lang="pl"` layout with header/footer.
+   Env: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`,
+   `NEXT_PUBLIC_MAP_STYLE_URL`, `NEXT_PUBLIC_DASHBOARD_URL`, `NEXT_PUBLIC_SITE_URL`; `.env.example`.
+4. `feat: wire the api client in the web app`: server side `lib/api/server.ts` (configure base URL once; public endpoints
+   only, called with `{ next: { revalidate: 60 } }` to match the API's 60 s output cache; signed-in calls never run on the
+   server with the global config); client `app/providers.tsx` (QueryClient with global mutation error toasts as in the
+   dashboard's `shared/queryClient.ts`, `ToastProvider`, `configureApiClient` with the Supabase token).
+5. `feat: customer sign-up and sign-in`: `@supabase/ssr` (`lib/supabase/{server,client}.ts`, `proxy.ts` refreshing the
+   session cookie), pages `/logowanie`, `/rejestracja` (first/last name in `options.data`, email confirmation),
+   `/auth/callback` route handler, sign-out; `?next=` return path. Staff accounts can sign in too.
+6. `feat: map search on the home page` (`/`): client `MapSearch` with `MapView` + result list; URL state
+   `?lat&lng&z&kategoria&rozmiar` (pure parse/serialize in `model/searchParams.ts`, tested); search on map move (debounced,
+   `useGetApiPublicStudios` with bounds, keep previous data); pins with "od X zł"; cards with rating, categories, from price
+   for the chosen size; filters (category, vehicle size); "Moja lokalizacja"; empty and error states. Default view: Poland.
+7. `feat: studio page` (`/studio/[id]`, server component, revalidate 60, `notFound()` on 404): header (name, city, address,
+   phone, rating), small map, services by category with the price for the chosen size (client size picker, default
+   Medium), live estimate (`POST .../estimate`), reviews with "Pokaż więcej" (cursor, `useInfiniteQuery`), CTA to book;
+   `generateMetadata` (title, description, OpenGraph), JSON-LD `AutoRepair` (address, geo, aggregateRating). Times in the
+   listing's `timeZone` (fallback Europe/Warsaw).
+8. `feat: booking request flow` (`/studio/[id]/rezerwuj`, signed in, else redirect to `/logowanie?next=`): profile check
+   (404 `CUSTOMER_PROFILE_NOT_FOUND` → inline profile form), services (preselected from the studio page), car (garage pick
+   or one-off car with size), time (planning on: public availability slots for 14 days grouped by studio day; off: date +
+   time as preferred time), notes, summary with estimate → `POST /api/me/booking-requests`; code → message map
+   (`BOOKING_REQUEST_LIMIT`, `OUTSIDE_OPENING_HOURS`, `BOOKING_REQUEST_TOO_SOON`, `CUSTOMER_PROFILE_REQUIRED`,
+   `STUDIO_NOT_FOUND`, `BOOKING_REQUEST_UNKNOWN_SERVICES`, `CUSTOMER_VEHICLE_NOT_FOUND`); success → `/konto/rezerwacje`.
+   Pure helpers (slot grouping by day in zone, request body mapper) tested; step components tested with mocked hooks.
+9. `feat: customer account` (`/konto` layout, signed in): `/konto` profile (name, phone), `/konto/samochody` garage CRUD
+   (max 10, `CUSTOMER_GARAGE_FULL`, `CUSTOMER_VEHICLE_EXISTS`), `/konto/rezerwacje` history (status badges, studio link,
+   preferred time, estimate, accepted booking time/price, rejection reason, withdraw while pending), `/konto/opinie`
+   (pending visits → rating 1–5 + comment; `REVIEW_ALREADY_EXISTS`, `REVIEW_PERIOD_OVER`). One commit per page.
+10. `feat: sitemap, robots and error pages`: `sitemap.ts` (published studios via public search over a world bounding box,
+    paged), `robots.ts`, `not-found.tsx`, `error.tsx`, loading states.
+11. `build: web docker image and deploy`: `apps/web/Dockerfile` (turbo prune → build → standalone `node` runner),
+    workflow job for image `detaileed-web` with `NEXT_PUBLIC_*` build args; `pnpm check` covers lint/typecheck/test/build.
+12. `docs:` CLAUDE.md (apps/web layout, commands, env), frontend-architecture, plan status.
 
-1. Bays (owner) in studio settings.
-2. Schedule: opening hours per day (several periods), buffer, slot step, lead time, size multipliers, closures.
-3. Day board (`/s/$studioId/board?date=`): bays as lanes, bookings, free gaps, utilisation, unassigned bookings and
-   the day's pending requests.
-4. Booking form: free slots for the chosen services and car size (`/api/availability`), bay choice, `NO_BAY_AVAILABLE`
-   and `BAY_TAKEN` handled; bookings show their bay and end time.
+### Phase 9: planning in the dashboard (branch `feat/phase-9-planning`)
+
+1. `feat: add the planning api` (`features/planning/api`): bays (list/create/rename/delete), schedule (get/put),
+   closures (add/remove), day board, staff availability; normalisers in `model/` + tests.
+2. `feat: manage bays` (settings tab "Planowanie", owner edits): list, add, rename, deactivate (`BAY_HAS_UPCOMING_BOOKINGS`,
+   `BAY_LIMIT_REACHED` 20).
+3. `feat: edit opening hours and planning rules`: per weekday several periods (add/remove, copy Monday to weekdays),
+   buffer, slot step (15/30/60), lead hours, size multipliers; `model/scheduleForm.ts` (`HH:mm` ↔ `HH:mm:ss`, overlap check
+   client-side) + tests; API codes `OVERLAPPING_OPENING_PERIODS`, `INVALID_OPENING_PERIOD`, `TOO_MANY_OPENING_PERIODS`,
+   `INVALID_PLANNING_RULES` shown on the form. Empty hours = planning off (explain it).
+4. `feat: manage closures` (date + reason list, add/remove).
+5. `feat: day board` (route `/s/$studioId/board?date=`, sidebar "Grafik"): day navigation in studio days, bay lanes on a
+   time axis (earliest opening → latest closing), booking blocks, free gaps, utilisation %, unassigned bookings, pending
+   requests linking to `/requests?id=`; pure layout model (moment → minutes from the studio day start) tested.
+6. `feat: free slots and bays in the booking form`: when planning is on, `BookingScheduleSection` lists slots from
+   `/api/availability` for the chosen services and the picked car's size; picking one sets date/time and `bayId`; optional
+   bay select; `NO_BAY_AVAILABLE`/`BAY_TAKEN` messages; booking schema gains `bayId`.
+7. `feat: show bays and end times on bookings` (card, details: `bay.name`, `endsAt` in studio zone).
+8. `docs:` + plan status.
 
 ### Phase 10: inventory ledger (branch `feat/phase-10-inventory`)
 
-1. Item history and movements (delivery, stocktake) instead of editing the stock number.
-2. Materials per service (recipes) and size factors (owner).
-3. What a completed visit used (consumption per booking, actual amounts).
-4. Forecast (days left, runs out at) and estimate accuracy.
+1. `feat: add the inventory ledger api`: movements (list paged, add), recipes, size factors, consumption (+ correct),
+   accuracy, forecast; normalisers + tests.
+2. `feat: item history with deliveries and stocktakes`: item details modal with movement history and two forms
+   (Purchase quantity + note, Stocktake counted quantity); stock is read-only on edit (changes go through movements).
+3. `feat: materials per service` (owner): "Materiały" section in the service form (item + quantity for a Medium car).
+4. `feat: material size factors` (owner, inventory settings).
+5. `feat: what a visit used`: in booking details of completed bookings, consumption table (norm, estimated, actual) with
+   editable actual amounts (`CONSUMPTION_NOT_FOUND` = not recorded yet).
+6. `feat: stock forecast and estimate accuracy`: inventory tab "Prognoza" (days left, runs out at in studio zone, planned
+   use, stock after planned) and an accuracy table; dashboard stock alerts use `runsOutAt`.
+7. `docs:` + plan status.
 
-Not in the API yet (from the backend reference): editing a studio's name/phone/address, `statusId` on bookings,
-links from booking-request emails into the frontend.
+Not in the API yet (from the backend reference): editing a studio's name/phone/address, `statusId` on bookings.
 
 ## Critical files
 
