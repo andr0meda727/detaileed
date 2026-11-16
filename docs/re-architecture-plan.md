@@ -15,7 +15,8 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 2: generated API client | done (merged to `main`); views move to the generated hooks per feature in Phase 4 |
 | 3: router               | done (merged to `main`)                                                           |
 | 4: feature slices       | done (merged to `main`); import rules enforced by ESLint                          |
-| 5–7                     | not started                                                                       |
+| 5: design system        | in progress                                                                       |
+| 6–7                     | not started                                                                       |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
@@ -94,9 +95,53 @@ Order: `shared` (utils, ToastContext, delete the deprecated `components/ui/useTo
 - The API spec types `VehicleSize` as an integer although the API sends enum names ("Medium"); fix on the backend (enum schema) before the UI uses sizes.
 - Booking mutations skip the global error toast (`meta.skipGlobalError`) because the screens toast themselves.
 
+## Phase 5: design system and Tailwind v4 (branch `refactor/phase-5-ui`)
+
+Goal: one design system that the dashboard and the future marketplace (`apps/web`) share: the tokens in
+`packages/ui/src/theme.css` (Tailwind v4 `@theme`) and the generic components in `@detaileed/ui`. Tailwind is
+upgraded first, so the package is written for v4 from the start.
+
+Before the upgrade:
+
+1. `chore: remove unused phantom-ui dependency` (never imported).
+2. `refactor: delete unused StatCard` (no callers; the dashboard has its own stats cards).
+
+Tailwind v4 (the upgrade tool needs a clean working tree; **the user runs it**:
+`cd apps/dashboard && pnpm dlx @tailwindcss/upgrade`):
+
+3. `build: upgrade dashboard to tailwind v4`: the tool's output (config → CSS `@theme`, renamed utilities such
+   as `shadow-sm`→`shadow-xs`, `outline-none`→`outline-hidden`, `bg-opacity-*` → `/opacity`), reviewed, plus
+   fixes for what it misses. v4 changes some defaults (border colour, ring width, button cursor); keep the old
+   look where it matters with small base styles.
+4. `build: use the tailwind vite plugin`: `@tailwindcss/vite` instead of PostCSS; drop `postcss.config.js` and
+   `autoprefixer`.
+
+`packages/ui` (source-only package like `api-client`: `exports` point at `src`, no build step):
+
+5. `feat: scaffold ui package`: `@detaileed/ui` (package.json, tsconfig, eslint, vitest + jsdom), peer deps
+   `react`, `lucide-react`. The dashboard depends on it (`workspace:*`).
+6. `refactor: move design tokens into the ui package`: `packages/ui/src/theme.css` holds `@theme` (colours,
+   fonts, keyframes/animations) and the shared utilities (`floating-card`, `skeleton`, `mesh-bg`, …). The
+   dashboard's `index.css` becomes `@import "tailwindcss"; @import "@detaileed/ui/theme.css";` plus
+   `@source` for the package's components.
+7. `refactor: move generic components into the ui package`: `git mv` of `Modal`, `FormInput`, `FormSection`,
+   `Skeleton`, `EmptyState`, `LoadingSpinner`, `Toast` + `ToastContext` + `useToast` to `packages/ui/src`, and
+   imports switched to `@detaileed/ui` (move-only; app-specific `GlobalHeader`, `mobileMenu`, `cardGrid` and
+   `NameForm` stay in `shared/ui`).
+8. `feat: add Button and Badge to the ui package`: variants for what the screens repeat today (primary / secondary
+   / ghost / danger buttons; status, role and plate badges). Tests for the variants.
+9. Adoption commits, one per feature or two: replace hand-styled buttons and badges with `Button`/`Badge`.
+10. `refactor: use theme tokens instead of hard-coded colours`: the `#1a2e1e`-style hex values in `className`
+    and inline `style` become tokens (`bg-green-deep`, …).
+11. `docs: describe the ui package and mark phase 5 done` (CLAUDE.md, frontend-architecture.md, this plan).
+
+Deferred to Phase 6, where they are first used: `Select`, `StarRating` and other marketplace-only components.
+
+Verify: `pnpm check`, a Docker build (the package must be part of `turbo prune`), and a visual check of every
+screen by the user after step 3 and at the end. The upgrade is the risky step for the look of the app.
+
 ## Later phases (detailed plan when we reach them)
 
-- **Phase 5**: `packages/ui` (Modal, FormInput, Skeleton, EmptyState, Spinner, Toast, StatCard + Button/Input/Select/Badge/StarRating), Tailwind v4 upgrade (the user runs `npx @tailwindcss/upgrade`), and a shared `theme.css`.
 - **Phase 6**: `apps/web` Next.js marketplace (ISR studio/city pages, SSR search, JSON-LD, sitemap, MapLibre, `@supabase/ssr` cookies on `.detaileed.com`, standalone Docker image). Needs the Phase 7 endpoints.
 - **Phase 7 (backend, done by the user)**: `/api/public/studios` (geo + filters), `/api/public/studios/{slug}`, reviews, cities, slug/lat-lng/rating fields, revalidate webhook.
 
