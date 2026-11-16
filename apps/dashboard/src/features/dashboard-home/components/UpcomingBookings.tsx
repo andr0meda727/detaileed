@@ -3,6 +3,8 @@ import { ChevronRight } from 'lucide-react';
 import { type Booking } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
 import { Skeleton } from '@detaileed/ui';
+import { dayInZone } from '@/shared/lib/studioTime';
+import { useStudioTimeZone } from '@/features/studios';
 interface UpcomingBookingsProps {
   bookings: Booking[];
   loading: boolean;
@@ -17,6 +19,7 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({
   onOpen: handleViewBooking,
   onShowAll,
 }) => {
+  const timeZone = useStudioTimeZone();
   return (
     <div className="floating-card-static p-6 lg:p-8">
       <div className="space-y-4">
@@ -59,9 +62,8 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({
                 </div>
               ))
             : upcomingBookings.slice(0, 4).map((booking) => {
-                const dt = new Date(booking.scheduledAt);
-                const day = String(dt.getDate()).padStart(2, '0');
-                const monthIdx = dt.getMonth();
+                const [, month, day] = dayInZone(booking.scheduledAt, timeZone).split('-');
+                const monthIdx = Number(month) - 1;
                 return (
                   <div
                     key={booking.id}

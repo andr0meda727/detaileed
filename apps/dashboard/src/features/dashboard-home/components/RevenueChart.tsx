@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { Booking } from '@/features/bookings';
+import { useStudioTimeZone } from '@/features/studios';
+import { todayInZone } from '@/shared/lib/studioTime';
+import { revenueSeries } from '@/features/dashboard-home/model/revenue';
 
 interface RevenueChartProps {
   bookings: Booking[];
@@ -9,36 +12,8 @@ interface RevenueChartProps {
 const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
   const [revPeriod, setRevPeriod] = useState<'weekly' | 'monthly'>('weekly');
 
-  const chartData = useMemo(() => {
-    const now = new Date();
-    const wData = [];
-    const mData = [];
-    const dNames = ['Ndz', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'];
-
-    // Weekly Data - Last 7 days
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(now.getDate() - i);
-      const dateString = d.toISOString().split('T')[0];
-      const dayBookings = bookings.filter((b) => b.scheduledAt.startsWith(dateString));
-      const rev = Math.round(dayBookings.reduce((sum, b) => sum + b.totalPrice, 0) * 100) / 100;
-      wData.push({ name: dNames[d.getDay()], rev, orders: dayBookings.length });
-    }
-
-    // Monthly Data - Last 4 Weeks
-    for (let i = 3; i >= 0; i--) {
-      const weekBookings = bookings.filter((b) => {
-        const bDate = new Date(b.scheduledAt);
-        const diffTime = Math.abs(now.getTime() - bDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays >= i * 7 && diffDays < (i + 1) * 7;
-      });
-      const rev = Math.round(weekBookings.reduce((sum, b) => sum + b.totalPrice, 0) * 100) / 100;
-      mData.push({ name: `Tydz ${4 - i}`, rev, orders: weekBookings.length });
-    }
-
-    return { weekly: wData, monthly: mData };
-  }, [bookings]);
+  const timeZone = useStudioTimeZone();
+  const chartData = useMemo(() => revenueSeries(bookings, timeZone, todayInZone(timeZone)), [bookings, timeZone]);
 
   return (
     <div className="floating-card-static p-6 lg:p-8">

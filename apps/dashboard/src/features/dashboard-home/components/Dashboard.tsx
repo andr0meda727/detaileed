@@ -15,7 +15,8 @@ import RevenueChart from '@/features/dashboard-home/components/RevenueChart';
 import { BookingDetailsModal, CreateBookingModal, useBookingStatusChange } from '@/features/bookings';
 import { AddVehicleModal } from '@/features/clients';
 
-import { useStudio } from '@/features/studios';
+import { useStudio, useStudioTimeZone } from '@/features/studios';
+import { dayInZone, todayInZone } from '@/shared/lib/studioTime';
 
 import GreetingBanner from '@/features/dashboard-home/components/GreetingBanner';
 import TodaySchedule from '@/features/dashboard-home/components/TodaySchedule';
@@ -59,22 +60,23 @@ const Dashboard: React.FC = () => {
 
   // Form mode
 
-  const today = new Date().toISOString().split('T')[0];
+  const timeZone = useStudioTimeZone();
+  const today = todayInZone(timeZone);
   const lowStockItems = useMemo(() => inventory.filter(isLowStock), [inventory]);
   const completedBookings = useMemo(() => bookings.filter((b) => b.completedAt !== null), [bookings]);
   const todayBookings = useMemo(
     () =>
       bookings
-        .filter((b) => b.scheduledAt.startsWith(today))
+        .filter((b) => dayInZone(b.scheduledAt, timeZone) === today)
         .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)),
-    [bookings, today],
+    [bookings, today, timeZone],
   );
   const upcomingBookings = useMemo(
     () =>
       bookings
-        .filter((b) => b.scheduledAt.startsWith(today) === false && b.scheduledAt > new Date().toISOString())
+        .filter((b) => dayInZone(b.scheduledAt, timeZone) !== today && new Date(b.scheduledAt) > new Date())
         .sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt)),
-    [bookings, today],
+    [bookings, today, timeZone],
   );
   const activeCount = useMemo(
     () => bookings.filter((b) => b.status === BOOKING_STATUSES.UTWORZONA.name).length,
@@ -82,8 +84,8 @@ const Dashboard: React.FC = () => {
   );
   const completedCount = useMemo(() => bookings.filter((b) => b.completedAt !== null).length, [bookings]);
   const todayCompletedBookings = useMemo(
-    () => completedBookings.filter((b) => b.scheduledAt.startsWith(today)),
-    [completedBookings, today],
+    () => completedBookings.filter((b) => dayInZone(b.scheduledAt, timeZone) === today),
+    [completedBookings, today, timeZone],
   );
   const todayRevenue = useMemo(
     () => todayCompletedBookings.reduce((sum, b) => sum + b.totalPrice, 0),

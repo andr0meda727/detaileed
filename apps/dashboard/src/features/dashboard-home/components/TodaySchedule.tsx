@@ -3,6 +3,8 @@ import { Calendar, X, Check, UserCheck, MoreHorizontal } from 'lucide-react';
 import { BOOKING_STATUSES, type Booking, type BookingStatus } from '@/features/bookings';
 
 import { Skeleton } from '@detaileed/ui';
+import { timeInZone } from '@/shared/lib/studioTime';
+import { useStudioTimeZone } from '@/features/studios';
 interface TodayScheduleProps {
   bookings: Booking[];
   loading: boolean;
@@ -18,8 +20,8 @@ const TodaySchedule: React.FC<TodayScheduleProps> = ({
   onRequestStatusChange: requestStatusChange,
 }) => {
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
-  const formatBookingTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+  const timeZone = useStudioTimeZone();
+  const formatBookingTime = (iso: string) => timeInZone(iso, timeZone);
 
   return (
     <div className="floating-card-static p-6 lg:p-7 flex flex-col">

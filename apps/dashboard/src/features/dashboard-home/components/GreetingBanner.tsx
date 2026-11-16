@@ -1,6 +1,8 @@
 import React from 'react';
 
 import { Skeleton } from '@detaileed/ui';
+import { formatInZone, zonedParts } from '@/shared/lib/studioTime';
+import { useStudioTimeZone } from '@/features/studios';
 
 interface GreetingBannerProps {
   loading: boolean;
@@ -10,25 +12,12 @@ interface GreetingBannerProps {
 
 /** Greeting with the date and how many bookings are today and coming up. */
 const GreetingBanner: React.FC<GreetingBannerProps> = ({ loading, todayCount, upcomingCount }) => {
+  const timeZone = useStudioTimeZone();
   const now = new Date();
-  const hour = now.getHours();
+  const { hour } = zonedParts(now, timeZone);
   const greeting = hour < 12 ? 'Dzień dobry' : hour < 18 ? 'Cześć' : 'Dobry wieczór';
-  const dayNames = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
-  const monthNames = [
-    'stycznia',
-    'lutego',
-    'marca',
-    'kwietnia',
-    'maja',
-    'czerwca',
-    'lipca',
-    'sierpnia',
-    'września',
-    'października',
-    'listopada',
-    'grudnia',
-  ];
-  const dateStr = `${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+  const date = formatInZone(now, timeZone, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const dateStr = date.charAt(0).toUpperCase() + date.slice(1);
 
   return (
     <div
