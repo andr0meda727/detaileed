@@ -1,11 +1,14 @@
 import type { BookingInput } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES } from '@/features/bookings/model/statuses';
+import { zonedToUtc } from '@/shared/lib/studioTime';
 
 interface BuildBookingCreateDtoArgs {
   vehicleId: string;
   clientId: string;
+  /** The studio day and local time; turned into UTC in `timeZone`. */
   date: string;
   time: string;
+  timeZone: string;
   serviceIds: string[];
   priceInput: string;
   notes?: string | null;
@@ -16,6 +19,7 @@ export function buildBookingCreateDto({
   clientId,
   date,
   time,
+  timeZone,
   serviceIds,
   priceInput,
   notes = null,
@@ -23,7 +27,7 @@ export function buildBookingCreateDto({
   return {
     vehicleId,
     clientId,
-    scheduledAt: new Date(`${date}T${time}`).toISOString(),
+    scheduledAt: zonedToUtc(date, time, timeZone),
     statusId: BOOKING_STATUSES.UTWORZONA.id,
     serviceIds,
     price: parseFloat(priceInput.replace(',', '.')),

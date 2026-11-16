@@ -7,6 +7,8 @@ import { byScheduledAt, groupBookingsByDay, matchesBookingQuery } from '@/featur
 import BookingCard from '@/features/bookings/components/BookingCard';
 import { Skeleton } from '@detaileed/ui';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
+import { formatDay } from '@/shared/lib/studioTime';
+import { useStudioTimeZone } from '@/features/studios';
 
 interface TabProps {
   /** Bookings the schedule shows (see visibleBookings). */
@@ -32,7 +34,11 @@ const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, onReques
         .sort(byScheduledAt),
     [bookings, filterStatus, query],
   );
-  const groupedInProgressBookings = useMemo(() => groupBookingsByDay(inProgressBookings), [inProgressBookings]);
+  const timeZone = useStudioTimeZone();
+  const groupedInProgressBookings = useMemo(
+    () => groupBookingsByDay(inProgressBookings, timeZone),
+    [inProgressBookings, timeZone],
+  );
 
   return (
     <div className="space-y-8">
@@ -153,7 +159,7 @@ const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, onReques
             groupedInProgressBookings.map((group) => (
               <div key={group.date} className="space-y-4">
                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest pl-2 border-b border-slate-100 pb-2 mb-4">
-                  {new Date(group.date).toLocaleDateString('pl-PL', {
+                  {formatDay(group.date, {
                     weekday: 'long',
                     day: 'numeric',
                     month: 'long',

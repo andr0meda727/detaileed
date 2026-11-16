@@ -4,6 +4,7 @@ import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
 import { formatBookingDay, formatBookingTime } from '@/features/bookings/model/format';
 import BookingStatusBadge from '@/features/bookings/components/BookingStatusBadge';
+import { useStudioTimeZone } from '@/features/studios';
 
 interface BookingCardProps {
   booking: Booking;
@@ -15,6 +16,7 @@ interface BookingCardProps {
 
 /** One booking in a list: date, vehicle, services, client and the complete/cancel menu. */
 const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, onRequestStatusChange }) => {
+  const timeZone = useStudioTimeZone();
   const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div
@@ -28,10 +30,10 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, o
         style={{ borderRight: '1px solid rgba(26,46,30,0.05)', background: 'rgba(26,46,30,0.02)' }}
       >
         <span className="text-2xl font-bold text-green-deep font-mono leading-none">
-          {formatBookingDay(booking.scheduledAt)}
+          {formatBookingDay(booking.scheduledAt, timeZone)}
         </span>
         <span className="text-[10px] font-semibold text-green-deep/35 font-mono tracking-widest mt-2">
-          {formatBookingTime(booking.scheduledAt)}
+          {formatBookingTime(booking.scheduledAt, timeZone)}
         </span>
       </div>
       {/* Content */}

@@ -9,6 +9,7 @@ describe('booking flow smoke', () => {
       clientId: 'cli_existing',
       date: '2026-04-20',
       time: '09:15',
+      timeZone: 'Europe/Warsaw',
       serviceIds: ['svc_wash'],
       priceInput: '120,00',
     });
@@ -24,6 +25,7 @@ describe('booking flow smoke', () => {
       clientId: 'cli_new',
       date: '2026-04-20',
       time: '11:45',
+      timeZone: 'Europe/Warsaw',
       serviceIds: ['svc_detail', 'svc_interior'],
       priceInput: '399,50',
     });

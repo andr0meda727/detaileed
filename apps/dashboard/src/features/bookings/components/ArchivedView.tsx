@@ -5,6 +5,8 @@ import { formatPln } from '@/shared/lib/money';
 import { useBookings } from '@/features/bookings/api/bookings';
 import { Button, useToast, Modal, Skeleton } from '@detaileed/ui';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { formatBookingDay, formatBookingTime } from '@/features/bookings/model/format';
+import { useStudioTimeZone } from '@/features/studios';
 
 const ArchivedView: React.FC = () => {
   const { addToast } = useToast();
@@ -22,11 +24,9 @@ const ArchivedView: React.FC = () => {
     );
   }, [searchQuery, bookings]);
 
-  const formatTime = (iso: string) => new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
-  const formatDateShort = (iso: string) => {
-    const d = new Date(iso);
-    return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
-  };
+  const timeZone = useStudioTimeZone();
+  const formatTime = (iso: string) => formatBookingTime(iso, timeZone);
+  const formatDateShort = (iso: string) => formatBookingDay(iso, timeZone);
 
   // Removed full-page loading to keep layout static
 

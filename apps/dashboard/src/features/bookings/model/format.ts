@@ -1,10 +1,12 @@
-/** "14:30" in Polish format. */
-export function formatBookingTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+import { dayInZone, timeInZone } from '@/shared/lib/studioTime';
+
+/** "14:30": the studio's local time of a moment. */
+export function formatBookingTime(iso: string, timeZone: string): string {
+  return timeInZone(iso, timeZone);
 }
 
-/** "07.03" (day.month) for compact lists. */
-export function formatBookingDay(iso: string): string {
-  const d = new Date(iso);
-  return `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}`;
+/** "07.03" (day.month of the studio day) for compact lists. */
+export function formatBookingDay(iso: string, timeZone: string): string {
+  const [, month, day] = dayInZone(iso, timeZone).split('-');
+  return `${day}.${month}`;
 }

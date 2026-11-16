@@ -9,6 +9,7 @@ describe('buildBookingCreateDto', () => {
       clientId: 'cli_1',
       date: '2026-04-15',
       time: '10:30',
+      timeZone: 'Europe/Warsaw',
       serviceIds: ['svc_1', 'svc_2'],
       priceInput: '199,99',
     });
@@ -19,6 +20,7 @@ describe('buildBookingCreateDto', () => {
     expect(dto.serviceIds).toEqual(['svc_1', 'svc_2']);
     expect(dto.price).toBe(199.99);
     expect(dto.notes).toBeNull();
-    expect(dto.scheduledAt).toContain('T');
+    // 10:30 in Warsaw on 15 April (summer time, UTC+2).
+    expect(dto.scheduledAt).toBe('2026-04-15T08:30:00.000Z');
   });
 });

@@ -5,6 +5,8 @@ import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/
 import { byScheduledAt, monthGrid } from '@/features/bookings/model/filters';
 import BookingCard from '@/features/bookings/components/BookingCard';
 import { Skeleton } from '@detaileed/ui';
+import { dayInZone, formatDay, todayInZone } from '@/shared/lib/studioTime';
+import { useStudioTimeZone } from '@/features/studios';
 
 interface TabProps {
   /** Bookings the schedule shows (see visibleBookings). */
@@ -29,12 +31,24 @@ const CalendarTab: React.FC<CalendarTabProps> = ({
   onOpen,
   onRequestStatusChange,
 }) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const timeZone = useStudioTimeZone();
+  // The shown month as YYYY-MM, starting at the studio's current month.
+  const [currentMonth, setCurrentMonth] = useState(() => todayInZone(timeZone).slice(0, 7));
   const calendarDays = useMemo(() => monthGrid(currentMonth), [currentMonth]);
-  const selectedDayBookings = useMemo(
-    () => bookings.filter((b) => b.scheduledAt.startsWith(selectedDate)).sort(byScheduledAt),
-    [bookings, selectedDate],
+  // Studio day of each booking, worked out once.
+  const bookingDays = useMemo(
+    () => new Map(bookings.map((b) => [b.id, dayInZone(b.scheduledAt, timeZone)])),
+    [bookings, timeZone],
   );
+  const selectedDayBookings = useMemo(
+    () => bookings.filter((b) => bookingDays.get(b.id) === selectedDate).sort(byScheduledAt),
+    [bookings, bookingDays, selectedDate],
+  );
+  const shiftMonth = (delta: number) => {
+    const [y, m] = currentMonth.split('-').map(Number);
+    const d = new Date(Date.UTC(y, m - 1 + delta, 1));
+    setCurrentMonth(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`);
+  };
 
   return (
     <div className="space-y-12">
@@ -42,17 +56,17 @@ const CalendarTab: React.FC<CalendarTabProps> = ({
         <div className="w-full xl:w-[420px] floating-card-static p-7 shrink-0">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-lg font-sans font-bold text-green-deep capitalize">
-              {currentMonth.toLocaleString('pl-PL', { month: 'long', year: 'numeric' })}
+              {formatDay(`${currentMonth}-01`, { month: 'long', year: 'numeric' })}
             </h3>
             <div className="flex gap-2">
               <button
-                onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+                onClick={() => shiftMonth(-1)}
                 className="w-9 h-9 flex items-center justify-center rounded-xl text-green-deep/40 hover:text-green-deep hover:bg-green-pale/30 transition-all"
               >
                 <ChevronLeft size={16} />
               </button>
               <button
-                onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+                onClick={() => shiftMonth(1)}
                 className="w-9 h-9 flex items-center justify-center rounded-xl text-green-deep/40 hover:text-green-deep hover:bg-green-pale/30 transition-all"
               >
                 <ChevronRight size={16} />
@@ -70,11 +84,11 @@ const CalendarTab: React.FC<CalendarTabProps> = ({
             ))}
             {calendarDays.map((day, idx) => {
               if (!day) return <div key={`e-${idx}`} />;
-              const ds = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+              const ds = `${currentMonth}-${String(day).padStart(2, '0')}`;
               const isSel = ds === selectedDate;
               const hasB = bookings.some(
                 (b) =>
-                  b.scheduledAt.startsWith(ds) &&
+                  bookingDays.get(b.id) === ds &&
                   b.status !== BOOKING_STATUSES.ANULOWANA.name &&
                   b.status !== BOOKING_STATUSES.ZAKONCZONA.name,
               );
@@ -105,7 +119,7 @@ const CalendarTab: React.FC<CalendarTabProps> = ({
             <div className="relative z-10">
               <p className="text-[10px] font-semibold text-cream-warm uppercase tracking-[0.4em] mb-2">Wybrana Data</p>
               <h4 className="text-3xl font-extrabold text-white tracking-tighter capitalize leading-none">
-                {new Date(selectedDate).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}
+                {formatDay(selectedDate, { day: 'numeric', month: 'long' })}
               </h4>
             </div>
             <div className="relative z-10 w-16 h-16 rounded-2xl bg-white/15 flex items-center justify-center shrink-0 border border-white/5 shadow-inner">

@@ -5,6 +5,8 @@ import type { Booking } from '@/features/bookings/model/types';
 import { useBookings } from '@/features/bookings/api/bookings';
 import { useBookingStatusChange } from '@/features/bookings/hooks/useBookingStatusChange';
 import { visibleBookings } from '@/features/bookings/model/filters';
+import { dayInZone, todayInZone } from '@/shared/lib/studioTime';
+import { useStudioTimeZone } from '@/features/studios';
 import InProgressTab from '@/features/bookings/components/InProgressTab';
 import SearchTab from '@/features/bookings/components/SearchTab';
 import CalendarTab from '@/features/bookings/components/CalendarTab';
@@ -19,21 +21,21 @@ const TasksView: React.FC = () => {
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
   const [isCreateBookingModalOpen, setIsCreateBookingModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'in-progress' | 'calendar' | 'search'>('in-progress');
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const timeZone = useStudioTimeZone();
+  const [selectedDate, setSelectedDate] = useState<string>(() => todayInZone(timeZone));
 
   const { requestStatusChange, confirmDialog } = useBookingStatusChange();
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
-  const activeBookings = useMemo(() => visibleBookings(bookings), [bookings]);
+  const activeBookings = useMemo(() => visibleBookings(bookings, timeZone), [bookings, timeZone]);
 
   const handleOpenNewBooking = () => {
     setIsCreateBookingModalOpen(true);
   };
 
   const handleViewBooking = (booking: Booking) => {
-    const dt = new Date(booking.scheduledAt);
-    setSelectedDate(dt.toISOString().split('T')[0]);
+    setSelectedDate(dayInZone(booking.scheduledAt, timeZone));
     setSelectedBooking(booking);
     setIsBookingModalOpen(true);
   };

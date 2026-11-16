@@ -10,6 +10,8 @@ import { useCreateBooking } from '@/features/bookings/api/bookings';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
 import BookingServicesSection from '@/features/bookings/components/BookingServicesSection';
 import BookingScheduleSection from '@/features/bookings/components/BookingScheduleSection';
+import { todayInZone } from '@/shared/lib/studioTime';
+import { useStudioTimeZone } from '@/features/studios';
 
 interface CreateBookingModalProps {
   isOpen: boolean;
@@ -25,6 +27,7 @@ export default function CreateBookingModal(props: CreateBookingModalProps) {
 function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalProps) {
   const { addToast } = useToast();
   const createBooking = useCreateBooking();
+  const timeZone = useStudioTimeZone();
   const [selectedVehicle, setSelectedVehicle] = useState<ClientVehicleMatch | null>(null);
 
   const {
@@ -37,7 +40,7 @@ function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalPro
     defaultValues: {
       clientId: '',
       vehicleId: '',
-      scheduledAt: `${new Date().toISOString().split('T')[0]}T08:00`,
+      scheduledAt: `${todayInZone(timeZone)}T08:00`,
       serviceIds: [],
       priceInput: '0,00',
       notes: '',
@@ -60,6 +63,7 @@ function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalPro
         clientId: data.clientId,
         date,
         time,
+        timeZone,
         serviceIds: data.serviceIds,
         priceInput: data.priceInput,
       });

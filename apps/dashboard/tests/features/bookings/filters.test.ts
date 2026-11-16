@@ -3,6 +3,8 @@ import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES } from '@/features/bookings/model/statuses';
 import { groupBookingsByDay, matchesBookingQuery, monthGrid, visibleBookings } from '@/features/bookings/model/filters';
 
+const WAW = 'Europe/Warsaw';
+
 const booking = (over: Partial<Booking>): Booking =>
   ({
     id: Math.random().toString(),
@@ -29,7 +31,7 @@ describe('booking filters', () => {
       completedAt: '2026-11-11T08:00:00Z',
     });
 
-    expect(visibleBookings([open, doneThisWeek, doneLastWeek, cancelledToday, cancelledYesterday], now)).toEqual([
+    expect(visibleBookings([open, doneThisWeek, doneLastWeek, cancelledToday, cancelledYesterday], WAW, now)).toEqual([
       open,
       doneThisWeek,
       cancelledToday,
@@ -46,20 +48,36 @@ describe('booking filters', () => {
   });
 
   it('groups by day in order', () => {
-    const groups = groupBookingsByDay([
-      booking({ scheduledAt: '2026-11-11T09:00:00Z' }),
-      booking({ scheduledAt: '2026-11-10T09:00:00Z' }),
-      booking({ scheduledAt: '2026-11-11T15:00:00Z' }),
-    ]);
+    const groups = groupBookingsByDay(
+      [
+        booking({ scheduledAt: '2026-11-11T09:00:00Z' }),
+        booking({ scheduledAt: '2026-11-10T09:00:00Z' }),
+        booking({ scheduledAt: '2026-11-11T15:00:00Z' }),
+      ],
+      WAW,
+    );
     expect(groups.map((g) => [g.date, g.bookings.length])).toEqual([
       ['2026-11-10', 1],
       ['2026-11-11', 2],
     ]);
   });
 
+  it('puts a booking just after local midnight on the studio day, not the UTC one', () => {
+    // 23:30 UTC on 10 Nov is 00:30 on 11 Nov in Warsaw.
+    const groups = groupBookingsByDay([booking({ scheduledAt: '2026-11-10T23:30:00Z' })], WAW);
+    expect(groups[0].date).toBe('2026-11-11');
+  });
+
+  it("counts the week from the studio's Monday", () => {
+    // Monday 16 Nov, 00:30 in Warsaw (still Sunday in UTC): a booking completed on Sunday is last week's.
+    const monday = new Date('2026-11-15T23:30:00Z');
+    const doneSunday = booking({ status: BOOKING_STATUSES.ZAKONCZONA.name, completedAt: '2026-11-15T20:00:00Z' });
+    expect(visibleBookings([doneSunday], WAW, monday)).toEqual([]);
+  });
+
   it('pads the month grid to start on Monday', () => {
     // November 2026 starts on a Sunday: six empty cells, then 30 days.
-    const grid = monthGrid(new Date(2026, 10, 15));
+    const grid = monthGrid('2026-11');
     expect(grid.slice(0, 7)).toEqual([null, null, null, null, null, null, 1]);
     expect(grid.filter((d) => d !== null)).toHaveLength(30);
   });
