@@ -3,7 +3,7 @@ import { Search, User, Download } from 'lucide-react';
 import type { Booking } from '@/features/bookings/model/types';
 import { formatPln } from '@/shared/lib/money';
 import { useBookings } from '@/features/bookings/api/bookings';
-import { useToast, Modal, Skeleton } from '@detaileed/ui';
+import { Button, useToast, Modal, Skeleton } from '@detaileed/ui';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 
 const ArchivedView: React.FC = () => {
@@ -54,9 +54,9 @@ const ArchivedView: React.FC = () => {
             className="w-full pl-14 pr-8 py-5 bg-white border border-slate-200 rounded-2xl font-bold text-sm outline-hidden shadow-xs focus:ring-8 focus:ring-cream-warm/20 focus:border-cream-warm/40 transition-all"
           />
         </div>
-        <button className="bg-green-deep text-cream-warm px-8 py-5 rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">
-          <Download size={16} /> Eksportuj
-        </button>
+        <Button size="lg" icon={Download}>
+          Eksportuj
+        </Button>
       </div>
 
       <div className="space-y-4">
@@ -173,12 +173,9 @@ const ArchivedView: React.FC = () => {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => setSelectedBooking(null)}
-              className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest"
-            >
+            <Button size="lg" fullWidth onClick={() => setSelectedBooking(null)}>
               Zamknij
-            </button>
+            </Button>
           </div>
         )}
       </Modal>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
-import { Modal, useToast } from '@detaileed/ui';
+import { Button, Modal, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { ClientVehiclePicker, type ClientVehicleMatch } from '@/features/clients';
 import { bookingFormSchema, type BookingFormValues } from '@/features/bookings/model/schemas';
@@ -87,13 +87,9 @@ function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalPro
 
         <BookingScheduleSection control={control} errors={errors} />
 
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full py-5 bg-green-deep text-cream-warm rounded-xl font-bold text-[11px] uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl transition-all disabled:opacity-60 flex justify-center items-center gap-2"
-        >
-          <Save size={16} /> Zapisz Rezerwację
-        </button>
+        <Button size="lg" fullWidth type="submit" disabled={isSubmitting} icon={Save}>
+          Zapisz Rezerwację
+        </Button>
       </form>
     </Modal>
   );

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { Modal, useToast } from '@detaileed/ui';
+import { Button, Modal, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useCancelBooking, useCompleteBooking } from '@/features/bookings/api/bookings';
 import type { Booking } from '@/features/bookings/model/types';
@@ -53,12 +53,9 @@ export function useBookingStatusChange() {
           </div>
         </div>
         <div className="flex gap-4">
-          <button
-            onClick={() => setConfirmation(null)}
-            className="flex-1 py-5 bg-white border border-slate-200 text-slate-400 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-all"
-          >
+          <Button variant="secondary" size="lg" className="flex-1" onClick={() => setConfirmation(null)}>
             Wróć
-          </button>
+          </Button>
           <button
             onClick={() => confirmation && void change(confirmation.booking, confirmation.type)}
             className={`flex-1 py-5 rounded-xl font-semibold text-[11px] uppercase tracking-widest text-white shadow-xl hover:shadow-2xl active:scale-95 transition-all ${confirmation?.type.id === BOOKING_STATUSES.ZAKONCZONA.id ? 'bg-green-deep text-cream-warm' : 'bg-red-500'}`}

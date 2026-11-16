@@ -1,6 +1,6 @@
 import React from 'react';
 import { Check, Clock, MessageSquare, Phone, User, X } from 'lucide-react';
-import { Modal } from '@detaileed/ui';
+import { Button, Modal } from '@detaileed/ui';
 import { formatPln } from '@/shared/lib/money';
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
@@ -109,32 +109,37 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({ booking, onCl
           <div className="flex gap-4 pt-6">
             {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
               <>
-                <button
+                <Button
+                  variant="success"
+                  size="lg"
+                  className="flex-1"
                   onClick={() => {
                     onClose();
                     onRequestStatusChange(booking, BOOKING_STATUSES.ZAKONCZONA);
                   }}
-                  className="flex-1 py-5 bg-emerald-50 text-emerald-600 border border-emerald-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-emerald-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  <Check size={16} strokeWidth={2.5} /> Zakończ
-                </button>
-                <button
+                  Zakończ
+                </Button>
+                <Button
+                  variant="danger"
+                  size="lg"
+                  className="flex-1"
                   onClick={() => {
                     onClose();
                     onRequestStatusChange(booking, BOOKING_STATUSES.ANULOWANA);
                   }}
-                  className="flex-1 py-5 bg-red-50 text-red-500 border border-red-100/50 rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:bg-red-100 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  <X size={16} strokeWidth={2.5} /> Anuluj
-                </button>
+                  Anuluj
+                </Button>
               </>
             )}
-            <button
+            <Button
+              size="lg"
               onClick={() => onClose()}
-              className={`py-5 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all ${booking.status === BOOKING_STATUSES.UTWORZONA.name ? 'px-8 flex-none' : 'flex-1'}`}
+              className={booking.status === BOOKING_STATUSES.UTWORZONA.name ? 'flex-none' : 'flex-1'}
             >
               Zamknij
-            </button>
+            </Button>
           </div>
         </div>
       )}
