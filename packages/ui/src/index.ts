@@ -14,3 +14,5 @@ export { default as Badge } from './Badge';
 export type { BadgeProps, BadgeSize, BadgeTone } from './Badge';
 export { default as Select } from './Select';
 export type { SelectOption, SelectProps } from './Select';
+export { default as StarRating } from './StarRating';
+export type { StarRatingProps } from './StarRating';
