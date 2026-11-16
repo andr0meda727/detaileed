@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { UserPlus } from 'lucide-react';
-import { FormInput, useToast } from '@detaileed/ui';
+import { Button, FormInput, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useCreateClient } from '@/features/clients/api/clients';
 import { newClientWithVehicleSchema, type NewClientWithVehicleValues } from '@/features/clients/model/schemas';
@@ -71,14 +71,9 @@ export default function NewClientWithVehicleForm({ submitLabel, onCreated }: New
           plateError={errors.vehicle?.licensePlate?.message}
         />
       </div>
-      <button
-        type="button"
-        disabled={isSubmitting}
-        onClick={handleSubmit(onValid)}
-        className="w-full py-3.5 bg-green-deep text-cream-warm rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-lg hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-60 flex items-center justify-center gap-2"
-      >
-        <UserPlus size={15} strokeWidth={2.5} /> {submitLabel}
-      </button>
+      <Button fullWidth disabled={isSubmitting} onClick={handleSubmit(onValid)} icon={UserPlus}>
+        {submitLabel}
+      </Button>
     </div>
   );
 }

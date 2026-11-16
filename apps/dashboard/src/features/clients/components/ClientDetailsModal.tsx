@@ -1,6 +1,6 @@
 import React from 'react';
 import { Phone, Search, Car as CarIcon, Plus, Edit2, Trash2 } from 'lucide-react';
-import { Modal } from '@detaileed/ui';
+import { Button, Modal } from '@detaileed/ui';
 import type { Client } from '@/features/clients/model/types';
 
 interface ClientDetailsModalProps {
@@ -125,12 +125,9 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => onEditClient(client)}
-            className="w-full py-5 bg-white border-2 border-slate-100 text-green-deep rounded-2xl font-bold text-xs uppercase tracking-widest hover:border-green-deep transition-all flex items-center justify-center gap-2"
-          >
+          <Button variant="secondary" size="lg" fullWidth onClick={() => onEditClient(client)}>
             <Edit2 size={16} /> Edytuj Klienta
-          </button>
+          </Button>
           {client.phone ? (
             <a
               href={`tel:${client.phone}`}

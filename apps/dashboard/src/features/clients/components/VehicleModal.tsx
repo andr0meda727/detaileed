@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
-import { Modal, FormInput, useToast } from '@detaileed/ui';
+import { Button, Modal, FormInput, useToast } from '@detaileed/ui';
 import { vehicleFormSchema, type VehicleFormValues } from '@/features/clients/model/schemas';
 import { useCreateVehicle, useUpdateVehicle } from '@/features/clients/api/clients';
 import type { Vehicle } from '@/features/clients/model/types';
@@ -90,11 +90,7 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
         />
 
         <div className="pt-2">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 hover:bg-[#152518] target:scale-95 transition-all disabled:opacity-50"
-          >
+          <Button size="lg" fullWidth type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <span>TRWA ZAPIS...</span>
             ) : (
@@ -102,7 +98,7 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
                 <Save size={18} /> Zapisz Pojazd
               </>
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>
