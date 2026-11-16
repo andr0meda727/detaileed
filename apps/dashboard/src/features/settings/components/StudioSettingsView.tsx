@@ -4,20 +4,20 @@ import { PlanningSettings } from '@/features/planning';
 import { ListingSettings } from '@/features/marketplace';
 import { ServicesSettings } from '@/features/services';
 
-import { CategoriesSettings } from '@/features/inventory';
+import { CategoriesSettings, SizeFactorsSettings } from '@/features/inventory';
 import { EmployeesSettings } from '@/features/team';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 
 import { useToast } from '@detaileed/ui';
 import { StudioTimeZoneSettings, useStudio } from '@/features/studios';
-import { isEmployeeRole } from '@/shared/lib/studioRole';
+import { isEmployeeRole, isOwnerRole } from '@/shared/lib/studioRole';
 
 // ─── Main View ────────────────────────────────────────────────────────────────
 type TabId = 'services' | 'categories' | 'employees' | 'planning' | 'listing' | 'studio';
 
 const TABS: { id: TabId; label: string; icon: React.FC<{ size?: number; className?: string }> }[] = [
   { id: 'services', label: 'Usługi', icon: Wrench },
-  { id: 'categories', label: 'Kategorie magazynu', icon: Layers },
+  { id: 'categories', label: 'Magazyn', icon: Layers },
   { id: 'employees', label: 'Pracownicy', icon: Users },
   { id: 'planning', label: 'Planowanie', icon: CalendarCog },
   { id: 'listing', label: 'Profil publiczny', icon: Globe },
@@ -58,7 +58,12 @@ const StudioSettingsView: React.FC = () => {
       {/* Tab content */}
       <div>
         {activeTab === 'services' && <ServicesSettings addToast={addToast} />}
-        {activeTab === 'categories' && <CategoriesSettings addToast={addToast} />}
+        {activeTab === 'categories' && (
+          <div className="space-y-8">
+            <CategoriesSettings addToast={addToast} />
+            <SizeFactorsSettings canEdit={isOwnerRole(selectedStudio?.role)} />
+          </div>
+        )}
         {activeTab === 'employees' && <EmployeesSettings addToast={addToast} />}
         {activeTab === 'planning' && <PlanningSettings />}
         {activeTab === 'listing' && <ListingSettings onOpenServices={() => setActiveTab('services')} />}

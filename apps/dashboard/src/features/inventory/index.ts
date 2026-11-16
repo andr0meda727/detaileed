@@ -5,3 +5,4 @@ export type { InventoryItem, InventoryItemInput, InventoryCategory } from './mod
 export { default as InventoryView } from './components/InventoryView';
 export { default as CategoriesSettings } from './components/CategoriesSettings';
 export { default as RecipeEditor } from './components/RecipeEditor';
+export { default as SizeFactorsSettings } from './components/SizeFactorsSettings';
