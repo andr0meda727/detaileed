@@ -4,8 +4,12 @@ import { toListing } from '@detaileed/domain/listing';
 import { orNotFound, publicRequest } from '@/lib/api/server';
 import { REVIEWS_PAGE_SIZE, toReviewPage } from '@/features/studio/model/reviews';
 
+/** Studio ids are UUIDs; anything else is a broken link, answered with 404 without asking the API. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /** A published studio's profile, or null (unpublished or unknown); one request per page render. */
 export const getListing = cache(async (studioId: string) => {
+  if (!UUID.test(studioId)) return null;
   const dto = await orNotFound(getApiPublicStudiosStudioId(studioId, publicRequest));
   return dto && toListing(dto);
 });
