@@ -12,6 +12,8 @@ interface BuildBookingCreateDtoArgs {
   serviceIds: string[];
   priceInput: string;
   notes?: string | null;
+  /** The bay to book; null or left out lets the planner choose (studios that plan). */
+  bayId?: string | null;
 }
 
 export function buildBookingCreateDto({
@@ -23,6 +25,7 @@ export function buildBookingCreateDto({
   serviceIds,
   priceInput,
   notes = null,
+  bayId = null,
 }: BuildBookingCreateDtoArgs): BookingInput {
   return {
     vehicleId,
@@ -32,5 +35,6 @@ export function buildBookingCreateDto({
     serviceIds,
     price: parseFloat(priceInput.replace(',', '.')),
     notes,
+    bayId,
   };
 }

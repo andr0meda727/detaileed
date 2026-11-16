@@ -11,6 +11,8 @@ export const bookingFormSchema = z.object({
     .min(1, 'Cena jest wymagana')
     .regex(/^[\d\s]+(?:[.,]\d{1,2})?$/, 'Podaj poprawną kwotę (np. 150 lub 150,50)'),
   notes: z.string().optional().or(z.literal('')),
+  /** A bay picked by hand or with a free slot; null lets the planner choose. */
+  bayId: z.string().nullable().optional(),
 });
 
 export type BookingFormValues = z.infer<typeof bookingFormSchema>;

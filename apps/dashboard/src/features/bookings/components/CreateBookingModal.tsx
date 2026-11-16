@@ -3,14 +3,15 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
 import { Button, Modal, useToast } from '@detaileed/ui';
-import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { ClientVehiclePicker, type ClientVehicleMatch } from '@/features/clients';
 import { bookingFormSchema, type BookingFormValues } from '@/features/bookings/model/schemas';
 import { useCreateBooking } from '@/features/bookings/api/bookings';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
 import BookingServicesSection from '@/features/bookings/components/BookingServicesSection';
 import BookingScheduleSection from '@/features/bookings/components/BookingScheduleSection';
-import { todayInZone } from '@detaileed/domain/studioTime';
+import FreeSlotsSection from '@/features/bookings/components/FreeSlotsSection';
+import { bookingSaveErrorMessage } from '@/features/bookings/model/errors';
+import { dayInZone, timeInZone, todayInZone, zonedToUtc } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 
 interface CreateBookingModalProps {
@@ -44,10 +45,20 @@ function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalPro
       serviceIds: [],
       priceInput: '0,00',
       notes: '',
+      bayId: null,
     },
   });
 
-  const serviceIds = useWatch({ control, name: 'serviceIds' });
+  const [serviceIds, scheduledAt, bayId] = useWatch({ control, name: ['serviceIds', 'scheduledAt', 'bayId'] });
+  const [date, time] = scheduledAt.split('T');
+  const pickedStart = date && time ? zonedToUtc(date, time, timeZone) : null;
+
+  const pickSlot = (slot: { start: string; bayId: string }) => {
+    setValue('scheduledAt', `${dayInZone(slot.start, timeZone)}T${timeInZone(slot.start, timeZone)}`, {
+      shouldValidate: true,
+    });
+    setValue('bayId', slot.bayId);
+  };
 
   const handlePickVehicle = (match: ClientVehicleMatch) => {
     setSelectedVehicle(match);
@@ -66,6 +77,7 @@ function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalPro
         timeZone,
         serviceIds: data.serviceIds,
         priceInput: data.priceInput,
+        bayId: data.bayId ?? null,
       });
       if (data.notes) dto.notes = data.notes;
 
@@ -74,7 +86,7 @@ function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalPro
       onClose();
       onSuccess?.();
     } catch (err) {
-      addToast(getApiErrorMessage(err, 'Wystąpił błąd podczas tworzenia rezerwacji.'), 'error');
+      addToast(bookingSaveErrorMessage(err, 'Wystąpił błąd podczas tworzenia rezerwacji.'), 'error');
     }
   };
 
@@ -90,6 +102,17 @@ function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalPro
         />
 
         <BookingScheduleSection control={control} errors={errors} />
+
+        <FreeSlotsSection
+          date={date}
+          serviceIds={serviceIds}
+          size={selectedVehicle?.vehicle.size ?? 'Medium'}
+          timeZone={timeZone}
+          pickedStart={pickedStart}
+          bayId={bayId ?? null}
+          onPickSlot={pickSlot}
+          onBayChange={(id) => setValue('bayId', id)}
+        />
 
         <Button size="lg" fullWidth type="submit" disabled={isSubmitting} icon={Save}>
           Zapisz Rezerwację
