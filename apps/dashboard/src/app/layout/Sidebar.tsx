@@ -15,14 +15,17 @@ import {
   LucideIcon,
   FileBarChart2,
   Shield,
+  Inbox,
 } from 'lucide-react';
 import { useStudio } from '@/features/studios';
+import { usePendingRequestsCount } from '@/features/booking-requests';
 import { isEmployeeRole } from '@/shared/lib/studioRole';
 import logo from '@/images/logo.svg';
 
 type StudioPath =
   | '/s/$studioId'
   | '/s/$studioId/tasks'
+  | '/s/$studioId/requests'
   | '/s/$studioId/clients'
   | '/s/$studioId/team'
   | '/s/$studioId/inventory'
@@ -34,6 +37,8 @@ interface NavItem {
   to: StudioPath;
   icon: LucideIcon;
   label: string;
+  /** A count shown next to the label (e.g. pending requests); hidden when 0. */
+  badge?: number;
 }
 
 interface SidebarProps {
@@ -50,7 +55,7 @@ interface NavLinkProps extends NavItem {
   indent?: boolean;
 }
 
-const NavLink: React.FC<NavLinkProps> = ({ to, studioId, icon: Icon, label, onNavigate, indent = false }) => {
+const NavLink: React.FC<NavLinkProps> = ({ to, studioId, icon: Icon, label, badge, onNavigate, indent = false }) => {
   const matchRoute = useMatchRoute();
   // The dashboard is the studio's index, so only an exact match counts as active there.
   const active = Boolean(matchRoute({ to, params: { studioId }, fuzzy: to !== '/s/$studioId' }));
@@ -80,6 +85,14 @@ const NavLink: React.FC<NavLinkProps> = ({ to, studioId, icon: Icon, label, onNa
         }
       />
       <span className="font-syne font-bold text-[14px] tracking-wide whitespace-nowrap">{label}</span>
+      {!!badge && (
+        <span
+          aria-label={`${badge} oczekujących`}
+          className="ml-auto min-w-6 h-6 px-1.5 rounded-full bg-amber text-green-deep text-[11px] font-bold flex items-center justify-center"
+        >
+          {badge > 99 ? '99+' : badge}
+        </span>
+      )}
     </Link>
   );
 };
@@ -98,10 +111,12 @@ const Sidebar: React.FC<SidebarProps> = ({ studioId, onLogout, isOpen, onClose, 
   const { selectedStudio } = useStudio();
   const matchRoute = useMatchRoute();
   const isEmployee = isEmployeeRole(selectedStudio?.role);
+  const { data: pendingRequests } = usePendingRequestsCount();
 
   const menuItems: NavItem[] = [
     { to: '/s/$studioId', icon: LayoutDashboard, label: 'Panel Główny' },
     { to: '/s/$studioId/tasks', icon: CalendarClock, label: 'Rezerwacje' },
+    { to: '/s/$studioId/requests', icon: Inbox, label: 'Zapytania', badge: pendingRequests },
     { to: '/s/$studioId/clients', icon: Users, label: 'Klienci' },
     ...(isEmployee ? [] : [{ to: '/s/$studioId/team', icon: Shield, label: 'Zespół' } satisfies NavItem]),
     { to: '/s/$studioId/inventory', icon: Package, label: 'Magazyn' },
