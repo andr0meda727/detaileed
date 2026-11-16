@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import type { Studio } from '@/features/studios/model/types';
+import { DEFAULT_TIME_ZONE } from '@/shared/lib/studioTime';
 
 const StudioContext = createContext<Studio | null>(null);
 
@@ -12,4 +13,10 @@ export const StudioScope: React.FC<{ studio: Studio; children: React.ReactNode }
 // eslint-disable-next-line react-refresh/only-export-components -- the hook belongs next to its context
 export function useStudio(): { selectedStudio: Studio | null } {
   return { selectedStudio: useContext(StudioContext) };
+}
+
+/** The current studio's IANA time zone (Europe/Warsaw outside a studio or when the API sends none). */
+// eslint-disable-next-line react-refresh/only-export-components -- the hook belongs next to its context
+export function useStudioTimeZone(): string {
+  return useContext(StudioContext)?.timeZone || DEFAULT_TIME_ZONE;
 }
