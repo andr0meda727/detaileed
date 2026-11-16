@@ -1,4 +1,6 @@
-import React, { InputHTMLAttributes, forwardRef } from 'react';
+'use client';
+
+import React, { InputHTMLAttributes, forwardRef, useId } from 'react';
 
 interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -8,16 +10,22 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
-  ({ label, error, leftIcon, rightIcon, className = '', ...props }, ref) => {
+  ({ label, error, leftIcon, rightIcon, className = '', id, ...props }, ref) => {
+    const fallbackId = useId();
+    const inputId = id ?? fallbackId;
     return (
       <div className="w-full flex flex-col gap-1.5 focus-within:-translate-y-0.5 transition-transform duration-200">
         {label && (
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">{label}</label>
+          <label htmlFor={inputId} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
+            {label}
+          </label>
         )}
         <div className="relative">
           {leftIcon && <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">{leftIcon}</div>}
           <input
             ref={ref}
+            id={inputId}
+            aria-invalid={error ? true : undefined}
             className={`
               w-full px-4 py-3.5 bg-slate-50 border-2 rounded-xl outline-hidden font-semibold text-sm transition-all
               ${error ? 'border-red-400/50 focus:border-red-500 bg-red-50' : 'border-transparent focus:border-cream-warm/50'}
