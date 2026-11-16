@@ -16,7 +16,7 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 3: router               | done (merged to `main`)                                                           |
 | 4: feature slices       | done (merged to `main`); import rules enforced by ESLint                          |
 | 5: design system        | done (merged to `main`); Tailwind v4, `@detaileed/ui` with theme + components     |
-| 6–7                     | not started                                                                       |
+| 6–10: backend catch-up  | planned (see "Catching up with the backend")                                      |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
@@ -149,10 +149,76 @@ Notes from doing it:
   variant), and colours passed to SVG props (charts, icons), which stay hex.
 - `ArchivedView`'s "Eksportuj" button has no handler yet.
 
-## Later phases (detailed plan when we reach them)
+## Catching up with the backend (phases 6–10)
 
-- **Phase 6**: `apps/web` Next.js marketplace (ISR studio/city pages, SSR search, JSON-LD, sitemap, MapLibre, `@supabase/ssr` cookies on `.detaileed.com`, standalone Docker image). Needs the Phase 7 endpoints.
-- **Phase 7 (backend, done by the user)**: `/api/public/studios` (geo + filters), `/api/public/studios/{slug}`, reviews, cities, slug/lat-lng/rating fields, revalidate webhook.
+The backend (`detailflow-api`, see its `docs/api-reference.md`, `api-conventions.md` and `marketplace-roadmap.md`) now
+has the whole marketplace: the public map search, studio pages, reviews, price estimates and free times, customer
+accounts (profile, garage, booking requests, reviews), the staff side of requests, planning (bays, opening hours,
+day board, free times) and the inventory ledger (movements, recipes, consumption, forecast). The generated client
+already has hooks for all of it, but the dashboard calls 34 of the 85 operations; there is no customer frontend.
+
+Differences from what the old outline assumed: studios are addressed by id (no slugs), there is no cities endpoint
+and no revalidate webhook (the public endpoints are output-cached for 60 s, so pages revalidate on a timer).
+
+Order: foundations first, then the marketplace end to end (studios publish and answer requests, customers find
+them and send requests), then planning, which makes requests precise, then the inventory extras.
+
+### Phase 6: foundations (branch `feat/phase-6-foundations`)
+
+1. `build: update the api spec`: the spec from the backend's Debug build, with enums typed as strings (needs the
+   backend fix `Describe enums as strings in the OpenAPI spec`). Regenerate; drop the casts the integer enums
+   needed (tests, `toBooking`).
+2. `refactor: create studios with the generated client` (`POST /api/studios` is in the spec now; remove `apiFetch`).
+3. Studio time zone (`api-conventions.md`, "Dates and times"): `shared/lib/studioTime.ts` (format a UTC moment in the
+   studio's zone, turn a local date and time in that zone into UTC, the studio's "today"), tests across a DST change;
+   then one commit per screen that shows or sends times (bookings, calendar, dashboard, reports, archive). Owner
+   setting for the zone (`PUT /api/studios/time-zone`).
+4. Vehicle size: shared labels (`Small` = "Miejskie", …), size in the client/vehicle forms and lists, sent on create.
+5. Services: category, prices per vehicle size ("na zapytanie" when empty) and duration in the services settings;
+   labels for categories.
+
+### Phase 7: marketplace, studio side (branch `feat/phase-7-studio-marketplace`)
+
+1. `packages/ui`: `MapView`/`MapPicker` on MapLibre GL with OpenFreeMap tiles (free, no key; swappable style URL in an
+   env var). Shared with `apps/web`.
+2. Public profile tab in studio settings (owner edits, staff read): name, description, address, city, phone, pin on
+   the map; publish/unpublish with `LISTING_HAS_NO_SERVICES` explained; rating and review count.
+3. Booking requests inbox (`/s/$studioId/requests`): list with a status filter (pending first), details (customer, car,
+   services with estimate, notes), accept (optional time, price, bay) and reject (reason). With planning on, the
+   request plan (does the preferred time fit, closest alternatives, competing requests). Pending count in the sidebar.
+
+### Phase 8: customer marketplace (`apps/web`, branch `feat/phase-8-web`)
+
+1. Scaffold Next.js (App Router, standalone output, Tailwind v4 + `@detaileed/ui` theme, `@detaileed/api-client` with a
+   server-side fetcher), lint/typecheck/test in turbo, Dockerfile and CI like the dashboard.
+2. Map search (`/`): visible-area search, category and vehicle-size filters, pins and a list with rating and "from"
+   price; the URL keeps the map area and filters.
+3. Studio page (`/studio/[id]`, ISR 60 s, JSON-LD `AutoRepair`, metadata): profile, services with prices for the
+   chosen size, live estimate, reviews ("show more" by cursor), free times when the studio plans.
+4. Customer auth: Supabase sign-up/sign-in (`@supabase/ssr`), profile (`/api/me/profile`) required before booking.
+5. Booking request flow: services + car (garage or one-off) + time (free slots or a preferred time) + notes; errors
+   mapped from codes (`BOOKING_REQUEST_LIMIT`, `OUTSIDE_OPENING_HOURS`, …).
+6. Account: garage (`/api/me/vehicles`), request history with withdraw, reviews to write and the review form.
+7. `sitemap.xml`/`robots.txt`, error and not-found pages.
+
+### Phase 9: planning (branch `feat/phase-9-planning`)
+
+1. Bays (owner) in studio settings.
+2. Schedule: opening hours per day (several periods), buffer, slot step, lead time, size multipliers, closures.
+3. Day board (`/s/$studioId/board?date=`): bays as lanes, bookings, free gaps, utilisation, unassigned bookings and
+   the day's pending requests.
+4. Booking form: free slots for the chosen services and car size (`/api/availability`), bay choice, `NO_BAY_AVAILABLE`
+   and `BAY_TAKEN` handled; bookings show their bay and end time.
+
+### Phase 10: inventory ledger (branch `feat/phase-10-inventory`)
+
+1. Item history and movements (delivery, stocktake) instead of editing the stock number.
+2. Materials per service (recipes) and size factors (owner).
+3. What a completed visit used (consumption per booking, actual amounts).
+4. Forecast (days left, runs out at) and estimate accuracy.
+
+Not in the API yet (from the backend reference): editing a studio's name/phone/address, `statusId` on bookings,
+links from booking-request emails into the frontend.
 
 ## Critical files
 
