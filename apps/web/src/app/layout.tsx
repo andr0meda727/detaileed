@@ -3,6 +3,7 @@ import { DM_Sans, DM_Serif_Display, Syne } from 'next/font/google';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 import { SITE_URL } from '@/lib/site';
+import Providers from './providers';
 import './globals.css';
 
 const dmSans = DM_Sans({ subsets: ['latin', 'latin-ext'], variable: '--font-dm-sans', display: 'swap' });
@@ -26,9 +27,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pl" className={`${dmSans.variable} ${dmSerif.variable} ${syne.variable}`}>
       <body className="min-h-screen flex flex-col bg-cream text-green-deep antialiased">
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <Providers>
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+        </Providers>
       </body>
     </html>
   );
