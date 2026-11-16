@@ -18,7 +18,8 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 5: design system        | done (merged to `main`); Tailwind v4, `@detaileed/ui` with theme + components     |
 | 6: foundations          | done (merged to `main`); spec refresh, studio time zone, vehicle size, services   |
 | 7: studio marketplace   | done (merged to `main`); maps, public profile, booking-request inbox              |
-| 8–10: backend catch-up  | planned (see "Catching up with the backend")                                      |
+| 8: customer site        | done (merged to `main`); `apps/web` Next.js, map search, studio pages, requests   |
+| 9–10: backend catch-up  | planned (see "Catching up with the backend")                                      |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
@@ -265,6 +266,17 @@ the public listing and availability, email links to `/s/{studioId}/requests?id=`
 11. `build: web docker image and deploy`: `apps/web/Dockerfile` (turbo prune → build → standalone `node` runner),
     workflow job for image `detaileed-web` with `NEXT_PUBLIC_*` build args; `pnpm check` covers lint/typecheck/test/build.
 12. `docs:` CLAUDE.md (apps/web layout, commands, env), frontend-architecture, plan status.
+
+Notes from doing it:
+
+- No dev rewrite of `/api` was needed: the backend's CORS already allows `http://localhost:3001`.
+- `@detaileed/domain` also took the API error messages (`apiErrors`) and the shared listing model (`listing`, with
+  `priceFor` and `servicesByCategory`); `@detaileed/ui` got `StarRating`, `useIsClient` (portals wait for the
+  browser) and labelled `FormInput`s (the label had no `htmlFor`).
+- The deploy is a separate workflow (`web-publish.yml`, image `detaileed-web`, its own concurrency group) reusing the
+  dashboard's Supabase secrets and `VITE_API_URL`; new repo variables: `WEB_SITE_URL`, `DASHBOARD_URL` (both optional).
+- Backend gap: request history (`/api/me/booking-requests`) and pending reviews don't carry the studio's time zone,
+  so the account pages show times in `Europe/Warsaw`. Adding `timeZone` to `BookingRequestDto` would fix it.
 
 ### Phase 9: planning in the dashboard (branch `feat/phase-9-planning`)
 
