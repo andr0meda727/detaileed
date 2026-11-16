@@ -12,3 +12,5 @@ export { default as Button } from './Button';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
 export { default as Badge } from './Badge';
 export type { BadgeProps, BadgeSize, BadgeTone } from './Badge';
+export { default as Select } from './Select';
+export type { SelectOption, SelectProps } from './Select';
