@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost';
 export type ButtonSize = 'md' | 'lg';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -16,6 +16,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variants: Record<ButtonVariant, string> = {
   primary: 'bg-green-deep text-cream-warm shadow-lg hover:shadow-xl',
   secondary: 'bg-white text-slate-500 border border-slate-200 hover:text-green-deep hover:border-slate-300',
+  success: 'bg-emerald-50 text-emerald-600 border border-emerald-100 hover:bg-emerald-100',
   danger: 'bg-red-50 text-red-500 border border-red-100 hover:bg-red-100',
   ghost: 'text-slate-400 hover:text-green-deep hover:bg-slate-50',
 };
