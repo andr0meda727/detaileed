@@ -5,7 +5,7 @@ import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/
 import { byScheduledAt, monthGrid } from '@/features/bookings/model/filters';
 import BookingCard from '@/features/bookings/components/BookingCard';
 import { Skeleton } from '@detaileed/ui';
-import { dayInZone, formatDay, todayInZone } from '@/shared/lib/studioTime';
+import { dayInZone, formatDay, todayInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 
 interface TabProps {

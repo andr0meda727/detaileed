@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Skeleton } from '@detaileed/ui';
-import { formatInZone, zonedParts } from '@/shared/lib/studioTime';
+import { formatInZone, zonedParts } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 
 interface GreetingBannerProps {

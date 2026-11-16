@@ -9,7 +9,7 @@ import {
   todayInZone,
   weekdayIndex,
   zonedToUtc,
-} from '@/shared/lib/studioTime';
+} from '../src/studioTime';
 
 const WAW = 'Europe/Warsaw';
 

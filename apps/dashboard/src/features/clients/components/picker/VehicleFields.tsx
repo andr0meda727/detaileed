@@ -1,6 +1,6 @@
 import type { UseFormRegisterReturn } from 'react-hook-form';
 import { FormInput, Select } from '@detaileed/ui';
-import { VEHICLE_SIZE_OPTIONS } from '@/shared/lib/vehicleSize';
+import { VEHICLE_SIZE_OPTIONS } from '@detaileed/domain/vehicleSize';
 
 interface VehicleFieldsProps {
   brand: UseFormRegisterReturn;

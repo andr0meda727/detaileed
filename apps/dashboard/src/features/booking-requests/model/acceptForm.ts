@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { AcceptBookingRequest } from '@detaileed/api-client';
-import { dayInZone, timeInZone, zonedToUtc } from '@/shared/lib/studioTime';
+import { dayInZone, timeInZone, zonedToUtc } from '@detaileed/domain/studioTime';
 import type { BookingRequest } from '@/features/booking-requests/model/types';
 
 export const acceptFormSchema = z.object({

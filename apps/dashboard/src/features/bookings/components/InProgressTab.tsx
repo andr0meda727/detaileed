@@ -7,7 +7,7 @@ import { byScheduledAt, groupBookingsByDay, matchesBookingQuery } from '@/featur
 import BookingCard from '@/features/bookings/components/BookingCard';
 import { Skeleton } from '@detaileed/ui';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
-import { formatDay } from '@/shared/lib/studioTime';
+import { formatDay } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 
 interface TabProps {

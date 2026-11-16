@@ -1,8 +1,8 @@
 import { Car, Clock } from 'lucide-react';
 import { Badge } from '@detaileed/ui';
-import { formatPln } from '@/shared/lib/money';
-import { formatInZone } from '@/shared/lib/studioTime';
-import { vehicleSizeLabel } from '@/shared/lib/vehicleSize';
+import { formatPln } from '@detaileed/domain/money';
+import { formatInZone } from '@detaileed/domain/studioTime';
+import { vehicleSizeLabel } from '@detaileed/domain/vehicleSize';
 import { requestStatus } from '@/features/booking-requests/model/statuses';
 import type { BookingRequest } from '@/features/booking-requests/model/types';
 

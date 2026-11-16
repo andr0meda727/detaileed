@@ -8,7 +8,7 @@ import { newClientWithVehicleSchema, type NewClientWithVehicleValues } from '@/f
 import { toNewClientInput } from '@/features/clients/model/toClientInput';
 import type { Client } from '@/features/clients/model/types';
 import VehicleFields from '@/features/clients/components/picker/VehicleFields';
-import { DEFAULT_VEHICLE_SIZE } from '@/shared/lib/vehicleSize';
+import { DEFAULT_VEHICLE_SIZE } from '@detaileed/domain/vehicleSize';
 
 interface NewClientWithVehicleFormProps {
   submitLabel: string;

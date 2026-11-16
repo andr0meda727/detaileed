@@ -10,7 +10,7 @@ import { useCreateBooking } from '@/features/bookings/api/bookings';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
 import BookingServicesSection from '@/features/bookings/components/BookingServicesSection';
 import BookingScheduleSection from '@/features/bookings/components/BookingScheduleSection';
-import { todayInZone } from '@/shared/lib/studioTime';
+import { todayInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 
 interface CreateBookingModalProps {

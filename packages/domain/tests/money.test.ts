@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPln } from '@/shared/lib/money';
+import { formatPln } from '../src/money';
 
 describe('formatPln', () => {
   it('formats złoty with a comma and two decimals', () => {

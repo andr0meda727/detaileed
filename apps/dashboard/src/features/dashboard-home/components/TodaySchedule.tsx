@@ -3,7 +3,7 @@ import { Calendar, X, Check, UserCheck, MoreHorizontal } from 'lucide-react';
 import { BOOKING_STATUSES, type Booking, type BookingStatus } from '@/features/bookings';
 
 import { Skeleton } from '@detaileed/ui';
-import { timeInZone } from '@/shared/lib/studioTime';
+import { timeInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 interface TodayScheduleProps {
   bookings: Booking[];

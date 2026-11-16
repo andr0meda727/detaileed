@@ -1,6 +1,6 @@
 import type { BookingInput } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES } from '@/features/bookings/model/statuses';
-import { zonedToUtc } from '@/shared/lib/studioTime';
+import { zonedToUtc } from '@detaileed/domain/studioTime';
 
 interface BuildBookingCreateDtoArgs {
   vehicleId: string;

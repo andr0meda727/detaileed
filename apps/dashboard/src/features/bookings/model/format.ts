@@ -1,4 +1,4 @@
-import { dayInZone, timeInZone } from '@/shared/lib/studioTime';
+import { dayInZone, timeInZone } from '@detaileed/domain/studioTime';
 
 /** "14:30": the studio's local time of a moment. */
 export function formatBookingTime(iso: string, timeZone: string): string {

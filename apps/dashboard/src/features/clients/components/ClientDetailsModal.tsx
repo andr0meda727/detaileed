@@ -1,7 +1,7 @@
 import React from 'react';
 import { Phone, Search, Car as CarIcon, Plus, Edit2, Trash2 } from 'lucide-react';
 import { Button, Modal, Badge } from '@detaileed/ui';
-import { vehicleSizeLabel } from '@/shared/lib/vehicleSize';
+import { vehicleSizeLabel } from '@detaileed/domain/vehicleSize';
 import type { Client } from '@/features/clients/model/types';
 
 interface ClientDetailsModalProps {

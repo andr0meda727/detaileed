@@ -1,9 +1,9 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { type Booking } from '@/features/bookings';
-import { formatPln } from '@/shared/lib/money';
+import { formatPln } from '@detaileed/domain/money';
 import { Skeleton } from '@detaileed/ui';
-import { dayInZone } from '@/shared/lib/studioTime';
+import { dayInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 interface UpcomingBookingsProps {
   bookings: Booking[];

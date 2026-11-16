@@ -1,13 +1,13 @@
 import React from 'react';
 import { Check, Clock, MessageSquare, Phone, User, X } from 'lucide-react';
 import { Button, Modal } from '@detaileed/ui';
-import { formatPln } from '@/shared/lib/money';
+import { formatPln } from '@detaileed/domain/money';
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
 import { formatBookingTime } from '@/features/bookings/model/format';
 import BookingStatusBadge from '@/features/bookings/components/BookingStatusBadge';
 import { useStudioTimeZone } from '@/features/studios';
-import { formatInZone } from '@/shared/lib/studioTime';
+import { formatInZone } from '@detaileed/domain/studioTime';
 
 interface BookingDetailsModalProps {
   /** The booking to show; null closes the modal. */

@@ -1,0 +1,26 @@
+{
+  "name": "@detaileed/domain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./studioTime": "./src/studioTime.ts",
+    "./vehicleSize": "./src/vehicleSize.ts",
+    "./serviceCategory": "./src/serviceCategory.ts",
+    "./money": "./src/money.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@detaileed/api-client": "workspace:*"
+  },
+  "devDependencies": {
+    "@detaileed/config": "workspace:*",
+    "eslint": "^9.39.5",
+    "typescript": "~5.8.2",
+    "vitest": "^4.1.4"
+  }
+}

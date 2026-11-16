@@ -7,7 +7,7 @@ import { useCreateVehicle } from '@/features/clients/api/clients';
 import { vehicleFormSchema, type VehicleFormValues } from '@/features/clients/model/schemas';
 import { toVehicleFields } from '@/features/clients/model/toClientInput';
 import VehicleFields from '@/features/clients/components/picker/VehicleFields';
-import { DEFAULT_VEHICLE_SIZE } from '@/shared/lib/vehicleSize';
+import { DEFAULT_VEHICLE_SIZE } from '@detaileed/domain/vehicleSize';
 
 interface NewVehicleFormProps {
   /** Owner of the new vehicle; submitting without one shows an error. */

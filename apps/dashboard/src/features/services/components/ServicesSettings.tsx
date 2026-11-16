@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Clock, Plus, Trash2, Wrench } from 'lucide-react';
 import { Badge, Button, EmptyState, LoadingSpinner } from '@detaileed/ui';
-import { formatPln } from '@/shared/lib/money';
+import { formatPln } from '@detaileed/domain/money';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import { serviceCategoryLabel } from '@/shared/lib/serviceCategory';
+import { serviceCategoryLabel } from '@detaileed/domain/serviceCategory';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 import { useDeleteService, useServices } from '@/features/services/api/services';
 import { fromPrice, type Service } from '@/features/services/model/types';

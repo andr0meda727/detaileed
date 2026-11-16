@@ -3,7 +3,7 @@ import { Clock, Save } from 'lucide-react';
 import { Button, FormSection, useToast } from '@detaileed/ui';
 import { useStudio } from '@/features/studios/model/StudioContext';
 import { useChangeStudioTimeZone } from '@/features/studios/api/studios';
-import { DEFAULT_TIME_ZONE, formatInZone } from '@/shared/lib/studioTime';
+import { DEFAULT_TIME_ZONE, formatInZone } from '@detaileed/domain/studioTime';
 import { isOwnerRole } from '@/shared/lib/studioRole';
 
 /** IANA zones the browser knows, the studio's current one included even if it doesn't. */

@@ -1,6 +1,6 @@
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Skeleton } from '@detaileed/ui';
-import { formatInZone, timeInZone } from '@/shared/lib/studioTime';
+import { formatInZone, timeInZone } from '@detaileed/domain/studioTime';
 import { useRequestPlan } from '@/features/booking-requests/api/requests';
 
 export interface PickedSlot {

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import type { Booking } from '@/features/bookings';
 import { useStudioTimeZone } from '@/features/studios';
-import { todayInZone } from '@/shared/lib/studioTime';
+import { todayInZone } from '@detaileed/domain/studioTime';
 import { revenueSeries } from '@/features/dashboard-home/model/revenue';
 
 interface RevenueChartProps {

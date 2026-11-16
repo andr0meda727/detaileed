@@ -1,6 +1,6 @@
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES } from '@/features/bookings/model/statuses';
-import { addDays, dayInZone, todayInZone, weekdayIndex, zonedToUtc } from '@/shared/lib/studioTime';
+import { addDays, dayInZone, todayInZone, weekdayIndex, zonedToUtc } from '@detaileed/domain/studioTime';
 
 /**
  * Bookings the schedule shows: open ones always, completed ones from the current week (from Monday),

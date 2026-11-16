@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import type { Studio } from '@/features/studios/model/types';
-import { DEFAULT_TIME_ZONE } from '@/shared/lib/studioTime';
+import { DEFAULT_TIME_ZONE } from '@detaileed/domain/studioTime';
 
 const StudioContext = createContext<Studio | null>(null);
 

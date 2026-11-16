@@ -5,7 +5,7 @@ import type { Booking } from '@/features/bookings/model/types';
 import { useBookings } from '@/features/bookings/api/bookings';
 import { useBookingStatusChange } from '@/features/bookings/hooks/useBookingStatusChange';
 import { visibleBookings } from '@/features/bookings/model/filters';
-import { dayInZone, todayInZone } from '@/shared/lib/studioTime';
+import { dayInZone, todayInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 import InProgressTab from '@/features/bookings/components/InProgressTab';
 import SearchTab from '@/features/bookings/components/SearchTab';

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check } from 'lucide-react';
 import { Button, FormInput, useToast } from '@detaileed/ui';
-import { dayInZone, timeInZone } from '@/shared/lib/studioTime';
+import { dayInZone, timeInZone } from '@detaileed/domain/studioTime';
 import { useAcceptRequest } from '@/features/booking-requests/api/requests';
 import {
   acceptFormDefaults,

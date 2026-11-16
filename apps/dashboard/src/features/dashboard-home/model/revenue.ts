@@ -1,5 +1,5 @@
 import type { Booking } from '@/features/bookings';
-import { addDays, dayInZone, weekdayIndex } from '@/shared/lib/studioTime';
+import { addDays, dayInZone, weekdayIndex } from '@detaileed/domain/studioTime';
 
 export interface RevenuePoint {
   name: string;

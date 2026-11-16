@@ -16,7 +16,7 @@ import { BookingDetailsModal, CreateBookingModal, useBookingStatusChange } from 
 import { AddVehicleModal } from '@/features/clients';
 
 import { useStudio, useStudioTimeZone } from '@/features/studios';
-import { dayInZone, todayInZone } from '@/shared/lib/studioTime';
+import { dayInZone, todayInZone } from '@detaileed/domain/studioTime';
 
 import GreetingBanner from '@/features/dashboard-home/components/GreetingBanner';
 import TodaySchedule from '@/features/dashboard-home/components/TodaySchedule';
