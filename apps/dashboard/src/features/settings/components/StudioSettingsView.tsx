@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Wrench, Layers, Users, Building2, Globe } from 'lucide-react';
+import { Wrench, Layers, Users, Building2, Globe, CalendarCog } from 'lucide-react';
+import { PlanningSettings } from '@/features/planning';
 import { ListingSettings } from '@/features/marketplace';
 import { ServicesSettings } from '@/features/services';
 
@@ -12,12 +13,13 @@ import { StudioTimeZoneSettings, useStudio } from '@/features/studios';
 import { isEmployeeRole } from '@/shared/lib/studioRole';
 
 // ─── Main View ────────────────────────────────────────────────────────────────
-type TabId = 'services' | 'categories' | 'employees' | 'listing' | 'studio';
+type TabId = 'services' | 'categories' | 'employees' | 'planning' | 'listing' | 'studio';
 
 const TABS: { id: TabId; label: string; icon: React.FC<{ size?: number; className?: string }> }[] = [
   { id: 'services', label: 'Usługi', icon: Wrench },
   { id: 'categories', label: 'Kategorie magazynu', icon: Layers },
   { id: 'employees', label: 'Pracownicy', icon: Users },
+  { id: 'planning', label: 'Planowanie', icon: CalendarCog },
   { id: 'listing', label: 'Profil publiczny', icon: Globe },
   { id: 'studio', label: 'Studio', icon: Building2 },
 ];
@@ -58,6 +60,7 @@ const StudioSettingsView: React.FC = () => {
         {activeTab === 'services' && <ServicesSettings addToast={addToast} />}
         {activeTab === 'categories' && <CategoriesSettings addToast={addToast} />}
         {activeTab === 'employees' && <EmployeesSettings addToast={addToast} />}
+        {activeTab === 'planning' && <PlanningSettings />}
         {activeTab === 'listing' && <ListingSettings onOpenServices={() => setActiveTab('services')} />}
         {activeTab === 'studio' && <StudioTimeZoneSettings />}
       </div>
