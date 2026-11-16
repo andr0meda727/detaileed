@@ -1,15 +1,17 @@
 import type { UseFormRegisterReturn } from 'react-hook-form';
-import { FormInput } from '@detaileed/ui';
+import { FormInput, Select } from '@detaileed/ui';
+import { VEHICLE_SIZE_OPTIONS } from '@/shared/lib/vehicleSize';
 
 interface VehicleFieldsProps {
   brand: UseFormRegisterReturn;
   model: UseFormRegisterReturn;
   licensePlate: UseFormRegisterReturn;
+  size: UseFormRegisterReturn;
   plateError?: string;
 }
 
-/** Brand, model and plate inputs; takes `register(...)` results so it fits any form that has these fields. */
-export default function VehicleFields({ brand, model, licensePlate, plateError }: VehicleFieldsProps) {
+/** Brand, model, plate and size inputs; takes `register(...)` results so it fits any form that has these fields. */
+export default function VehicleFields({ brand, model, licensePlate, size, plateError }: VehicleFieldsProps) {
   return (
     <div className="space-y-1">
       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Pojazdu</p>
@@ -17,7 +19,10 @@ export default function VehicleFields({ brand, model, licensePlate, plateError }
         <FormInput placeholder="Marka (opcjonalnie)" {...brand} />
         <FormInput placeholder="Model (opcjonalnie)" {...model} />
       </div>
-      <FormInput placeholder="Nr Rejestracyjny *" className="uppercase" error={plateError} {...licensePlate} />
+      <div className="grid grid-cols-2 gap-2.5">
+        <FormInput placeholder="Nr Rejestracyjny *" className="uppercase" error={plateError} {...licensePlate} />
+        <Select aria-label="Wielkość pojazdu" options={VEHICLE_SIZE_OPTIONS} {...size} />
+      </div>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { VehicleSize } from '@detaileed/api-client';
 
 const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-s.]?[0-9]{3}[-s.]?[0-9]{3,4}$/im;
 const nipRegex = /^[0-9]{10}$/; // Basic polish NIP validation
@@ -17,6 +18,7 @@ export const vehicleFormSchema = z.object({
   brand: z.string().optional().or(z.literal('')),
   model: z.string().optional().or(z.literal('')),
   licensePlate: z.string().min(3, 'Numer rejestracyjny jest wymagany (min. 3 znaki)').toUpperCase(),
+  size: z.enum(Object.values(VehicleSize) as [VehicleSize, ...VehicleSize[]], 'Wybierz wielkość pojazdu'),
 });
 
 export type ClientFormValues = z.infer<typeof clientFormSchema>;

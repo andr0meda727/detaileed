@@ -7,7 +7,7 @@ const valid = {
   phone: '500600700',
   email: '',
   nip: '',
-  vehicle: { brand: 'BMW', model: '', licensePlate: 'wx 1234a' },
+  vehicle: { brand: 'BMW', model: '', licensePlate: 'wx 1234a', size: 'Large' as const },
 };
 
 describe('newClientWithVehicleSchema', () => {
@@ -27,11 +27,12 @@ describe('newClientWithVehicleSchema', () => {
 });
 
 describe('toVehicleFields', () => {
-  it('upper-cases the plate and turns empty optional fields into null', () => {
-    expect(toVehicleFields({ brand: ' BMW ', model: '', licensePlate: ' wx1234a ' })).toEqual({
+  it('upper-cases the plate, turns empty optional fields into null and keeps the size', () => {
+    expect(toVehicleFields({ brand: ' BMW ', model: '', licensePlate: ' wx1234a ', size: 'Small' })).toEqual({
       licensePlate: 'WX1234A',
       brand: 'BMW',
       model: null,
+      size: 'Small',
     });
   });
 });
@@ -43,7 +44,7 @@ describe('toNewClientInput', () => {
       phone: '500600700',
       email: 'jan@example.com',
       nip: null,
-      vehicle: { licensePlate: 'WX 1234A', brand: 'BMW', model: null },
+      vehicle: { licensePlate: 'WX 1234A', brand: 'BMW', model: null, size: 'Large' },
     });
   });
 });

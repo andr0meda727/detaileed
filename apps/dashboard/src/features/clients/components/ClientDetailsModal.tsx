@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, Search, Car as CarIcon, Plus, Edit2, Trash2 } from 'lucide-react';
-import { Button, Modal } from '@detaileed/ui';
+import { Button, Modal, Badge } from '@detaileed/ui';
+import { vehicleSizeLabel } from '@/shared/lib/vehicleSize';
 import type { Client } from '@/features/clients/model/types';
 
 interface ClientDetailsModalProps {
@@ -95,6 +96,11 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                       <span className="font-bold text-green-deep text-lg block truncate">
                         {v.brand} {v.model}
                       </span>
+                      {vehicleSizeLabel(v.size) && (
+                        <Badge tone="neutral" size="sm" className="mt-1">
+                          {vehicleSizeLabel(v.size)}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">

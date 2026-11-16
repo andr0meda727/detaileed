@@ -2,7 +2,10 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
-import { Button, Modal, FormInput, useToast } from '@detaileed/ui';
+import { Button, Modal, FormInput, Select, useToast } from '@detaileed/ui';
+import { DEFAULT_VEHICLE_SIZE, VEHICLE_SIZE_OPTIONS } from '@/shared/lib/vehicleSize';
+import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { toVehicleFields } from '@/features/clients/model/toClientInput';
 import { vehicleFormSchema, type VehicleFormValues } from '@/features/clients/model/schemas';
 import { useCreateVehicle, useUpdateVehicle } from '@/features/clients/api/clients';
 import type { Vehicle } from '@/features/clients/model/types';
@@ -27,7 +30,7 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
     formState: { errors, isSubmitting },
   } = useForm<VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
-    defaultValues: { brand: '', model: '', licensePlate: '' },
+    defaultValues: { brand: '', model: '', licensePlate: '', size: DEFAULT_VEHICLE_SIZE },
   });
 
   useEffect(() => {
@@ -37,9 +40,10 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
           brand: vehicleToEdit.brand || '',
           model: vehicleToEdit.model || '',
           licensePlate: vehicleToEdit.licensePlate,
+          size: vehicleToEdit.size ?? DEFAULT_VEHICLE_SIZE,
         });
       } else {
-        reset({ brand: '', model: '', licensePlate: '' });
+        reset({ brand: '', model: '', licensePlate: '', size: DEFAULT_VEHICLE_SIZE });
       }
     }
   }, [isOpen, vehicleToEdit, reset]);
@@ -49,28 +53,17 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
       if (vehicleToEdit) {
         await updateVehicleMut.mutateAsync({
           id: vehicleToEdit.id,
-          dto: {
-            clientId,
-            brand: data.brand || null,
-            model: data.model || null,
-            licensePlate: data.licensePlate,
-          },
+          dto: { clientId, ...toVehicleFields(data) },
         });
         addToast('Dane pojazdu zostały zaktualizowane.', 'success');
       } else {
-        await createVehicleMut.mutateAsync({
-          clientId,
-          brand: data.brand || null,
-          model: data.model || null,
-          licensePlate: data.licensePlate,
-        });
+        await createVehicleMut.mutateAsync({ clientId, ...toVehicleFields(data) });
         addToast('Nowy pojazd został dodany do floty.', 'success');
       }
       onClose();
       if (onSuccess) onSuccess();
     } catch (e) {
-      console.error(e);
-      addToast('Wystąpił błąd podczas zapisywania pojazdu.', 'error');
+      addToast(getApiErrorMessage(e, 'Wystąpił błąd podczas zapisywania pojazdu.'), 'error');
     }
   };
 
@@ -88,6 +81,7 @@ export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit,
           error={errors.licensePlate?.message}
           {...register('licensePlate')}
         />
+        <Select label="Wielkość pojazdu" options={VEHICLE_SIZE_OPTIONS} {...register('size')} />
 
         <div className="pt-2">
           <Button size="lg" fullWidth type="submit" disabled={isSubmitting}>

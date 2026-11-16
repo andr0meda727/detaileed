@@ -8,6 +8,7 @@ import { newClientWithVehicleSchema, type NewClientWithVehicleValues } from '@/f
 import { toNewClientInput } from '@/features/clients/model/toClientInput';
 import type { Client } from '@/features/clients/model/types';
 import VehicleFields from '@/features/clients/components/picker/VehicleFields';
+import { DEFAULT_VEHICLE_SIZE } from '@/shared/lib/vehicleSize';
 
 interface NewClientWithVehicleFormProps {
   submitLabel: string;
@@ -20,7 +21,7 @@ const emptyValues: NewClientWithVehicleValues = {
   phone: '',
   email: '',
   nip: '',
-  vehicle: { brand: '', model: '', licensePlate: '' },
+  vehicle: { brand: '', model: '', licensePlate: '', size: DEFAULT_VEHICLE_SIZE },
 };
 
 /**
@@ -68,6 +69,7 @@ export default function NewClientWithVehicleForm({ submitLabel, onCreated }: New
           brand={register('vehicle.brand')}
           model={register('vehicle.model')}
           licensePlate={register('vehicle.licensePlate')}
+          size={register('vehicle.size')}
           plateError={errors.vehicle?.licensePlate?.message}
         />
       </div>

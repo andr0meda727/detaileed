@@ -7,6 +7,7 @@ import { useCreateVehicle } from '@/features/clients/api/clients';
 import { vehicleFormSchema, type VehicleFormValues } from '@/features/clients/model/schemas';
 import { toVehicleFields } from '@/features/clients/model/toClientInput';
 import VehicleFields from '@/features/clients/components/picker/VehicleFields';
+import { DEFAULT_VEHICLE_SIZE } from '@/shared/lib/vehicleSize';
 
 interface NewVehicleFormProps {
   /** Owner of the new vehicle; submitting without one shows an error. */
@@ -25,7 +26,7 @@ export default function NewVehicleForm({ clientId, onCreated }: NewVehicleFormPr
     formState: { errors, isSubmitting },
   } = useForm<VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
-    defaultValues: { brand: '', model: '', licensePlate: '' },
+    defaultValues: { brand: '', model: '', licensePlate: '', size: DEFAULT_VEHICLE_SIZE },
   });
 
   const onValid = async (values: VehicleFormValues) => {
@@ -47,6 +48,7 @@ export default function NewVehicleForm({ clientId, onCreated }: NewVehicleFormPr
         brand={register('brand')}
         model={register('model')}
         licensePlate={register('licensePlate')}
+        size={register('size')}
         plateError={errors.licensePlate?.message}
       />
       {errors.root && (

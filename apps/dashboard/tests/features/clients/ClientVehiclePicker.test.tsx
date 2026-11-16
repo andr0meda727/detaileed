@@ -63,7 +63,7 @@ describe('ClientVehiclePicker', () => {
       phone: '500600700',
       email: null,
       nip: null,
-      vehicle: { licensePlate: 'WX999', brand: null, model: null },
+      vehicle: { licensePlate: 'WX999', brand: null, model: null, size: 'Medium' },
     });
   });
 });

@@ -28,7 +28,7 @@ describe('AddVehicleModal', () => {
     expect(createVehicle).not.toHaveBeenCalled();
   });
 
-  it('adds the vehicle to the picked client and closes', async () => {
+  it('adds the vehicle with its size to the picked client and closes', async () => {
     const onClose = vi.fn();
     render(<AddVehicleModal isOpen onClose={onClose} />, { wrapper });
     fireEvent.change(screen.getByPlaceholderText('Szukaj klienta po nazwie lub kontakcie...'), {
@@ -36,9 +36,16 @@ describe('AddVehicleModal', () => {
     });
     fireEvent.click(screen.getByText('Jan Kowalski'));
     fireEvent.change(screen.getByPlaceholderText('Nr Rejestracyjny *'), { target: { value: 'wx1234a' } });
+    fireEvent.change(screen.getByLabelText('Wielkość pojazdu'), { target: { value: 'Large' } });
     fireEvent.click(screen.getByText('Zapisz Pojazd'));
 
     await waitFor(() => expect(onClose).toHaveBeenCalled());
-    expect(createVehicle).toHaveBeenCalledWith({ clientId: 'c1', licensePlate: 'WX1234A', brand: null, model: null });
+    expect(createVehicle).toHaveBeenCalledWith({
+      clientId: 'c1',
+      licensePlate: 'WX1234A',
+      brand: null,
+      model: null,
+      size: 'Large',
+    });
   });
 });
