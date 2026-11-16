@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Wrench, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useServices, useCreateService, useDeleteService } from '@/features/services/api/services';
-import Modal from '@/shared/ui/Modal';
-import LoadingSpinner from '@/shared/ui/LoadingSpinner';
-import EmptyState from '@/shared/ui/EmptyState';
+import { Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
 import NameForm from '@/shared/ui/NameForm';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 

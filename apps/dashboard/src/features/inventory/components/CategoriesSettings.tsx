@@ -6,9 +6,7 @@ import {
   useUpdateCategory,
   useDeleteCategory,
 } from '@/features/inventory/api/categories';
-import Modal from '@/shared/ui/Modal';
-import LoadingSpinner from '@/shared/ui/LoadingSpinner';
-import EmptyState from '@/shared/ui/EmptyState';
+import { Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
 import NameForm from '@/shared/ui/NameForm';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 

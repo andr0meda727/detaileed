@@ -2,7 +2,7 @@ import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { type Booking } from '@/features/bookings';
 import { formatPln } from '@/shared/lib/money';
-import Skeleton from '@/shared/ui/Skeleton';
+import { Skeleton } from '@detaileed/ui';
 interface UpcomingBookingsProps {
   bookings: Booking[];
   loading: boolean;

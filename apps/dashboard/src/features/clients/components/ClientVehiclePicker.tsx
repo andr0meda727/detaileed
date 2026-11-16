@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Car as CarIcon } from 'lucide-react';
-import FormSection from '@/shared/ui/FormSection';
-import { useToast } from '@/shared/ui/useToast';
+import { FormSection, useToast } from '@detaileed/ui';
 import { useClients } from '@/features/clients/api/clients';
 import { useClientVehicleSearch, type ClientVehicleMatch } from '@/features/clients/hooks/useClientVehicleSearch';
 import type { Client } from '@/features/clients/model/types';

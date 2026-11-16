@@ -12,16 +12,10 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
     return (
       <div className="w-full flex flex-col gap-1.5 focus-within:-translate-y-0.5 transition-transform duration-200">
         {label && (
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
-            {label}
-          </label>
+          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">{label}</label>
         )}
         <div className="relative">
-          {leftIcon && (
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-              {leftIcon}
-            </div>
-          )}
+          {leftIcon && <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">{leftIcon}</div>}
           <input
             ref={ref}
             className={`
@@ -33,24 +27,20 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
             `}
             {...props}
           />
-          {rightIcon && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
-              {rightIcon}
-            </div>
-          )}
+          {rightIcon && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">{rightIcon}</div>}
         </div>
-        
+
         {/* Error message slot with stable height to prevent layout shift */}
         <div className="h-4 px-1 flex items-center justify-start overflow-hidden">
-          <div className={`transition-all duration-300 transform ${error ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}>
-            <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">
-              {error}
-            </span>
+          <div
+            className={`transition-all duration-300 transform ${error ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}
+          >
+            <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">{error}</span>
           </div>
         </div>
       </div>
     );
-  }
+  },
 );
 
 FormInput.displayName = 'FormInput';

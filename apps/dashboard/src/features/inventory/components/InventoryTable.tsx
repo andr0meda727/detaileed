@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { Edit2, Package, Check, X } from 'lucide-react';
-import Skeleton from '@/shared/ui/Skeleton';
-import EmptyState from '@/shared/ui/EmptyState';
-import { useToast } from '@/shared/ui/useToast';
+import { Skeleton, EmptyState, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useUpdateInventoryItem } from '@/features/inventory/api/inventory';
 import { useCategories } from '@/features/inventory/api/categories';

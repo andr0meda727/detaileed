@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ASSIGNABLE_ROLES } from '@/features/team/model/roles';
 import { Mail, Shield, UserPlus, Loader2 } from 'lucide-react';
-import Modal from '@/shared/ui/Modal';
+import { Modal } from '@detaileed/ui';
 
 interface InviteEmployeeModalProps {
   isOpen: boolean;

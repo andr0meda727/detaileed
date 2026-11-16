@@ -1,6 +1,6 @@
 import React, { useState, useCallback, ReactNode } from 'react';
-import ToastContainer from '@/shared/ui/Toast';
-import { ToastContext, type ToastMessage, type ToastType } from '@/shared/ui/useToast';
+import ToastContainer from './Toast';
+import { ToastContext, type ToastMessage, type ToastType } from './useToast';
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);

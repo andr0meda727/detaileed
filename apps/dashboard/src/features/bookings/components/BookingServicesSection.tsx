@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Check, Plus, Wrench } from 'lucide-react';
-import FormSection from '@/shared/ui/FormSection';
-import { useToast } from '@/shared/ui/useToast';
+import { FormSection, useToast } from '@detaileed/ui';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useCreateService, useServices } from '@/features/services';

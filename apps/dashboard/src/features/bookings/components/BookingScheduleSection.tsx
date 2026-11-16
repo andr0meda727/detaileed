@@ -1,6 +1,6 @@
 import { Controller, type Control, type FieldErrors } from 'react-hook-form';
 import { Calendar } from 'lucide-react';
-import FormSection from '@/shared/ui/FormSection';
+import { FormSection } from '@detaileed/ui';
 import type { BookingFormValues } from '@/features/bookings/model/schemas';
 
 interface BookingScheduleSectionProps {

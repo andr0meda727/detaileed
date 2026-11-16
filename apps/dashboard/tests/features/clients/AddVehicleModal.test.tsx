@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { ToastProvider } from '@/shared/ui/ToastContext';
+import { ToastProvider } from '@detaileed/ui';
 import type { Client } from '@/features/clients/model/types';
 
 const client: Client = { id: 'c1', name: 'Jan Kowalski', email: null, phone: '500600700', nip: null, vehicles: [] };

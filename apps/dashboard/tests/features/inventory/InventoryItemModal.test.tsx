@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { ToastProvider } from '@/shared/ui/ToastContext';
+import { ToastProvider } from '@detaileed/ui';
 import type { InventoryItem } from '@/features/inventory/model/types';
 
 const categories = vi.hoisted(() => ({ data: [{ id: 'cat1', name: 'Chemia' }] as unknown, isPending: false }));

@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { User } from 'lucide-react';
-import Modal from '@/shared/ui/Modal';
-import FormSection from '@/shared/ui/FormSection';
-import { useToast } from '@/shared/ui/useToast';
+import { Modal, FormSection, useToast } from '@detaileed/ui';
 import { useClients } from '@/features/clients/api/clients';
 import { useClientSearch } from '@/features/clients/hooks/useClientVehicleSearch';
 import type { Client } from '@/features/clients/model/types';

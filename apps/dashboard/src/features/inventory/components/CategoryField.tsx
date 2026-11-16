@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Check, ChevronDown, Plus, X } from 'lucide-react';
-import { useToast } from '@/shared/ui/useToast';
+import { useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useCategories, useCreateCategory } from '@/features/inventory/api/categories';
 

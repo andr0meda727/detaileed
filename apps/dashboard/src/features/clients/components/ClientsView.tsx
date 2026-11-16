@@ -2,16 +2,14 @@ import React, { useState, useMemo } from 'react';
 
 import { Search, Trash2 } from 'lucide-react';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
-import Modal from '@/shared/ui/Modal';
+import { Modal, LoadingSpinner, useToast } from '@detaileed/ui';
 
-import LoadingSpinner from '@/shared/ui/LoadingSpinner';
 import CreateClientModal from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
 import VehicleModal from '@/features/clients/components/VehicleModal';
 import type { Client } from '@/features/clients/model/types';
 import { useClients, useDeleteVehicle } from '@/features/clients/api/clients';
 
-import { useToast } from '@/shared/ui/useToast';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import ClientDetailsModal from '@/features/clients/components/ClientDetailsModal';
 import ClientsTable from '@/features/clients/components/ClientsTable';

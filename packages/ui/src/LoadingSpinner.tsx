@@ -17,7 +17,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ fullPage = false }) => 
             <Zap size={36} className="text-cream-warm" strokeWidth={2.5} />
           </div>
           <div className="flex gap-1.5 justify-center">
-            {[0, 1, 2].map(i => (
+            {[0, 1, 2].map((i) => (
               <div
                 key={i}
                 className="w-2 h-2 rounded-full bg-green-deep/40"
@@ -37,7 +37,7 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ fullPage = false }) => 
           <Zap size={26} className="text-cream-warm" strokeWidth={2.5} />
         </div>
         <div className="flex gap-1.5">
-          {[0, 1, 2].map(i => (
+          {[0, 1, 2].map((i) => (
             <div
               key={i}
               className="w-1.5 h-1.5 rounded-full bg-green-deep/40"

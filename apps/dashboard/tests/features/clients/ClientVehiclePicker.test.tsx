@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { ToastProvider } from '@/shared/ui/ToastContext';
+import { ToastProvider } from '@detaileed/ui';
 import type { Client } from '@/features/clients/model/types';
 
 // The API sends sizes as strings ("Medium"); the spec types them as numbers, so cast.

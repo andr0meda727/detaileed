@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Building2, MapPin, Phone, Mail, Loader2, Sparkles, X } from 'lucide-react';
 import { useCreateStudio } from '@/features/studios/api/studios';
-import { useToast } from '@/shared/ui/useToast';
+import { useToast } from '@detaileed/ui';
 import type { Studio } from '@/features/studios/model/types';
 
 // ─── Schema ───────────────────────────────────────────────────────────────────

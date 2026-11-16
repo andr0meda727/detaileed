@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
-import { useToast } from '@/shared/ui/useToast';
+import { useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useCreateVehicle } from '@/features/clients/api/clients';
 import { vehicleFormSchema, type VehicleFormValues } from '@/features/clients/model/schemas';

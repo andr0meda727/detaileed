@@ -9,14 +9,13 @@ import {
   useChangeEmployeeRole,
   useRemoveEmployee,
 } from '@/features/team/api/employees';
-import { useToast } from '@/shared/ui/useToast';
+import { useToast, Skeleton } from '@detaileed/ui';
 
 import { UserPlus } from 'lucide-react';
 import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
 
 import { useStudio } from '@/features/studios';
-import Skeleton from '@/shared/ui/Skeleton';
 import { isOwnerRole } from '@/shared/lib/studioRole';
 
 export const TeamView: React.FC = () => {

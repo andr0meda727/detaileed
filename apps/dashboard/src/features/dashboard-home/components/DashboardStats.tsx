@@ -1,6 +1,6 @@
 import React from 'react';
 import { DollarSign, Clipboard, Users, CheckCircle2 } from 'lucide-react';
-import Skeleton from '@/shared/ui/Skeleton';
+import { Skeleton } from '@detaileed/ui';
 
 export interface DashboardStatsProps {
   todayRevenue: number;

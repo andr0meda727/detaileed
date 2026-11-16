@@ -1,6 +1,6 @@
 import React from 'react';
 import { Check, Clock, MessageSquare, Phone, User, X } from 'lucide-react';
-import Modal from '@/shared/ui/Modal';
+import { Modal } from '@detaileed/ui';
 import { formatPln } from '@/shared/lib/money';
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';

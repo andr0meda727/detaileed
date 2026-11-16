@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Calendar, X, Check, UserCheck, MoreHorizontal } from 'lucide-react';
 import { BOOKING_STATUSES, type Booking, type BookingStatus } from '@/features/bookings';
 
-import Skeleton from '@/shared/ui/Skeleton';
+import { Skeleton } from '@detaileed/ui';
 interface TodayScheduleProps {
   bookings: Booking[];
   loading: boolean;

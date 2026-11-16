@@ -1,9 +1,7 @@
 import type { ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Modal from '@/shared/ui/Modal';
-import LoadingSpinner from '@/shared/ui/LoadingSpinner';
-import { useToast } from '@/shared/ui/useToast';
+import { Modal, LoadingSpinner, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useCreateInventoryItem, useUpdateInventoryItem } from '@/features/inventory/api/inventory';
 import { useCategories } from '@/features/inventory/api/categories';

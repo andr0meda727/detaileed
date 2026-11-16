@@ -1,6 +1,6 @@
 import React from 'react';
 import { Phone, Search, Car as CarIcon, Plus, Edit2, Trash2 } from 'lucide-react';
-import Modal from '@/shared/ui/Modal';
+import { Modal } from '@detaileed/ui';
 import type { Client } from '@/features/clients/model/types';
 
 interface ClientDetailsModalProps {

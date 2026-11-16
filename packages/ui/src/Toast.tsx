@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { CheckCircle2, XCircle, Info, X } from 'lucide-react';
-import type { ToastMessage } from '@/shared/ui/useToast';
+import type { ToastMessage } from './useToast';
 
 interface ToastProps {
   toast: ToastMessage;

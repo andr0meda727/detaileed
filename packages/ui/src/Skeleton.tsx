@@ -14,13 +14,7 @@ const Skeleton: React.FC<SkeletonProps> = ({ className = '', width, height, circ
     borderRadius: circle ? '50%' : undefined,
   };
 
-  return (
-    <div 
-      className={`skeleton inline-block align-middle ${className}`} 
-      style={style}
-      aria-hidden="true"
-    />
-  );
+  return <div className={`skeleton inline-block align-middle ${className}`} style={style} aria-hidden="true" />;
 };
 
 export default Skeleton;

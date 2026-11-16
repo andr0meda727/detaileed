@@ -1,7 +1,7 @@
 import React from 'react';
 import { Package } from 'lucide-react';
 import type { InventoryItem } from '@/features/inventory';
-import Skeleton from '@/shared/ui/Skeleton';
+import { Skeleton } from '@detaileed/ui';
 interface StockAlertsProps {
   items: InventoryItem[];
   loading: boolean;

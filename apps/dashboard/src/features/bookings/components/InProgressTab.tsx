@@ -5,7 +5,7 @@ import type { BookingStatus } from '@/features/bookings/model/statuses';
 import { BOOKING_STATUSES } from '@/features/bookings/model/statuses';
 import { byScheduledAt, groupBookingsByDay, matchesBookingQuery } from '@/features/bookings/model/filters';
 import BookingCard from '@/features/bookings/components/BookingCard';
-import Skeleton from '@/shared/ui/Skeleton';
+import { Skeleton } from '@detaileed/ui';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 
 interface TabProps {

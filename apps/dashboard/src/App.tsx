@@ -3,8 +3,7 @@ import { QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 import { subscribeToAuthChanges } from './app/auth';
 import { router } from './app/router';
-import { ToastProvider } from '@/shared/ui/ToastContext';
-import { useToast } from '@/shared/ui/useToast';
+import { ToastProvider, useToast } from '@detaileed/ui';
 import { createQueryClient } from './shared/queryClient';
 
 const AppRouter: React.FC = () => {

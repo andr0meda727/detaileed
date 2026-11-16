@@ -1,6 +1,6 @@
 import React from 'react';
 import { Phone, Edit2 } from 'lucide-react';
-import Skeleton from '@/shared/ui/Skeleton';
+import { Skeleton } from '@detaileed/ui';
 import type { Client } from '@/features/clients/model/types';
 
 interface ClientsTableProps {

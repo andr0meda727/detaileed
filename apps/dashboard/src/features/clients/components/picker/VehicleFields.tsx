@@ -1,5 +1,5 @@
 import type { UseFormRegisterReturn } from 'react-hook-form';
-import FormInput from '@/shared/ui/FormInput';
+import { FormInput } from '@detaileed/ui';
 
 interface VehicleFieldsProps {
   brand: UseFormRegisterReturn;

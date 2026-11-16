@@ -3,10 +3,8 @@ import { Search, User, Download } from 'lucide-react';
 import type { Booking } from '@/features/bookings/model/types';
 import { formatPln } from '@/shared/lib/money';
 import { useBookings } from '@/features/bookings/api/bookings';
-import { useToast } from '@/shared/ui/useToast';
+import { useToast, Modal, Skeleton } from '@detaileed/ui';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
-import Modal from '@/shared/ui/Modal';
-import Skeleton from '@/shared/ui/Skeleton';
 
 const ArchivedView: React.FC = () => {
   const { addToast } = useToast();

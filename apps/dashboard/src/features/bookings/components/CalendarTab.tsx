@@ -4,7 +4,7 @@ import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
 import { byScheduledAt, monthGrid } from '@/features/bookings/model/filters';
 import BookingCard from '@/features/bookings/components/BookingCard';
-import Skeleton from '@/shared/ui/Skeleton';
+import { Skeleton } from '@detaileed/ui';
 
 interface TabProps {
   /** Bookings the schedule shows (see visibleBookings). */
