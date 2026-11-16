@@ -13,7 +13,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@aejkatappaja/phantom-ui": "^0.8.1",
     "@detaileed/api-client": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.98.0",

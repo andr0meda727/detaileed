@@ -98,7 +98,6 @@ const Dashboard: React.FC = () => {
   // CreateClient form refactored to use CreateClientModal
 
   if (loading && !bookings.length && !clients.length && !inventory.length && !availableServices.length) {
-    // Retain variables but render with phantom-ui
   }
 
   return (
