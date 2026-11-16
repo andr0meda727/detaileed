@@ -21,3 +21,8 @@ export const vehicleFormSchema = z.object({
 
 export type ClientFormValues = z.infer<typeof clientFormSchema>;
 export type VehicleFormValues = z.infer<typeof vehicleFormSchema>;
+
+/** A new client together with their first vehicle (booking and add-vehicle modals). */
+export const newClientWithVehicleSchema = clientFormSchema.extend({ vehicle: vehicleFormSchema });
+
+export type NewClientWithVehicleValues = z.infer<typeof newClientWithVehicleSchema>;
