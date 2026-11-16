@@ -2,6 +2,7 @@
 
 import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useIsClient } from './useIsClient';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -17,6 +18,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, size = 'md', chil
   const dialogRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const titleId = useId();
+  const isClient = useIsClient();
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -47,7 +49,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, size = 'md', chil
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !isClient) return null;
 
   const maxWidths = { sm: 'max-w-md', md: 'max-w-2xl', lg: 'max-w-3xl' };
 

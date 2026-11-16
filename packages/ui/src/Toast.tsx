@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useIsClient } from './useIsClient';
 import { CheckCircle2, XCircle, Info, X } from 'lucide-react';
 import type { ToastMessage } from './useToast';
 
@@ -73,6 +74,8 @@ interface ToastContainerProps {
 }
 
 const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeToast }) => {
+  const isClient = useIsClient();
+  if (!isClient) return null;
   return createPortal(
     <div className="fixed bottom-6 right-6 z-200 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
       <div className="flex flex-col gap-2 pointer-events-auto items-end">
