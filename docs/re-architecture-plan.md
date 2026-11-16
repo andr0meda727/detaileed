@@ -15,7 +15,7 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 2: generated API client | done (merged to `main`); views move to the generated hooks per feature in Phase 4 |
 | 3: router               | done (merged to `main`)                                                           |
 | 4: feature slices       | done (merged to `main`); import rules enforced by ESLint                          |
-| 5: design system        | in progress                                                                       |
+| 5: design system        | done (merged to `main`); Tailwind v4, `@detaileed/ui` with theme + components     |
 | 6–7                     | not started                                                                       |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
@@ -139,6 +139,14 @@ Deferred to Phase 6, where they are first used: `Select`, `StarRating` and other
 
 Verify: `pnpm check`, a Docker build (the package must be part of `turbo prune`), and a visual check of every
 screen by the user after step 3 and at the end. The upgrade is the risky step for the look of the app.
+
+Notes from doing it:
+
+- v3 never generated opacity variants of the custom colours (, , …: plain colours have no alpha channel), so those tints and focus rings only appear since v4.
+- Not converted on purpose: the login/auth screens and the studio-create button (bespoke look), icon-only buttons
+  (a later ), role badges and the confirm button in the status dialog (solid colours, no matching variant),
+  and colours passed to SVG props (charts, icons), which stay hex.
+- 's "Eksportuj" button has no handler yet.
 
 ## Later phases (detailed plan when we reach them)
 

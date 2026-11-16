@@ -58,8 +58,10 @@ Features: `auth`, `studios`, `bookings`, `clients` (clients and their vehicles),
 - URL state (filters worth sharing) goes in the route's `validateSearch`.
 - Derive values instead of syncing them with `useEffect` + `setState` (an ESLint error). To reset a form
   when a modal opens, remount it with a new `key`.
-- Toasts: `useToast()` from `shared/ui/useToast.ts`. Modals: `shared/ui/Modal.tsx`; steps of a longer form:
-  `shared/ui/FormSection.tsx`.
+- Generic UI comes from `@detaileed/ui` (`packages/ui`): `Button`, `Badge`, `Modal`, `FormInput`, `FormSection` (steps of a
+  longer form), `Skeleton`, `EmptyState`, `LoadingSpinner`, `useToast`. `shared/ui` keeps only dashboard-specific UI.
+- Styling: Tailwind v4. Tokens, base styles and shared utilities live in `packages/ui/src/theme.css`, which every app
+  imports after `tailwindcss` (and adds `@source` for the package so its classes are generated). Use tokens, not hex.
 - Picking a client/vehicle (or creating a client with a vehicle) inside another form: `ClientVehiclePicker`
   from `features/clients`. Nested parts that cannot be a `<form>` submit with `handleSubmit` on a button.
 - Keep components under about 250 lines.
