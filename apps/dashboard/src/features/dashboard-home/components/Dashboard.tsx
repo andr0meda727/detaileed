@@ -95,11 +95,6 @@ const Dashboard: React.FC = () => {
   const handleOpenNewBooking = () => setIsBookingModalOpen(true);
   const handleViewBooking = (booking: Booking) => setSelectedBooking(booking);
 
-  // CreateClient form refactored to use CreateClientModal
-
-  if (loading && !bookings.length && !clients.length && !inventory.length && !availableServices.length) {
-  }
-
   return (
     <div className="space-y-6 sm:space-y-8">
       <GlobalHeader
