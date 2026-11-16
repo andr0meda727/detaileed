@@ -9,6 +9,9 @@ import { useCreateService, useUpdateService } from '@/features/services/api/serv
 import { serviceFormSchema, type ServiceFormValues } from '@/features/services/model/schemas';
 import { serviceFormDefaults, toServiceInput } from '@/features/services/model/serviceForm';
 import type { Service } from '@/features/services/model/types';
+import { RecipeEditor } from '@/features/inventory';
+import { useStudio } from '@/features/studios';
+import { isOwnerRole } from '@/shared/lib/studioRole';
 
 interface ServiceFormModalProps {
   isOpen: boolean;
@@ -24,6 +27,7 @@ export default function ServiceFormModal({ isOpen, service, onClose }: ServiceFo
   const { addToast } = useToast();
   const createService = useCreateService();
   const updateService = useUpdateService();
+  const { selectedStudio } = useStudio();
   const {
     register,
     handleSubmit,
@@ -89,6 +93,12 @@ export default function ServiceFormModal({ isOpen, service, onClose }: ServiceFo
           Zapisz
         </Button>
       </form>
+      {/* Materials are kept per service, so they can be set once it exists (owners only). */}
+      {service && isOwnerRole(selectedStudio?.role) && (
+        <div className="mt-6 pt-5 border-t border-slate-100">
+          <RecipeEditor serviceId={service.id} />
+        </div>
+      )}
     </Modal>
   );
 }
