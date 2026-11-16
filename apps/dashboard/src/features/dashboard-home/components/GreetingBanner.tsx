@@ -34,7 +34,7 @@ const GreetingBanner: React.FC<GreetingBannerProps> = ({ loading, todayCount, up
     <div
       className="relative rounded-xl p-6 lg:p-8 overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, #1a2e1e 0%, #1e3523 50%, #152b1a 100%)',
+        background: 'linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 50%, #152b1a 100%)',
         border: '1px solid rgba(255,255,255,0.05)',
       }}
     >

@@ -31,7 +31,7 @@ export default function BookingServicesSection({ value, onChange, error }: Booki
   };
 
   const counter = value.length > 0 && (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: '#1a2e1e' }}>
+    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'var(--green-deep)' }}>
       <Check size={10} strokeWidth={3} className="text-cream-warm" />
       <span className="text-[9px] font-bold text-cream-warm tracking-widest">{value.length}</span>
     </div>
@@ -51,7 +51,7 @@ export default function BookingServicesSection({ value, onChange, error }: Booki
               className="group relative flex items-center gap-2.5 p-3 rounded-xl text-left transition-all duration-200"
               style={
                 isSelected
-                  ? { background: '#1a2e1e', boxShadow: '0 4px 12px rgba(26,46,30,0.2)' }
+                  ? { background: 'var(--green-deep)', boxShadow: '0 4px 12px rgba(26,46,30,0.2)' }
                   : { background: '#f8f9fa' }
               }
             >
@@ -67,7 +67,7 @@ export default function BookingServicesSection({ value, onChange, error }: Booki
               </div>
               <span
                 className="text-[10px] font-bold uppercase tracking-wide leading-tight line-clamp-2"
-                style={{ color: isSelected ? '#f5f0e8' : '#2d4f33' }}
+                style={{ color: isSelected ? 'var(--cream)' : '#2d4f33' }}
               >
                 {svc.name}
               </span>

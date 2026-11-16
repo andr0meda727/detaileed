@@ -61,7 +61,7 @@ const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, onReques
             </div>
             <div
               className="absolute left-0 top-8 z-50 w-68 p-4 rounded-xl shadow-2xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 text-left"
-              style={{ background: '#1a2e1e', width: '260px' }}
+              style={{ background: 'var(--green-deep)', width: '260px' }}
             >
               <p
                 className="text-[9px] font-bold uppercase tracking-widest mb-3"
@@ -69,7 +69,7 @@ const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, onReques
               >
                 Zasady wyświetlania
               </p>
-              <ul className="space-y-2 text-[11px] font-medium leading-snug" style={{ color: '#f5f0e8' }}>
+              <ul className="space-y-2 text-[11px] font-medium leading-snug" style={{ color: 'var(--cream)' }}>
                 <li className="flex items-start gap-2.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0 mt-1.5"></span>
                   <span>

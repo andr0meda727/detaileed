@@ -74,15 +74,12 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
               <tr
                 key={client.id}
                 onClick={() => onOpen(client)}
-                className="group hover:bg-[#1a2e1e]/2 cursor-pointer transition-colors"
+                className="group hover:bg-green-deep/2 cursor-pointer transition-colors"
               >
                 {/* Klient */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-4">
-                    <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm text-cream-warm shrink-0 shadow-xs transition-transform group-hover:scale-105"
-                      style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)' }}
-                    >
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm text-cream-warm shrink-0 shadow-xs transition-transform group-hover:scale-105 bg-brand-gradient">
                       {client.name
                         .split(' ')
                         .map((n) => n[0])
@@ -125,7 +122,7 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
                         <span className="font-bold text-green-deep text-[11px] max-w-[100px] truncate">
                           {v.brand} {v.model}
                         </span>
-                        <span className="bg-[#1a2e1e] text-cream-warm px-2 py-1 rounded-md font-mono text-[10px] font-bold tracking-widest">
+                        <span className="bg-green-deep text-cream-warm px-2 py-1 rounded-md font-mono text-[10px] font-bold tracking-widest">
                           {v.licensePlate}
                         </span>
                       </div>

@@ -27,7 +27,7 @@ export default function BookingScheduleSection({ control, errors }: BookingSched
               <div className="relative">
                 <input
                   {...field}
-                  className="w-full px-4 py-4 rounded-xl font-bold text-lg font-mono text-cream-warm outline-hidden bg-[#1a2e1e]"
+                  className="w-full px-4 py-4 rounded-xl font-bold text-lg font-mono text-cream-warm outline-hidden bg-green-deep"
                 />
                 <span className="absolute right-3 bottom-4 text-[9px] font-bold text-cream-warm/40 uppercase tracking-widest">
                   ZŁ

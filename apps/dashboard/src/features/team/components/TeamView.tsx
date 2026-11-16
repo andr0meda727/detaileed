@@ -160,7 +160,7 @@ export const TeamView: React.FC = () => {
                       <div className="flex items-start justify-between mb-4">
                         <div
                           className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg"
-                          style={{ backgroundColor: '#1a2e1e', color: '#fbf8f1' }}
+                          style={{ backgroundColor: 'var(--green-deep)', color: '#fbf8f1' }}
                         >
                           {(emp.name || emp.email || 'N')[0].toUpperCase()}
                         </div>

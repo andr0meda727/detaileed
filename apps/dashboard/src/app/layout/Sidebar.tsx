@@ -115,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ studioId, onLogout, isOpen, onClose, 
 
   return (
     <>
-      {isOpen && <div className="fixed inset-0 bg-[#1a2e1e]/60 backdrop-blur-xs z-40 lg:hidden" onClick={onClose} />}
+      {isOpen && <div className="fixed inset-0 bg-green-deep/60 backdrop-blur-xs z-40 lg:hidden" onClick={onClose} />}
 
       <div
         className={`
@@ -125,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({ studioId, onLogout, isOpen, onClose, 
           lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
         style={{
-          background: 'linear-gradient(160deg, #1a2e1e 0%, #1c3220 45%, #172818 100%)',
+          background: 'linear-gradient(160deg, var(--green-deep) 0%, #1c3220 45%, #172818 100%)',
         }}
       >
         <button

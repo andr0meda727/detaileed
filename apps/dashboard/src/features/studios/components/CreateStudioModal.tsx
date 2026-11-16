@@ -109,15 +109,15 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top accent bar */}
-        <div className="h-1.5 w-full" style={{ background: 'linear-gradient(90deg, #1a2e1e 0%, #d4a853 100%)' }} />
+        <div
+          className="h-1.5 w-full"
+          style={{ background: 'linear-gradient(90deg, var(--green-deep) 0%, #d4a853 100%)' }}
+        />
 
         {/* Header */}
         <div className="px-8 pt-8 pb-6 flex items-start justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg"
-              style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)' }}
-            >
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-lg bg-brand-gradient">
               <Building2 size={22} className="text-amber-300" />
             </div>
             <div>
@@ -206,8 +206,8 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, 
             type="submit"
             disabled={isPending}
             id="create-studio-submit"
-            className="w-full py-4 rounded-2xl font-bold text-[12px] uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] disabled:opacity-60 shadow-lg shadow-green-deep/20"
-            style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)', color: '#f7f4ef' }}
+            className="w-full py-4 rounded-2xl font-bold text-[12px] uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] disabled:opacity-60 shadow-lg shadow-green-deep/20 bg-brand-gradient"
+            style={{ color: '#f7f4ef' }}
           >
             {isPending ? (
               <>

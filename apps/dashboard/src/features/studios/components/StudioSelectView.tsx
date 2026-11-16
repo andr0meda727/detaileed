@@ -97,10 +97,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
     <>
       <div className="min-h-screen flex flex-col items-center justify-center bg-cream mesh-bg p-6 sm:p-12">
         <div className="mb-12 text-center max-w-md">
-          <div
-            className="inline-flex items-center justify-center w-20 h-20 rounded-xl mb-7 shadow-[0_20px_50px_rgba(26,46,30,0.2)]"
-            style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)' }}
-          >
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-xl mb-7 shadow-[0_20px_50px_rgba(26,46,30,0.2)] bg-brand-gradient">
             <Building2 className="text-cream-warm" size={32} />
           </div>
           <h1 className="text-4xl sm:text-5xl font-serif text-green-deep tracking-tight mb-4 leading-tight">
@@ -128,8 +125,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
                 </button>
                 <button
                   onClick={() => setManualOpen(true)}
-                  className="flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-[11px] uppercase tracking-widest text-cream-warm shadow-md transition-all active:scale-95"
-                  style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)' }}
+                  className="flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-[11px] uppercase tracking-widest text-cream-warm shadow-md transition-all active:scale-95 bg-brand-gradient"
                 >
                   <Plus size={14} /> Utwórz studio
                 </button>
@@ -161,7 +157,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
                     style={
                       isActive
                         ? {
-                            background: 'linear-gradient(135deg, #1a2e1e 0%, #1e3523 100%)',
+                            background: 'linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 100%)',
                             border: '1px solid rgba(255,255,255,0.08)',
                           }
                         : {
