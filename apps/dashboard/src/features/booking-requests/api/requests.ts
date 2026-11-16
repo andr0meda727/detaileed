@@ -24,7 +24,11 @@ export function useBookingRequests({ status, page }: { status?: OnlineRequestSta
     queryKey: [...requestsKey, { status: status ?? null, page }],
     queryFn: async ({ signal }) => {
       const res = await getApiBookingRequests({ status, Page: page, PageSize: REQUESTS_PAGE_SIZE }, { signal });
-      return { ...res, items: res.items.map(toBookingRequest) };
+      return {
+        items: res.items.map(toBookingRequest),
+        totalCount: Number(res.totalCount ?? 0),
+        totalPages: Number(res.totalPages ?? 0),
+      };
     },
     placeholderData: keepPreviousData,
   });
@@ -35,7 +39,7 @@ export function usePendingRequestsCount() {
   return useQuery({
     queryKey: [...requestsKey, 'pending-count'],
     queryFn: async ({ signal }) =>
-      (await getApiBookingRequests({ status: 'Pending', Page: 1, PageSize: 1 }, { signal })).totalCount,
+      Number((await getApiBookingRequests({ status: 'Pending', Page: 1, PageSize: 1 }, { signal })).totalCount ?? 0),
     refetchInterval: 60_000,
     staleTime: 30_000,
   });

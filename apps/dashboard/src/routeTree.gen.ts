@@ -21,6 +21,7 @@ import { Route as AuthSStudioIdArchivedRouteImport } from './routes/_auth/s/$stu
 import { Route as AuthSStudioIdClientsRouteImport } from './routes/_auth/s/$studioId/clients'
 import { Route as AuthSStudioIdInventoryRouteImport } from './routes/_auth/s/$studioId/inventory'
 import { Route as AuthSStudioIdReportsRouteImport } from './routes/_auth/s/$studioId/reports'
+import { Route as AuthSStudioIdRequestsRouteImport } from './routes/_auth/s/$studioId/requests'
 import { Route as AuthSStudioIdTasksRouteImport } from './routes/_auth/s/$studioId/tasks'
 import { Route as AuthSStudioIdTeamRouteImport } from './routes/_auth/s/$studioId/team'
 import { Route as AuthSStudioIdSettingsStudioRouteImport } from './routes/_auth/s/$studioId/settings/studio'
@@ -85,6 +86,11 @@ const AuthSStudioIdReportsRoute = AuthSStudioIdReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AuthSStudioIdRouteRoute,
 } as any)
+const AuthSStudioIdRequestsRoute = AuthSStudioIdRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => AuthSStudioIdRouteRoute,
+} as any)
 const AuthSStudioIdTasksRoute = AuthSStudioIdTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/s/$studioId/clients': typeof AuthSStudioIdClientsRoute
   '/s/$studioId/inventory': typeof AuthSStudioIdInventoryRoute
   '/s/$studioId/reports': typeof AuthSStudioIdReportsRoute
+  '/s/$studioId/requests': typeof AuthSStudioIdRequestsRoute
   '/s/$studioId/tasks': typeof AuthSStudioIdTasksRoute
   '/s/$studioId/team': typeof AuthSStudioIdTeamRoute
   '/s/$studioId/': typeof AuthSStudioIdIndexRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/s/$studioId/clients': typeof AuthSStudioIdClientsRoute
   '/s/$studioId/inventory': typeof AuthSStudioIdInventoryRoute
   '/s/$studioId/reports': typeof AuthSStudioIdReportsRoute
+  '/s/$studioId/requests': typeof AuthSStudioIdRequestsRoute
   '/s/$studioId/tasks': typeof AuthSStudioIdTasksRoute
   '/s/$studioId/team': typeof AuthSStudioIdTeamRoute
   '/s/$studioId': typeof AuthSStudioIdIndexRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/_auth/s/$studioId/clients': typeof AuthSStudioIdClientsRoute
   '/_auth/s/$studioId/inventory': typeof AuthSStudioIdInventoryRoute
   '/_auth/s/$studioId/reports': typeof AuthSStudioIdReportsRoute
+  '/_auth/s/$studioId/requests': typeof AuthSStudioIdRequestsRoute
   '/_auth/s/$studioId/tasks': typeof AuthSStudioIdTasksRoute
   '/_auth/s/$studioId/team': typeof AuthSStudioIdTeamRoute
   '/_auth/s/$studioId/': typeof AuthSStudioIdIndexRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/s/$studioId/clients'
     | '/s/$studioId/inventory'
     | '/s/$studioId/reports'
+    | '/s/$studioId/requests'
     | '/s/$studioId/tasks'
     | '/s/$studioId/team'
     | '/s/$studioId/'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
     | '/s/$studioId/clients'
     | '/s/$studioId/inventory'
     | '/s/$studioId/reports'
+    | '/s/$studioId/requests'
     | '/s/$studioId/tasks'
     | '/s/$studioId/team'
     | '/s/$studioId'
@@ -207,6 +218,7 @@ export interface FileRouteTypes {
     | '/_auth/s/$studioId/clients'
     | '/_auth/s/$studioId/inventory'
     | '/_auth/s/$studioId/reports'
+    | '/_auth/s/$studioId/requests'
     | '/_auth/s/$studioId/tasks'
     | '/_auth/s/$studioId/team'
     | '/_auth/s/$studioId/'
@@ -307,6 +319,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSStudioIdReportsRouteImport
       parentRoute: typeof AuthSStudioIdRouteRoute
     }
+    '/_auth/s/$studioId/requests': {
+      id: '/_auth/s/$studioId/requests'
+      path: '/requests'
+      fullPath: '/s/$studioId/requests'
+      preLoaderRoute: typeof AuthSStudioIdRequestsRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
     '/_auth/s/$studioId/tasks': {
       id: '/_auth/s/$studioId/tasks'
       path: '/tasks'
@@ -343,6 +362,7 @@ interface AuthSStudioIdRouteRouteChildren {
   AuthSStudioIdClientsRoute: typeof AuthSStudioIdClientsRoute
   AuthSStudioIdInventoryRoute: typeof AuthSStudioIdInventoryRoute
   AuthSStudioIdReportsRoute: typeof AuthSStudioIdReportsRoute
+  AuthSStudioIdRequestsRoute: typeof AuthSStudioIdRequestsRoute
   AuthSStudioIdTasksRoute: typeof AuthSStudioIdTasksRoute
   AuthSStudioIdTeamRoute: typeof AuthSStudioIdTeamRoute
   AuthSStudioIdIndexRoute: typeof AuthSStudioIdIndexRoute
@@ -355,6 +375,7 @@ const AuthSStudioIdRouteRouteChildren: AuthSStudioIdRouteRouteChildren = {
   AuthSStudioIdClientsRoute: AuthSStudioIdClientsRoute,
   AuthSStudioIdInventoryRoute: AuthSStudioIdInventoryRoute,
   AuthSStudioIdReportsRoute: AuthSStudioIdReportsRoute,
+  AuthSStudioIdRequestsRoute: AuthSStudioIdRequestsRoute,
   AuthSStudioIdTasksRoute: AuthSStudioIdTasksRoute,
   AuthSStudioIdTeamRoute: AuthSStudioIdTeamRoute,
   AuthSStudioIdIndexRoute: AuthSStudioIdIndexRoute,
