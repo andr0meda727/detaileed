@@ -1,0 +1,47 @@
+{
+  "name": "@detaileed/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "@detaileed/api-client": "workspace:*",
+    "@detaileed/domain": "workspace:*",
+    "@detaileed/ui": "workspace:*",
+    "@hookform/resolvers": "^5.2.2",
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "^2.98.0",
+    "@tanstack/react-query": "^5.90.21",
+    "lucide-react": "^0.563.0",
+    "maplibre-gl": "6.16.0",
+    "next": "16.4.4",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-hook-form": "^7.73.1",
+    "react-map-gl": "8.1.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@detaileed/config": "workspace:*",
+    "@tailwindcss/postcss": "4.3.3",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^22.14.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.5",
+    "jsdom": "^29.0.2",
+    "postcss": "^8.5.6",
+    "tailwindcss": "4.3.3",
+    "typescript": "~5.8.2",
+    "vitest": "^4.1.4"
+  }
+}

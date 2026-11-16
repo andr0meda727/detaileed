@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+@import '@detaileed/ui/theme.css';
+
+/* Classes used by the ui package's components. */
+@source '../../../../packages/ui/src';
+
+/* next/font provides the font families as variables; the theme's font stacks start with the same names. */
+@theme inline {
+  --font-sans: var(--font-dm-sans), 'DM Sans', sans-serif;
+  --font-serif: var(--font-dm-serif), 'DM Serif Display', serif;
+  --font-syne: var(--font-syne), Syne, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+}

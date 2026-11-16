@@ -4,6 +4,7 @@ import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import boundaries from 'eslint-plugin-boundaries';
+import nextPlugin from '@next/eslint-plugin-next';
 
 /** Shared rules for TypeScript code in every package. */
 export const base = tseslint.config(
@@ -45,6 +46,18 @@ export const react = tseslint.config(
     // TanStack Router route files export `Route` and keep their components private; the router
     // plugin splits those components into their own modules, so fast refresh still works.
     files: ['**/routes/**/*.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
+);
+
+/** React rules + Next.js (App Router, Core Web Vitals) for the customer site. */
+export const nextApp = tseslint.config(
+  ...react,
+  { ignores: ['.next', 'next-env.d.ts'] },
+  { ...nextPlugin.configs['core-web-vitals'], files: ['**/*.{ts,tsx}'] },
+  {
+    // Route files export metadata and config next to their component; Next's own fast refresh handles them.
+    files: ['src/app/**/*.{ts,tsx}'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
 );
