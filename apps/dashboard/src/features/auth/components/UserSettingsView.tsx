@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { KeyRound, CheckCircle, AlertCircle, Loader2, Eye, EyeOff, Shield } from 'lucide-react';
+import { KeyRound, CheckCircle, AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
 import { setPasswordSchema, SetPasswordValues } from '@/features/auth/model/schemas';
 import supabase from '@/shared/lib/supabase';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { Button } from '@detaileed/ui';
 
 function getErrorMessage(error: unknown, fallbackMessage: string): string {
   if (error instanceof Error && error.message) return error.message;
@@ -153,14 +154,9 @@ const UserSettingsView: React.FC = () => {
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-60"
-            >
-              {loading ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
+            <Button size="lg" fullWidth type="submit" loading={loading} icon={Shield}>
               Zmień hasło
-            </button>
+            </Button>
           </form>
         </div>
 

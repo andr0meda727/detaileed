@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Modal, LoadingSpinner, useToast } from '@detaileed/ui';
+import { Button, Modal, LoadingSpinner, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
 import { useCreateInventoryItem, useUpdateInventoryItem } from '@/features/inventory/api/inventory';
 import { useCategories } from '@/features/inventory/api/categories';
@@ -140,13 +140,9 @@ function ItemForm({ item, categories, onClose }: ItemFormProps) {
           )}
         />
       </Field>
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full py-6 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-[0.2em] shadow-2xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-60"
-      >
+      <Button size="lg" fullWidth type="submit" disabled={isSubmitting}>
         Zapisz
-      </button>
+      </Button>
     </form>
   );
 }

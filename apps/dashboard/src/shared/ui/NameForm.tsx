@@ -1,8 +1,9 @@
 import React from 'react';
-import { Loader2, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Button } from '@detaileed/ui';
 
 const nameSchema = z.object({
   name: z.string().min(1, 'Nazwa jest wymagana'),
@@ -48,13 +49,9 @@ const NameForm: React.FC<{
           </p>
         )}
       </div>
-      <button
-        type="submit"
-        disabled={saving}
-        className="w-full py-4 bg-green-deep text-cream-warm rounded-2xl font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-60"
-      >
-        {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Zapisz
-      </button>
+      <Button size="lg" fullWidth type="submit" loading={saving} icon={Save}>
+        Zapisz
+      </Button>
     </form>
   );
 };

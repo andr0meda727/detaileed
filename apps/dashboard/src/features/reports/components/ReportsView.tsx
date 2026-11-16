@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
-import { FileBarChart2, Download, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { FileBarChart2, Download, Calendar as CalendarIcon } from 'lucide-react';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import { useGenerateBookingsReport } from '@/features/reports/api/reports';
 import { reportRangeError } from '@/features/reports/model/reportRange';
 import { getApiErrorMessage } from '@/shared/lib/errorHandler';
-import { useToast } from '@detaileed/ui';
+import { Button, useToast } from '@detaileed/ui';
 
 import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
@@ -100,23 +100,9 @@ const ReportsView: React.FC = () => {
           </div>
 
           <div className="pt-4 border-t border-slate-100">
-            <button
-              type="submit"
-              disabled={isGenerating}
-              className="w-full sm:w-auto px-8 py-5 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:active:scale-100 disabled:cursor-not-allowed"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" />
-                  Trwa Generowanie...
-                </>
-              ) : (
-                <>
-                  <Download size={18} />
-                  Pobierz Raport
-                </>
-              )}
-            </button>
+            <Button size="lg" className="w-full sm:w-auto" type="submit" loading={isGenerating} icon={Download}>
+              {isGenerating ? 'Trwa Generowanie...' : 'Pobierz Raport'}
+            </Button>
           </div>
         </form>
       </div>
