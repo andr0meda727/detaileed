@@ -34,7 +34,8 @@ features/<name>/
   index.ts      the public API: what other features, routes and app may use
 ```
 
-Features: `auth`, `studios`, `bookings`, `clients` (clients and their vehicles), `services`, `inventory`,
+Features: `auth`, `studios`, `bookings`, `clients` (clients and their vehicles), `services`, `inventory` (stock,
+categories and the ledger: movements, materials per service, size factors, consumption per visit, forecast),
 `team`, `settings` (the studio settings screen, composed of tabs from services, inventory and team),
 `reports`, `dashboard-home`, `marketplace` (the studio's public profile on the customer map: listing form, pin, publish),
 `booking-requests` (requests customers send from the map: list, plan, accept/reject; pending count in the sidebar),

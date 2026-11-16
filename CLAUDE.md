@@ -99,6 +99,6 @@ Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboa
 7. Studio side of the marketplace (maps, public profile, booking-request inbox): done
 8. Customer site `apps/web` (map search, studio pages, sign-up, requests, account): done
 9. Planning (bays, opening hours, day board, free slots in bookings): done
-10. Inventory ledger (movements, recipes, consumption, forecast)
+10. Inventory ledger (movements, recipes, consumption, forecast): done
 
 Architecture notes: `docs/frontend-architecture.md`; manual regression checklist: `docs/refactor-baseline-checklist.md`.

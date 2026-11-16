@@ -20,7 +20,7 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 7: studio marketplace   | done (merged to `main`); maps, public profile, booking-request inbox              |
 | 8: customer site        | done (merged to `main`); `apps/web` Next.js, map search, studio pages, requests   |
 | 9: planning             | done (merged to `main`); bays, hours, closures, day board, slots in bookings      |
-| 10: inventory ledger    | planned (see "Catching up with the backend")                                      |
+| 10: inventory ledger    | done (merged to `main`); history, deliveries, recipes, consumption, forecast      |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
@@ -312,6 +312,10 @@ Notes from doing it:
 6. `feat: stock forecast and estimate accuracy`: inventory tab "Prognoza" (days left, runs out at in studio zone, planned
    use, stock after planned) and an accuracy table; dashboard stock alerts use `runsOutAt`.
 7. `docs:` + plan status.
+
+Notes from doing it: stock is read-only when editing an item and the inline stock edit is gone (every change goes
+through the ledger); the size factors sit in the settings tab now called "Magazyn". Not done: the dashboard home's
+stock alerts still list items below their minimum; showing the forecast's `runsOutAt` there is a small follow-up.
 
 Not in the API yet (from the backend reference): editing a studio's name/phone/address, `statusId` on bookings.
 
