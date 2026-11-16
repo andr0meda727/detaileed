@@ -71,3 +71,12 @@ Features: `auth`, `studios`, `bookings`, `clients` (clients and their vehicles),
 
 `apps/dashboard/tests` mirrors `src`. Pure functions in `model/` get unit tests; route guards are tested
 through a memory router (`tests/app/routes.test.tsx`).
+
+## Customer site (`apps/web`)
+
+Next.js App Router on detaileed.com. `src/app` holds thin pages; code lives in `src/features/<area>/{api,components,model}`
+(`search`, `studio`, `booking`, `account`, `auth`) and `src/lib` (settings, Supabase clients, api setup). Server
+components call only public endpoints (`lib/api/server.ts`, cached 60 s like the API); signed-in calls run in the
+browser through React Query. Studio pages are ISR. Shared code comes from `@detaileed/domain` (time zones, labels,
+money, API errors, the listing model) and `@detaileed/ui` (components, theme, maps). Conventions: `CLAUDE.md`,
+"Customer site conventions".
