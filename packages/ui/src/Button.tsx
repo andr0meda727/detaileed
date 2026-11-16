@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes } from 'react';
-import type { LucideIcon } from 'lucide-react';
+import { Loader2, type LucideIcon } from 'lucide-react';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'danger' | 'ghost';
 export type ButtonSize = 'md' | 'lg';
@@ -11,6 +11,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
   /** Icon shown before the label. */
   icon?: LucideIcon;
+  /** Shows a spinner in place of the icon and disables the button (e.g. while saving). */
+  loading?: boolean;
 }
 
 const variants: Record<ButtonVariant, string> = {
@@ -36,6 +38,8 @@ export default function Button({
   size = 'md',
   fullWidth = false,
   icon: Icon,
+  loading = false,
+  disabled,
   type = 'button',
   className = '',
   children,
@@ -55,9 +59,15 @@ export default function Button({
       ]
         .filter(Boolean)
         .join(' ')}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
     >
-      {Icon && <Icon size={icon} strokeWidth={2.5} aria-hidden />}
+      {loading ? (
+        <Loader2 size={icon} className="animate-spin" aria-hidden />
+      ) : (
+        Icon && <Icon size={icon} strokeWidth={2.5} aria-hidden />
+      )}
       {children}
     </button>
   );

@@ -48,4 +48,19 @@ describe('Button', () => {
     fireEvent.click(screen.getByRole('button'));
     expect(onClick).not.toHaveBeenCalled();
   });
+
+  it('shows a spinner and blocks clicks while loading', () => {
+    const onClick = vi.fn();
+    render(
+      <Button loading icon={Save} onClick={onClick}>
+        Zapisz
+      </Button>,
+    );
+    const button = screen.getByRole('button', { name: 'Zapisz' });
+    expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    expect(button.querySelector('.animate-spin')).not.toBeNull();
+    fireEvent.click(button);
+    expect(onClick).not.toHaveBeenCalled();
+  });
 });
