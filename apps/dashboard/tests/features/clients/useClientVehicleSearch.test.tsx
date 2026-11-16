@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useClientSearch, useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
-import type { Client as ClientResponseDto, Vehicle } from '@/features/clients/model/types';
+import type { Client as ClientResponseDto } from '@/features/clients/model/types';
 
 const size = 'Medium' as const;
 
