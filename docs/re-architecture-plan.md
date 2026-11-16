@@ -142,11 +142,12 @@ screen by the user after step 3 and at the end. The upgrade is the risky step fo
 
 Notes from doing it:
 
-- v3 never generated opacity variants of the custom colours (, , …: plain colours have no alpha channel), so those tints and focus rings only appear since v4.
+- v3 never generated opacity variants of the custom colours (`bg-amber/15`, `ring-cream-warm/20`, …: plain `var()`
+  colours have no alpha channel), so those tints and focus rings only appear since v4.
 - Not converted on purpose: the login/auth screens and the studio-create button (bespoke look), icon-only buttons
-  (a later ), role badges and the confirm button in the status dialog (solid colours, no matching variant),
-  and colours passed to SVG props (charts, icons), which stay hex.
-- 's "Eksportuj" button has no handler yet.
+  (a later `IconButton`), role badges and the confirm button in the status dialog (solid colours, no matching
+  variant), and colours passed to SVG props (charts, icons), which stay hex.
+- `ArchivedView`'s "Eksportuj" button has no handler yet.
 
 ## Later phases (detailed plan when we reach them)
 
