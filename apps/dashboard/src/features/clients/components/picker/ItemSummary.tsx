@@ -22,7 +22,7 @@ export function ResultRow({ item, onPick }: { item: ItemSummary; onPick: () => v
     <button
       type="button"
       onClick={onPick}
-      className="w-full p-3.5 bg-white border-2 border-slate-100 rounded-xl flex items-center justify-between hover:border-cream-warm/60 hover:shadow-sm transition-all"
+      className="w-full p-3.5 bg-white border-2 border-slate-100 rounded-xl flex items-center justify-between hover:border-cream-warm/60 hover:shadow-xs transition-all"
     >
       <div className="text-left">
         <h5 className="font-bold text-green-deep text-sm">{item.title}</h5>

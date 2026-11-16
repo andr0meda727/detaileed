@@ -74,7 +74,7 @@ const ClientsView: React.FC = () => {
           placeholder="Szukaj klienta, tablicy, modelu..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-14 pr-6 py-5 rounded-[2rem] font-semibold text-base text-green-deep outline-none transition-all focus:border-[rgba(61,107,70,0.3)] focus:shadow-[0_0_0_4px_rgba(61,107,70,0.08),0_4px_16px_-4px_rgba(0,0,0,0.04)]"
+          className="w-full pl-14 pr-6 py-5 rounded-4xl font-semibold text-base text-green-deep outline-hidden transition-all focus:border-[rgba(61,107,70,0.3)] focus:shadow-[0_0_0_4px_rgba(61,107,70,0.08),0_4px_16px_-4px_rgba(0,0,0,0.04)]"
           style={{
             background: 'white',
             border: '1px solid rgba(26,46,30,0.07)',

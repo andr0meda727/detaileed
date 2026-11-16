@@ -48,7 +48,7 @@ const SearchTab: React.FC<Omit<TabProps, 'loading'>> = ({ bookings, onOpen, onRe
             placeholder="Tablica, klient, model, usługa..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pr-6 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-sm outline-none focus:ring-4 focus:ring-cream-warm/20 focus:border-cream-warm transition-all"
+            className="w-full pr-6 py-4 bg-white border border-slate-200 rounded-2xl font-bold text-sm outline-hidden focus:ring-4 focus:ring-cream-warm/20 focus:border-cream-warm transition-all"
             style={{ paddingLeft: '3rem' }}
             autoFocus
           />

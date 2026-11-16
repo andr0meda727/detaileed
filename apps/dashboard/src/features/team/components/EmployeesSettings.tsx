@@ -63,7 +63,7 @@ const EmployeesSettings: React.FC<{ addToast: (message: string, type: 'success' 
                 type="email"
                 {...register('email')}
                 placeholder="adres@email.com"
-                className={`w-full pl-10 pr-4 py-4 bg-white border-2 rounded-2xl outline-none font-semibold text-sm ${errors.email ? 'border-red-400 focus:ring-red-400/20' : 'border-slate-100 focus:ring-cream-warm/20 focus:border-cream-warm/40'} transition-all`}
+                className={`w-full pl-10 pr-4 py-4 bg-white border-2 rounded-2xl outline-hidden font-semibold text-sm ${errors.email ? 'border-red-400 focus:ring-red-400/20' : 'border-slate-100 focus:ring-cream-warm/20 focus:border-cream-warm/40'} transition-all`}
               />
             </div>
             {errors.email && (

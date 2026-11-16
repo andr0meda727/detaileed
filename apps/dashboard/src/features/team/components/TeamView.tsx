@@ -101,7 +101,7 @@ export const TeamView: React.FC = () => {
             placeholder="Szukaj osoby..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-14 pr-8 py-4 bg-white border border-slate-100 rounded-xl font-bold text-sm outline-none shadow-sm focus:border-cream-warm/40 focus:ring-4 focus:ring-cream-warm/20 transition-all text-green-deep placeholder:text-slate-400"
+            className="w-full pl-14 pr-8 py-4 bg-white border border-slate-100 rounded-xl font-bold text-sm outline-hidden shadow-xs focus:border-cream-warm/40 focus:ring-4 focus:ring-cream-warm/20 transition-all text-green-deep placeholder:text-slate-400"
           />
         </div>
 
@@ -115,7 +115,7 @@ export const TeamView: React.FC = () => {
         )}
       </div>
 
-      <div className="bg-white rounded-2xl lg:rounded-2xl p-6 lg:p-8 border border-slate-100 shadow-sm relative z-0">
+      <div className="bg-white rounded-2xl lg:rounded-2xl p-6 lg:p-8 border border-slate-100 shadow-xs relative z-0">
         <div className="flex items-center justify-between mb-8">
           <h3 className="text-xl sm:text-2xl font-bold text-green-deep tracking-tight flex items-center gap-3">
             <Users className="text-amber-500" /> Kadra Pracownicza
@@ -172,7 +172,7 @@ export const TeamView: React.FC = () => {
                           <select
                             value={emp.roleId}
                             onChange={(e) => handleRoleChange(emp.userId, parseInt(e.target.value))}
-                            className={`text-[10px] font-bold uppercase tracking-widest pl-3 pr-8 py-2 rounded-xl outline-none cursor-pointer appearance-none ${roleDetails.color} border-none`}
+                            className={`text-[10px] font-bold uppercase tracking-widest pl-3 pr-8 py-2 rounded-xl outline-hidden cursor-pointer appearance-none ${roleDetails.color} border-none`}
                           >
                             {ASSIGNABLE_ROLES.map((r) => (
                               <option key={r.id} value={r.id}>

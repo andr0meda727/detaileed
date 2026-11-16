@@ -115,7 +115,7 @@ const Sidebar: React.FC<SidebarProps> = ({ studioId, onLogout, isOpen, onClose, 
 
   return (
     <>
-      {isOpen && <div className="fixed inset-0 bg-[#1a2e1e]/60 backdrop-blur-sm z-40 lg:hidden" onClick={onClose} />}
+      {isOpen && <div className="fixed inset-0 bg-[#1a2e1e]/60 backdrop-blur-xs z-40 lg:hidden" onClick={onClose} />}
 
       <div
         className={`

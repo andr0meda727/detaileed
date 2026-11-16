@@ -156,7 +156,7 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, 
               {...register('name')}
               placeholder="np. AutoDetail Pro, CarSpa Warszawa…"
               autoFocus
-              className={`w-full pl-10 pr-4 py-4 bg-slate-50 rounded-2xl outline-none font-semibold text-sm border-2 transition-all
+              className={`w-full pl-10 pr-4 py-4 bg-slate-50 rounded-2xl outline-hidden font-semibold text-sm border-2 transition-all
                 ${
                   errors.name
                     ? 'border-red-400 focus:ring-2 focus:ring-red-400/20'
@@ -170,7 +170,7 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, 
             <input
               {...register('address')}
               placeholder="ul. Przykładowa 1, 00-001 Warszawa"
-              className="w-full pl-10 pr-4 py-4 bg-slate-50 rounded-2xl outline-none font-semibold text-sm border-2 border-transparent focus:border-green-deep/20 focus:bg-white focus:ring-2 focus:ring-green-deep/10 transition-all"
+              className="w-full pl-10 pr-4 py-4 bg-slate-50 rounded-2xl outline-hidden font-semibold text-sm border-2 border-transparent focus:border-green-deep/20 focus:bg-white focus:ring-2 focus:ring-green-deep/10 transition-all"
             />
           </Field>
 
@@ -180,7 +180,7 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, 
               <input
                 {...register('phone')}
                 placeholder="+48 123 456 789"
-                className="w-full pl-10 pr-3 py-4 bg-slate-50 rounded-2xl outline-none font-semibold text-sm border-2 border-transparent focus:border-green-deep/20 focus:bg-white focus:ring-2 focus:ring-green-deep/10 transition-all"
+                className="w-full pl-10 pr-3 py-4 bg-slate-50 rounded-2xl outline-hidden font-semibold text-sm border-2 border-transparent focus:border-green-deep/20 focus:bg-white focus:ring-2 focus:ring-green-deep/10 transition-all"
               />
             </Field>
 
@@ -188,7 +188,7 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, 
               <input
                 {...register('email')}
                 placeholder="kontakt@studio.pl"
-                className={`w-full pl-10 pr-3 py-4 bg-slate-50 rounded-2xl outline-none font-semibold text-sm border-2 transition-all
+                className={`w-full pl-10 pr-3 py-4 bg-slate-50 rounded-2xl outline-hidden font-semibold text-sm border-2 transition-all
                   ${
                     errors.email
                       ? 'border-red-400 focus:ring-2 focus:ring-red-400/20'

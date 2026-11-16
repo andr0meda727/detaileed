@@ -45,7 +45,7 @@ const TodaySchedule: React.FC<TodayScheduleProps> = ({
           [1, 2, 3].map((i) => (
             <div key={i} className="p-4 sm:p-5 rounded-xl flex items-center gap-6 bg-slate-50 border border-slate-100">
               <div className="w-20 border-r pr-6 shrink-0 border-slate-200 flex flex-col items-center justify-center gap-2">
-                <Skeleton width="40px" height="14px" className="rounded" />
+                <Skeleton width="40px" height="14px" className="rounded-sm" />
                 <Skeleton width="54px" height="18px" className="rounded-md" />
               </div>
               <div className="flex-1 flex flex-col justify-center gap-2">
@@ -102,7 +102,7 @@ const TodaySchedule: React.FC<TodayScheduleProps> = ({
                         booking.services.map((s, idx) => (
                           <span
                             key={idx}
-                            className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm"
+                            className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-xs"
                           >
                             {s}
                           </span>

@@ -28,7 +28,7 @@ const StockAlerts: React.FC<StockAlertsProps> = ({ items: lowStockItems, loading
             >
               <div className="flex-1 flex flex-col justify-center gap-2">
                 <Skeleton width="60%" height="14px" className="rounded-md" />
-                <Skeleton width="40%" height="10px" className="rounded" />
+                <Skeleton width="40%" height="10px" className="rounded-sm" />
               </div>
               <Skeleton width="40px" height="24px" className="rounded-lg" />
             </div>

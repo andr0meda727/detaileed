@@ -60,14 +60,14 @@ export default function CategoryField({ value, onChange }: CategoryFieldProps) {
             e.preventDefault();
             void handleCreate();
           }}
-          className="flex-1 px-6 py-4 bg-slate-50 border-none rounded-xl outline-none font-bold text-sm shadow-inner"
+          className="flex-1 px-6 py-4 bg-slate-50 border-none rounded-xl outline-hidden font-bold text-sm shadow-inner"
         />
         <button
           type="button"
           aria-label="Dodaj kategorię"
           onClick={handleCreate}
           disabled={!newName.trim() || createCategory.isPending}
-          className="p-4 bg-green-deep text-cream-warm rounded-xl hover:bg-opacity-90 disabled:opacity-50 transition-all"
+          className="p-4 bg-green-deep text-cream-warm rounded-xl hover:bg-green-deep/90 disabled:opacity-50 transition-all"
         >
           <Check size={18} />
         </button>
@@ -94,7 +94,7 @@ export default function CategoryField({ value, onChange }: CategoryFieldProps) {
       >
         <div
           onClick={() => setOpen((o) => !o)}
-          className={`w-full px-6 py-5 bg-slate-50 border-2 rounded-xl outline-none transition-all font-bold text-sm cursor-pointer flex items-center h-full hover:border-cream-warm/40 ${open ? 'border-cream-warm/60 ring-4 ring-cream-warm/20 text-green-deep' : 'border-transparent text-slate-700'}`}
+          className={`w-full px-6 py-5 bg-slate-50 border-2 rounded-xl outline-hidden transition-all font-bold text-sm cursor-pointer flex items-center h-full hover:border-cream-warm/40 ${open ? 'border-cream-warm/60 ring-4 ring-cream-warm/20 text-green-deep' : 'border-transparent text-slate-700'}`}
         >
           <span className="truncate flex-1 select-none">
             {categories.find((c) => c.id === value)?.name ?? NO_CATEGORY}
@@ -127,7 +127,7 @@ export default function CategoryField({ value, onChange }: CategoryFieldProps) {
       <button
         type="button"
         onClick={() => setAdding(true)}
-        className="px-5 bg-slate-50 text-green-deep font-bold rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center gap-2 border border-slate-100 shadow-sm"
+        className="px-5 bg-slate-50 text-green-deep font-bold rounded-xl hover:bg-slate-100 transition-all flex items-center justify-center gap-2 border border-slate-100 shadow-xs"
       >
         <Plus size={18} /> Nowa
       </button>

@@ -58,7 +58,7 @@ const ReportsView: React.FC = () => {
         onAddClient={() => setIsClientModalOpen(true)}
       />
 
-      <div className="bg-white rounded-2xl lg:rounded-2xl p-6 sm:p-8 lg:p-10 border border-slate-100 shadow-sm max-w-3xl">
+      <div className="bg-white rounded-2xl lg:rounded-2xl p-6 sm:p-8 lg:p-10 border border-slate-100 shadow-xs max-w-3xl">
         <div className="flex items-center gap-5 mb-8">
           <div className="w-14 h-14 bg-green-deep rounded-2xl flex items-center justify-center text-cream-warm shadow-lg shrink-0">
             <FileBarChart2 size={24} strokeWidth={2.5} />
@@ -82,7 +82,7 @@ const ReportsView: React.FC = () => {
                 required
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all text-green-deep"
+                className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-hidden font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all text-green-deep"
               />
             </div>
             <div className="space-y-2">
@@ -94,7 +94,7 @@ const ReportsView: React.FC = () => {
                 required
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all text-green-deep"
+                className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-hidden font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all text-green-deep"
               />
             </div>
           </div>

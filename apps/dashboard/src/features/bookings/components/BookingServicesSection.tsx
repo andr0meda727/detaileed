@@ -83,7 +83,7 @@ export default function BookingServicesSection({ value, onChange, error }: Booki
           value={newServiceName}
           onChange={(e) => setNewServiceName(e.target.value)}
           placeholder="Dodaj inną usługę..."
-          className="flex-1 px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-none font-semibold text-sm focus:border-cream-warm/50"
+          className="flex-1 px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-hidden font-semibold text-sm focus:border-cream-warm/50"
         />
         <button
           type="button"

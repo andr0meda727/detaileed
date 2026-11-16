@@ -44,7 +44,7 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-      <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full">
+      <div className="bg-white p-8 rounded-3xl shadow-xs border border-cream-warm max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-green-deep mb-2">Witaj w Zespole!</h1>
           <p className="text-gray-500 text-sm">
@@ -62,7 +62,7 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
             <input
               type="password"
               {...register('password')}
-              className={`w-full px-4 py-3 rounded-xl border ${errors.password ? 'border-red-400 focus:ring-red-400' : 'border-gray-200 focus:border-green-deep focus:ring-green-deep'} focus:ring-1 outline-none transition-all`}
+              className={`w-full px-4 py-3 rounded-xl border ${errors.password ? 'border-red-400 focus:ring-red-400' : 'border-gray-200 focus:border-green-deep focus:ring-green-deep'} focus:ring-1 outline-hidden transition-all`}
               placeholder="••••••••"
             />
             {errors.password && (
@@ -77,7 +77,7 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
             <input
               type="password"
               {...register('confirmPassword')}
-              className={`w-full px-4 py-3 rounded-xl border ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400' : 'border-gray-200 focus:border-green-deep focus:ring-green-deep'} focus:ring-1 outline-none transition-all`}
+              className={`w-full px-4 py-3 rounded-xl border ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400' : 'border-gray-200 focus:border-green-deep focus:ring-green-deep'} focus:ring-1 outline-hidden transition-all`}
               placeholder="••••••••"
             />
             {errors.confirmPassword && (

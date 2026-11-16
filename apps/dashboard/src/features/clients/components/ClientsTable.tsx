@@ -74,13 +74,13 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
               <tr
                 key={client.id}
                 onClick={() => onOpen(client)}
-                className="group hover:bg-[#1a2e1e]/[0.02] cursor-pointer transition-colors"
+                className="group hover:bg-[#1a2e1e]/2 cursor-pointer transition-colors"
               >
                 {/* Klient */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-4">
                     <div
-                      className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm text-cream-warm shrink-0 shadow-sm transition-transform group-hover:scale-105"
+                      className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm text-cream-warm shrink-0 shadow-xs transition-transform group-hover:scale-105"
                       style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)' }}
                     >
                       {client.name
@@ -120,7 +120,7 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
                     {client.vehicles.slice(0, 2).map((v) => (
                       <div
                         key={v.id}
-                        className="flex items-center bg-slate-50 border border-slate-100 rounded-xl pr-1.5 py-1 pl-3 gap-3 transition-colors group-hover:bg-white group-hover:border-slate-200 shadow-sm break-inside-avoid"
+                        className="flex items-center bg-slate-50 border border-slate-100 rounded-xl pr-1.5 py-1 pl-3 gap-3 transition-colors group-hover:bg-white group-hover:border-slate-200 shadow-xs break-inside-avoid"
                       >
                         <span className="font-bold text-green-deep text-[11px] max-w-[100px] truncate">
                           {v.brand} {v.model}
@@ -148,7 +148,7 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
                       <a
                         href={`tel:${client.phone}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="w-9 h-9 rounded-xl flex items-center justify-center bg-green-deep/5 text-green-deep hover:bg-green-deep hover:text-cream-warm transition-all group/btn shadow-sm"
+                        className="w-9 h-9 rounded-xl flex items-center justify-center bg-green-deep/5 text-green-deep hover:bg-green-deep hover:text-cream-warm transition-all group/btn shadow-xs"
                       >
                         <Phone size={14} className="group-hover/btn:scale-110 transition-transform" />
                       </a>
@@ -158,7 +158,7 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
                         e.stopPropagation();
                         onEdit(client);
                       }}
-                      className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-green-deep border border-slate-100 transition-all group/btn shadow-sm"
+                      className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-green-deep border border-slate-100 transition-all group/btn shadow-xs"
                     >
                       <Edit2 size={14} className="group-hover/btn:scale-110 transition-transform" />
                     </button>

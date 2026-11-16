@@ -83,7 +83,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
   if (fetchError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full text-center">
+        <div className="bg-white p-8 rounded-3xl shadow-xs border border-cream-warm max-w-md w-full text-center">
           <div className="text-4xl mb-4">🔗</div>
           <h1 className="text-2xl font-bold text-green-deep mb-2">Link nieaktywny</h1>
           <p className="text-gray-500 text-sm">{fetchError}</p>
@@ -97,7 +97,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
   if (decision === 'accepted') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full text-center">
+        <div className="bg-white p-8 rounded-3xl shadow-xs border border-cream-warm max-w-md w-full text-center">
           <div className="text-4xl mb-4">✅</div>
           <h1 className="text-2xl font-bold text-green-deep mb-2">Witaj w studiu!</h1>
           <p className="text-gray-500 text-sm">
@@ -116,7 +116,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
   if (decision === 'declined') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full text-center">
+        <div className="bg-white p-8 rounded-3xl shadow-xs border border-cream-warm max-w-md w-full text-center">
           <div className="text-4xl mb-4">👋</div>
           <h1 className="text-2xl font-bold text-green-deep mb-2">Zaproszenie odrzucone</h1>
           <p className="text-gray-500 text-sm">Możesz zamknąć tę kartę.</p>
@@ -129,7 +129,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-      <div className="bg-white p-8 rounded-3xl shadow-sm border border-cream-warm max-w-md w-full">
+      <div className="bg-white p-8 rounded-3xl shadow-xs border border-cream-warm max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-green-deep mb-2">Masz zaproszenie!</h1>
           <p className="text-gray-500 text-sm">Zostałeś zaproszony do dołączenia do studia w aplikacji DetailFlow.</p>
@@ -157,7 +157,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
             {onRequireLogin && (
               <button
                 onClick={onRequireLogin}
-                className="px-5 py-2.5 w-full sm:w-auto bg-amber-600 text-white font-semibold rounded-lg text-xs hover:bg-amber-700 transition-colors shadow-sm"
+                className="px-5 py-2.5 w-full sm:w-auto bg-amber-600 text-white font-semibold rounded-lg text-xs hover:bg-amber-700 transition-colors shadow-xs"
               >
                 Zaloguj się
               </button>
@@ -183,7 +183,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
           <button
             onClick={() => handleAction('accept')}
             disabled={loadingAction || !isSignedIn}
-            className="flex-[2] bg-green-deep text-cream font-semibold py-3.5 rounded-xl
+            className="flex-2 bg-green-deep text-cream font-semibold py-3.5 rounded-xl
   hover:bg-[#1a423a] transition-all disabled:opacity-70 disabled:cursor-not-allowed
   flex items-center justify-center gap-2"
           >

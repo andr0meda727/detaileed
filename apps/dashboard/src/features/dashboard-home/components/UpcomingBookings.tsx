@@ -87,7 +87,7 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({
                           booking.services.map((s, idx) => (
                             <span
                               key={idx}
-                              className="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm"
+                              className="px-1.5 py-0.5 rounded-sm text-[8px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-xs"
                             >
                               {s}
                             </span>

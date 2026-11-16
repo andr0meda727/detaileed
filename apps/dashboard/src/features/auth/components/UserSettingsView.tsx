@@ -51,7 +51,7 @@ const UserSettingsView: React.FC = () => {
 
       <div className="max-w-lg space-y-6">
         {/* Change password card */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
           <div className="px-8 py-6 border-b border-slate-50 flex items-center gap-4">
             <div className="w-10 h-10 bg-green-deep rounded-xl flex items-center justify-center">
               <KeyRound size={18} className="text-cream-warm" />
@@ -73,7 +73,7 @@ const UserSettingsView: React.FC = () => {
                   type={showNew ? 'text' : 'password'}
                   {...register('password')}
                   placeholder="Minimum 8 znaków"
-                  className={`w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm border-2 ${errors.password ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`}
+                  className={`w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-hidden font-bold text-sm border-2 ${errors.password ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`}
                 />
                 <button
                   type="button"
@@ -100,7 +100,7 @@ const UserSettingsView: React.FC = () => {
                   type={showConfirm ? 'text' : 'password'}
                   {...register('confirmPassword')}
                   placeholder="Powtórz nowe hasło"
-                  className={`w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-none font-bold text-sm border-2 ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`}
+                  className={`w-full px-5 py-4 pr-12 bg-slate-50 rounded-2xl outline-hidden font-bold text-sm border-2 ${errors.confirmPassword ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`}
                 />
                 <button
                   type="button"

@@ -96,7 +96,7 @@ function ItemForm({ item, categories, onClose }: ItemFormProps) {
         <input
           type="text"
           {...register('name')}
-          className="w-full px-6 py-5 bg-slate-50 border-none rounded-xl outline-none font-bold text-base shadow-inner focus:ring-4 focus:ring-cream-warm/20"
+          className="w-full px-6 py-5 bg-slate-50 border-none rounded-xl outline-hidden font-bold text-base shadow-inner focus:ring-4 focus:ring-cream-warm/20"
         />
       </Field>
       <Field label="Opis" error={errors.description?.message}>
@@ -104,7 +104,7 @@ function ItemForm({ item, categories, onClose }: ItemFormProps) {
           type="text"
           {...register('description')}
           placeholder="Opcjonalny opis..."
-          className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none font-bold text-sm"
+          className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-hidden font-bold text-sm"
         />
       </Field>
       <Field label="Kategoria">

@@ -67,7 +67,7 @@ const InventoryView: React.FC = () => {
             placeholder="Szukaj produktu..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-14 pr-6 py-5 bg-white border border-slate-200 rounded-xl outline-none shadow-sm focus:ring-8 focus:ring-cream-warm/20 focus:border-cream-warm/40 transition-all font-bold text-sm sm:text-base"
+            className="w-full pl-14 pr-6 py-5 bg-white border border-slate-200 rounded-xl outline-hidden shadow-xs focus:ring-8 focus:ring-cream-warm/20 focus:border-cream-warm/40 transition-all font-bold text-sm sm:text-base"
           />
         </div>
 
@@ -83,7 +83,7 @@ const InventoryView: React.FC = () => {
         >
           <div
             onClick={() => setIsCategoryDropdownOpen((p) => !p)}
-            className={`w-full pl-14 pr-12 py-5 bg-white border rounded-xl outline-none shadow-sm transition-all font-bold text-sm sm:text-base cursor-pointer flex items-center h-full hover:border-cream-warm/60 ${isCategoryDropdownOpen ? 'border-cream-warm/60 ring-8 ring-cream-warm/20 text-green-deep' : 'border-slate-200 text-slate-700'}`}
+            className={`w-full pl-14 pr-12 py-5 bg-white border rounded-xl outline-hidden shadow-xs transition-all font-bold text-sm sm:text-base cursor-pointer flex items-center h-full hover:border-cream-warm/60 ${isCategoryDropdownOpen ? 'border-cream-warm/60 ring-8 ring-cream-warm/20 text-green-deep' : 'border-slate-200 text-slate-700'}`}
           >
             <div
               className={`absolute left-6 pointer-events-none transition-colors ${isCategoryDropdownOpen ? 'text-green-deep' : 'text-slate-400 group-hover:text-green-light'}`}

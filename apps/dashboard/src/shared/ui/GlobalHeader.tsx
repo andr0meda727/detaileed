@@ -49,7 +49,7 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooki
         {onAddClient && (
           <button
             onClick={onAddClient}
-            className="flex items-center justify-center gap-2 bg-white text-green-deep border border-green-deep/15 px-6 lg:px-8 py-3.5 lg:py-4 rounded-lg font-bold text-[12px] lg:text-[13px] hover:bg-green-deep/4 hover:border-green-deep/25 hover:-translate-y-0.5 transition-all duration-300 group shadow-sm"
+            className="flex items-center justify-center gap-2 bg-white text-green-deep border border-green-deep/15 px-6 lg:px-8 py-3.5 lg:py-4 rounded-lg font-bold text-[12px] lg:text-[13px] hover:bg-green-deep/4 hover:border-green-deep/25 hover:-translate-y-0.5 transition-all duration-300 group shadow-xs"
           >
             <UserPlus size={16} strokeWidth={2.5} />
             <span className="whitespace-nowrap tracking-wide uppercase">Nowy Klient</span>

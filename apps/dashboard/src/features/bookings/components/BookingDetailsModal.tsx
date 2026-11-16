@@ -66,7 +66,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({ booking, onCl
           </div>
           <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
             <div className="flex items-center gap-5">
-              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-sm">
+              <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-xs">
                 <Clock size={28} />
               </div>
               <div>

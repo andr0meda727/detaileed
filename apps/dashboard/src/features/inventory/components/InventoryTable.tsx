@@ -48,7 +48,7 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading, dimme
 
   return (
     <div
-      className={`bg-white rounded-2xl lg:rounded-2xl shadow-sm border border-slate-100 overflow-hidden transition-opacity duration-200 ${dimmed ? 'opacity-70' : 'opacity-100'}`}
+      className={`bg-white rounded-2xl lg:rounded-2xl shadow-xs border border-slate-100 overflow-hidden transition-opacity duration-200 ${dimmed ? 'opacity-70' : 'opacity-100'}`}
     >
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[750px]">
@@ -117,12 +117,12 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading, dimme
                             value={quickEditStockValue}
                             onChange={(e) => setQuickEditStockValue(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleQuickStockSave(item)}
-                            className="w-24 px-3 py-2 text-right bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-cream-warm/50 font-bold text-lg text-green-deep"
+                            className="w-24 px-3 py-2 text-right bg-slate-50 border border-slate-200 rounded-xl outline-hidden focus:ring-4 focus:ring-cream-warm/50 font-bold text-lg text-green-deep"
                           />
                           <button
                             onClick={() => handleQuickStockSave(item)}
                             disabled={updateItem.isPending}
-                            className="p-2 bg-green-deep text-cream-warm rounded-lg hover:bg-opacity-90 disabled:opacity-50 transition-all"
+                            className="p-2 bg-green-deep text-cream-warm rounded-lg hover:bg-green-deep/90 disabled:opacity-50 transition-all"
                           >
                             <Check size={16} />
                           </button>

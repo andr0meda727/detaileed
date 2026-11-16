@@ -231,7 +231,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
               {showCreateCard && (
                 <button
                   onClick={() => setManualOpen(true)}
-                  className="relative text-left flex flex-col items-center justify-center gap-3 p-7 rounded-xl border-2 border-dashed border-green-deep/15 hover:border-green-deep/30 hover:bg-green-deep/[0.02] transition-all duration-300 group min-h-[200px]"
+                  className="relative text-left flex flex-col items-center justify-center gap-3 p-7 rounded-xl border-2 border-dashed border-green-deep/15 hover:border-green-deep/30 hover:bg-green-deep/2 transition-all duration-300 group min-h-[200px]"
                 >
                   <div className="w-12 h-12 rounded-2xl bg-green-deep/5 flex items-center justify-center group-hover:bg-green-deep/10 transition-colors">
                     <Plus size={22} className="text-green-deep/40 group-hover:text-green-deep/70 transition-colors" />

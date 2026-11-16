@@ -110,7 +110,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 <input
                   type="email"
                   {...registerLogin('email')}
-                  className={`w-full px-8 py-6 bg-cream border-2 ${loginErrors.email ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-none transition-all font-bold text-sm text-green-deep`}
+                  className={`w-full px-8 py-6 bg-cream border-2 ${loginErrors.email ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-hidden transition-all font-bold text-sm text-green-deep`}
                   placeholder="email@detaileed.com"
                 />
                 {loginErrors.email && (
@@ -126,7 +126,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 <input
                   type="password"
                   {...registerLogin('password')}
-                  className={`w-full px-8 py-6 bg-cream border-2 ${loginErrors.password ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-none transition-all font-bold text-sm text-green-deep`}
+                  className={`w-full px-8 py-6 bg-cream border-2 ${loginErrors.password ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-hidden transition-all font-bold text-sm text-green-deep`}
                   placeholder="••••••••"
                 />
                 {loginErrors.password && (
@@ -189,7 +189,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                   type="email"
                   {...registerReset('email')}
                   autoFocus
-                  className={`w-full px-8 py-6 bg-cream border-2 ${resetErrors.email ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-none transition-all font-bold text-sm text-green-deep`}
+                  className={`w-full px-8 py-6 bg-cream border-2 ${resetErrors.email ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-hidden transition-all font-bold text-sm text-green-deep`}
                   placeholder="id@detaileed.pl"
                 />
                 {resetErrors.email && (

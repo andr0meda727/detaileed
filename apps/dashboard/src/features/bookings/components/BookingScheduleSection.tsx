@@ -11,7 +11,7 @@ interface BookingScheduleSectionProps {
 const errorClass = 'text-red-500 font-bold tracking-widest uppercase text-[10px]';
 const labelClass = 'text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1';
 const dateTimeClass =
-  'w-full px-3 py-4 bg-slate-50 border-2 border-transparent rounded-xl font-bold text-xs outline-none focus:border-cream-warm/50 text-green-deep';
+  'w-full px-3 py-4 bg-slate-50 border-2 border-transparent rounded-xl font-bold text-xs outline-hidden focus:border-cream-warm/50 text-green-deep';
 
 /** Price and date/time of the booking. `scheduledAt` is one `YYYY-MM-DDTHH:mm` value split into two inputs. */
 export default function BookingScheduleSection({ control, errors }: BookingScheduleSectionProps) {
@@ -27,7 +27,7 @@ export default function BookingScheduleSection({ control, errors }: BookingSched
               <div className="relative">
                 <input
                   {...field}
-                  className="w-full px-4 py-4 rounded-xl font-bold text-lg font-mono text-cream-warm outline-none bg-[#1a2e1e]"
+                  className="w-full px-4 py-4 rounded-xl font-bold text-lg font-mono text-cream-warm outline-hidden bg-[#1a2e1e]"
                 />
                 <span className="absolute right-3 bottom-4 text-[9px] font-bold text-cream-warm/40 uppercase tracking-widest">
                   ZŁ

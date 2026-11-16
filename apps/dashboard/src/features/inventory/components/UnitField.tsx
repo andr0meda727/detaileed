@@ -29,7 +29,7 @@ export default function UnitField({ value, onChange, error }: UnitFieldProps) {
         value={isPreset ? '' : value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Własna jednostka..."
-        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-none font-bold text-sm"
+        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-hidden font-bold text-sm"
       />
       {error && <p className="ml-4 text-red-500 font-bold tracking-widest uppercase text-[10px]">{error}</p>}
     </div>

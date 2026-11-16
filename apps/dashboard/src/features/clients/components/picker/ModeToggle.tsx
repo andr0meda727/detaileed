@@ -16,7 +16,7 @@ export default function ModeToggle({ value, onChange, labels }: ModeToggleProps)
           type="button"
           aria-pressed={value === mode}
           onClick={() => onChange(mode)}
-          className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${value === mode ? 'bg-green-deep text-cream-warm shadow-sm' : 'text-slate-400 hover:text-green-deep'}`}
+          className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${value === mode ? 'bg-green-deep text-cream-warm shadow-xs' : 'text-slate-400 hover:text-green-deep'}`}
         >
           {labels[mode]}
         </button>

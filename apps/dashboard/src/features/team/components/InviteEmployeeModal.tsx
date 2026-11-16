@@ -40,7 +40,7 @@ const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClo
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-none font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all text-green-deep"
+            className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl outline-hidden font-bold text-sm focus:ring-4 focus:ring-cream-warm/30 transition-all text-green-deep"
             placeholder="np. jan@studio.pl"
             disabled={isSubmitting}
           />

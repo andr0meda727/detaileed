@@ -24,7 +24,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, o
     >
       {/* Date/Time column */}
       <div
-        className="p-5 sm:p-6 flex flex-col items-center justify-center min-w-[110px] shrink-0 rounded-t-[1rem] sm:rounded-t-none sm:rounded-l-[1rem]"
+        className="p-5 sm:p-6 flex flex-col items-center justify-center min-w-[110px] shrink-0 rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl"
         style={{ borderRight: '1px solid rgba(26,46,30,0.05)', background: 'rgba(26,46,30,0.02)' }}
       >
         <span className="text-2xl font-bold text-green-deep font-mono leading-none">
@@ -37,7 +37,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, o
       {/* Content */}
       <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center space-y-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="bg-green-deep text-cream-warm px-4 py-1.5 rounded-lg font-mono text-[13px] font-bold tracking-widest shadow-sm">
+          <span className="bg-green-deep text-cream-warm px-4 py-1.5 rounded-lg font-mono text-[13px] font-bold tracking-widest shadow-xs">
             {booking.vehicle.licensePlate}
           </span>
           <h4 className="font-sans font-bold text-green-deep text-base tracking-tight truncate">
@@ -50,7 +50,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, o
               booking.services.map((s, idx) => (
                 <span
                   key={idx}
-                  className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-sm"
+                  className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-xs"
                 >
                   {s}
                 </span>
@@ -67,7 +67,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, o
       </div>
       {/* Status + quick actions */}
       <div
-        className="px-5 sm:px-6 py-4 flex items-center justify-end gap-3 sm:shrink-0 rounded-b-[1rem] sm:rounded-b-none sm:rounded-r-[1rem]"
+        className="px-5 sm:px-6 py-4 flex items-center justify-end gap-3 sm:shrink-0 rounded-b-2xl sm:rounded-b-none sm:rounded-r-2xl"
         style={{ borderTop: '1px solid rgba(26,46,30,0.04)', background: 'rgba(26,46,30,0.01)' }}
       >
         {booking.status === BOOKING_STATUSES.UTWORZONA.name && (

@@ -101,7 +101,7 @@ const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, onReques
             placeholder="Szukaj zlecenia..."
             value={inProgressSearchQuery}
             onChange={(e) => setInProgressSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl font-semibold text-xs outline-none focus:ring-2 focus:ring-cream-warm/50 focus:border-cream-warm transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl font-semibold text-xs outline-hidden focus:ring-2 focus:ring-cream-warm/50 focus:border-cream-warm transition-all"
           />
         </div>
       </div>

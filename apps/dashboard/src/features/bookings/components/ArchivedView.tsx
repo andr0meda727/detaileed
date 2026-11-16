@@ -53,7 +53,7 @@ const ArchivedView: React.FC = () => {
             placeholder="Szukaj w historii..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-14 pr-8 py-5 bg-white border border-slate-200 rounded-2xl font-bold text-sm outline-none shadow-sm focus:ring-8 focus:ring-cream-warm/20 focus:border-cream-warm/40 transition-all"
+            className="w-full pl-14 pr-8 py-5 bg-white border border-slate-200 rounded-2xl font-bold text-sm outline-hidden shadow-xs focus:ring-8 focus:ring-cream-warm/20 focus:border-cream-warm/40 transition-all"
           />
         </div>
         <button className="bg-green-deep text-cream-warm px-8 py-5 rounded-2xl font-semibold text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 active:scale-95 transition-all">

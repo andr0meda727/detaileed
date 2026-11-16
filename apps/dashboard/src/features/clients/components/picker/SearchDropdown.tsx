@@ -30,7 +30,7 @@ export default function SearchDropdown<T>({
           placeholder={placeholder}
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl font-semibold text-sm outline-none focus:border-cream-warm/50 transition-all"
+          className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl font-semibold text-sm outline-hidden focus:border-cream-warm/50 transition-all"
         />
       </div>
       <div

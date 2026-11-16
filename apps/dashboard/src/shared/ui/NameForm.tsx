@@ -40,7 +40,7 @@ const NameForm: React.FC<{
           {...register('name')}
           autoFocus
           placeholder={placeholder}
-          className={`w-full px-5 py-4 bg-slate-50 rounded-2xl outline-none font-bold text-sm border-2 ${errors.name ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`}
+          className={`w-full px-5 py-4 bg-slate-50 rounded-2xl outline-hidden font-bold text-sm border-2 ${errors.name ? 'border-red-400 focus:ring-red-400/30' : 'border-transparent focus:ring-cream-warm/30'} transition-all`}
         />
         {errors.name && (
           <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-1 mt-1">

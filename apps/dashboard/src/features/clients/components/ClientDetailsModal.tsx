@@ -28,7 +28,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
         <div className="p-8 bg-green-deep rounded-[2.5rem] border border-white/5 relative overflow-hidden">
           <div className="relative z-10 flex flex-col gap-6">
             <div className="flex items-center gap-6">
-              <div className="w-24 h-24 bg-white/10 text-cream-warm rounded-[2rem] flex items-center justify-center font-extrabold text-4xl shadow-xl shrink-0">
+              <div className="w-24 h-24 bg-white/10 text-cream-warm rounded-4xl flex items-center justify-center font-extrabold text-4xl shadow-xl shrink-0">
                 {client.name
                   .split(' ')
                   .map((n) => n[0])
@@ -74,7 +74,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
             </div>
             <button
               onClick={onAddVehicle}
-              className="px-4 py-2 bg-white border border-slate-200 text-green-deep rounded-xl font-bold text-[10px] uppercase tracking-widest hover:border-green-deep/20 transition-all flex items-center gap-2 self-start sm:self-auto shadow-sm"
+              className="px-4 py-2 bg-white border border-slate-200 text-green-deep rounded-xl font-bold text-[10px] uppercase tracking-widest hover:border-green-deep/20 transition-all flex items-center gap-2 self-start sm:self-auto shadow-xs"
             >
               <Plus size={14} /> Dodaj Pojazd
             </button>
@@ -85,7 +85,7 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
               client.vehicles.map((v) => (
                 <div
                   key={v.id}
-                  className="bg-white p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between shadow-sm border border-slate-100 gap-4 group hover:border-cream-warm transition-all"
+                  className="bg-white p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between shadow-xs border border-slate-100 gap-4 group hover:border-cream-warm transition-all"
                 >
                   <div className="flex items-center gap-5 min-w-0">
                     <div className="w-12 h-12 bg-slate-50 group-hover:bg-cream-warm/20 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-green-light transition-colors shrink-0">
