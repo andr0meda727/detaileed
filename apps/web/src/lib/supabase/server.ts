@@ -21,6 +21,8 @@ export async function getServerSupabase() {
 
 /** The signed-in user (verified with Supabase), or null. */
 export async function getSignedInUser() {
+  // Without Supabase settings (e.g. a local build) nobody can be signed in.
+  if (!SUPABASE_URL || !SUPABASE_KEY) return null;
   const supabase = await getServerSupabase();
   const { data } = await supabase.auth.getUser();
   return data.user;
