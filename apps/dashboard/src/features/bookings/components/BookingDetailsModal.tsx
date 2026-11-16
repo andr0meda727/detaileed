@@ -111,6 +111,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({ booking, onCl
               <>
                 <Button
                   variant="success"
+                  icon={Check}
                   size="lg"
                   className="flex-1"
                   onClick={() => {
@@ -122,6 +123,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({ booking, onCl
                 </Button>
                 <Button
                   variant="danger"
+                  icon={X}
                   size="lg"
                   className="flex-1"
                   onClick={() => {
