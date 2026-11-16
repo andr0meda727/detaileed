@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Wrench, Layers, Users } from 'lucide-react';
+import { Wrench, Layers, Users, Building2 } from 'lucide-react';
 import { ServicesSettings } from '@/features/services';
 
 import { CategoriesSettings } from '@/features/inventory';
@@ -7,16 +7,17 @@ import { EmployeesSettings } from '@/features/team';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 
 import { useToast } from '@detaileed/ui';
-import { useStudio } from '@/features/studios';
+import { StudioTimeZoneSettings, useStudio } from '@/features/studios';
 import { isEmployeeRole } from '@/shared/lib/studioRole';
 
 // ─── Main View ────────────────────────────────────────────────────────────────
-type TabId = 'services' | 'categories' | 'employees';
+type TabId = 'services' | 'categories' | 'employees' | 'studio';
 
 const TABS: { id: TabId; label: string; icon: React.FC<{ size?: number; className?: string }> }[] = [
   { id: 'services', label: 'Usługi', icon: Wrench },
   { id: 'categories', label: 'Kategorie magazynu', icon: Layers },
   { id: 'employees', label: 'Pracownicy', icon: Users },
+  { id: 'studio', label: 'Studio', icon: Building2 },
 ];
 
 const StudioSettingsView: React.FC = () => {
@@ -30,7 +31,7 @@ const StudioSettingsView: React.FC = () => {
 
   return (
     <div className="space-y-8 sm:space-y-10">
-      <GlobalHeader title="Ustawienia Studia" subtitle="Zarządzaj usługami, kategoriami i zespołem" />
+      <GlobalHeader title="Ustawienia Studia" subtitle="Zarządzaj usługami, kategoriami, zespołem i studiem" />
 
       {/* Tab bar */}
       <div className="flex gap-1 bg-white border border-slate-100 rounded-2xl p-1.5 overflow-x-auto">
@@ -55,6 +56,7 @@ const StudioSettingsView: React.FC = () => {
         {activeTab === 'services' && <ServicesSettings addToast={addToast} />}
         {activeTab === 'categories' && <CategoriesSettings addToast={addToast} />}
         {activeTab === 'employees' && <EmployeesSettings addToast={addToast} />}
+        {activeTab === 'studio' && <StudioTimeZoneSettings />}
       </div>
     </div>
   );
