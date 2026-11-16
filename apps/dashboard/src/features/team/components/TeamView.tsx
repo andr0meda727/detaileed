@@ -9,7 +9,7 @@ import {
   useChangeEmployeeRole,
   useRemoveEmployee,
 } from '@/features/team/api/employees';
-import { useToast, Skeleton } from '@detaileed/ui';
+import { Button, useToast, Skeleton } from '@detaileed/ui';
 
 import { UserPlus } from 'lucide-react';
 import { CreateBookingModal } from '@/features/bookings';
@@ -105,12 +105,9 @@ export const TeamView: React.FC = () => {
         </div>
 
         {isOwner && (
-          <button
-            onClick={() => setIsInviteModalOpen(true)}
-            className="flex items-center justify-center gap-2 px-8 py-4 bg-green-deep text-cream-warm rounded-xl font-semibold text-[11px] uppercase tracking-widest hover:shadow-xl active:scale-95 transition-all"
-          >
+          <Button size="lg" onClick={() => setIsInviteModalOpen(true)}>
             <UserPlus size={16} /> Zaproś do Zespołu
-          </button>
+          </Button>
         )}
       </div>
 

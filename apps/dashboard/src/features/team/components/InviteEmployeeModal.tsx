@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ASSIGNABLE_ROLES } from '@/features/team/model/roles';
-import { Mail, Shield, UserPlus, Loader2 } from 'lucide-react';
-import { Modal } from '@detaileed/ui';
+import { Mail, Shield, UserPlus } from 'lucide-react';
+import { Button, Modal } from '@detaileed/ui';
 
 interface InviteEmployeeModalProps {
   isOpen: boolean;
@@ -76,22 +76,12 @@ const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClo
         </div>
 
         <div className="pt-6 border-t border-slate-100 flex justify-end gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="px-6 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors"
-          >
+          <Button variant="ghost" size="lg" onClick={onClose} disabled={isSubmitting}>
             Anuluj
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-8 py-4 bg-green-deep text-cream-warm rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all shadow-lg hover:shadow-xl disabled:opacity-70 disabled:active:scale-100 disabled:cursor-not-allowed"
-          >
-            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
+          </Button>
+          <Button size="lg" type="submit" icon={UserPlus} loading={isSubmitting}>
             Wyślij Zaproszenie
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

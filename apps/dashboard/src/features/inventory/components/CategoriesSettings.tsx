@@ -6,7 +6,7 @@ import {
   useUpdateCategory,
   useDeleteCategory,
 } from '@/features/inventory/api/categories';
-import { Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
+import { Button, Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
 import NameForm from '@/shared/ui/NameForm';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 
@@ -64,12 +64,9 @@ const CategoriesSettings: React.FC<{ addToast: (message: string, type: 'success'
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-400 font-medium">{items.length} kategorii</p>
-        <button
-          onClick={openAdd}
-          className="flex items-center gap-2 bg-green-deep text-cream-warm px-5 py-3 rounded-2xl font-semibold text-[11px] uppercase tracking-widest shadow-md active:scale-95 transition-all"
-        >
-          <Plus size={16} /> Dodaj kategorię
-        </button>
+        <Button variant="primary" onClick={openAdd} icon={Plus}>
+          Dodaj kategorię
+        </Button>
       </div>
 
       {items.length === 0 ? (

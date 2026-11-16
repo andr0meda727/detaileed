@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Wrench, Plus, Trash2, Loader2 } from 'lucide-react';
 import { useServices, useCreateService, useDeleteService } from '@/features/services/api/services';
-import { Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
+import { Button, Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
 import NameForm from '@/shared/ui/NameForm';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 
@@ -39,12 +39,9 @@ const ServicesSettings: React.FC<{ addToast: (message: string, type: 'success' |
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-400 font-medium">{items.length} usług</p>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-green-deep text-cream-warm px-5 py-3 rounded-2xl font-semibold text-[11px] uppercase tracking-widest shadow-md active:scale-95 transition-all"
-        >
+        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
           <Plus size={16} /> Dodaj usługę
-        </button>
+        </Button>
       </div>
 
       {items.length === 0 ? (
