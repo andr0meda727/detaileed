@@ -21,6 +21,7 @@ export interface ListingDto {
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
   longitude: number | string;
   isPublished: boolean;
+  timeZone: string;
   categories: ServiceCategory[];
   services: ListingServiceDto[];
   /**

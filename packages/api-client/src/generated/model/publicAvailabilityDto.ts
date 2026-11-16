@@ -10,5 +10,6 @@ export interface PublicAvailabilityDto {
   planningEnabled: boolean;
   /** @pattern ^-?(?:0|[1-9]\d*)$ */
   durationMinutes: number | string;
+  timeZone: string;
   slots: PublicSlotDto[];
 }
