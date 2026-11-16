@@ -1,0 +1,7 @@
+{
+  "extends": "@detaileed/config/tsconfig.react.json",
+  "compilerOptions": {
+    "types": ["vitest/globals"]
+  },
+  "include": ["src", "tests"]
+}
