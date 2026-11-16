@@ -16,7 +16,8 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 3: router               | done (merged to `main`)                                                           |
 | 4: feature slices       | done (merged to `main`); import rules enforced by ESLint                          |
 | 5: design system        | done (merged to `main`); Tailwind v4, `@detaileed/ui` with theme + components     |
-| 6–10: backend catch-up  | planned (see "Catching up with the backend")                                      |
+| 6: foundations          | done (merged to `main`); spec refresh, studio time zone, vehicle size, services   |
+| 7–10: backend catch-up  | planned (see "Catching up with the backend")                                      |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
