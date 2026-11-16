@@ -45,7 +45,7 @@ Features: `auth`, `studios`, `bookings`, `clients` (clients and their vehicles),
   query keys it invalidates. Generated query keys start with the API path (`['/api/Bookings', …]`), so
   invalidating that prefix refreshes every list of that resource.
 - Responses are normalised in the feature's `model/` (`toBooking`, `toInventoryItem`, `toEmployee`): the API
-  may send decimals and ids as strings, and money is in złoty (`formatPln` in `shared/lib/money.ts`).
+  may send decimals and ids as strings, and money is in złoty (`formatPln` in `@detaileed/domain/money`).
 - Paged lists that a screen computes over (stats, calendars) load every page with
   `shared/lib/paging.ts#fetchAllPages`. Prefer server-side filtering and paging for new screens.
 - Mutation errors are toasted globally (`shared/queryClient.ts`); a mutation whose screen shows the error
