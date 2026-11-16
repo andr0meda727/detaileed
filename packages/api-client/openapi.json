@@ -986,6 +986,55 @@
         }
       }
     },
+    "/api/Studios": {
+      "post": {
+        "tags": [
+          "Studios"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudioRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudioRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudioRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStudioDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStudioDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStudioDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Studios/time-zone": {
       "put": {
         "tags": [
@@ -4808,6 +4857,41 @@
           }
         }
       },
+      "CreateStudioRequest": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "email": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "address": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "timeZone": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
       "CursorResponseOfReviewDto": {
         "required": [
           "items",
@@ -4885,7 +4969,15 @@
         }
       },
       "DayOfWeek": {
-        "type": "integer"
+        "enum": [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ]
       },
       "EstimateDto": {
         "required": [
@@ -5459,7 +5551,12 @@
         }
       },
       "OnlineRequestStatus": {
-        "type": "integer"
+        "enum": [
+          "Pending",
+          "Accepted",
+          "Rejected",
+          "Withdrawn"
+        ]
       },
       "OpeningPeriodDto": {
         "required": [
@@ -6377,7 +6474,15 @@
         }
       },
       "ServiceCategory": {
-        "type": "integer"
+        "enum": [
+          "ExteriorWash",
+          "Interior",
+          "Polishing",
+          "Ceramic",
+          "Ppf",
+          "WheelsAndTyres",
+          "Other"
+        ]
       },
       "ServicePriceDto": {
         "required": [
@@ -6623,7 +6728,10 @@
         }
       },
       "StockChangeKind": {
-        "type": "integer"
+        "enum": [
+          "Purchase",
+          "Stocktake"
+        ]
       },
       "StockChangeRequest": {
         "required": [
@@ -6705,7 +6813,13 @@
         }
       },
       "StockMovementType": {
-        "type": "integer"
+        "enum": [
+          "Initial",
+          "Purchase",
+          "Adjustment",
+          "Consumption",
+          "Correction"
+        ]
       },
       "StudioDetails": {
         "type": "object",
@@ -7040,7 +7154,12 @@
         }
       },
       "VehicleSize": {
-        "type": "integer"
+        "enum": [
+          "Small",
+          "Medium",
+          "Large",
+          "XL"
+        ]
       }
     }
   },

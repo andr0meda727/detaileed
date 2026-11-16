@@ -5,4 +5,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type OnlineRequestStatus = number;
+export type OnlineRequestStatus = (typeof OnlineRequestStatus)[keyof typeof OnlineRequestStatus];
+
+export const OnlineRequestStatus = {
+  Pending: 'Pending',
+  Accepted: 'Accepted',
+  Rejected: 'Rejected',
+  Withdrawn: 'Withdrawn',
+} as const;

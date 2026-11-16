@@ -35,6 +35,7 @@ export * from './competingRequestDto.ts';
 export * from './consumptionDto.ts';
 export * from './consumptionLineDto.ts';
 export * from './correctConsumptionRequest.ts';
+export * from './createStudioRequest.ts';
 export * from './cursorResponseOfReviewDto.ts';
 export * from './dayBoardDto.ts';
 export * from './dayOfWeek.ts';

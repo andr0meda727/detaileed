@@ -5,4 +5,14 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type ServiceCategory = number;
+export type ServiceCategory = (typeof ServiceCategory)[keyof typeof ServiceCategory];
+
+export const ServiceCategory = {
+  ExteriorWash: 'ExteriorWash',
+  Interior: 'Interior',
+  Polishing: 'Polishing',
+  Ceramic: 'Ceramic',
+  Ppf: 'Ppf',
+  WheelsAndTyres: 'WheelsAndTyres',
+  Other: 'Other',
+} as const;

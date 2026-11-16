@@ -92,7 +92,7 @@ Order: `shared` (utils, ToastContext, delete the deprecated `components/ui/useTo
 - `InventoryItemModal` is ~295 lines (one form); split the category picker out if it grows.
 - Inventory movements, recipes, consumptions and the forecast exist in the API but have no UI yet.
 - `CreateBookingModal` (bookings, ~560 lines) still needs splitting: client/vehicle picking, inline new client, services and price.
-- The API spec types `VehicleSize` as an integer although the API sends enum names ("Medium"); fix on the backend (enum schema) before the UI uses sizes.
+- The API spec typed `VehicleSize` and the other enums as integers although the API sends names; fixed in the backend (`Describe enums as strings in the OpenAPI spec`) and the spec updated in Phase 6.
 - Booking mutations skip the global error toast (`meta.skipGlobalError`) because the screens toast themselves.
 
 ## Phase 5: design system and Tailwind v4 (branch `refactor/phase-5-ui`)

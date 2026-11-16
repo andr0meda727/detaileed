@@ -5,4 +5,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type VehicleSize = number;
+export type VehicleSize = (typeof VehicleSize)[keyof typeof VehicleSize];
+
+export const VehicleSize = {
+  Small: 'Small',
+  Medium: 'Medium',
+  Large: 'Large',
+  XL: 'XL',
+} as const;

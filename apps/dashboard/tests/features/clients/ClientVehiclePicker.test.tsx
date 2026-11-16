@@ -4,8 +4,7 @@ import type { ReactNode } from 'react';
 import { ToastProvider } from '@detaileed/ui';
 import type { Client } from '@/features/clients/model/types';
 
-// The API sends sizes as strings ("Medium"); the spec types them as numbers, so cast.
-const size = 'Medium' as unknown as Client['vehicles'][number]['size'];
+const size = 'Medium' as const;
 
 const client: Client = {
   id: 'c1',

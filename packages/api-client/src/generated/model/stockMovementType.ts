@@ -5,4 +5,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type StockMovementType = number;
+export type StockMovementType = (typeof StockMovementType)[keyof typeof StockMovementType];
+
+export const StockMovementType = {
+  Initial: 'Initial',
+  Purchase: 'Purchase',
+  Adjustment: 'Adjustment',
+  Consumption: 'Consumption',
+  Correction: 'Correction',
+} as const;

@@ -5,4 +5,9 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type StockChangeKind = number;
+export type StockChangeKind = (typeof StockChangeKind)[keyof typeof StockChangeKind];
+
+export const StockChangeKind = {
+  Purchase: 'Purchase',
+  Stocktake: 'Stocktake',
+} as const;

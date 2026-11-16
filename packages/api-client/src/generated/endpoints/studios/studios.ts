@@ -20,7 +20,7 @@ import type {
   UseQueryResult,
 } from '@tanstack/react-query';
 
-import type { ChangeStudioTimeZoneRequest, UserStudioDto } from '../../model';
+import type { ChangeStudioTimeZoneRequest, CreateStudioRequest, UserStudioDto } from '../../model';
 
 import { apiFetch } from '../../../fetcher.ts';
 import type { ErrorType } from '../../../fetcher.ts';
@@ -155,6 +155,75 @@ export function useGetApiStudiosMy<TData = Awaited<ReturnType<typeof getApiStudi
   return withQueryKey(query, queryOptions.queryKey);
 }
 
+export const getPostApiStudiosUrl = () => {
+  return `/api/Studios`;
+};
+
+export const postApiStudios = async (
+  createStudioRequest: CreateStudioRequest,
+  options?: Parameters<typeof apiFetch>[1],
+): Promise<UserStudioDto> => {
+  return apiFetch<UserStudioDto>(getPostApiStudiosUrl(), {
+    ...options,
+    method: 'POST',
+    headers: getHeaders({ 'Content-Type': 'application/json' }, options?.headers),
+    body: JSON.stringify(createStudioRequest),
+  });
+};
+
+export const getPostApiStudiosMutationKey = () => ['postApiStudios'] as const;
+
+export const getPostApiStudiosMutationOptions = <TError = ErrorType<unknown>, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiStudios>>,
+    TError,
+    PostApiStudiosMutationVariables,
+    TContext
+  >;
+  request?: SecondParameter<typeof apiFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiStudios>>,
+  TError,
+  PostApiStudiosMutationVariables,
+  TContext
+> => {
+  const mutationKey = getPostApiStudiosMutationKey();
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiStudios>>, PostApiStudiosMutationVariables> = (
+    props,
+  ) => {
+    const { data } = props ?? {};
+
+    return postApiStudios(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostApiStudiosMutationResult = NonNullable<Awaited<ReturnType<typeof postApiStudios>>>;
+export type PostApiStudiosMutationBody = CreateStudioRequest;
+export type PostApiStudiosMutationError = ErrorType<unknown>;
+export type PostApiStudiosMutationVariables = { data: CreateStudioRequest };
+
+export const usePostApiStudios = <TError = ErrorType<unknown>, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiStudios>>,
+      TError,
+      PostApiStudiosMutationVariables,
+      TContext
+    >;
+    request?: SecondParameter<typeof apiFetch>;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<Awaited<ReturnType<typeof postApiStudios>>, TError, PostApiStudiosMutationVariables, TContext> => {
+  return useMutation(getPostApiStudiosMutationOptions(options), queryClient);
+};
 export const getPutApiStudiosTimeZoneUrl = () => {
   return `/api/Studios/time-zone`;
 };

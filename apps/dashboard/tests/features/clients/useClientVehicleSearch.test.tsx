@@ -3,8 +3,7 @@ import { renderHook } from '@testing-library/react';
 import { useClientSearch, useClientVehicleSearch } from '@/features/clients/hooks/useClientVehicleSearch';
 import type { Client as ClientResponseDto, Vehicle } from '@/features/clients/model/types';
 
-// The API sends sizes as strings ("Medium"); the spec types them as numbers, so cast.
-const size = 'Medium' as unknown as Vehicle['size'];
+const size = 'Medium' as const;
 
 const clientsFixture: ClientResponseDto[] = [
   {
