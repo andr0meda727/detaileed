@@ -3,6 +3,10 @@ import { QueryClient } from '@tanstack/react-query';
 import { RouterProvider, createMemoryHistory, createRouter } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 
+// Resolving a route loads its code-split modules on first use; under a full `pnpm check` (lint and builds running in
+// parallel) that can exceed vitest's 5 s default.
+vi.setConfig({ testTimeout: 30_000 });
+
 const session = { user: { email: 'a@b.pl', user_metadata: {} } };
 const auth = vi.hoisted(() => ({ session: null as unknown }));
 const studios = [
