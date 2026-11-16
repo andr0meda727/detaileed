@@ -7,7 +7,8 @@
     "./studioTime": "./src/studioTime.ts",
     "./vehicleSize": "./src/vehicleSize.ts",
     "./serviceCategory": "./src/serviceCategory.ts",
-    "./money": "./src/money.ts"
+    "./money": "./src/money.ts",
+    "./apiErrors": "./src/apiErrors.ts"
   },
   "scripts": {
     "test": "vitest run",

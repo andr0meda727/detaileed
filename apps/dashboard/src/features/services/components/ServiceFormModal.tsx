@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
 import { Button, FormInput, Modal, Select, useToast } from '@detaileed/ui';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { SERVICE_CATEGORIES } from '@detaileed/domain/serviceCategory';
 import { VEHICLE_SIZES } from '@detaileed/domain/vehicleSize';
 import { useCreateService, useUpdateService } from '@/features/services/api/services';

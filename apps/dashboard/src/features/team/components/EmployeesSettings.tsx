@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useInviteEmployee } from '@/features/team/api/employees';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 
 const inviteSchema = z.object({
   email: z.string().min(1, 'Email jest wymagany').email('Niepoprawny format email'),

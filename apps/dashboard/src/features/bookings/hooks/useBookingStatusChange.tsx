@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import { Button, Modal, useToast } from '@detaileed/ui';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useCancelBooking, useCompleteBooking } from '@/features/bookings/api/bookings';
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';

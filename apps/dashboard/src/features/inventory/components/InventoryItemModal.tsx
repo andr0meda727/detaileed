@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Modal, LoadingSpinner, useToast } from '@detaileed/ui';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useCreateInventoryItem, useUpdateInventoryItem } from '@/features/inventory/api/inventory';
 import { useCategories } from '@/features/inventory/api/categories';
 import { inventoryItemFormSchema, type InventoryItemFormValues } from '@/features/inventory/model/schemas';

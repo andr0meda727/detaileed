@@ -1,7 +1,7 @@
 import { Link, Outlet, createRootRouteWithContext, useRouter, type ErrorComponentProps } from '@tanstack/react-router';
 import type { RouterContext } from '@/app/router';
 import { RouterDevtools } from '@/app/RouterDevtools';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,

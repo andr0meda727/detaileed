@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Check, ChevronDown, Plus, X } from 'lucide-react';
 import { useToast } from '@detaileed/ui';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useCategories, useCreateCategory } from '@/features/inventory/api/categories';
 
 interface CategoryFieldProps {

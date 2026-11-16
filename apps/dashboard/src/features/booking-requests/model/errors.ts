@@ -1,5 +1,5 @@
 import { ApiError } from '@detaileed/api-client';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 
 /** Messages for the request-specific error codes; others fall back to the API's own text. */
 const MESSAGES: Record<string, string> = {

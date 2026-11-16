@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Check, Plus, Wrench } from 'lucide-react';
 import { FormSection, useToast } from '@detaileed/ui';
 import { toggleIdSelection } from '@/shared/lib/selection';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useCreateService, useServices } from '@/features/services';
 
 interface BookingServicesSectionProps {

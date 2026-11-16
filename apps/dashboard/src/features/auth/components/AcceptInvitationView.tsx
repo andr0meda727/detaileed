@@ -4,7 +4,7 @@ import {
   usePostApiInvitationsTokenAccept,
   usePostApiInvitationsTokenDecline,
 } from '@detaileed/api-client';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

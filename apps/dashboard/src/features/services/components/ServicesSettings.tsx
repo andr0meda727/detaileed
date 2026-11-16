@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Clock, Plus, Trash2, Wrench } from 'lucide-react';
 import { Badge, Button, EmptyState, LoadingSpinner } from '@detaileed/ui';
 import { formatPln } from '@detaileed/domain/money';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { serviceCategoryLabel } from '@detaileed/domain/serviceCategory';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 import { useDeleteService, useServices } from '@/features/services/api/services';

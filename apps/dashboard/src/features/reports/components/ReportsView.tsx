@@ -4,7 +4,7 @@ import { FileBarChart2, Download, Calendar as CalendarIcon } from 'lucide-react'
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 import { useGenerateBookingsReport } from '@/features/reports/api/reports';
 import { reportRangeError } from '@/features/reports/model/reportRange';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { Button, useToast } from '@detaileed/ui';
 
 import { CreateBookingModal } from '@/features/bookings';

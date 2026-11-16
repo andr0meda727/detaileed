@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
 import { Button, Modal, FormInput, Select, useToast } from '@detaileed/ui';
 import { DEFAULT_VEHICLE_SIZE, VEHICLE_SIZE_OPTIONS } from '@detaileed/domain/vehicleSize';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { toVehicleFields } from '@/features/clients/model/toClientInput';
 import { vehicleFormSchema, type VehicleFormValues } from '@/features/clients/model/schemas';
 import { useCreateVehicle, useUpdateVehicle } from '@/features/clients/api/clients';

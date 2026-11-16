@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Edit2, Package, Check, X } from 'lucide-react';
 import { Skeleton, EmptyState, useToast } from '@detaileed/ui';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useUpdateInventoryItem } from '@/features/inventory/api/inventory';
 import { useCategories } from '@/features/inventory/api/categories';
 import { type InventoryItem, type InventoryItemInput } from '@/features/inventory/model/types';

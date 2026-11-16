@@ -3,7 +3,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
 import { Button, Modal, useToast } from '@detaileed/ui';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { ClientVehiclePicker, type ClientVehicleMatch } from '@/features/clients';
 import { bookingFormSchema, type BookingFormValues } from '@/features/bookings/model/schemas';
 import { useCreateBooking } from '@/features/bookings/api/bookings';

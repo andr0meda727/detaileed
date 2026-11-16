@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { UserPlus } from 'lucide-react';
 import { Button, FormInput, useToast } from '@detaileed/ui';
-import { getApiErrorMessage } from '@/shared/lib/errorHandler';
+import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useCreateClient } from '@/features/clients/api/clients';
 import { newClientWithVehicleSchema, type NewClientWithVehicleValues } from '@/features/clients/model/schemas';
 import { toNewClientInput } from '@/features/clients/model/toClientInput';
