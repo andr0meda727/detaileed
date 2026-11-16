@@ -16,3 +16,4 @@ export { default as VehicleModal } from './components/VehicleModal';
 export { default as AddVehicleModal } from './components/AddVehicleModal';
 export { clientFormSchema, vehicleFormSchema } from './model/schemas';
 export type { ClientFormValues, VehicleFormValues } from './model/schemas';
+export { default as ClientVehiclePicker } from './components/ClientVehiclePicker';
