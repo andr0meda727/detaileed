@@ -36,7 +36,8 @@ features/<name>/
 
 Features: `auth`, `studios`, `bookings`, `clients` (clients and their vehicles), `services`, `inventory`,
 `team`, `settings` (the studio settings screen, composed of tabs from services, inventory and team),
-`reports`, `dashboard-home`.
+`reports`, `dashboard-home`, `marketplace` (the studio's public profile on the customer map: listing form, pin, publish),
+`booking-requests` (requests customers send from the map: list, plan, accept/reject; pending count in the sidebar).
 
 ## Data
 

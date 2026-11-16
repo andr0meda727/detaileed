@@ -17,7 +17,8 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 4: feature slices       | done (merged to `main`); import rules enforced by ESLint                          |
 | 5: design system        | done (merged to `main`); Tailwind v4, `@detaileed/ui` with theme + components     |
 | 6: foundations          | done (merged to `main`); spec refresh, studio time zone, vehicle size, services   |
-| 7–10: backend catch-up  | planned (see "Catching up with the backend")                                      |
+| 7: studio marketplace   | done (merged to `main`); maps, public profile, booking-request inbox              |
+| 8–10: backend catch-up  | planned (see "Catching up with the backend")                                      |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 

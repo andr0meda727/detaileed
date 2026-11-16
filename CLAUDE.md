@@ -51,7 +51,7 @@ Never silence a rule with `eslint-disable` or `@ts-ignore`/`@ts-expect-error` wi
 | `pnpm generate`                                | regenerate the API client from `packages/api-client/openapi.json` |
 | `docker build -f apps/dashboard/Dockerfile .`  | production image (build context = repo root)                      |
 
-Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboard/.env.local` (git-ignored). `VITE_API_URL` is the API **origin** without `/api` (e.g. `http://localhost:5174`; empty = Vite proxy in dev, `https://api.detaileed.com` in prod). New `VITE_*` vars also need adding to the Dockerfile build args and the deploy workflow.
+Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboard/.env.local` (git-ignored). `VITE_API_URL` is the API **origin** without `/api` (e.g. `http://localhost:5174`; empty = Vite proxy in dev, `https://api.detaileed.com` in prod). `VITE_MAP_STYLE_URL` (empty = OpenFreeMap) and `VITE_WEB_URL` (customer site, empty = `https://detaileed.com`) are read in `shared/lib/siteConfig.ts`. New `VITE_*` vars also need adding to the Dockerfile build args and the deploy workflow.
 
 ## Code conventions (dashboard, paths relative to `apps/dashboard/src`)
 
@@ -61,7 +61,7 @@ Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboa
 - **API data:** normalise responses in the feature's `model/` (decimals and ids may arrive as strings; money is złoty, format with `formatPln`). Enums travel as names (`"Large"`); show them with the labels in `shared/lib/vehicleSize.ts` and `shared/lib/serviceCategory.ts`.
 - **Dates and times:** the API takes and sends UTC moments and plain studio days (`yyyy-MM-dd`). Show and enter times in the **studio's** time zone (`useStudioTimeZone()` from `features/studios`), never the browser's: use `shared/lib/studioTime.ts` (`dayInZone`, `timeInZone`, `todayInZone`, `zonedToUtc`, `formatInZone`, `formatDay`). Never take a day from `toISOString()` or `new Date().getDate()`.
 - **Mutation errors** are toasted globally (`shared/queryClient.ts`). Set `meta: { skipGlobalError: true }` when the caller shows the error itself.
-- **UI components:** generic ones come from `@detaileed/ui` (`Button`, `Badge`, `Modal`, `FormInput`, `FormSection`, `Skeleton`, `EmptyState`, `LoadingSpinner`, `Select`, `useToast`/`ToastProvider`). Use `Button` (variants, `loading`, `icon`) instead of hand-styled buttons; its `className` is for layout only. Only app-specific UI stays in `shared/ui`. New generic components go in `packages/ui` with a test.
+- **UI components:** generic ones come from `@detaileed/ui` (`Button`, `Badge`, `Modal`, `FormInput`, `FormSection`, `Skeleton`, `EmptyState`, `LoadingSpinner`, `Select`, `useToast`/`ToastProvider`). Use `Button` (variants, `loading`, `icon`) instead of hand-styled buttons; its `className` is for layout only. Only app-specific UI stays in `shared/ui`. New generic components go in `packages/ui` with a test. Maps come from the separate entry `@detaileed/ui/map` (`MapView`, `MapPicker`, MapLibre); load it lazily (`React.lazy`) so MapLibre stays out of the main bundle.
 - **Colours:** use the theme tokens (`green-deep`, `cream-warm`, `amber`, …; `bg-brand-gradient`), not hex values. In inline styles use `var(--green-deep)`-style variables.
 - **API errors:** use `getApiErrorMessage` from `shared/lib/errorHandler.ts`. Never leave an empty `catch`.
 - **Roles:** helpers in `shared/lib/studioRole.ts`; team role ids and labels in `features/team/model/roles.ts`.
