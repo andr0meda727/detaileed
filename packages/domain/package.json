@@ -8,7 +8,8 @@
     "./vehicleSize": "./src/vehicleSize.ts",
     "./serviceCategory": "./src/serviceCategory.ts",
     "./money": "./src/money.ts",
-    "./apiErrors": "./src/apiErrors.ts"
+    "./apiErrors": "./src/apiErrors.ts",
+    "./listing": "./src/listing.ts"
   },
   "scripts": {
     "test": "vitest run",
