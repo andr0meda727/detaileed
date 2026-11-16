@@ -16,6 +16,7 @@ import {
   FileBarChart2,
   Shield,
   Inbox,
+  GanttChart,
 } from 'lucide-react';
 import { useStudio } from '@/features/studios';
 import { usePendingRequestsCount } from '@/features/booking-requests';
@@ -26,6 +27,7 @@ type StudioPath =
   | '/s/$studioId'
   | '/s/$studioId/tasks'
   | '/s/$studioId/requests'
+  | '/s/$studioId/board'
   | '/s/$studioId/clients'
   | '/s/$studioId/team'
   | '/s/$studioId/inventory'
@@ -117,6 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({ studioId, onLogout, isOpen, onClose, 
     { to: '/s/$studioId', icon: LayoutDashboard, label: 'Panel Główny' },
     { to: '/s/$studioId/tasks', icon: CalendarClock, label: 'Rezerwacje' },
     { to: '/s/$studioId/requests', icon: Inbox, label: 'Zapytania', badge: pendingRequests },
+    { to: '/s/$studioId/board', icon: GanttChart, label: 'Grafik' },
     { to: '/s/$studioId/clients', icon: Users, label: 'Klienci' },
     ...(isEmployee ? [] : [{ to: '/s/$studioId/team', icon: Shield, label: 'Zespół' } satisfies NavItem]),
     { to: '/s/$studioId/inventory', icon: Package, label: 'Magazyn' },

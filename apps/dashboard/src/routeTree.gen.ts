@@ -18,6 +18,7 @@ import { Route as AuthStudiosRouteImport } from './routes/_auth/studios'
 import { Route as AuthSStudioIdRouteRouteImport } from './routes/_auth/s/$studioId/route'
 import { Route as AuthSStudioIdIndexRouteImport } from './routes/_auth/s/$studioId/index'
 import { Route as AuthSStudioIdArchivedRouteImport } from './routes/_auth/s/$studioId/archived'
+import { Route as AuthSStudioIdBoardRouteImport } from './routes/_auth/s/$studioId/board'
 import { Route as AuthSStudioIdClientsRouteImport } from './routes/_auth/s/$studioId/clients'
 import { Route as AuthSStudioIdInventoryRouteImport } from './routes/_auth/s/$studioId/inventory'
 import { Route as AuthSStudioIdReportsRouteImport } from './routes/_auth/s/$studioId/reports'
@@ -71,6 +72,11 @@ const AuthSStudioIdArchivedRoute = AuthSStudioIdArchivedRouteImport.update({
   path: '/archived',
   getParentRoute: () => AuthSStudioIdRouteRoute,
 } as any)
+const AuthSStudioIdBoardRoute = AuthSStudioIdBoardRouteImport.update({
+  id: '/board',
+  path: '/board',
+  getParentRoute: () => AuthSStudioIdRouteRoute,
+} as any)
 const AuthSStudioIdClientsRoute = AuthSStudioIdClientsRouteImport.update({
   id: '/clients',
   path: '/clients',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/studios': typeof AuthStudiosRoute
   '/s/$studioId': typeof AuthSStudioIdRouteRouteWithChildren
   '/s/$studioId/archived': typeof AuthSStudioIdArchivedRoute
+  '/s/$studioId/board': typeof AuthSStudioIdBoardRoute
   '/s/$studioId/clients': typeof AuthSStudioIdClientsRoute
   '/s/$studioId/inventory': typeof AuthSStudioIdInventoryRoute
   '/s/$studioId/reports': typeof AuthSStudioIdReportsRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/studios': typeof AuthStudiosRoute
   '/': typeof AuthIndexRoute
   '/s/$studioId/archived': typeof AuthSStudioIdArchivedRoute
+  '/s/$studioId/board': typeof AuthSStudioIdBoardRoute
   '/s/$studioId/clients': typeof AuthSStudioIdClientsRoute
   '/s/$studioId/inventory': typeof AuthSStudioIdInventoryRoute
   '/s/$studioId/reports': typeof AuthSStudioIdReportsRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/_auth/': typeof AuthIndexRoute
   '/_auth/s/$studioId': typeof AuthSStudioIdRouteRouteWithChildren
   '/_auth/s/$studioId/archived': typeof AuthSStudioIdArchivedRoute
+  '/_auth/s/$studioId/board': typeof AuthSStudioIdBoardRoute
   '/_auth/s/$studioId/clients': typeof AuthSStudioIdClientsRoute
   '/_auth/s/$studioId/inventory': typeof AuthSStudioIdInventoryRoute
   '/_auth/s/$studioId/reports': typeof AuthSStudioIdReportsRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/studios'
     | '/s/$studioId'
     | '/s/$studioId/archived'
+    | '/s/$studioId/board'
     | '/s/$studioId/clients'
     | '/s/$studioId/inventory'
     | '/s/$studioId/reports'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/studios'
     | '/'
     | '/s/$studioId/archived'
+    | '/s/$studioId/board'
     | '/s/$studioId/clients'
     | '/s/$studioId/inventory'
     | '/s/$studioId/reports'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/_auth/'
     | '/_auth/s/$studioId'
     | '/_auth/s/$studioId/archived'
+    | '/_auth/s/$studioId/board'
     | '/_auth/s/$studioId/clients'
     | '/_auth/s/$studioId/inventory'
     | '/_auth/s/$studioId/reports'
@@ -298,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSStudioIdArchivedRouteImport
       parentRoute: typeof AuthSStudioIdRouteRoute
     }
+    '/_auth/s/$studioId/board': {
+      id: '/_auth/s/$studioId/board'
+      path: '/board'
+      fullPath: '/s/$studioId/board'
+      preLoaderRoute: typeof AuthSStudioIdBoardRouteImport
+      parentRoute: typeof AuthSStudioIdRouteRoute
+    }
     '/_auth/s/$studioId/clients': {
       id: '/_auth/s/$studioId/clients'
       path: '/clients'
@@ -359,6 +378,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthSStudioIdRouteRouteChildren {
   AuthSStudioIdArchivedRoute: typeof AuthSStudioIdArchivedRoute
+  AuthSStudioIdBoardRoute: typeof AuthSStudioIdBoardRoute
   AuthSStudioIdClientsRoute: typeof AuthSStudioIdClientsRoute
   AuthSStudioIdInventoryRoute: typeof AuthSStudioIdInventoryRoute
   AuthSStudioIdReportsRoute: typeof AuthSStudioIdReportsRoute
@@ -372,6 +392,7 @@ interface AuthSStudioIdRouteRouteChildren {
 
 const AuthSStudioIdRouteRouteChildren: AuthSStudioIdRouteRouteChildren = {
   AuthSStudioIdArchivedRoute: AuthSStudioIdArchivedRoute,
+  AuthSStudioIdBoardRoute: AuthSStudioIdBoardRoute,
   AuthSStudioIdClientsRoute: AuthSStudioIdClientsRoute,
   AuthSStudioIdInventoryRoute: AuthSStudioIdInventoryRoute,
   AuthSStudioIdReportsRoute: AuthSStudioIdReportsRoute,
