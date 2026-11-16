@@ -6,3 +6,4 @@ export { default as InventoryView } from './components/InventoryView';
 export { default as CategoriesSettings } from './components/CategoriesSettings';
 export { default as RecipeEditor } from './components/RecipeEditor';
 export { default as SizeFactorsSettings } from './components/SizeFactorsSettings';
+export { default as ConsumptionSection } from './components/ConsumptionSection';

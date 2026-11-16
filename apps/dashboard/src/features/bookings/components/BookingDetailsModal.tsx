@@ -7,6 +7,7 @@ import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/
 import { formatBookingTime } from '@/features/bookings/model/format';
 import BookingStatusBadge from '@/features/bookings/components/BookingStatusBadge';
 import { useStudioTimeZone } from '@/features/studios';
+import { ConsumptionSection } from '@/features/inventory';
 import { formatInZone } from '@detaileed/domain/studioTime';
 
 interface BookingDetailsModalProps {
@@ -114,6 +115,7 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({ booking, onCl
                 <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl">{booking.notes}</p>
               </div>
             )}
+            {booking.status === BOOKING_STATUSES.ZAKONCZONA.name && <ConsumptionSection bookingId={booking.id} />}
             <div className="flex gap-4 pt-6">
               {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
                 <>
