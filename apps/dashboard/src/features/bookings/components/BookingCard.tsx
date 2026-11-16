@@ -33,8 +33,13 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, o
           {formatBookingDay(booking.scheduledAt, timeZone)}
         </span>
         <span className="text-[10px] font-semibold text-green-deep/35 font-mono tracking-widest mt-2">
-          {formatBookingTime(booking.scheduledAt, timeZone)}
+          {formatBookingTime(booking.scheduledAt, timeZone)}–{formatBookingTime(booking.endsAt, timeZone)}
         </span>
+        {booking.bay && (
+          <span className="mt-1.5 text-[9px] font-bold text-green-light uppercase tracking-widest">
+            {booking.bay.name}
+          </span>
+        )}
       </div>
       {/* Content */}
       <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center space-y-2">

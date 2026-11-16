@@ -77,8 +77,9 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({ booking, onCl
                   <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Termin</p>
                   <p className="text-lg font-bold text-green-deep">
                     {formatInZone(booking.scheduledAt, timeZone, { dateStyle: 'short' })} •{' '}
-                    {formatBookingTime(booking.scheduledAt, timeZone)}
+                    {formatBookingTime(booking.scheduledAt, timeZone)}–{formatBookingTime(booking.endsAt, timeZone)}
                   </p>
+                  {booking.bay && <p className="text-sm font-semibold text-green-light">{booking.bay.name}</p>}
                 </div>
               </div>
               <div className="text-right">
