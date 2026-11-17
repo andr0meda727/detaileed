@@ -1,3 +1,10 @@
+/**
+ * Why a link from an email didn't work. Links are one-time, expire, and (PKCE) work only in the browser that asked
+ * for them.
+ */
+export const LINK_EXPIRED =
+  'Link wygasł, został już użyty albo otwarto go w innej przeglądarce niż ta, w której o niego poproszono.';
+
 /** Polish messages for the Supabase auth errors a customer can run into; anything else gets a generic text. */
 const MESSAGES: Record<string, string> = {
   invalid_credentials: 'Nieprawidłowy e-mail lub hasło.',
@@ -8,6 +15,14 @@ const MESSAGES: Record<string, string> = {
   over_email_send_rate_limit: 'Wysłaliśmy już e-mail. Odczekaj chwilę i spróbuj ponownie.',
   captcha_failed: 'Nie udało się potwierdzić, że nie jesteś robotem. Spróbuj ponownie.',
   over_request_rate_limit: 'Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.',
+  email_address_invalid: 'Ten adres e-mail jest nieprawidłowy.',
+  same_password: 'Nowe hasło musi się różnić od obecnego.',
+  reauthentication_not_valid: 'Kod jest nieprawidłowy albo wygasł. Wyślij nowy kod.',
+  // A link from an email that expired, was used, or is opened in another browser than the one that asked for it
+  otp_expired: LINK_EXPIRED,
+  flow_state_expired: LINK_EXPIRED,
+  flow_state_not_found: LINK_EXPIRED,
+  bad_code_verifier: LINK_EXPIRED,
 };
 
 export function authErrorMessage(error: { code?: string; message?: string } | null | undefined): string {

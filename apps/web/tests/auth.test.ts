@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { signUpSchema } from '@/features/auth/model/schemas';
-import { authErrorMessage } from '@/features/auth/model/authErrors';
+import { newPasswordSchema, signUpSchema } from '@/features/auth/model/schemas';
+import { authErrorMessage, LINK_EXPIRED } from '@/features/auth/model/authErrors';
 import { safeReturnPath, signInPath } from '@/features/auth/model/returnPath';
 
 describe('safeReturnPath', () => {
@@ -44,10 +44,26 @@ describe('signUpSchema', () => {
   });
 });
 
+describe('newPasswordSchema', () => {
+  it('uses the sign-up password rule and wants it twice', () => {
+    expect(newPasswordSchema.safeParse({ password: 'Haslo1234', confirmPassword: 'Haslo1234' }).success).toBe(true);
+    expect(newPasswordSchema.safeParse({ password: 'haslo', confirmPassword: 'haslo' }).success).toBe(false);
+    const mismatch = newPasswordSchema.safeParse({ password: 'Haslo1234', confirmPassword: 'Haslo12345' });
+    expect(mismatch.error?.issues[0].path).toEqual(['confirmPassword']);
+  });
+});
+
 describe('authErrorMessage', () => {
   it('translates known codes and old messages', () => {
     expect(authErrorMessage({ code: 'invalid_credentials' })).toBe('Nieprawidłowy e-mail lub hasło.');
     expect(authErrorMessage({ message: 'User already registered' })).toMatch(/już istnieje/);
     expect(authErrorMessage({ code: 'something_else' })).toMatch(/Spróbuj ponownie/);
+  });
+
+  it('explains password and link errors', () => {
+    expect(authErrorMessage({ code: 'same_password' })).toMatch(/różnić od obecnego/);
+    for (const code of ['otp_expired', 'flow_state_expired', 'bad_code_verifier']) {
+      expect(authErrorMessage({ code })).toBe(LINK_EXPIRED);
+    }
   });
 });
