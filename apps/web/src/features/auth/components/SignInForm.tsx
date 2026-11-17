@@ -55,6 +55,11 @@ export default function SignInForm({ next, notice }: { next: string; notice?: st
         error={errors.password?.message}
         {...register('password')}
       />
+      <p className="text-right text-sm">
+        <Link href="/przypomnij-haslo" className="font-bold text-green-deep underline">
+          Nie pamiętasz hasła?
+        </Link>
+      </p>
       {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}
       {captcha.failed && (
         <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
