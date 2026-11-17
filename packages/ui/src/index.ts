@@ -16,3 +16,7 @@ export { default as Select } from './Select';
 export type { SelectOption, SelectProps } from './Select';
 export { default as StarRating } from './StarRating';
 export type { StarRatingProps } from './StarRating';
+export { default as Turnstile } from './Turnstile';
+export type { TurnstileHandle, TurnstileProps } from './Turnstile';
+export { useTurnstile } from './useTurnstile';
+export type { UseTurnstile } from './useTurnstile';
