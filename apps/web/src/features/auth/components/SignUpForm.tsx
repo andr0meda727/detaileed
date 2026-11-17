@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MailCheck, UserPlus } from 'lucide-react';
-import { Button, FormInput } from '@detaileed/ui';
+import { Button, FormInput, Turnstile, useTurnstile } from '@detaileed/ui';
 import { getSupabase } from '@/lib/supabase/client';
-import { siteUrl } from '@/lib/site';
+import { siteUrl, TURNSTILE_SITE_KEY } from '@/lib/site';
 import { signUpSchema, type SignUpValues } from '@/features/auth/model/schemas';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
 
@@ -20,6 +20,7 @@ export default function SignUpForm({ next }: { next: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const captcha = useTurnstile(TURNSTILE_SITE_KEY, 'sign_up');
   const {
     register,
     handleSubmit,
@@ -37,8 +38,10 @@ export default function SignUpForm({ next }: { next: string }) {
       options: {
         data: { first_name: values.firstName, last_name: values.lastName },
         emailRedirectTo: siteUrl(`/auth/callback?next=${encodeURIComponent(next)}`),
+        captchaToken: captcha.token,
       },
     });
+    captcha.reset();
     if (authError) {
       setError(authErrorMessage(authError));
       return;
@@ -100,12 +103,18 @@ export default function SignUpForm({ next }: { next: string }) {
         error={errors.confirmPassword?.message}
         {...register('confirmPassword')}
       />
+      {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}
+      {captcha.failed && (
+        <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
+          Nie udało się załadować weryfikacji. Odśwież stronę albo wyłącz blokowanie skryptów.
+        </p>
+      )}
       {error && (
         <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
           {error}
         </p>
       )}
-      <Button size="lg" fullWidth type="submit" icon={UserPlus} loading={isSubmitting}>
+      <Button size="lg" fullWidth type="submit" icon={UserPlus} loading={isSubmitting} disabled={!captcha.ready}>
         Załóż konto
       </Button>
       <p className="pt-4 text-sm text-center text-green-light">

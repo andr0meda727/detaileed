@@ -24,7 +24,11 @@ describe('SignInForm', () => {
     render(<SignInForm next="/studio/s1/rezerwuj" />);
     fill();
     await waitFor(() => expect(replace).toHaveBeenCalledWith('/studio/s1/rezerwuj'));
-    expect(signInWithPassword).toHaveBeenCalledWith({ email: 'anna@example.com', password: 'Haslo1234' });
+    expect(signInWithPassword).toHaveBeenCalledWith({
+      email: 'anna@example.com',
+      password: 'Haslo1234',
+      options: { captchaToken: undefined },
+    });
   });
 
   it('shows the Polish message for wrong credentials', async () => {

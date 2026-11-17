@@ -6,6 +6,7 @@ const MESSAGES: Record<string, string> = {
   email_exists: 'Konto z tym adresem e-mail już istnieje. Zaloguj się.',
   weak_password: 'Hasło jest zbyt słabe. Użyj co najmniej 8 znaków, wielkiej litery i cyfry.',
   over_email_send_rate_limit: 'Wysłaliśmy już e-mail. Odczekaj chwilę i spróbuj ponownie.',
+  captcha_failed: 'Nie udało się potwierdzić, że nie jesteś robotem. Spróbuj ponownie.',
   over_request_rate_limit: 'Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.',
 };
 
