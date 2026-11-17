@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -13,7 +13,7 @@ import { signInSchema, type SignInValues } from '@/features/auth/model/schemas';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
 
 /** Email + password sign-in; goes back to `next` afterwards. */
-export default function SignInForm({ next, notice }: { next: string; notice?: string }) {
+export default function SignInForm({ next, notice }: { next: string; notice?: ReactNode }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const captcha = useTurnstile(TURNSTILE_SITE_KEY, 'sign_in');
@@ -40,7 +40,7 @@ export default function SignInForm({ next, notice }: { next: string; notice?: st
 
   return (
     <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
-      {notice && <p className="mb-4 text-sm bg-amber/10 text-green-deep rounded-xl p-3">{notice}</p>}
+      {notice && <div className="mb-4 text-sm bg-amber/10 text-green-deep rounded-xl p-3">{notice}</div>}
       <FormInput
         label="E-mail"
         type="email"
