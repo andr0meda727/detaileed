@@ -73,3 +73,4 @@ jobs:
             NEXT_PUBLIC_SITE_URL=${{ vars.WEB_SITE_URL }}
             NEXT_PUBLIC_DASHBOARD_URL=${{ vars.DASHBOARD_URL }}
             NEXT_PUBLIC_MAP_STYLE_URL=${{ vars.VITE_MAP_STYLE_URL }}
+            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}

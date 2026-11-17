@@ -8,6 +8,8 @@ interface ImportMetaEnv {
   readonly VITE_MAP_STYLE_URL?: string;
   /** Origin of the customer site, for links to a studio's public page; empty = https://detaileed.com. */
   readonly VITE_WEB_URL?: string;
+  /** Cloudflare Turnstile site key (captcha on sign-in); empty = off. */
+  readonly VITE_TURNSTILE_SITE_KEY?: string;
 }
 
 interface ImportMeta {

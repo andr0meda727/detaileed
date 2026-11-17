@@ -14,6 +14,9 @@ export const DASHBOARD_URL = origin(process.env.NEXT_PUBLIC_DASHBOARD_URL, 'http
 /** MapLibre style; undefined = the ui package default (OpenFreeMap). */
 export const MAP_STYLE_URL = process.env.NEXT_PUBLIC_MAP_STYLE_URL || undefined;
 
+/** Cloudflare Turnstile site key for sign-in and sign-up; empty = no captcha (it must match Supabase's setting). */
+export const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || undefined;
+
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 export const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ?? '';
 
