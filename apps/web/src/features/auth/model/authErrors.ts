@@ -25,6 +25,10 @@ const MESSAGES: Record<string, string> = {
   bad_code_verifier: LINK_EXPIRED,
 };
 
+/** Whether sign-in failed only because the account's email isn't confirmed yet. */
+export const isEmailNotConfirmed = (error: { code?: string; message?: string }) =>
+  error.code === 'email_not_confirmed' || Boolean(error.message?.includes('Email not confirmed'));
+
 export function authErrorMessage(error: { code?: string; message?: string } | null | undefined): string {
   if (!error) return 'Coś poszło nie tak. Spróbuj ponownie.';
   if (error.code && MESSAGES[error.code]) return MESSAGES[error.code];

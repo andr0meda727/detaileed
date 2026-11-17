@@ -8,9 +8,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { MailCheck, UserPlus } from 'lucide-react';
 import { Button, FormInput, Turnstile, useTurnstile } from '@detaileed/ui';
 import { getSupabase } from '@/lib/supabase/client';
-import { siteUrl, TURNSTILE_SITE_KEY } from '@/lib/site';
+import { TURNSTILE_SITE_KEY } from '@/lib/site';
 import { signUpSchema, type SignUpValues } from '@/features/auth/model/schemas';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
+import { confirmEmailRedirect } from '@/features/auth/model/returnPath';
+import ResendConfirmation from '@/features/auth/components/ResendConfirmation';
 
 /**
  * Customer sign-up. First and last name go into the account's metadata, from which the backend fills the profile.
@@ -37,7 +39,7 @@ export default function SignUpForm({ next }: { next: string }) {
       password: values.password,
       options: {
         data: { first_name: values.firstName, last_name: values.lastName },
-        emailRedirectTo: siteUrl(`/auth/callback?next=${encodeURIComponent(next)}`),
+        emailRedirectTo: confirmEmailRedirect(next),
         captchaToken: captcha.token,
       },
     });
@@ -62,6 +64,7 @@ export default function SignUpForm({ next }: { next: string }) {
         <p className="text-sm text-green-light">
           Wysłaliśmy link potwierdzający na <strong>{sentTo}</strong>. Kliknij go, aby dokończyć zakładanie konta.
         </p>
+        <ResendConfirmation email={sentTo} next={next} justSent />
       </div>
     );
   }

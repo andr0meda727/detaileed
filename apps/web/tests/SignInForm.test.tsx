@@ -39,5 +39,15 @@ describe('SignInForm', () => {
     fill();
     expect(await screen.findByRole('alert')).toHaveTextContent('Nieprawidłowy e-mail lub hasło.');
     expect(replace).not.toHaveBeenCalled();
+    expect(screen.queryByRole('link', { name: 'Wyślij link ponownie' })).not.toBeInTheDocument();
+  });
+
+  it('offers to resend the confirmation link to an unconfirmed account', async () => {
+    signInWithPassword.mockResolvedValue({ error: { code: 'email_not_confirmed' } });
+    render(<SignInForm next="/konto/rezerwacje" />);
+    fill();
+
+    const link = await screen.findByRole('link', { name: 'Wyślij link ponownie' });
+    expect(link).toHaveAttribute('href', '/potwierdz-email?email=anna%40example.com&next=%2Fkonto%2Frezerwacje');
   });
 });

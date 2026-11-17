@@ -10,12 +10,15 @@ import { Button, FormInput, Turnstile, useTurnstile } from '@detaileed/ui';
 import { getSupabase } from '@/lib/supabase/client';
 import { TURNSTILE_SITE_KEY } from '@/lib/site';
 import { signInSchema, type SignInValues } from '@/features/auth/model/schemas';
-import { authErrorMessage } from '@/features/auth/model/authErrors';
+import { authErrorMessage, isEmailNotConfirmed } from '@/features/auth/model/authErrors';
+import { confirmEmailPath } from '@/features/auth/model/returnPath';
 
 /** Email + password sign-in; goes back to `next` afterwards. */
 export default function SignInForm({ next, notice }: { next: string; notice?: ReactNode }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  // The email of an account that can't sign in until it's confirmed: offer to send the link again
+  const [unconfirmed, setUnconfirmed] = useState<string | null>(null);
   const captcha = useTurnstile(TURNSTILE_SITE_KEY, 'sign_in');
   const {
     register,
@@ -32,6 +35,7 @@ export default function SignInForm({ next, notice }: { next: string; notice?: Re
     captcha.reset();
     if (authError) {
       setError(authErrorMessage(authError));
+      setUnconfirmed(isEmailNotConfirmed(authError) ? values.email : null);
       return;
     }
     router.replace(next);
@@ -69,6 +73,14 @@ export default function SignInForm({ next, notice }: { next: string; notice?: Re
       {error && (
         <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
           {error}
+          {unconfirmed && (
+            <>
+              {' '}
+              <Link href={confirmEmailPath(unconfirmed, next)} className="font-bold underline">
+                Wyślij link ponownie
+              </Link>
+            </>
+          )}
         </p>
       )}
       <Button size="lg" fullWidth type="submit" icon={LogIn} loading={isSubmitting} disabled={!captcha.ready}>
