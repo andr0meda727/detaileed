@@ -8,7 +8,9 @@ import {
   PasswordResetValues,
 } from '@/features/auth/model/schemas';
 import { ArrowRight, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
+import { Turnstile, useTurnstile } from '@detaileed/ui';
 import supabase from '@/shared/lib/supabase';
+import { TURNSTILE_SITE_KEY } from '@/shared/lib/siteConfig';
 import logo from '@/images/logo.svg';
 
 interface LoginViewProps {
@@ -16,6 +18,12 @@ interface LoginViewProps {
 }
 
 type Mode = 'login' | 'reset' | 'reset-sent';
+
+const CAPTCHA_FAILED = 'Nie udało się potwierdzić, że nie jesteś robotem. Spróbuj ponownie.';
+
+function authErrorText(error: { code?: string; message: string }): string {
+  return error.code === 'captcha_failed' ? CAPTCHA_FAILED : error.message;
+}
 
 function getErrorMessage(error: unknown, fallbackMessage: string): string {
   if (error instanceof Error && error.message) return error.message;
@@ -27,6 +35,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [resetEmailSentTo, setResetEmailSentTo] = useState('');
+  const captcha = useTurnstile(TURNSTILE_SITE_KEY, mode === 'reset' ? 'password_reset' : 'dashboard_sign_in');
 
   const {
     register: registerLogin,
@@ -53,14 +62,16 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
+        options: { captchaToken: captcha.token },
       });
-      if (authError) throw new Error(authError.message);
+      if (authError) throw new Error(authErrorText(authError));
       if (authData.session) {
         onLogin(data.email);
       } else throw new Error('Nie otrzymano sesji autoryzacji');
     } catch (error) {
       setError(getErrorMessage(error, 'Wystąpił błąd podczas logowania'));
     } finally {
+      captcha.reset();
       setIsLoading(false);
     }
   };
@@ -71,13 +82,15 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(data.email, {
         redirectTo: `${window.location.origin}/?type=recovery`,
+        captchaToken: captcha.token,
       });
-      if (resetError) throw new Error(resetError.message);
+      if (resetError) throw new Error(authErrorText(resetError));
       setResetEmailSentTo(data.email);
       setMode('reset-sent');
     } catch (error) {
       setError(getErrorMessage(error, 'Wystąpił błąd podczas resetowania hasła'));
     } finally {
+      captcha.reset();
       setIsLoading(false);
     }
   };
@@ -136,6 +149,13 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 )}
               </div>
 
+              {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}
+              {captcha.failed && (
+                <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
+                  Nie udało się załadować weryfikacji. Odśwież stronę albo wyłącz blokowanie skryptów.
+                </div>
+              )}
+
               {error && (
                 <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
                   {error}
@@ -144,7 +164,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !captcha.ready}
                 className="w-full flex items-center justify-center gap-4 bg-green-deep hover:bg-[#1A3D33] text-cream-warm font-semibold py-6 rounded-xl transition-all shadow-[0_20px_40px_rgba(16,44,38,0.2)] group text-[11px] uppercase tracking-[0.2em] disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
@@ -199,6 +219,13 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
                 )}
               </div>
 
+              {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}
+              {captcha.failed && (
+                <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
+                  Nie udało się załadować weryfikacji. Odśwież stronę albo wyłącz blokowanie skryptów.
+                </div>
+              )}
+
               {error && (
                 <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
                   {error}
@@ -207,7 +234,7 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
 
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !captcha.ready}
                 className="w-full flex items-center justify-center gap-3 bg-green-deep text-cream-warm font-semibold py-6 rounded-xl transition-all text-[11px] uppercase tracking-[0.2em] disabled:opacity-70"
               >
                 {isLoading ? (
