@@ -40,19 +40,25 @@ export default function ResendConfirmation({
   const resend = async () => {
     setError(null);
     setSending(true);
-    const { error: authError } = await getSupabase().auth.resend({
-      type: 'signup',
-      email,
-      options: { emailRedirectTo: confirmEmailRedirect(next), captchaToken: captcha.token },
-    });
-    captcha.reset();
-    setSending(false);
-    if (authError) {
-      setError(authErrorMessage(authError));
-      return;
+    try {
+      const { error: authError } = await getSupabase().auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: confirmEmailRedirect(next), captchaToken: captcha.token },
+      });
+      if (authError) {
+        setError(authErrorMessage(authError));
+        return;
+      }
+      setSent(true);
+      setSecondsLeft(RESEND_COOLDOWN);
+    } catch {
+      // A network failure throws instead of returning an error
+      setError(authErrorMessage(null));
+    } finally {
+      captcha.reset();
+      setSending(false);
     }
-    setSent(true);
-    setSecondsLeft(RESEND_COOLDOWN);
   };
 
   return (

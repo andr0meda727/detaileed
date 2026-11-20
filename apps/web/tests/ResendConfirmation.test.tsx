@@ -53,4 +53,14 @@ describe('ResendConfirmation', () => {
 
     expect(screen.getByRole('alert')).toHaveTextContent('Wysłaliśmy już e-mail');
   });
+
+  it('stops loading and shows an error when the request fails', async () => {
+    resend.mockRejectedValue(new TypeError('Failed to fetch'));
+    render(<ResendConfirmation email="anna@example.com" next="/konto" />);
+
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Wyślij ponownie' })));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Coś poszło nie tak');
+    expect(screen.getByRole('button', { name: 'Wyślij ponownie' })).toBeEnabled();
+  });
 });
