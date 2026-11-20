@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { roundBounds, roundCoord } from '../src/map/geo';
+import { roundBounds, roundCoord } from '../../src/map/geo';
 
 // jsdom has no WebGL: replace the map with a div that exposes its click and load handlers.
 const fakeMap = {
@@ -31,8 +31,8 @@ vi.mock('react-map-gl/maplibre', () => ({
 }));
 vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}));
 
-const { default: MapPicker } = await import('../src/map/MapPicker');
-const { default: MapView } = await import('../src/map/MapView');
+const { default: MapPicker } = await import('../../src/map/MapPicker');
+const { default: MapView } = await import('../../src/map/MapView');
 
 describe('geo helpers', () => {
   it('rounds a coordinate', () => {
