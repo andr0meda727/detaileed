@@ -1,3 +1,4 @@
+import 'server-only';
 import { cache } from 'react';
 import { getApiPublicStudiosStudioId, getApiPublicStudiosStudioIdReviews } from '@detaileed/api-client';
 import { toListing } from '@detaileed/domain/listing';

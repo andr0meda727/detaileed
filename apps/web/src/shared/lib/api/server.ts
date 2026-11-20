@@ -1,3 +1,4 @@
+import 'server-only';
 import { ApiError, configureApiClient } from '@detaileed/api-client';
 import { API_URL } from '@/shared/lib/site';
 
