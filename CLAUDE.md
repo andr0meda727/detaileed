@@ -4,7 +4,7 @@ pnpm + Turborepo monorepo for a car-detailing platform. UI text is Polish; **eve
 
 ```
 apps/dashboard/     studio-management SPA: React 19 + TypeScript (strict) + Vite
-                    src/{app,routes,features,shared} (see docs/frontend-architecture.md), tests/ = Vitest
+                    src/{app,routes,features,shared} (see docs/architecture.md), tests/ = Vitest
 apps/web/           customer site on detaileed.com: Next.js 16 (App Router, ISR, standalone), Supabase via @supabase/ssr
                     src/{app,features,lib}, tests/ = Vitest
 packages/api-client/ @detaileed/api-client: fetch layer (fetcher.ts) + React Query hooks and models
@@ -59,7 +59,7 @@ Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboa
 
 ## Code conventions (dashboard, paths relative to `apps/dashboard/src`)
 
-- **Structure:** `app → routes → features → shared`; a feature is used by others only through its `index.ts`. ESLint enforces this (`featureSlices` in `packages/config/eslint.js`). Details: `docs/frontend-architecture.md`.
+- **Structure:** `app → routes → features → shared`; a feature is used by others only through its `index.ts`. ESLint enforces this (`featureSlices` in `packages/config/eslint.js`). Details: `docs/architecture.md`.
 - **Server data goes through React Query hooks only**, built in a feature's `api/` on top of `@detaileed/api-client`. Never call `fetch` directly (lint error); use `apiFetch` only for endpoints that aren't in the spec yet.
 - **API spec updates:** a Debug build of the backend (`detailflow-api`) writes `docs/openapi.json`; copy it to `packages/api-client/openapi.json`, run `pnpm generate`, and commit the spec and the generated code together (CI fails if they drift).
 - **API data:** normalise responses in the feature's `model/` (decimals and ids may arrive as strings; money is złoty, format with `formatPln` from `@detaileed/domain/money`). Enums travel as names (`"Large"`); show them with the labels in `@detaileed/domain/vehicleSize` and `@detaileed/domain/serviceCategory`.
@@ -103,4 +103,4 @@ Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboa
 9. Planning (bays, opening hours, day board, free slots in bookings): done
 10. Inventory ledger (movements, recipes, consumption, forecast): done
 
-Architecture notes: `docs/frontend-architecture.md`; manual regression checklist: `docs/refactor-baseline-checklist.md`.
+Architecture notes: `docs/architecture.md`; manual regression checklist: `docs/regression-checklist.md`.

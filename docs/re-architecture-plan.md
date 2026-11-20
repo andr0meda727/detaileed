@@ -88,7 +88,7 @@ Order: `shared` (utils, ToastContext, delete the deprecated `components/ui/useTo
 
 **Progress notes (Phase 4):**
 
-- Final layout: see `docs/frontend-architecture.md`. No legacy `views/`, `services/`, `hooks/`, `apiClient.ts` or `types.ts` remain.
+- Final layout: see `docs/architecture.md`. No legacy `views/`, `services/`, `hooks/`, `apiClient.ts` or `types.ts` remain.
 - The dashboard activity feed shows static sample entries; replace it when the API has an activity log.
 - Paged lists: `shared/lib/paging.ts#fetchAllPages` loads every page for screens that compute over the whole list (bookings today). Replace with server-side filtering/paging per screen later.
 - Money from the API is złoty (`formatPln` in `shared/lib/money.ts`); the old `/ 100` conversions were removed for bookings. Check the same for other features as they move.
@@ -331,4 +331,4 @@ Reuse: `utils/errorHandler.ts#getApiErrorMessage`, `utils/studioRole.ts`, `utils
 ## Verification (every commit / phase)
 
 - Per commit: prettier + eslint --fix on the changed files; `pnpm turbo lint typecheck test` (+ `build` when relevant).
-- Per phase, before merging to `main`: full build, a Docker build where the Dockerfile changed, and the manual regression in `docs/refactor-baseline-checklist.md` (the user runs `pnpm dev` and clicks through; I can't log in to Supabase myself).
+- Per phase, before merging to `main`: full build, a Docker build where the Dockerfile changed, and the manual regression in `docs/regression-checklist.md` (the user runs `pnpm dev` and clicks through; I can't log in to Supabase myself).
