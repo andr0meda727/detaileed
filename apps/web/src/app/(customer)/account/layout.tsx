@@ -4,7 +4,7 @@ import { getSignedInUser } from '@/lib/supabase/server';
 import { signInPath } from '@/features/auth/model/returnPath';
 import AccountNav from '@/features/account/components/AccountNav';
 
-export const metadata: Metadata = { title: 'Moje konto', robots: { index: false } };
+export const metadata: Metadata = { title: 'Moje konto' };
 
 /** The customer account; signed-in only. */
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {

@@ -7,7 +7,7 @@ import { signInPath } from '@/features/auth/model/returnPath';
 import { getListing } from '@/features/studio/api/server';
 import BookingRequestPage from '@/features/booking/components/BookingRequestPage';
 
-export const metadata: Metadata = { title: 'Zapytanie o termin', robots: { index: false } };
+export const metadata: Metadata = { title: 'Zapytanie o termin' };
 
 type Props = {
   params: Promise<{ id: string }>;
