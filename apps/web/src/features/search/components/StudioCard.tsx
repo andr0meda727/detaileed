@@ -17,7 +17,7 @@ interface StudioCardProps {
 export default function StudioCard({ pin, size, selected, onHover }: StudioCardProps) {
   return (
     <Link
-      href={`/studio/${pin.studioId}?rozmiar=${size}`}
+      href={`/studio/${pin.studioId}?size=${size}`}
       onMouseEnter={onHover}
       onFocus={onHover}
       className={`block floating-card p-4 ${selected ? 'ring-2 ring-amber' : ''}`}

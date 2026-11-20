@@ -5,7 +5,7 @@ import { safeReturnPath, signInPath } from '@/features/auth/model/returnPath';
 
 describe('safeReturnPath', () => {
   it('keeps paths on this site', () => {
-    expect(safeReturnPath('/studio/s1/book?uslugi=a')).toBe('/studio/s1/book?uslugi=a');
+    expect(safeReturnPath('/studio/s1/book?services=a')).toBe('/studio/s1/book?services=a');
   });
 
   it('refuses other origins and falls back', () => {

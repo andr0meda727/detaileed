@@ -17,7 +17,7 @@ const isSize = (v: string | null): v is VehicleSize => Object.values(VehicleSize
 /** The studio's services with prices for the chosen car size; pick some to see an estimate and send a request. */
 export default function StudioOffer({ listing }: { listing: Listing }) {
   const searchParams = useSearchParams();
-  const initialSize = searchParams.get('rozmiar');
+  const initialSize = searchParams.get('size');
   const [size, setSize] = useState<VehicleSize>(isSize(initialSize) ? initialSize : VehicleSize.Medium);
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -30,7 +30,7 @@ export default function StudioOffer({ listing }: { listing: Listing }) {
 
   const toggle = (id: string) => setSelected((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
 
-  const bookHref = `/studio/${listing.studioId}/book?uslugi=${selected.join(',')}&rozmiar=${size}`;
+  const bookHref = `/studio/${listing.studioId}/book?services=${selected.join(',')}&size=${size}`;
 
   return (
     <section className="space-y-5" aria-labelledby="offer-heading">

@@ -9,7 +9,7 @@ vi.mock('@detaileed/api-client', async (orig) => ({
   ...(await orig<typeof import('@detaileed/api-client')>()),
   postApiPublicStudiosStudioIdEstimate: (...args: unknown[]) => estimate(...args),
 }));
-vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams('rozmiar=Large') }));
+vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams('size=Large') }));
 
 const { default: StudioOffer } = await import('@/features/studio/components/StudioOffer');
 
@@ -68,7 +68,7 @@ describe('StudioOffer', () => {
     expect(estimate).toHaveBeenLastCalledWith('s1', { serviceIds: ['a', 'b'], vehicleSize: 'Large' });
     expect(screen.getByRole('link', { name: /Wyślij zapytanie/ })).toHaveAttribute(
       'href',
-      '/studio/s1/book?uslugi=a,b&rozmiar=Large',
+      '/studio/s1/book?services=a,b&size=Large',
     );
   });
 

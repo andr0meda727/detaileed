@@ -73,7 +73,7 @@ describe('MapSearch', () => {
 
     expect(await screen.findByText('Detail Kraków')).toBeInTheDocument();
     expect(screen.getByText('od 89 zł')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Detail Kraków/ })).toHaveAttribute('href', '/studio/s1?rozmiar=Medium');
+    expect(screen.getByRole('link', { name: /Detail Kraków/ })).toHaveAttribute('href', '/studio/s1?size=Medium');
     expect(getApiPublicStudios).toHaveBeenCalledWith(
       expect.objectContaining({ MinLat: 50, MaxLat: 50.1, VehicleSize: 'Medium', Category: undefined }),
       expect.anything(),
@@ -95,6 +95,6 @@ describe('MapSearch', () => {
         expect.anything(),
       ),
     );
-    expect(window.location.search).toContain('kategoria=Ceramic&rozmiar=Large');
+    expect(window.location.search).toContain('category=Ceramic&size=Large');
   });
 });
