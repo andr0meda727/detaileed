@@ -1,6 +1,6 @@
 # Detaileed
 
-pnpm + Turborepo monorepo for a car-detailing platform. UI text is Polish.
+pnpm + Turborepo monorepo for a car-detailing platform. UI text is Polish; **everything else is English**: folder and file names, URLs and query parameters (lowercase, kebab-case), identifiers, keys, comments, test names, commit messages. Polish appears only in strings people see on screen.
 
 ```
 apps/dashboard/     studio-management SPA: React 19 + TypeScript (strict) + Vite
