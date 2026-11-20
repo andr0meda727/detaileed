@@ -9,7 +9,7 @@ import { Button, EmptyState, FormSection, Skeleton, useToast } from '@detaileed/
 import { vehicleSizeLabel } from '@detaileed/domain/vehicleSize';
 import { useAddVehicle, useDeleteVehicle, useGarage, useUpdateVehicle } from '@/features/account/api/me';
 import { carSchema, emptyCar, toCarRequest, type CarValues } from '@/features/account/model/schemas';
-import { bookingErrorMessage } from '@/features/booking/model/errors';
+import { garageErrorMessage } from '@/features/account/model/errors';
 import CarFields from '@/features/account/components/CarFields';
 
 const MAX_CARS = 10;
@@ -34,7 +34,7 @@ function CarForm({ car, onDone }: { car: GarageVehicleDto | null; onDone: () => 
       addToast(car ? 'Zapisano auto.' : 'Dodano auto.', 'success');
       onDone();
     },
-    onError: (err: unknown) => setError('root', { message: bookingErrorMessage(err, 'Nie udało się zapisać auta.') }),
+    onError: (err: unknown) => setError('root', { message: garageErrorMessage(err) }),
   };
   const onSubmit = (values: CarValues) =>
     car

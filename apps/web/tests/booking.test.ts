@@ -82,4 +82,8 @@ describe('bookingErrorMessage', () => {
     expect(bookingErrorMessage(new ApiError(409, { code: 'BOOKING_REQUEST_LIMIT' }))).toMatch(/3 zapytania/);
     expect(bookingErrorMessage(new ApiError(400, { detail: 'Inny błąd' }))).toBe('Inny błąd');
   });
+
+  it('explains garage errors a request can run into', () => {
+    expect(bookingErrorMessage(new ApiError(409, { code: 'CUSTOMER_GARAGE_FULL' }))).toMatch(/10 aut/);
+  });
 });

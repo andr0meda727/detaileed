@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { ApiError } from '@detaileed/api-client';
 import { carSchema, profileSchema, toCarRequest } from '@/features/account/model/schemas';
 import { toMyRequest } from '@/features/account/model/requests';
+import { garageErrorMessage } from '@/features/account/model/errors';
 
 describe('profile and car rules', () => {
   it('validates the phone like the backend', () => {
@@ -44,5 +46,17 @@ describe('toMyRequest', () => {
     expect(r.estimatedPrice).toBe(89);
     expect(r.services[0].price).toBe(89);
     expect(r.booking?.totalPrice).toBe(95.5);
+  });
+});
+
+describe('garageErrorMessage', () => {
+  it('explains garage error codes', () => {
+    expect(garageErrorMessage(new ApiError(409, { code: 'CUSTOMER_VEHICLE_EXISTS' }))).toMatch(/już w garażu/);
+    expect(garageErrorMessage(new ApiError(409, { code: 'CUSTOMER_GARAGE_FULL' }))).toMatch(/10 aut/);
+  });
+
+  it('falls back to the API message, then to its own', () => {
+    expect(garageErrorMessage(new ApiError(400, { detail: 'Inny błąd' }))).toBe('Inny błąd');
+    expect(garageErrorMessage(undefined)).toBe('Nie udało się zapisać auta.');
   });
 });
