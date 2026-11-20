@@ -6,11 +6,14 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MailCheck, UserPlus } from 'lucide-react';
-import { Button, FormInput, Turnstile, useTurnstile } from '@detaileed/ui';
+import { Button, FormInput, useTurnstile } from '@detaileed/ui';
 import { getSupabase } from '@/lib/supabase/client';
-import { siteUrl, TURNSTILE_SITE_KEY } from '@/lib/site';
+import { TURNSTILE_SITE_KEY } from '@/lib/site';
 import { signUpSchema, type SignUpValues } from '@/features/auth/model/schemas';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
+import { confirmEmailRedirect } from '@/features/auth/model/returnPath';
+import ResendConfirmation from '@/features/auth/components/ResendConfirmation';
+import CaptchaField from '@/features/auth/components/CaptchaField';
 
 /**
  * Customer sign-up. First and last name go into the account's metadata, from which the backend fills the profile.
@@ -37,7 +40,7 @@ export default function SignUpForm({ next }: { next: string }) {
       password: values.password,
       options: {
         data: { first_name: values.firstName, last_name: values.lastName },
-        emailRedirectTo: siteUrl(`/auth/callback?next=${encodeURIComponent(next)}`),
+        emailRedirectTo: confirmEmailRedirect(next),
         captchaToken: captcha.token,
       },
     });
@@ -62,6 +65,7 @@ export default function SignUpForm({ next }: { next: string }) {
         <p className="text-sm text-green-light">
           Wysłaliśmy link potwierdzający na <strong>{sentTo}</strong>. Kliknij go, aby dokończyć zakładanie konta.
         </p>
+        <ResendConfirmation email={sentTo} next={next} justSent />
       </div>
     );
   }
@@ -103,12 +107,7 @@ export default function SignUpForm({ next }: { next: string }) {
         error={errors.confirmPassword?.message}
         {...register('confirmPassword')}
       />
-      {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}
-      {captcha.failed && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
-          Nie udało się załadować weryfikacji. Odśwież stronę albo wyłącz blokowanie skryptów.
-        </p>
-      )}
+      <CaptchaField captcha={captcha} />
       {error && (
         <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
           {error}

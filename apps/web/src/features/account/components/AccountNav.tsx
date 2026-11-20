@@ -8,6 +8,7 @@ const TABS = [
   { href: '/konto/samochody', label: 'Moje auta' },
   { href: '/konto/rezerwacje', label: 'Moje rezerwacje' },
   { href: '/konto/opinie', label: 'Opinie' },
+  { href: '/konto/bezpieczenstwo', label: 'Hasło' },
 ];
 
 /** Tabs of the customer account. */
