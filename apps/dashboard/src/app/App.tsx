@@ -4,7 +4,7 @@ import { RouterProvider } from '@tanstack/react-router';
 import { subscribeToAuthChanges } from '@/app/auth';
 import { router } from '@/app/router';
 import { ToastProvider, useToast } from '@detaileed/ui';
-import { createQueryClient } from '@/shared/queryClient';
+import { createQueryClient } from '@/shared/lib/queryClient';
 
 const AppRouter: React.FC = () => {
   const queryClient = useQueryClient();

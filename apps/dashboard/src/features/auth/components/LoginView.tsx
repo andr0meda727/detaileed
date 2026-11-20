@@ -11,7 +11,7 @@ import { ArrowRight, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-re
 import { Turnstile, useTurnstile } from '@detaileed/ui';
 import supabase from '@/shared/lib/supabase';
 import { TURNSTILE_SITE_KEY } from '@/shared/lib/siteConfig';
-import logo from '@/images/logo.svg';
+import logo from '@/shared/assets/logo.svg';
 
 interface LoginViewProps {
   onLogin: (email: string) => void;

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '@detaileed/api-client';
-import { createQueryClient } from '@/shared/queryClient';
+import { createQueryClient } from '@/shared/lib/queryClient';
 
 function failingMutation(client: ReturnType<typeof createQueryClient>, meta?: { skipGlobalError?: boolean }) {
   return client
