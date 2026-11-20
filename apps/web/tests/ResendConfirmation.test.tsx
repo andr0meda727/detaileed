@@ -18,7 +18,7 @@ describe('ResendConfirmation', () => {
   });
 
   it('sends the confirmation link again, back to the same place', async () => {
-    render(<ResendConfirmation email="anna@example.com" next="/studio/s1/rezerwuj" />);
+    render(<ResendConfirmation email="anna@example.com" next="/studio/s1/book" />);
 
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Wyślij ponownie' })));
 
@@ -26,7 +26,7 @@ describe('ResendConfirmation', () => {
       type: 'signup',
       email: 'anna@example.com',
       options: {
-        emailRedirectTo: 'https://detaileed.com/auth/callback?next=%2Fstudio%2Fs1%2Frezerwuj',
+        emailRedirectTo: 'https://detaileed.com/auth/callback?next=%2Fstudio%2Fs1%2Fbook',
         captchaToken: undefined,
       },
     });
@@ -34,7 +34,7 @@ describe('ResendConfirmation', () => {
   });
 
   it('waits a minute between sends', async () => {
-    render(<ResendConfirmation email="anna@example.com" next="/konto" justSent />);
+    render(<ResendConfirmation email="anna@example.com" next="/account" justSent />);
     const button = screen.getByRole('button', { name: /Wyślij ponownie/ });
     expect(button).toBeDisabled();
     expect(button).toHaveTextContent('60 s');
@@ -47,7 +47,7 @@ describe('ResendConfirmation', () => {
 
   it('shows the Polish message when Supabase refuses', async () => {
     resend.mockResolvedValue({ error: { code: 'over_email_send_rate_limit' } });
-    render(<ResendConfirmation email="anna@example.com" next="/konto" />);
+    render(<ResendConfirmation email="anna@example.com" next="/account" />);
 
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Wyślij ponownie' })));
 
@@ -56,7 +56,7 @@ describe('ResendConfirmation', () => {
 
   it('stops loading and shows an error when the request fails', async () => {
     resend.mockRejectedValue(new TypeError('Failed to fetch'));
-    render(<ResendConfirmation email="anna@example.com" next="/konto" />);
+    render(<ResendConfirmation email="anna@example.com" next="/account" />);
 
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Wyślij ponownie' })));
 

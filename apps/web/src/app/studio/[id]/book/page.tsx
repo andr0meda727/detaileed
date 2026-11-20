@@ -21,7 +21,7 @@ export default async function RequestPage({ params, searchParams }: Props) {
   const user = await getSignedInUser();
   if (!user) {
     const query = new URLSearchParams({ uslugi, ...(rozmiar ? { rozmiar } : {}) }).toString();
-    redirect(signInPath(`/studio/${id}/rezerwuj?${query}`));
+    redirect(signInPath(`/studio/${id}/book?${query}`));
   }
   const listing = await getListing(id);
   if (!listing) notFound();

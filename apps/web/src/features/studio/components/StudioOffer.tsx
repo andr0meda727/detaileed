@@ -30,7 +30,7 @@ export default function StudioOffer({ listing }: { listing: Listing }) {
 
   const toggle = (id: string) => setSelected((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
 
-  const bookHref = `/studio/${listing.studioId}/rezerwuj?uslugi=${selected.join(',')}&rozmiar=${size}`;
+  const bookHref = `/studio/${listing.studioId}/book?uslugi=${selected.join(',')}&rozmiar=${size}`;
 
   return (
     <section className="space-y-5" aria-labelledby="offer-heading">

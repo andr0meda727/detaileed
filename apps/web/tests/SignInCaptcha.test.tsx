@@ -24,7 +24,7 @@ describe('SignInForm with captcha', () => {
 
   it('waits for the captcha, sends its token and asks for a new one afterwards', async () => {
     signInWithPassword.mockResolvedValue({ error: { code: 'invalid_credentials' } });
-    render(<SignInForm next="/konto" />);
+    render(<SignInForm next="/account" />);
     const submit = screen.getByRole('button', { name: 'Zaloguj się' });
     expect(submit).toBeDisabled();
 

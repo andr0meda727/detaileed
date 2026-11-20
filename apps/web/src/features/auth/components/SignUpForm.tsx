@@ -118,7 +118,7 @@ export default function SignUpForm({ next }: { next: string }) {
       </Button>
       <p className="pt-4 text-sm text-center text-green-light">
         Masz już konto?{' '}
-        <Link href={`/logowanie?next=${encodeURIComponent(next)}`} className="font-bold text-green-deep underline">
+        <Link href={`/sign-in?next=${encodeURIComponent(next)}`} className="font-bold text-green-deep underline">
           Zaloguj się
         </Link>
       </p>

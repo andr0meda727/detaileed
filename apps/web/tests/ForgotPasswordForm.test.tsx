@@ -22,7 +22,7 @@ describe('ForgotPasswordForm', () => {
 
     await waitFor(() =>
       expect(resetPasswordForEmail).toHaveBeenCalledWith('anna@example.com', {
-        redirectTo: 'https://detaileed.com/auth/callback?next=/nowe-haslo',
+        redirectTo: 'https://detaileed.com/auth/callback?next=/reset-password',
         captchaToken: undefined,
       }),
     );

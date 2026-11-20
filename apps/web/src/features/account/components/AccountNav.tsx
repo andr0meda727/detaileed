@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const TABS = [
-  { href: '/konto', label: 'Dane kontaktowe' },
-  { href: '/konto/samochody', label: 'Moje auta' },
-  { href: '/konto/rezerwacje', label: 'Moje rezerwacje' },
-  { href: '/konto/opinie', label: 'Opinie' },
-  { href: '/konto/bezpieczenstwo', label: 'Hasło' },
+  { href: '/account', label: 'Dane kontaktowe' },
+  { href: '/account/cars', label: 'Moje auta' },
+  { href: '/account/bookings', label: 'Moje rezerwacje' },
+  { href: '/account/reviews', label: 'Opinie' },
+  { href: '/account/security', label: 'Hasło' },
 ];
 
 /** Tabs of the customer account. */

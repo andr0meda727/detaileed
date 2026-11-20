@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: 'Nowe hasło', robots: { index: false
 /** Where a reset link lands after /auth/callback signed the customer in; without a session the link didn't work. */
 export default async function NewPasswordPage() {
   const user = await getSignedInUser();
-  if (!user) redirect('/logowanie?blad=link');
+  if (!user) redirect('/sign-in?blad=link');
   return (
     <AuthCard title="Ustaw nowe hasło" subtitle={user.email ? `Dla konta ${user.email}.` : undefined}>
       <NewPasswordForm />

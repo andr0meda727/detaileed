@@ -61,7 +61,7 @@ export default function SignInForm({ next, notice }: { next: string; notice?: Re
         {...register('password')}
       />
       <p className="text-right text-sm">
-        <Link href="/przypomnij-haslo" className="font-bold text-green-deep underline">
+        <Link href="/forgot-password" className="font-bold text-green-deep underline">
           Nie pamiętasz hasła?
         </Link>
       </p>
@@ -84,7 +84,7 @@ export default function SignInForm({ next, notice }: { next: string; notice?: Re
       </Button>
       <p className="pt-4 text-sm text-center text-green-light">
         Nie masz konta?{' '}
-        <Link href={`/rejestracja?next=${encodeURIComponent(next)}`} className="font-bold text-green-deep underline">
+        <Link href={`/sign-up?next=${encodeURIComponent(next)}`} className="font-bold text-green-deep underline">
           Załóż je
         </Link>
       </p>

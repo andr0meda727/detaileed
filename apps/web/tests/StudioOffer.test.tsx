@@ -68,7 +68,7 @@ describe('StudioOffer', () => {
     expect(estimate).toHaveBeenLastCalledWith('s1', { serviceIds: ['a', 'b'], vehicleSize: 'Large' });
     expect(screen.getByRole('link', { name: /Wyślij zapytanie/ })).toHaveAttribute(
       'href',
-      '/studio/s1/rezerwuj?uslugi=a,b&rozmiar=Large',
+      '/studio/s1/book?uslugi=a,b&rozmiar=Large',
     );
   });
 

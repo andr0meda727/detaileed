@@ -32,7 +32,7 @@ describe('NewPasswordForm', () => {
     render(<NewPasswordForm />);
     submit('Nowe1234');
 
-    await waitFor(() => expect(replace).toHaveBeenCalledWith('/konto'));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith('/account'));
     expect(updateUser).toHaveBeenCalledWith({ password: 'Nowe1234' });
     expect(signOut).toHaveBeenCalledWith({ scope: 'others' });
     expect(addToast).toHaveBeenCalledWith('Hasło zostało zmienione.', 'success');
@@ -54,7 +54,7 @@ describe('NewPasswordForm', () => {
     submit('Nowe1234');
 
     expect(await screen.findByRole('alert')).toHaveTextContent('wyślemy Ci kod na e-mail');
-    expect(screen.getByRole('link', { name: 'Przejdź do ustawień' })).toHaveAttribute('href', '/konto/bezpieczenstwo');
+    expect(screen.getByRole('link', { name: 'Przejdź do ustawień' })).toHaveAttribute('href', '/account/security');
     expect(replace).not.toHaveBeenCalled();
   });
 

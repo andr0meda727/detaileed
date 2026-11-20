@@ -87,7 +87,7 @@ export default function BookingRequestForm({
       return;
     }
     submit.mutate(toSubmitRequest(values, studioId, timeZone, !!planning), {
-      onSuccess: () => router.push('/konto/rezerwacje?wyslano=1'),
+      onSuccess: () => router.push('/account/bookings?wyslano=1'),
       onError: (err) => setError('root', { message: bookingErrorMessage(err) }),
     });
   };

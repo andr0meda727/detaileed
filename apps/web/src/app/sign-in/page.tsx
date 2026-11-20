@@ -12,7 +12,7 @@ const NOTICES: Record<string, ReactNode> = {
   link: (
     <>
       {LINK_EXPIRED} Zaloguj się poniżej. Jeśli to był link do ustawienia hasła,{' '}
-      <Link href="/przypomnij-haslo" className="font-bold underline">
+      <Link href="/forgot-password" className="font-bold underline">
         wyślij nowy
       </Link>
       .
