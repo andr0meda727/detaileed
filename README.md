@@ -1,20 +1,45 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Detaileed
 
-# Run and deploy your AI Studio app
+A platform for car-detailing studios. Studios run their day in the dashboard (bookings, clients, services,
+inventory, planning, team, reports); customers find studios on a map, compare prices for their car and send booking
+requests on the customer site. The backend is a separate .NET API (`detailflow-api`); sign-in uses Supabase.
 
-This contains everything you need to run your app locally.
+| App              | What                                                 | Where             | Dev port |
+| ---------------- | ---------------------------------------------------- | ----------------- | -------- |
+| `apps/dashboard` | studio management SPA (Vite, React, TanStack Router) | app.detaileed.com | 3000     |
+| `apps/web`       | customer site (Next.js App Router)                   | detaileed.com     | 3001     |
 
-View your app in AI Studio: https://ai.studio/apps/drive/1Yc2Y7optLpv3oRvWGyc4x_fG1fn1-YiZ
+Shared packages: `packages/ui` (design system), `packages/domain` (pure helpers), `packages/api-client` (generated
+from the API's OpenAPI spec), `packages/config` (TypeScript, ESLint, Prettier).
 
-## Run Locally
+## Getting started
 
-**Prerequisites:**  Node.js
+Requirements: Node.js 22+ and pnpm (the version is pinned in `package.json`; `corepack enable` picks it up).
 
+```sh
+pnpm install
+cp apps/dashboard/.env.example apps/dashboard/.env.local   # then fill in the Supabase values
+cp apps/web/.env.example apps/web/.env.local
+pnpm dev                                                    # both apps
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Use pnpm only: npm or yarn would create a second lockfile.
+
+## Commands
+
+| Command                                       | Purpose                                                           |
+| --------------------------------------------- | ----------------------------------------------------------------- |
+| `pnpm dev`                                    | dev servers for both apps                                         |
+| `pnpm check`                                  | lint + typecheck + test + build, the same as CI                   |
+| `pnpm test`                                   | Vitest in every package                                           |
+| `pnpm generate`                               | regenerate the API client from `packages/api-client/openapi.json` |
+| `pnpm --filter @detaileed/dashboard <script>` | run a script in one package                                       |
+
+## Docs
+
+- [`CLAUDE.md`](CLAUDE.md): conventions and the checks to run after every change.
+- [`docs/architecture.md`](docs/architecture.md): how the apps and packages are organised.
+- [`docs/regression-checklist.md`](docs/regression-checklist.md): manual click-through before bigger merges.
+- [`docs/re-architecture-plan.md`](docs/re-architecture-plan.md): the plan the current structure came from.
+
+Pushing to `main` deploys both apps (GitHub Actions build the Docker images); work on a branch and open a PR.
