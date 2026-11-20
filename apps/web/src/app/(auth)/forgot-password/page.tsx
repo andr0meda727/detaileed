@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import AuthCard from '@/features/auth/components/AuthCard';
 import ForgotPasswordForm from '@/features/auth/components/ForgotPasswordForm';
 
-export const metadata: Metadata = { title: 'Nie pamiętam hasła', robots: { index: false } };
+export const metadata: Metadata = { title: 'Nie pamiętam hasła' };
 
 export default function ForgotPasswordPage() {
   return (

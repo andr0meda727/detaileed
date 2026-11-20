@@ -3,7 +3,7 @@ import AuthCard from '@/features/auth/components/AuthCard';
 import SignUpForm from '@/features/auth/components/SignUpForm';
 import { safeReturnPath } from '@/features/auth/model/returnPath';
 
-export const metadata: Metadata = { title: 'Załóż konto', robots: { index: false } };
+export const metadata: Metadata = { title: 'Załóż konto' };
 
 export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   const { next } = await searchParams;

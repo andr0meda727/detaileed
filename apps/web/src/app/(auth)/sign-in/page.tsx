@@ -6,7 +6,7 @@ import SignInForm from '@/features/auth/components/SignInForm';
 import { safeReturnPath } from '@/features/auth/model/returnPath';
 import { LINK_EXPIRED } from '@/features/auth/model/authErrors';
 
-export const metadata: Metadata = { title: 'Logowanie', robots: { index: false } };
+export const metadata: Metadata = { title: 'Logowanie' };
 
 const NOTICES: Record<string, ReactNode> = {
   link: (

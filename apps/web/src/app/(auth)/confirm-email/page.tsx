@@ -4,7 +4,7 @@ import AuthCard from '@/features/auth/components/AuthCard';
 import ResendConfirmation from '@/features/auth/components/ResendConfirmation';
 import { safeReturnPath } from '@/features/auth/model/returnPath';
 
-export const metadata: Metadata = { title: 'Potwierdź e-mail', robots: { index: false } };
+export const metadata: Metadata = { title: 'Potwierdź e-mail' };
 
 /** For a customer who signed up but can't sign in yet: the address isn't confirmed. */
 export default async function ConfirmEmailPage({
