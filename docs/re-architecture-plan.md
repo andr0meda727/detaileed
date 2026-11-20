@@ -61,6 +61,9 @@ Migrating views to generated hooks happens per feature in Phase 4. Verify: `pnpm
 
 ## Phase 3: router (branch `refactor/phase-3-router`)
 
+> Later change (branch `refactor/monorepo-structure`): `_auth` is now `_signed-in`, and login, set-password and
+> accept-invitation sit in an `(auth)` route group. URLs are unchanged; see `docs/architecture.md`.
+
 Use TanStack Router, file-based (`@tanstack/react-router`, `@tanstack/router-plugin/vite`, devtools in dev only). Commits:
 
 1. `build: add tanstack router` (deps + vite plugin + empty `src/routes/__root.tsx` + `src/app/router.tsx`; the old App is still rendered by the root route, so behaviour doesn't change yet)
@@ -100,6 +103,9 @@ Order: `shared` (utils, ToastContext, delete the deprecated `components/ui/useTo
 - Booking mutations skip the global error toast (`meta.skipGlobalError`) because the screens toast themselves.
 
 ## Phase 5: design system and Tailwind v4 (branch `refactor/phase-5-ui`)
+
+> Later change (branch `refactor/monorepo-structure`): `packages/ui/src` is grouped into `components/`, `toast/`,
+> `captcha/`, `hooks/`, `map/` and `styles/theme.css`; the package exports are unchanged.
 
 Goal: one design system that the dashboard and the future marketplace (`apps/web`) share: the tokens in
 `packages/ui/src/theme.css` (Tailwind v4 `@theme`) and the generic components in `@detaileed/ui`. Tailwind is
@@ -226,6 +232,9 @@ the public listing and availability, email links to `/s/{studioId}/requests?id=`
 > Later change (branch `refactor/english-urls`): paths and query parameters are now English (`/sign-in`, `/sign-up`,
 > `/account/{cars,bookings,reviews,security}`, `/studio/[id]/book`, `?category&size&services`); the Polish ones below
 > are gone (no redirects: there were no users yet). The page text stays Polish. All paths are lowercase.
+> Later still (branch `refactor/monorepo-structure`): pages sit in the route groups `(public)`, `(auth)` and
+> `(customer)`, `src/lib` + `src/components` became `src/shared/{lib,ui}`, and features have `index.ts` entries
+> enforced by ESLint; see `docs/architecture.md`.
 
 1. `refactor: move domain helpers into a shared package`: new `packages/domain` (`@detaileed/domain`, pure TS): `git mv`
    `studioTime.ts`, `vehicleSize.ts`, `serviceCategory.ts`, `money.ts` (+ their tests) from `apps/dashboard/src/shared/lib`;
