@@ -6,8 +6,19 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      // Account, sign-in and request pages are personal.
-      disallow: ['/account', '/sign-in', '/sign-up', '/auth/', '/studio/*/book'],
+      // Sign-in, password, account and booking request pages are personal.
+      disallow: [
+        // (auth) group
+        '/sign-in',
+        '/sign-up',
+        '/forgot-password',
+        '/reset-password',
+        '/confirm-email',
+        '/auth/',
+        // (customer) group
+        '/account',
+        '/studio/*/book',
+      ],
     },
     sitemap: siteUrl('/sitemap.xml'),
   };
