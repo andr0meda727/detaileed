@@ -17,7 +17,8 @@ export default async function ConfirmEmailPage({
   return (
     <AuthCard title="Potwierdź e-mail" subtitle="Twoje konto czeka na potwierdzenie adresu.">
       <p className="text-sm text-green-light">
-        Wysłaliśmy link potwierdzający na <strong>{email}</strong>. Kliknij go, aby dokończyć zakładanie konta.
+        Adres <strong>{email}</strong> nie jest jeszcze potwierdzony. Kliknij link z e-maila, który wysłaliśmy po
+        rejestracji, aby dokończyć zakładanie konta.
       </p>
       <ResendConfirmation email={email} next={safeReturnPath(next)} />
     </AuthCard>
