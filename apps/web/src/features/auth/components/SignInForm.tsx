@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LogIn } from 'lucide-react';
-import { Button, FormInput, Turnstile, useTurnstile } from '@detaileed/ui';
+import { Button, FormInput, useTurnstile } from '@detaileed/ui';
 import { getSupabase } from '@/lib/supabase/client';
 import { TURNSTILE_SITE_KEY } from '@/lib/site';
 import { signInSchema, type SignInValues } from '@/features/auth/model/schemas';
 import { authErrorMessage, isEmailNotConfirmed } from '@/features/auth/model/authErrors';
 import { confirmEmailPath } from '@/features/auth/model/returnPath';
+import CaptchaField from '@/features/auth/components/CaptchaField';
 
 /** Email + password sign-in; goes back to `next` afterwards. */
 export default function SignInForm({ next, notice }: { next: string; notice?: ReactNode }) {
@@ -64,12 +65,7 @@ export default function SignInForm({ next, notice }: { next: string; notice?: Re
           Nie pamiętasz hasła?
         </Link>
       </p>
-      {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}
-      {captcha.failed && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
-          Nie udało się załadować weryfikacji. Odśwież stronę albo wyłącz blokowanie skryptów.
-        </p>
-      )}
+      <CaptchaField captcha={captcha} />
       {error && (
         <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
           {error}
