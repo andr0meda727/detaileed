@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,6 +16,8 @@ export default function NewPasswordForm() {
   const router = useRouter();
   const { addToast } = useToast();
   const [error, setError] = useState<string | null>(null);
+  // The session is too old to change the password without a code; the account's security page asks for one
+  const [needsCode, setNeedsCode] = useState(false);
   const {
     register,
     handleSubmit,
@@ -29,6 +32,7 @@ export default function NewPasswordForm() {
     const authError = await setPassword(password);
     if (authError) {
       setError(authErrorMessage(authError));
+      setNeedsCode(authError.code === 'reauthentication_needed');
       return;
     }
     addToast('Hasło zostało zmienione.', 'success');
@@ -55,6 +59,14 @@ export default function NewPasswordForm() {
       {error && (
         <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
           {error}
+          {needsCode && (
+            <>
+              {' '}
+              <Link href="/konto/bezpieczenstwo" className="font-bold underline">
+                Przejdź do ustawień
+              </Link>
+            </>
+          )}
         </p>
       )}
       <Button size="lg" fullWidth type="submit" icon={KeyRound} loading={isSubmitting}>

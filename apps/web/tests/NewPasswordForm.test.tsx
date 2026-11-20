@@ -48,6 +48,16 @@ describe('NewPasswordForm', () => {
     expect(replace).not.toHaveBeenCalled();
   });
 
+  it('sends a long-signed-in customer to the account page, which asks for a code', async () => {
+    updateUser.mockResolvedValue({ error: { code: 'reauthentication_needed' } });
+    render(<NewPasswordForm />);
+    submit('Nowe1234');
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('wyślemy Ci kod na e-mail');
+    expect(screen.getByRole('link', { name: 'Przejdź do ustawień' })).toHaveAttribute('href', '/konto/bezpieczenstwo');
+    expect(replace).not.toHaveBeenCalled();
+  });
+
   it("doesn't send passwords that don't match", async () => {
     render(<NewPasswordForm />);
     submit('Nowe1234', 'Nowe12345');

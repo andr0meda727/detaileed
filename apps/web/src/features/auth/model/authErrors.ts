@@ -17,6 +17,7 @@ const MESSAGES: Record<string, string> = {
   over_request_rate_limit: 'Zbyt wiele prób. Odczekaj chwilę i spróbuj ponownie.',
   email_address_invalid: 'Ten adres e-mail jest nieprawidłowy.',
   same_password: 'Nowe hasło musi się różnić od obecnego.',
+  reauthentication_needed: 'Ze względów bezpieczeństwa zmień hasło w ustawieniach konta: wyślemy Ci kod na e-mail.',
   reauthentication_not_valid: 'Kod jest nieprawidłowy albo wygasł. Wyślij nowy kod.',
   // A link from an email that expired, was used, or is opened in another browser than the one that asked for it
   otp_expired: LINK_EXPIRED,
