@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ApiError } from '@detaileed/api-client';
-import { createQueryClient } from '@/lib/queryClient';
+import { createQueryClient } from '@/shared/lib/queryClient';
 
 describe('createQueryClient', () => {
   it('reports failed mutations unless they opt out', async () => {

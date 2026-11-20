@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { Button, useTurnstile } from '@detaileed/ui';
-import { getSupabase } from '@/lib/supabase/client';
-import { TURNSTILE_SITE_KEY } from '@/lib/site';
+import { getSupabase } from '@/shared/lib/supabase/client';
+import { TURNSTILE_SITE_KEY } from '@/shared/lib/site';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
 import { confirmEmailRedirect } from '@/features/auth/model/returnPath';
 import CaptchaField from '@/features/auth/components/CaptchaField';

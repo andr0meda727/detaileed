@@ -6,7 +6,7 @@ const signOut = vi.fn();
 const replace = vi.fn();
 const addToast = vi.fn();
 
-vi.mock('@/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { updateUser, signOut } }) }));
+vi.mock('@/shared/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { updateUser, signOut } }) }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace, refresh: vi.fn() }) }));
 vi.mock('@detaileed/ui', async (original) => ({
   ...(await original<typeof import('@detaileed/ui')>()),

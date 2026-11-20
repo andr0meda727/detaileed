@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { getSignedInUser } from '@/lib/supabase/server';
+import { getSignedInUser } from '@/shared/lib/supabase/server';
 import AuthCard from '@/features/auth/components/AuthCard';
 import NewPasswordForm from '@/features/auth/components/NewPasswordForm';
 

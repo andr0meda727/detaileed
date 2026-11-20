@@ -6,7 +6,7 @@ const signOut = vi.fn();
 const reauthenticate = vi.fn();
 const addToast = vi.fn();
 
-vi.mock('@/lib/supabase/client', () => ({
+vi.mock('@/shared/lib/supabase/client', () => ({
   getSupabase: () => ({ auth: { updateUser, signOut, reauthenticate } }),
 }));
 vi.mock('@detaileed/ui', async (original) => ({

@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 
 const resend = vi.fn();
 
-vi.mock('@/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { resend } }) }));
+vi.mock('@/shared/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { resend } }) }));
 
 const { default: ResendConfirmation } = await import('@/features/auth/components/ResendConfirmation');
 

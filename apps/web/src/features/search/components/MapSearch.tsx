@@ -8,7 +8,7 @@ import { EmptyState, Select, Skeleton } from '@detaileed/ui';
 import type { Bounds } from '@detaileed/ui/map/geo';
 import { SERVICE_CATEGORIES } from '@detaileed/domain/serviceCategory';
 import { VEHICLE_SIZE_OPTIONS } from '@detaileed/domain/vehicleSize';
-import { MAP_STYLE_URL } from '@/lib/site';
+import { MAP_STYLE_URL } from '@/shared/lib/site';
 import { PINS_PAGE_SIZE, useStudioPins } from '@/features/search/api/pins';
 import { pinLabel } from '@/features/search/model/pins';
 import { serializeSearch, type SearchState } from '@/features/search/model/searchState';

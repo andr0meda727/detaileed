@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { DASHBOARD_URL } from '@/lib/site';
+import { DASHBOARD_URL } from '@/shared/lib/site';
 
 /** Top bar: logo home link, the studio-owner link and the account link. */
 export default function SiteHeader({ accountSlot }: { accountSlot?: React.ReactNode }) {

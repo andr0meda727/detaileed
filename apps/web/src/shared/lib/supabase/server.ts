@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { createServerClient } from '@supabase/ssr';
-import { SUPABASE_KEY, SUPABASE_URL } from '@/lib/site';
+import { SUPABASE_KEY, SUPABASE_URL } from '@/shared/lib/site';
 
 /** Supabase for server components, route handlers and actions, reading the session from the request cookies. */
 export async function getServerSupabase() {

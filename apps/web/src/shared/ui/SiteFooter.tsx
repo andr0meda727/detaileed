@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { DASHBOARD_URL } from '@/lib/site';
+import { DASHBOARD_URL } from '@/shared/lib/site';
 
 export default function SiteFooter() {
   return (

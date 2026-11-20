@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { siteUrl } from '@/lib/site';
+import { siteUrl } from '@/shared/lib/site';
 import { getFirstReviews, getListing } from '@/features/studio/api/server';
 import { studioJsonLd } from '@/features/studio/model/jsonLd';
 import StudioHeader from '@/features/studio/components/StudioHeader';

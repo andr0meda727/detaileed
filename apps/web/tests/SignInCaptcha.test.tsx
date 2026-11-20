@@ -3,9 +3,9 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 const signInWithPassword = vi.fn();
 
-vi.mock('@/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { signInWithPassword } }) }));
+vi.mock('@/shared/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { signInWithPassword } }) }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace: vi.fn(), refresh: vi.fn() }) }));
-vi.mock('@/lib/site', async (original) => ({ ...(await original()), TURNSTILE_SITE_KEY: 'site-key' }));
+vi.mock('@/shared/lib/site', async (original) => ({ ...(await original()), TURNSTILE_SITE_KEY: 'site-key' }));
 
 const turnstile = {
   render: vi.fn<(container: HTMLElement, options: Record<string, unknown>) => string>(() => 'widget-1'),

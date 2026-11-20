@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getServerSupabase } from '@/lib/supabase/server';
+import { getServerSupabase } from '@/shared/lib/supabase/server';
 import { safeReturnPath } from '@/features/auth/model/returnPath';
 
 /** Where the confirmation email's link lands: turns the one-time code into a session, then goes back. */

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { VehicleSize } from '@detaileed/api-client';
-import { getSignedInUser } from '@/lib/supabase/server';
+import { getSignedInUser } from '@/shared/lib/supabase/server';
 import { signInPath } from '@/features/auth/model/returnPath';
 import { getListing } from '@/features/studio/api/server';
 import BookingRequestPage from '@/features/booking/components/BookingRequestPage';

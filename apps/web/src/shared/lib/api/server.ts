@@ -1,5 +1,5 @@
 import { ApiError, configureApiClient } from '@detaileed/api-client';
-import { API_URL } from '@/lib/site';
+import { API_URL } from '@/shared/lib/site';
 
 // Server code only calls anonymous public endpoints, so one module-level config without a token is safe here;
 // signed-in calls run in the browser (see app/providers.tsx).

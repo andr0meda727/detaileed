@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LogOut, UserCircle } from 'lucide-react';
-import { getSupabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/shared/lib/supabase/client';
 
 /** "Zaloguj się", or the account link and sign-out once someone is signed in. */
 export default function AccountMenu() {

@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@detaileed/ui';
-import { MAP_STYLE_URL } from '@/lib/site';
+import { MAP_STYLE_URL } from '@/shared/lib/site';
 
 const MapView = dynamic(() => import('@detaileed/ui/map').then((m) => m.MapView), {
   ssr: false,

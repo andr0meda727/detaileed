@@ -5,7 +5,7 @@ const signInWithPassword = vi.fn();
 const replace = vi.fn();
 const refresh = vi.fn();
 
-vi.mock('@/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { signInWithPassword } }) }));
+vi.mock('@/shared/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { signInWithPassword } }) }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace, refresh }) }));
 
 const { default: SignInForm } = await import('@/features/auth/components/SignInForm');

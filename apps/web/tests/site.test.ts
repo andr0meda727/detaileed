@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { siteUrl } from '@/lib/site';
+import { siteUrl } from '@/shared/lib/site';
 
 describe('siteUrl', () => {
   it('joins the origin and a path', () => {

@@ -1,5 +1,5 @@
 import type { AuthError } from '@supabase/supabase-js';
-import { getSupabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/shared/lib/supabase/client';
 
 /**
  * Sets the signed-in customer's password, with the emailed `nonce` when Supabase asked to reauthenticate. Other

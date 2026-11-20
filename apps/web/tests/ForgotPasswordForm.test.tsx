@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 const resetPasswordForEmail = vi.fn();
 
-vi.mock('@/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { resetPasswordForEmail } }) }));
+vi.mock('@/shared/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { resetPasswordForEmail } }) }));
 
 const { default: ForgotPasswordForm } = await import('@/features/auth/components/ForgotPasswordForm');
 
