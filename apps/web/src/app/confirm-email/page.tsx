@@ -13,7 +13,7 @@ export default async function ConfirmEmailPage({
   searchParams: Promise<{ email?: string; next?: string }>;
 }) {
   const { email, next } = await searchParams;
-  if (!email) redirect('/logowanie');
+  if (!email) redirect('/sign-in');
   return (
     <AuthCard title="Potwierdź e-mail" subtitle="Twoje konto czeka na potwierdzenie adresu.">
       <p className="text-sm text-green-light">

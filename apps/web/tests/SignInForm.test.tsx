@@ -21,9 +21,9 @@ describe('SignInForm', () => {
 
   it('goes back to `next` after signing in', async () => {
     signInWithPassword.mockResolvedValue({ error: null });
-    render(<SignInForm next="/studio/s1/rezerwuj" />);
+    render(<SignInForm next="/studio/s1/book" />);
     fill();
-    await waitFor(() => expect(replace).toHaveBeenCalledWith('/studio/s1/rezerwuj'));
+    await waitFor(() => expect(replace).toHaveBeenCalledWith('/studio/s1/book'));
     expect(signInWithPassword).toHaveBeenCalledWith({
       email: 'anna@example.com',
       password: 'Haslo1234',
@@ -35,7 +35,7 @@ describe('SignInForm', () => {
     signInWithPassword.mockResolvedValue({
       error: { code: 'invalid_credentials', message: 'Invalid login credentials' },
     });
-    render(<SignInForm next="/konto" />);
+    render(<SignInForm next="/account" />);
     fill();
     expect(await screen.findByRole('alert')).toHaveTextContent('Nieprawidłowy e-mail lub hasło.');
     expect(replace).not.toHaveBeenCalled();
@@ -44,10 +44,10 @@ describe('SignInForm', () => {
 
   it('offers to resend the confirmation link to an unconfirmed account', async () => {
     signInWithPassword.mockResolvedValue({ error: { code: 'email_not_confirmed' } });
-    render(<SignInForm next="/konto/rezerwacje" />);
+    render(<SignInForm next="/account/bookings" />);
     fill();
 
     const link = await screen.findByRole('link', { name: 'Wyślij link ponownie' });
-    expect(link).toHaveAttribute('href', '/potwierdz-email?email=anna%40example.com&next=%2Fkonto%2Frezerwacje');
+    expect(link).toHaveAttribute('href', '/confirm-email?email=anna%40example.com&next=%2Faccount%2Fbookings');
   });
 });

@@ -38,7 +38,7 @@ vi.mock('@/features/account/api/me', () => ({
   }),
   useWithdrawRequest: () => ({ mutate: withdraw, isPending: false }),
 }));
-vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams('wyslano=1') }));
+vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams('sent=1') }));
 
 const { default: MyRequestsView } = await import('@/features/account/components/MyRequestsView');
 

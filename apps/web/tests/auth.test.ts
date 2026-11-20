@@ -5,17 +5,17 @@ import { safeReturnPath, signInPath } from '@/features/auth/model/returnPath';
 
 describe('safeReturnPath', () => {
   it('keeps paths on this site', () => {
-    expect(safeReturnPath('/studio/s1/rezerwuj?uslugi=a')).toBe('/studio/s1/rezerwuj?uslugi=a');
+    expect(safeReturnPath('/studio/s1/book?services=a')).toBe('/studio/s1/book?services=a');
   });
 
   it('refuses other origins and falls back', () => {
     for (const next of ['https://evil.com', '//evil.com', '/\\evil.com', '', null, undefined]) {
-      expect(safeReturnPath(next)).toBe('/konto');
+      expect(safeReturnPath(next)).toBe('/account');
     }
   });
 
   it('builds the sign-in link with the way back', () => {
-    expect(signInPath('/studio/s1/rezerwuj')).toBe('/logowanie?next=%2Fstudio%2Fs1%2Frezerwuj');
+    expect(signInPath('/studio/s1/book')).toBe('/sign-in?next=%2Fstudio%2Fs1%2Fbook');
   });
 });
 

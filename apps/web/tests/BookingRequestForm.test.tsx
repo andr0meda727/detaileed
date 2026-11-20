@@ -80,7 +80,7 @@ describe('BookingRequestForm', () => {
       's1',
       expect.objectContaining({ ServiceIds: ['a'], VehicleSize: 'Large' }),
     );
-    expect(push).toHaveBeenCalledWith('/konto/rezerwacje?wyslano=1');
+    expect(push).toHaveBeenCalledWith('/account/bookings?sent=1');
   });
 
   it('asks for a slot and shows the API error in Polish', async () => {

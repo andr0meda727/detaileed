@@ -36,7 +36,7 @@ export default function NewPasswordForm() {
       return;
     }
     addToast('Hasło zostało zmienione.', 'success');
-    router.replace('/konto');
+    router.replace('/account');
     router.refresh();
   };
 
@@ -62,7 +62,7 @@ export default function NewPasswordForm() {
           {needsCode && (
             <>
               {' '}
-              <Link href="/konto/bezpieczenstwo" className="font-bold underline">
+              <Link href="/account/security" className="font-bold underline">
                 Przejdź do ustawień
               </Link>
             </>

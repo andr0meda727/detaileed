@@ -11,12 +11,12 @@ describe('search state in the URL', () => {
   it('round-trips a position and filters', () => {
     const state = { lat: 50.0614, lng: 19.9366, zoom: 12, category: 'Interior' as const, size: 'Large' as const };
     const query = serializeSearch(state);
-    expect(query).toBe('lat=50.0614&lng=19.9366&z=12.0&kategoria=Interior&rozmiar=Large');
+    expect(query).toBe('lat=50.0614&lng=19.9366&z=12.0&category=Interior&size=Large');
     expect(parseSearch(Object.fromEntries(new URLSearchParams(query)))).toEqual(state);
   });
 
   it('ignores invalid values', () => {
-    expect(parseSearch({ lat: '999', z: 'abc', kategoria: 'Pizza', rozmiar: 'Huge' })).toEqual(DEFAULT_SEARCH);
+    expect(parseSearch({ lat: '999', z: 'abc', category: 'Pizza', size: 'Huge' })).toEqual(DEFAULT_SEARCH);
   });
 });
 

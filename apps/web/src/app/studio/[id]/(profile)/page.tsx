@@ -52,7 +52,7 @@ export default async function StudioPage({ params }: Props) {
         <StudioHeader listing={listing} />
         <StudioLocation lat={listing.latitude} lng={listing.longitude} name={listing.name} />
       </div>
-      {/* The chosen car size comes from ?rozmiar=, which a static page reads in the browser. */}
+      {/* The chosen car size comes from ?size=, which a static page reads in the browser. */}
       <Suspense>
         <StudioOffer listing={listing} />
       </Suspense>

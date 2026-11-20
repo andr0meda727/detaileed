@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: 'Moje konto', robots: { index: false 
 /** The customer account; signed-in only. */
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const user = await getSignedInUser();
-  if (!user) redirect(signInPath('/konto'));
+  if (!user) redirect(signInPath('/account'));
   return (
     <section className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
       <div>

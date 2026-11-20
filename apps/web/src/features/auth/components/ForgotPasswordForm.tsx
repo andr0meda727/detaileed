@@ -13,7 +13,7 @@ import { authErrorMessage } from '@/features/auth/model/authErrors';
 import CaptchaField from '@/features/auth/components/CaptchaField';
 
 /** Where the reset link leads: /auth/callback signs the person in, then the new-password page. */
-export const RESET_REDIRECT = '/auth/callback?next=/nowe-haslo';
+export const RESET_REDIRECT = '/auth/callback?next=/reset-password';
 
 /**
  * Asks Supabase to email a password reset link. The answer is the same whether or not the account exists, so the
@@ -53,7 +53,7 @@ export default function ForgotPasswordForm() {
           Otwórz go w tej samej przeglądarce.
         </p>
         <p className="pt-2 text-sm">
-          <Link href="/logowanie" className="font-bold text-green-deep underline">
+          <Link href="/sign-in" className="font-bold text-green-deep underline">
             Wróć do logowania
           </Link>
         </p>
@@ -81,7 +81,7 @@ export default function ForgotPasswordForm() {
       </Button>
       <p className="pt-4 text-sm text-center text-green-light">
         Pamiętasz hasło?{' '}
-        <Link href="/logowanie" className="font-bold text-green-deep underline">
+        <Link href="/sign-in" className="font-bold text-green-deep underline">
           Zaloguj się
         </Link>
       </p>

@@ -28,7 +28,7 @@ export default function AccountMenu() {
   if (!signedIn) {
     return (
       <Link
-        href="/logowanie"
+        href="/sign-in"
         className="px-4 py-2 rounded-xl bg-green-deep text-cream-warm text-xs font-bold uppercase tracking-widest"
       >
         Zaloguj się
@@ -37,7 +37,7 @@ export default function AccountMenu() {
   }
   return (
     <div className="flex items-center gap-1">
-      <Link href="/konto" className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-green-deep/5">
+      <Link href="/account" className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-green-deep/5">
         <UserCircle size={18} /> <span className="hidden sm:inline">Moje konto</span>
       </Link>
       <button type="button" onClick={signOut} aria-label="Wyloguj" className="p-2 rounded-xl hover:bg-green-deep/5">

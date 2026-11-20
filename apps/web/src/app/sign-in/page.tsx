@@ -12,7 +12,7 @@ const NOTICES: Record<string, ReactNode> = {
   link: (
     <>
       {LINK_EXPIRED} Zaloguj się poniżej. Jeśli to był link do ustawienia hasła,{' '}
-      <Link href="/przypomnij-haslo" className="font-bold underline">
+      <Link href="/forgot-password" className="font-bold underline">
         wyślij nowy
       </Link>
       .
@@ -23,12 +23,12 @@ const NOTICES: Record<string, ReactNode> = {
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; blad?: string }>;
+  searchParams: Promise<{ next?: string; error?: string }>;
 }) {
-  const { next, blad } = await searchParams;
+  const { next, error } = await searchParams;
   return (
     <AuthCard title="Zaloguj się" subtitle="Aby wysyłać zapytania o termin i śledzić swoje rezerwacje.">
-      <SignInForm next={safeReturnPath(next)} notice={blad ? NOTICES[blad] : undefined} />
+      <SignInForm next={safeReturnPath(next)} notice={error ? NOTICES[error] : undefined} />
     </AuthCard>
   );
 }

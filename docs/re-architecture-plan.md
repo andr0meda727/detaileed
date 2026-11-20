@@ -223,6 +223,10 @@ the public listing and availability, email links to `/s/{studioId}/requests?id=`
 
 ### Phase 8: customer site `apps/web` (branch `feat/phase-8-web`)
 
+> Later change (branch `refactor/english-urls`): paths and query parameters are now English (`/sign-in`, `/sign-up`,
+> `/account/{cars,bookings,reviews,security}`, `/studio/[id]/book`, `?category&size&services`); the Polish ones below
+> are gone (no redirects: there were no users yet). The page text stays Polish. All paths are lowercase.
+
 1. `refactor: move domain helpers into a shared package`: new `packages/domain` (`@detaileed/domain`, pure TS): `git mv`
    `studioTime.ts`, `vehicleSize.ts`, `serviceCategory.ts`, `money.ts` (+ their tests) from `apps/dashboard/src/shared/lib`;
    imports rewritten (move-only commit; scaffold the package in a commit before it).

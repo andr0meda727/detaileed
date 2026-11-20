@@ -31,14 +31,14 @@ function oneOf<T extends string>(value: string | undefined, allowed: readonly T[
   return allowed.includes(value as T) ? (value as T) : null;
 }
 
-/** Reads `?lat&lng&z&kategoria&rozmiar`; anything missing or invalid falls back to the defaults (Poland, Medium). */
+/** Reads `?lat&lng&z&category&size`; anything missing or invalid falls back to the defaults (Poland, Medium). */
 export function parseSearch(params: Params): SearchState {
   return {
     lat: num(first(params.lat), -85, 85, DEFAULT_SEARCH.lat),
     lng: num(first(params.lng), -180, 180, DEFAULT_SEARCH.lng),
     zoom: num(first(params.z), 2, 19, DEFAULT_SEARCH.zoom),
-    category: oneOf(first(params.kategoria), Object.values(ServiceCategory)),
-    size: oneOf(first(params.rozmiar), Object.values(VehicleSize)) ?? DEFAULT_SEARCH.size,
+    category: oneOf(first(params.category), Object.values(ServiceCategory)),
+    size: oneOf(first(params.size), Object.values(VehicleSize)) ?? DEFAULT_SEARCH.size,
   };
 }
 
@@ -52,7 +52,7 @@ export function serializeSearch(state: SearchState): string {
     params.set('lng', state.lng.toFixed(4));
     params.set('z', state.zoom.toFixed(1));
   }
-  if (state.category) params.set('kategoria', state.category);
-  if (state.size !== DEFAULT_SEARCH.size) params.set('rozmiar', state.size);
+  if (state.category) params.set('category', state.category);
+  if (state.size !== DEFAULT_SEARCH.size) params.set('size', state.size);
   return params.toString();
 }

@@ -11,25 +11,25 @@ export const metadata: Metadata = { title: 'Zapytanie o termin', robots: { index
 
 type Props = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ uslugi?: string; rozmiar?: string }>;
+  searchParams: Promise<{ services?: string; size?: string }>;
 };
 
 /** Sending a booking request to a studio; needs a signed-in customer. */
 export default async function RequestPage({ params, searchParams }: Props) {
   const { id } = await params;
-  const { uslugi = '', rozmiar } = await searchParams;
+  const { services = '', size: sizeParam } = await searchParams;
   const user = await getSignedInUser();
   if (!user) {
-    const query = new URLSearchParams({ uslugi, ...(rozmiar ? { rozmiar } : {}) }).toString();
-    redirect(signInPath(`/studio/${id}/rezerwuj?${query}`));
+    const query = new URLSearchParams({ services, ...(sizeParam ? { size: sizeParam } : {}) }).toString();
+    redirect(signInPath(`/studio/${id}/book?${query}`));
   }
   const listing = await getListing(id);
   if (!listing) notFound();
 
   const known = new Set(listing.services.map((s) => s.id));
-  const serviceIds = uslugi.split(',').filter((s) => known.has(s));
-  const size = Object.values(VehicleSize).includes(rozmiar as VehicleSize)
-    ? (rozmiar as VehicleSize)
+  const serviceIds = services.split(',').filter((s) => known.has(s));
+  const size = Object.values(VehicleSize).includes(sizeParam as VehicleSize)
+    ? (sizeParam as VehicleSize)
     : VehicleSize.Medium;
 
   return (
