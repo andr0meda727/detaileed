@@ -2,7 +2,7 @@
 
 import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useIsClient } from './useIsClient';
+import { useIsClient } from '../hooks/useIsClient';
 import { X } from 'lucide-react';
 
 interface ModalProps {

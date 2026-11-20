@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, render, screen, waitFor } from '@testing-library/react';
-import Turnstile from '../src/Turnstile';
-import { useTurnstile } from '../src/useTurnstile';
+import Turnstile from '../src/captcha/Turnstile';
+import { useTurnstile } from '../src/captcha/useTurnstile';
 
 type Options = Record<string, (...args: unknown[]) => void> & { sitekey: string };
 

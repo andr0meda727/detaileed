@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import StarRating from '../src/StarRating';
+import StarRating from '../src/components/StarRating';
 
 describe('StarRating', () => {
   it('shows a rating read-only', () => {

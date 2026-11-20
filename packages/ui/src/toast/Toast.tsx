@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useIsClient } from './useIsClient';
+import { useIsClient } from '../hooks/useIsClient';
 import { CheckCircle2, XCircle, Info, X } from 'lucide-react';
 import type { ToastMessage } from './useToast';
 

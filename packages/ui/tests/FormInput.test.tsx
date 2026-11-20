@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import FormInput from '../src/FormInput';
+import FormInput from '../src/components/FormInput';
 
 describe('FormInput', () => {
   it('is labelled by its label', () => {
