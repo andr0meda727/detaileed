@@ -33,9 +33,8 @@ const Dashboard: React.FC = () => {
   const { data: clients = [], isLoading: clientsLoading, refetch: refetchClients } = useClients();
   const { data: availableServices = [], isLoading: servicesLoading } = useServices();
 
-  // Natywne rozwiązanie Anti-Flicker z pominięciem opóźnień:
-  // Hook isPending z React Query zgłosi brak danych tylko początkowo.
-  // Aby chronić się przed "tikami" przeglądarki podczas odmountowywania, żądamy wymuszenia flagi na podstawie obiektywnej zawartości zwrotnej (czy faktycznie nie ma żadnych rezerwacji, usług, stoku, ani klientów w pamięci lokalnej/cache).
+  // Show the loading state only while nothing is cached yet: once any bookings, clients, stock or services are
+  // there, a background refetch shouldn't make the page flicker.
   const isDataFound = bookings.length > 0 || clients.length > 0 || inventory.length > 0 || availableServices.length > 0;
   const loading = (bookingsLoading || inventoryLoading || clientsLoading || servicesLoading) && !isDataFound;
   const showLoading = loading;
@@ -91,8 +90,6 @@ const Dashboard: React.FC = () => {
     () => todayCompletedBookings.reduce((sum, b) => sum + b.totalPrice, 0),
     [todayCompletedBookings],
   );
-
-  // Wykres przeniesiony do izolowanego komponentu w ./components/RevenueChart
 
   const handleOpenNewBooking = () => setIsBookingModalOpen(true);
   const handleViewBooking = (booking: Booking) => setSelectedBooking(booking);
