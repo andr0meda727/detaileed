@@ -45,7 +45,7 @@ vi.mock('@/features/inventory/api/ledger', () => ({
   }),
 }));
 
-const { default: ForecastView } = await import('@/features/inventory/components/ForecastView');
+const { default: ForecastView } = await import('@/features/inventory/components/ledger/ForecastView');
 
 describe('ForecastView', () => {
   it('lists items soonest to run out first, with when they run out in the studio zone', () => {

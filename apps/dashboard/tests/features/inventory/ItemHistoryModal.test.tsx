@@ -35,7 +35,7 @@ vi.mock('@/features/inventory/api/ledger', () => ({
   }),
 }));
 
-const { default: ItemHistoryModal } = await import('@/features/inventory/components/ItemHistoryModal');
+const { default: ItemHistoryModal } = await import('@/features/inventory/components/ledger/ItemHistoryModal');
 
 const item: InventoryItem = {
   id: 'i1',

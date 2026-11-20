@@ -14,7 +14,7 @@ import {
 } from '@/features/planning/model/scheduleForm';
 import { planningErrorMessage } from '@/features/planning/model/errors';
 import type { Schedule } from '@/features/planning/model/types';
-import DayHours from '@/features/planning/components/DayHours';
+import DayHours from '@/features/planning/components/settings/DayHours';
 
 const MULTIPLIER_KEYS = { Small: 'small', Medium: 'medium', Large: 'large', XL: 'xl' } as const;
 const WORKDAYS = WEEKDAYS.slice(1, 5).map((w) => w.day);

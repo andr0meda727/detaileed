@@ -18,7 +18,7 @@ vi.mock('@/features/inventory/api/inventory', () => ({
   useUpdateInventoryItem: () => ({ mutateAsync: updateItem }),
 }));
 
-const { default: InventoryItemModal } = await import('@/features/inventory/components/InventoryItemModal');
+const { default: InventoryItemModal } = await import('@/features/inventory/components/items/InventoryItemModal');
 
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 const item: InventoryItem = {

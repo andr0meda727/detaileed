@@ -6,7 +6,7 @@ import GlobalHeader from '@/shared/ui/GlobalHeader';
 import { useStudioTimeZone } from '@/features/studios';
 import { useDayBoard, useSchedule } from '@/features/planning/api/planning';
 import { axisHours, boardAxis } from '@/features/planning/model/boardLayout';
-import BayLane from '@/features/planning/components/BayLane';
+import BayLane from '@/features/planning/components/board/BayLane';
 
 const routeApi = getRouteApi('/_signed-in/s/$studioId/board');
 

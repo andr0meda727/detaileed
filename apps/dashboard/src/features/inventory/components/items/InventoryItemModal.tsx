@@ -8,8 +8,8 @@ import { useCategories } from '@/features/inventory/api/categories';
 import { inventoryItemFormSchema, type InventoryItemFormValues } from '@/features/inventory/model/schemas';
 import { itemFormDefaults, toInventoryItemInput } from '@/features/inventory/model/itemForm';
 import type { InventoryCategory, InventoryItem } from '@/features/inventory/model/types';
-import CategoryField from '@/features/inventory/components/CategoryField';
-import UnitField from '@/features/inventory/components/UnitField';
+import CategoryField from '@/features/inventory/components/items/CategoryField';
+import UnitField from '@/features/inventory/components/items/UnitField';
 
 interface InventoryItemModalProps {
   isOpen: boolean;

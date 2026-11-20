@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import BayLane from '@/features/planning/components/BayLane';
+import BayLane from '@/features/planning/components/board/BayLane';
 
 describe('BayLane', () => {
   it('places bookings with their local times and shows free gaps', () => {

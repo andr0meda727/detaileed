@@ -7,11 +7,11 @@ import { useBookingStatusChange } from '@/features/bookings/hooks/useBookingStat
 import { visibleBookings } from '@/features/bookings/model/filters';
 import { dayInZone, todayInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
-import InProgressTab from '@/features/bookings/components/InProgressTab';
-import SearchTab from '@/features/bookings/components/SearchTab';
-import CalendarTab from '@/features/bookings/components/CalendarTab';
+import InProgressTab from '@/features/bookings/components/tasks/InProgressTab';
+import SearchTab from '@/features/bookings/components/tasks/SearchTab';
+import CalendarTab from '@/features/bookings/components/tasks/CalendarTab';
 import BookingDetailsModal from '@/features/bookings/components/BookingDetailsModal';
-import CreateBookingModal from '@/features/bookings/components/CreateBookingModal';
+import CreateBookingModal from '@/features/bookings/components/form/CreateBookingModal';
 import { CreateClientModal } from '@/features/clients';
 import GlobalHeader from '@/shared/ui/GlobalHeader';
 

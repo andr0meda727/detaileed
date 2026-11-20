@@ -6,7 +6,7 @@ import { useStudioTimeZone } from '@/features/studios';
 import { useMovements } from '@/features/inventory/api/ledger';
 import { MOVEMENT_LABELS, formatQuantity } from '@/features/inventory/model/ledger';
 import type { InventoryItem } from '@/features/inventory/model/types';
-import MovementForm from '@/features/inventory/components/MovementForm';
+import MovementForm from '@/features/inventory/components/ledger/MovementForm';
 
 interface ItemHistoryModalProps {
   /** The item to show, or null when closed. */

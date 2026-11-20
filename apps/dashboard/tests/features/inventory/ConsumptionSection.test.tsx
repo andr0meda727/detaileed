@@ -30,7 +30,7 @@ vi.mock('@/features/inventory/api/ledger', () => ({
   useCorrectConsumption: () => ({ mutate: correct, isPending: false }),
 }));
 
-const { default: ConsumptionSection } = await import('@/features/inventory/components/ConsumptionSection');
+const { default: ConsumptionSection } = await import('@/features/inventory/components/ledger/ConsumptionSection');
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 
 describe('ConsumptionSection', () => {
