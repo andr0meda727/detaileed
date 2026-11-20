@@ -11,7 +11,7 @@ export default async function NewPasswordPage() {
   const user = await getSignedInUser();
   if (!user) redirect('/logowanie?blad=link');
   return (
-    <AuthCard title="Ustaw nowe hasło" subtitle={`Dla konta ${user.email}.`}>
+    <AuthCard title="Ustaw nowe hasło" subtitle={user.email ? `Dla konta ${user.email}.` : undefined}>
       <NewPasswordForm />
     </AuthCard>
   );
