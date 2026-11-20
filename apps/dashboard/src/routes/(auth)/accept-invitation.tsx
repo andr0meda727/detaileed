@@ -7,7 +7,7 @@ import { AcceptInvitationView } from '@/features/auth';
 
 export const Route = createFileRoute('/(auth)/accept-invitation')({
   validateSearch: z.object({ token: z.string().catch('') }),
-  // Re-runs on every auth change (see App.tsx), so this follows sign-in from another tab too.
+  // Re-runs on every auth change (see app/App.tsx), so this follows sign-in from another tab too.
   beforeLoad: async () => ({ session: await getSession() }),
   component: AcceptInvitationPage,
 });
