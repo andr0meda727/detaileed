@@ -1,4 +1,4 @@
-import PendingReviews from '@/features/account/components/PendingReviews';
+import { PendingReviews } from '@/features/account';
 
 export default function ReviewsPage() {
   return <PendingReviews />;

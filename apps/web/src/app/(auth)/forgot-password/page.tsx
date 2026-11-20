@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import AuthCard from '@/features/auth/components/AuthCard';
-import ForgotPasswordForm from '@/features/auth/components/ForgotPasswordForm';
+import { AuthCard, ForgotPasswordForm } from '@/features/auth';
 
 export const metadata: Metadata = { title: 'Nie pamiętam hasła' };
 

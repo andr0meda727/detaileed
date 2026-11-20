@@ -1,4 +1,4 @@
-import GarageView from '@/features/account/components/GarageView';
+import { GarageView } from '@/features/account';
 
 export default function GaragePage() {
   return <GarageView />;

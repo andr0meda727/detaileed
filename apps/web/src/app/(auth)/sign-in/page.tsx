@@ -1,10 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import AuthCard from '@/features/auth/components/AuthCard';
-import SignInForm from '@/features/auth/components/SignInForm';
-import { safeReturnPath } from '@/features/auth/model/returnPath';
-import { LINK_EXPIRED } from '@/features/auth/model/authErrors';
+import { AuthCard, SignInForm, safeReturnPath, LINK_EXPIRED } from '@/features/auth';
 
 export const metadata: Metadata = { title: 'Logowanie' };
 

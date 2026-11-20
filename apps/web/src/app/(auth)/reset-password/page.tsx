@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getSignedInUser } from '@/shared/lib/supabase/server';
-import AuthCard from '@/features/auth/components/AuthCard';
-import NewPasswordForm from '@/features/auth/components/NewPasswordForm';
+import { AuthCard, NewPasswordForm } from '@/features/auth';
 
 export const metadata: Metadata = { title: 'Nowe hasło' };
 

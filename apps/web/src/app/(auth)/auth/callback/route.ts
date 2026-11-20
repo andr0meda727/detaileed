@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getServerSupabase } from '@/shared/lib/supabase/server';
-import { safeReturnPath } from '@/features/auth/model/returnPath';
+import { safeReturnPath } from '@/features/auth';
 
 /** Where the confirmation email's link lands: turns the one-time code into a session, then goes back. */
 export async function GET(request: NextRequest) {

@@ -4,8 +4,7 @@ import type { VehicleSize } from '@detaileed/api-client';
 import { FormSection, Skeleton } from '@detaileed/ui';
 import { UserRound } from 'lucide-react';
 import type { Listing } from '@detaileed/domain/listing';
-import { useGarage, useProfile } from '@/features/account/api/me';
-import ProfileForm from '@/features/account/components/ProfileForm';
+import { useGarage, useProfile, ProfileForm } from '@/features/account';
 import BookingRequestForm from '@/features/booking/components/BookingRequestForm';
 
 interface BookingRequestPageProps {

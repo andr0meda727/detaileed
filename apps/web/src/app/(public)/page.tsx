@@ -1,5 +1,4 @@
-import MapSearch from '@/features/search/components/MapSearch';
-import { parseSearch } from '@/features/search/model/searchState';
+import { MapSearch, parseSearch } from '@/features/search';
 
 /** Home: find a detailing studio on the map. The map position and filters come from the URL. */
 export default async function HomePage({

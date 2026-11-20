@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import MyRequestsView from '@/features/account/components/MyRequestsView';
+import { MyRequestsView } from '@/features/account';
 
 export default function MyRequestsPage() {
   return (

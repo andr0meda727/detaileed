@@ -1,6 +1,6 @@
 import { ApiError } from '@detaileed/api-client';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
-import { GARAGE_MESSAGES } from '@/features/account/model/errors';
+import { GARAGE_MESSAGES } from '@/features/account';
 
 /** What the customer reads when sending a request fails, by the API's error code. */
 const MESSAGES: Record<string, string> = {

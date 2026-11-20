@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getSignedInUser } from '@/shared/lib/supabase/server';
-import { signInPath } from '@/features/auth/model/returnPath';
-import AccountNav from '@/features/account/components/AccountNav';
+import { signInPath } from '@/features/auth';
+import { AccountNav } from '@/features/account';
 
 export const metadata: Metadata = { title: 'Moje konto' };
 

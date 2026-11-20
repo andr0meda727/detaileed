@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import AuthCard from '@/features/auth/components/AuthCard';
-import ResendConfirmation from '@/features/auth/components/ResendConfirmation';
-import { safeReturnPath } from '@/features/auth/model/returnPath';
+import { AuthCard, ResendConfirmation, safeReturnPath } from '@/features/auth';
 
 export const metadata: Metadata = { title: 'Potwierdź e-mail' };
 

@@ -4,7 +4,7 @@ import SiteHeader from '@/shared/ui/SiteHeader';
 import SiteFooter from '@/shared/ui/SiteFooter';
 import { SITE_URL } from '@/shared/lib/site';
 import Providers from './providers';
-import AccountMenu from '@/features/auth/components/AccountMenu';
+import { AccountMenu } from '@/features/auth';
 import './globals.css';
 
 const dmSans = DM_Sans({ subsets: ['latin', 'latin-ext'], variable: '--font-dm-sans', display: 'swap' });

@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import AuthCard from '@/features/auth/components/AuthCard';
-import SignUpForm from '@/features/auth/components/SignUpForm';
-import { safeReturnPath } from '@/features/auth/model/returnPath';
+import { AuthCard, SignUpForm, safeReturnPath } from '@/features/auth';
 
 export const metadata: Metadata = { title: 'Załóż konto' };
 

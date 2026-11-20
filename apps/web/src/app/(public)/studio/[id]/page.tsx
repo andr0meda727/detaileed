@@ -2,12 +2,8 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { siteUrl } from '@/shared/lib/site';
-import { getFirstReviews, getListing } from '@/features/studio/api/server';
-import { studioJsonLd } from '@/features/studio/model/jsonLd';
-import StudioHeader from '@/features/studio/components/StudioHeader';
-import StudioLocation from '@/features/studio/components/StudioLocation';
-import StudioOffer from '@/features/studio/components/StudioOffer';
-import ReviewsList from '@/features/studio/components/ReviewsList';
+import { getFirstReviews, getListing } from '@/features/studio/server';
+import { studioJsonLd, StudioHeader, StudioLocation, StudioOffer, ReviewsList } from '@/features/studio';
 
 // Rebuilt at most once a minute, like the API's own cache of public studios.
 export const revalidate = 60;
