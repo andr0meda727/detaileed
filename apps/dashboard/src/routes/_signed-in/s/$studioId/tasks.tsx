@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { TasksView } from '@/features/bookings';
 
-export const Route = createFileRoute('/_auth/s/$studioId/tasks')({
+export const Route = createFileRoute('/_signed-in/s/$studioId/tasks')({
   component: TasksView,
 });

@@ -8,7 +8,7 @@ import { REQUEST_STATUSES } from '@/features/booking-requests/model/statuses';
 import RequestCard from '@/features/booking-requests/components/RequestCard';
 import RequestDetailsModal from '@/features/booking-requests/components/RequestDetailsModal';
 
-const routeApi = getRouteApi('/_auth/s/$studioId/requests');
+const routeApi = getRouteApi('/_signed-in/s/$studioId/requests');
 
 const FILTERS = [{ value: undefined, label: 'Wszystkie' }, ...REQUEST_STATUSES];
 

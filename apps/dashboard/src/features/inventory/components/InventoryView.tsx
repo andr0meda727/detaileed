@@ -17,7 +17,7 @@ import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
 
 // ─── View ─────────────────────────────────────────────────────────────────────
-const routeApi = getRouteApi('/_auth/s/$studioId/inventory');
+const routeApi = getRouteApi('/_signed-in/s/$studioId/inventory');
 
 const InventoryView: React.FC = () => {
   const { data: items = [], isLoading: isInventoryLoading } = useInventory();

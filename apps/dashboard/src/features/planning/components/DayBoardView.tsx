@@ -8,7 +8,7 @@ import { useDayBoard, useSchedule } from '@/features/planning/api/planning';
 import { axisHours, boardAxis } from '@/features/planning/model/boardLayout';
 import BayLane from '@/features/planning/components/BayLane';
 
-const routeApi = getRouteApi('/_auth/s/$studioId/board');
+const routeApi = getRouteApi('/_signed-in/s/$studioId/board');
 
 /** One studio day by bay: bookings, free gaps and utilisation, plus bookings without a bay and pending requests. */
 export default function DayBoardView() {

@@ -8,7 +8,7 @@ import supabase from '@/shared/lib/supabase';
 import type { Studio } from '@/features/studios';
 
 /** Layout of every screen inside a studio. The studio comes from the URL. */
-export const Route = createFileRoute('/_auth/s/$studioId')({
+export const Route = createFileRoute('/_signed-in/s/$studioId')({
   beforeLoad: async ({ context, params }) => {
     const find = (studios: Studio[]) => studios.find((s) => s.studioId === params.studioId);
     // A studio created or joined a moment ago may be missing from the cached list, so refetch once.

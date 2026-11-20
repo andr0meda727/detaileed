@@ -10,7 +10,7 @@ import { Button, useToast } from '@detaileed/ui';
 import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
 
-const routeApi = getRouteApi('/_auth/s/$studioId/reports');
+const routeApi = getRouteApi('/_signed-in/s/$studioId/reports');
 
 const ReportsView: React.FC = () => {
   const { from: dateFrom = '', to: dateTo = '' } = routeApi.useSearch();

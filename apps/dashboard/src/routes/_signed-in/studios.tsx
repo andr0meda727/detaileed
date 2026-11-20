@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { StudioSelectView } from '@/features/studios';
 
-export const Route = createFileRoute('/_auth/studios')({
+export const Route = createFileRoute('/_signed-in/studios')({
   component: StudiosPage,
 });
 
