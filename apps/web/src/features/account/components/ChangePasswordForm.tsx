@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { KeyRound, ShieldCheck } from 'lucide-react';
+import { KeyRound, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Button, FormInput, FormSection, useToast } from '@detaileed/ui';
 import { getSupabase } from '@/lib/supabase/client';
 import { newPasswordSchema, type NewPasswordValues } from '@/features/auth/model/schemas';
@@ -44,17 +44,41 @@ export default function ChangePasswordForm() {
       const authError = await setPassword(password);
       if (!authError) return done();
       if (authError.code !== 'reauthentication_needed') return setError(authErrorMessage(authError));
-
-      const { error: sendError } = await getSupabase().auth.reauthenticate();
-      if (sendError) return setError(authErrorMessage(sendError));
-      setPendingPassword(password);
+      if (await sendCode()) setPendingPassword(password);
     } finally {
       setBusy(false);
     }
   };
 
-  const confirmWithCode = async () => {
-    if (!pendingPassword) return;
+  /** Emails a reauthentication code; false (with the error shown) when Supabase refused. */
+  const sendCode = async () => {
+    const { error: sendError } = await getSupabase().auth.reauthenticate();
+    if (sendError) setError(authErrorMessage(sendError));
+    return !sendError;
+  };
+
+  const resendCode = async () => {
+    setError(null);
+    setBusy(true);
+    try {
+      if (await sendCode()) {
+        setCode('');
+        addToast('Wysłaliśmy nowy kod.', 'success');
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const cancelCode = () => {
+    setPendingPassword(null);
+    setCode('');
+    setError(null);
+  };
+
+  const confirmWithCode = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!pendingPassword || !code.trim()) return;
     setError(null);
     setBusy(true);
     try {
@@ -70,7 +94,7 @@ export default function ChangePasswordForm() {
     <FormSection icon={KeyRound} title="Hasło">
       <div className="p-5 space-y-3">
         {pendingPassword ? (
-          <div className="space-y-3">
+          <form className="space-y-3" onSubmit={confirmWithCode} noValidate>
             <p className="text-sm text-green-light">
               Dla bezpieczeństwa wysłaliśmy kod na Twój adres e-mail. Wpisz go, aby zmienić hasło.
             </p>
@@ -87,19 +111,20 @@ export default function ChangePasswordForm() {
               </p>
             )}
             <div className="flex flex-wrap gap-2">
-              <Button icon={ShieldCheck} loading={busy} disabled={!code.trim()} onClick={confirmWithCode}>
+              <Button type="submit" icon={ShieldCheck} loading={busy} disabled={!code.trim()}>
                 Potwierdź i zmień hasło
               </Button>
-              <Button variant="ghost" disabled={busy} onClick={() => setPendingPassword(null)}>
+              <Button variant="secondary" icon={RefreshCw} disabled={busy} onClick={resendCode}>
+                Wyślij nowy kod
+              </Button>
+              <Button variant="ghost" disabled={busy} onClick={cancelCode}>
                 Anuluj
               </Button>
             </div>
-          </div>
+          </form>
         ) : (
           <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <p className="text-sm text-green-light">
-              Po zmianie hasła wylogujemy Cię na pozostałych urządzeniach.
-            </p>
+            <p className="text-sm text-green-light">Po zmianie hasła wylogujemy Cię na pozostałych urządzeniach.</p>
             <FormInput
               label="Nowe hasło"
               type="password"

@@ -70,4 +70,51 @@ describe('ChangePasswordForm', () => {
     expect(screen.getByLabelText('Kod z e-maila')).toBeInTheDocument();
     expect(addToast).not.toHaveBeenCalled();
   });
+
+  it('confirms the code with Enter', async () => {
+    updateUser
+      .mockResolvedValueOnce({ error: { code: 'reauthentication_needed' } })
+      .mockResolvedValueOnce({ error: null });
+    reauthenticate.mockResolvedValue({ error: null });
+    render(<ChangePasswordForm />);
+    submit('Nowe1234');
+
+    const codeInput = await screen.findByLabelText('Kod z e-maila');
+    fireEvent.change(codeInput, { target: { value: '123456' } });
+    fireEvent.submit(codeInput);
+
+    await waitFor(() => expect(updateUser).toHaveBeenLastCalledWith({ password: 'Nowe1234', nonce: '123456' }));
+  });
+
+  it('sends a new code on request', async () => {
+    updateUser.mockResolvedValue({ error: { code: 'reauthentication_needed' } });
+    reauthenticate.mockResolvedValue({ error: null });
+    render(<ChangePasswordForm />);
+    submit('Nowe1234');
+
+    await screen.findByLabelText('Kod z e-maila');
+    fireEvent.click(screen.getByRole('button', { name: 'Wyślij nowy kod' }));
+
+    await waitFor(() => expect(reauthenticate).toHaveBeenCalledTimes(2));
+    expect(addToast).toHaveBeenCalledWith('Wysłaliśmy nowy kod.', 'success');
+  });
+
+  it('cancelling the code step clears the code and its error', async () => {
+    updateUser
+      .mockResolvedValueOnce({ error: { code: 'reauthentication_needed' } })
+      .mockResolvedValueOnce({ error: { code: 'reauthentication_not_valid' } })
+      .mockResolvedValueOnce({ error: { code: 'reauthentication_needed' } });
+    reauthenticate.mockResolvedValue({ error: null });
+    render(<ChangePasswordForm />);
+    submit('Nowe1234');
+
+    fireEvent.change(await screen.findByLabelText('Kod z e-maila'), { target: { value: '000000' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Potwierdź i zmień hasło' }));
+    await screen.findByRole('alert');
+    fireEvent.click(screen.getByRole('button', { name: 'Anuluj' }));
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    submit('Nowe1234');
+    expect(await screen.findByLabelText('Kod z e-maila')).toHaveValue('');
+  });
 });
