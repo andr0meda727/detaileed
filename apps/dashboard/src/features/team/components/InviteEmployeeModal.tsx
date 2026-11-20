@@ -11,7 +11,7 @@ interface InviteEmployeeModalProps {
 
 const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClose, onInvite }) => {
   const [email, setEmail] = useState('');
-  const [selectedRole, setSelectedRole] = useState<number>(3); // Default to Pracownik
+  const [selectedRole, setSelectedRole] = useState<number>(3); // Default to the employee role
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

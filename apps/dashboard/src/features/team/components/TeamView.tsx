@@ -88,7 +88,7 @@ export const TeamView: React.FC = () => {
         onAddClient={() => setIsClientModalOpen(true)}
       />
 
-      {/* Akcje / Panel Górny */}
+      {/* Actions / top panel */}
       <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
         <div className="flex-1 relative group max-w-sm">
           <Search

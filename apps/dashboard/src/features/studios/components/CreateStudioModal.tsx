@@ -50,7 +50,7 @@ interface CreateStudioModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (studio: Studio) => void;
-  /** false = onboarding (modal bez możliwości zamknięcia X) */
+  /** false = onboarding (the modal has no close button) */
   canClose?: boolean;
 }
 

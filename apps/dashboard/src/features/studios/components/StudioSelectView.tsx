@@ -56,7 +56,7 @@ const getFallback = (role: string): RoleConfig => ({
   accent: 'bg-slate-400',
 });
 
-/** Owner lub Manager mogą tworzyć nowe studio */
+/** Owners and managers can create a new studio (anyone can create their first). */
 const canCreateStudio = (studios: Studio[]) =>
   studios.length === 0 || studios.some((s) => s.role === 'Owner' || s.role === 'Manager');
 
@@ -66,16 +66,16 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
   const lastStudioId = getLastStudioId();
 
   const [selecting, setSelecting] = useState<string | null>(null);
-  // Tylko ręczne otwarcie modalu — logika auto-open poniżej
+  // Opened by hand only; the automatic opening is below
   const [manualOpen, setManualOpen] = useState(false);
 
   // ── Computed open state ──────────────────────────────────────────────────────
-  // Modal otwiera się gdy:
-  // (a) user kliknął przycisk "Nowe Studio" (manualOpen)
-  // (b) dane załadowane i lista studiów jest pusta (auto-onboarding)
+  // The modal opens when:
+  // (a) the user clicked the new studio card (manualOpen)
+  // (b) the studios have loaded and there are none (onboarding)
   const noStudiosAfterLoad = !isLoading && studios.length === 0;
   const isModalOpen = manualOpen || noStudiosAfterLoad;
-  // Można zamknąć tylko gdy user ma już jakieś studio
+  // It can be closed only when the user already has a studio
   const canClose = studios.length > 0;
 
   const handleSelect = (studio: Studio) => {
@@ -223,7 +223,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
                 );
               })}
 
-              {/* "+ Nowe Studio" card — only when user has existing studios */}
+              {/* New studio card: only when the user already has studios */}
               {showCreateCard && (
                 <button
                   onClick={() => setManualOpen(true)}
@@ -247,7 +247,7 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
         </div>
       </div>
 
-      {/* Modal — otwiera się automatycznie gdy brak studiów lub manualnie */}
+      {/* Opens by itself when there are no studios, or by hand */}
       <CreateStudioModal
         isOpen={isModalOpen}
         onClose={() => setManualOpen(false)}

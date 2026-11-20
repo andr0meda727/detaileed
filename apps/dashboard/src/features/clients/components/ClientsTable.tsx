@@ -76,7 +76,7 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
                 onClick={() => onOpen(client)}
                 className="group hover:bg-green-deep/2 cursor-pointer transition-colors"
               >
-                {/* Klient */}
+                {/* Client */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-4">
                     <div className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm text-cream-warm shrink-0 shadow-xs transition-transform group-hover:scale-105 bg-brand-gradient">
@@ -97,7 +97,7 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
                   </div>
                 </td>
 
-                {/* Kontakt */}
+                {/* Contact */}
                 <td className="px-6 py-4">
                   <div className="space-y-1.5 flex flex-col justify-center">
                     <p className="font-bold text-green-deep/80 text-[13px]">
@@ -111,7 +111,7 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
                   </div>
                 </td>
 
-                {/* Pojazdy */}
+                {/* Vehicles */}
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-2 flex-wrap">
                     {client.vehicles.slice(0, 2).map((v) => (
@@ -138,7 +138,7 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
                   </div>
                 </td>
 
-                {/* Akcje */}
+                {/* Actions */}
                 <td className="px-6 py-4 text-right">
                   <div className="flex flex-wrap items-center justify-end gap-2">
                     {client.phone && (

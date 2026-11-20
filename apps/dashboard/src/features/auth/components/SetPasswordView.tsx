@@ -35,11 +35,8 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
       return;
     }
 
-    // Symulacja ładowania dla testów (usuń potem)
-    setTimeout(() => {
-      setLoading(false);
-      onSuccess();
-    }, 1000);
+    setLoading(false);
+    onSuccess();
   };
 
   return (

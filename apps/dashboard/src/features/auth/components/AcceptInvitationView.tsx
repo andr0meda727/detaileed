@@ -78,7 +78,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
     );
   }
 
-  // ── Error — zaproszenie nieaktywne ───────────────────────────────────────
+  // ── Error: invitation no longer active ────────────────────────────────────
 
   if (fetchError) {
     return (
@@ -92,7 +92,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
     );
   }
 
-  // ── Zaakceptowane ────────────────────────────────────────────────────────
+  // ── Accepted ────────────────────────────────────────────────────────────
 
   if (decision === 'accepted') {
     return (
@@ -111,7 +111,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
     );
   }
 
-  // ── Odrzucone ────────────────────────────────────────────────────────────
+  // ── Declined ────────────────────────────────────────────────────────────
 
   if (decision === 'declined') {
     return (
@@ -125,7 +125,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
     );
   }
 
-  // ── Główny widok ─────────────────────────────────────────────────────────
+  // ── Main view ─────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream p-4">
@@ -135,7 +135,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
           <p className="text-gray-500 text-sm">Zostałeś zaproszony do dołączenia do studia w aplikacji DetailFlow.</p>
         </div>
 
-        {/* Szczegóły zaproszenia */}
+        {/* Invitation details */}
         <div className="bg-cream rounded-2xl p-5 mb-6 space-y-3">
           <DetailRow label="Studio" value={invitation!.studioName} bold />
           <DetailRow label="Rola" value={ROLE_LABELS[invitation!.role] ?? invitation!.role} />
@@ -150,7 +150,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
           />
         </div>
 
-        {/* Ostrzeżenie — niezalogowany */}
+        {/* Warning: not signed in */}
         {!isSignedIn && (
           <div className="mb-5 p-4 bg-amber-50 text-amber-700 text-sm rounded-xl border border-amber-100 flex flex-col sm:flex-row gap-4 items-center justify-between">
             <span>Musisz być zalogowany, aby odpowiedzieć na zaproszenie.</span>
@@ -165,12 +165,12 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
           </div>
         )}
 
-        {/* Błąd akcji */}
+        {/* Action error */}
         {actionError && (
           <div className="mb-5 p-4 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100">{actionError}</div>
         )}
 
-        {/* Przyciski */}
+        {/* Buttons */}
         <div className="flex gap-3">
           <button
             onClick={() => handleAction('decline')}
