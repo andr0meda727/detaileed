@@ -10,9 +10,9 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SignedInRouteImport } from './routes/_signed-in'
-import { Route as AcceptInvitationRouteImport } from './routes/accept-invitation'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as SetPasswordRouteImport } from './routes/set-password'
+import { Route as authAcceptInvitationRouteImport } from './routes/(auth)/accept-invitation'
+import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as authSetPasswordRouteImport } from './routes/(auth)/set-password'
 import { Route as SignedInIndexRouteImport } from './routes/_signed-in/index'
 import { Route as SignedInStudiosRouteImport } from './routes/_signed-in/studios'
 import { Route as SignedInSStudioIdRouteRouteImport } from './routes/_signed-in/s/$studioId/route'
@@ -32,18 +32,18 @@ const SignedInRoute = SignedInRouteImport.update({
   id: '/_signed-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AcceptInvitationRoute = AcceptInvitationRouteImport.update({
-  id: '/accept-invitation',
+const authAcceptInvitationRoute = authAcceptInvitationRouteImport.update({
+  id: '/(auth)/accept-invitation',
   path: '/accept-invitation',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
+const authLoginRoute = authLoginRouteImport.update({
+  id: '/(auth)/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SetPasswordRoute = SetPasswordRouteImport.update({
-  id: '/set-password',
+const authSetPasswordRoute = authSetPasswordRouteImport.update({
+  id: '/(auth)/set-password',
   path: '/set-password',
   getParentRoute: () => rootRouteImport,
 } as any)
@@ -127,9 +127,9 @@ const SignedInSStudioIdSettingsUserRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof SignedInIndexRoute
-  '/accept-invitation': typeof AcceptInvitationRoute
-  '/login': typeof LoginRoute
-  '/set-password': typeof SetPasswordRoute
+  '/accept-invitation': typeof authAcceptInvitationRoute
+  '/login': typeof authLoginRoute
+  '/set-password': typeof authSetPasswordRoute
   '/studios': typeof SignedInStudiosRoute
   '/s/$studioId': typeof SignedInSStudioIdRouteRouteWithChildren
   '/s/$studioId/archived': typeof SignedInSStudioIdArchivedRoute
@@ -145,9 +145,9 @@ export interface FileRoutesByFullPath {
   '/s/$studioId/settings/user': typeof SignedInSStudioIdSettingsUserRoute
 }
 export interface FileRoutesByTo {
-  '/accept-invitation': typeof AcceptInvitationRoute
-  '/login': typeof LoginRoute
-  '/set-password': typeof SetPasswordRoute
+  '/accept-invitation': typeof authAcceptInvitationRoute
+  '/login': typeof authLoginRoute
+  '/set-password': typeof authSetPasswordRoute
   '/studios': typeof SignedInStudiosRoute
   '/': typeof SignedInIndexRoute
   '/s/$studioId/archived': typeof SignedInSStudioIdArchivedRoute
@@ -165,9 +165,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_signed-in': typeof SignedInRouteWithChildren
-  '/accept-invitation': typeof AcceptInvitationRoute
-  '/login': typeof LoginRoute
-  '/set-password': typeof SetPasswordRoute
+  '/(auth)/accept-invitation': typeof authAcceptInvitationRoute
+  '/(auth)/login': typeof authLoginRoute
+  '/(auth)/set-password': typeof authSetPasswordRoute
   '/_signed-in/studios': typeof SignedInStudiosRoute
   '/_signed-in/': typeof SignedInIndexRoute
   '/_signed-in/s/$studioId': typeof SignedInSStudioIdRouteRouteWithChildren
@@ -224,9 +224,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_signed-in'
-    | '/accept-invitation'
-    | '/login'
-    | '/set-password'
+    | '/(auth)/accept-invitation'
+    | '/(auth)/login'
+    | '/(auth)/set-password'
     | '/_signed-in/studios'
     | '/_signed-in/'
     | '/_signed-in/s/$studioId'
@@ -245,9 +245,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   SignedInRoute: typeof SignedInRouteWithChildren
-  AcceptInvitationRoute: typeof AcceptInvitationRoute
-  LoginRoute: typeof LoginRoute
-  SetPasswordRoute: typeof SetPasswordRoute
+  authAcceptInvitationRoute: typeof authAcceptInvitationRoute
+  authLoginRoute: typeof authLoginRoute
+  authSetPasswordRoute: typeof authSetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -259,25 +259,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignedInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/accept-invitation': {
-      id: '/accept-invitation'
+    '/(auth)/accept-invitation': {
+      id: '/(auth)/accept-invitation'
       path: '/accept-invitation'
       fullPath: '/accept-invitation'
-      preLoaderRoute: typeof AcceptInvitationRouteImport
+      preLoaderRoute: typeof authAcceptInvitationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/login': {
-      id: '/login'
+    '/(auth)/login': {
+      id: '/(auth)/login'
       path: '/login'
       fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+      preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/set-password': {
-      id: '/set-password'
+    '/(auth)/set-password': {
+      id: '/(auth)/set-password'
       path: '/set-password'
       fullPath: '/set-password'
-      preLoaderRoute: typeof SetPasswordRouteImport
+      preLoaderRoute: typeof authSetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_signed-in/': {
@@ -433,9 +433,9 @@ const SignedInRouteWithChildren = SignedInRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   SignedInRoute: SignedInRouteWithChildren,
-  AcceptInvitationRoute: AcceptInvitationRoute,
-  LoginRoute: LoginRoute,
-  SetPasswordRoute: SetPasswordRoute,
+  authAcceptInvitationRoute: authAcceptInvitationRoute,
+  authLoginRoute: authLoginRoute,
+  authSetPasswordRoute: authSetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

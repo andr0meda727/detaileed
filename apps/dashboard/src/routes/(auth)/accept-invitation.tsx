@@ -5,7 +5,7 @@ import { getSession } from '@/app/auth';
 import { studiosQueryKey } from '@/features/studios';
 import { AcceptInvitationView } from '@/features/auth';
 
-export const Route = createFileRoute('/accept-invitation')({
+export const Route = createFileRoute('/(auth)/accept-invitation')({
   validateSearch: z.object({ token: z.string().catch('') }),
   // Re-runs on every auth change (see App.tsx), so this follows sign-in from another tab too.
   beforeLoad: async () => ({ session: await getSession() }),

@@ -3,7 +3,7 @@ import { clearPasswordSetup, getSession } from '@/app/auth';
 import supabase from '@/shared/lib/supabase';
 import { SetPasswordView } from '@/features/auth';
 
-export const Route = createFileRoute('/set-password')({
+export const Route = createFileRoute('/(auth)/set-password')({
   beforeLoad: async () => {
     if (!(await getSession())) throw redirect({ to: '/login' });
   },

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getSession, safeRedirect } from '@/app/auth';
 import { LoginView } from '@/features/auth';
 
-export const Route = createFileRoute('/login')({
+export const Route = createFileRoute('/(auth)/login')({
   validateSearch: z.object({ redirect: z.string().optional() }),
   beforeLoad: async ({ search }) => {
     if (await getSession()) throw redirect({ href: safeRedirect(search.redirect) });
