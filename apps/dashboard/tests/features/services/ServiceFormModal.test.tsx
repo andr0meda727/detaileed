@@ -13,7 +13,7 @@ vi.mock('@/features/services/api/services', () => ({
   useUpdateService: () => ({ mutateAsync: update }),
 }));
 
-const { default: ServiceFormModal } = await import('@/features/services/components/ServiceFormModal');
+const { ServiceFormModal } = await import('@/features/services/components/ServiceFormModal');
 
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 

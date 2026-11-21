@@ -16,7 +16,7 @@ vi.mock('@detaileed/api-client', async (orig) => ({
 vi.mock('@/features/account/api/me', () => ({ useSubmitRequest: () => ({ mutate, isPending: false }) }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 
-const { default: BookingRequestForm } = await import('@/features/booking/components/BookingRequestForm');
+const { BookingRequestForm } = await import('@/features/booking/components/BookingRequestForm');
 
 const listing: Listing = {
   studioId: 's1',
@@ -28,6 +28,7 @@ const listing: Listing = {
   latitude: 50.06,
   longitude: 19.94,
   isPublished: true,
+  hasCompleteDetails: true,
   timeZone: 'Europe/Warsaw',
   categories: ['Interior'],
   services: [

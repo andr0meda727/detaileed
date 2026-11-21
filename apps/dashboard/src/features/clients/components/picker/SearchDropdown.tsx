@@ -12,7 +12,7 @@ interface SearchDropdownProps<T> {
 }
 
 /** A search box whose results slide open below it while there is a query. */
-export default function SearchDropdown<T>({
+export function SearchDropdown<T>({
   query,
   onQueryChange,
   placeholder,

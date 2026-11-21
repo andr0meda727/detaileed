@@ -1,19 +1,19 @@
 import { getRouteApi } from '@tanstack/react-router';
 import { ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
 import { EmptyState, Skeleton } from '@detaileed/ui';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 import { useStudioTimeZone } from '@/features/studios';
 import { useBookingRequests } from '@/features/booking-requests/api/requests';
 import { REQUEST_STATUSES } from '@/features/booking-requests/model/statuses';
-import RequestCard from '@/features/booking-requests/components/RequestCard';
-import RequestDetailsModal from '@/features/booking-requests/components/RequestDetailsModal';
+import { RequestCard } from '@/features/booking-requests/components/RequestCard';
+import { RequestDetailsModal } from '@/features/booking-requests/components/RequestDetailsModal';
 
 const routeApi = getRouteApi('/_signed-in/s/$studioId/requests');
 
 const FILTERS = [{ value: undefined, label: 'Wszystkie' }, ...REQUEST_STATUSES];
 
 /** Booking requests customers sent from the map; the filter, page and open request live in the URL. */
-export default function RequestsView() {
+export function RequestsView() {
   const { status, page = 1, id } = routeApi.useSearch();
   const navigate = routeApi.useNavigate();
   const timeZone = useStudioTimeZone();

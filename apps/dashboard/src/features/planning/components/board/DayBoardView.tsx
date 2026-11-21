@@ -2,16 +2,16 @@ import { getRouteApi, Link } from '@tanstack/react-router';
 import { ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
 import { Button, Skeleton } from '@detaileed/ui';
 import { addDays, formatDay, timeInZone, todayInZone } from '@detaileed/domain/studioTime';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 import { useStudioTimeZone } from '@/features/studios';
 import { useDayBoard, useSchedule } from '@/features/planning/api/planning';
 import { axisHours, boardAxis } from '@/features/planning/model/boardLayout';
-import BayLane from '@/features/planning/components/board/BayLane';
+import { BayLane } from '@/features/planning/components/board/BayLane';
 
 const routeApi = getRouteApi('/_signed-in/s/$studioId/board');
 
 /** One studio day by bay: bookings, free gaps and utilisation, plus bookings without a bay and pending requests. */
-export default function DayBoardView() {
+export function DayBoardView() {
   const timeZone = useStudioTimeZone();
   const today = todayInZone(timeZone);
   const { date = today } = routeApi.useSearch();

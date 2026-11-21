@@ -15,7 +15,7 @@ const optionClass = (selected: boolean) =>
   `w-full text-left px-6 py-3.5 text-sm font-bold transition-all block select-none ${selected ? 'bg-amber/10 text-amber' : 'text-slate-500 hover:bg-slate-50 hover:text-green-deep'}`;
 
 /** Category dropdown (optional) with an inline "new category" that is created and selected right away. */
-export default function CategoryField({ value, onChange }: CategoryFieldProps) {
+export function CategoryField({ value, onChange }: CategoryFieldProps) {
   const { addToast } = useToast();
   const { data: categories = [] } = useCategories();
   const createCategory = useCreateCategory();

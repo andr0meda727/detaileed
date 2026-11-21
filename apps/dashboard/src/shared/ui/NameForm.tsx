@@ -12,7 +12,7 @@ const nameSchema = z.object({
 type NameFormValues = z.infer<typeof nameSchema>;
 
 /** One required "name" field with a save button, for small create/rename modals. */
-const NameForm: React.FC<{
+export const NameForm: React.FC<{
   label: string;
   placeholder: string;
   onSave: (name: string) => Promise<void>;
@@ -55,5 +55,3 @@ const NameForm: React.FC<{
     </form>
   );
 };
-
-export default NameForm;

@@ -11,7 +11,7 @@ vi.mock('@detaileed/api-client', async (orig) => ({
 }));
 vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams('size=Large') }));
 
-const { default: StudioOffer } = await import('@/features/studio/components/StudioOffer');
+const { StudioOffer } = await import('@/features/studio/components/StudioOffer');
 
 const listing: Listing = {
   studioId: 's1',
@@ -23,6 +23,7 @@ const listing: Listing = {
   latitude: 50.06,
   longitude: 19.94,
   isPublished: true,
+  hasCompleteDetails: true,
   timeZone: 'Europe/Warsaw',
   categories: ['Interior', 'Ceramic'],
   services: [

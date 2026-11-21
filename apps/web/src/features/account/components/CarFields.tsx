@@ -12,7 +12,7 @@ interface CarFieldsProps {
 }
 
 /** Plate, size (it sets the price), brand and model of a car. */
-export default function CarFields({ fields, errors }: CarFieldsProps) {
+export function CarFields({ fields, errors }: CarFieldsProps) {
   return (
     <div className="grid grid-cols-2 gap-x-3">
       <FormInput

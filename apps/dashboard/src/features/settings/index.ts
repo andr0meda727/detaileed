@@ -1,1 +1,1 @@
-export { default as StudioSettingsView } from './components/StudioSettingsView';
+export { StudioSettingsView } from './components/StudioSettingsView';

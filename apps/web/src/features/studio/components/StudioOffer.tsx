@@ -15,7 +15,7 @@ import { VEHICLE_SIZE_OPTIONS } from '@detaileed/domain/vehicleSize';
 const isSize = (v: string | null): v is VehicleSize => Object.values(VehicleSize).includes(v as VehicleSize);
 
 /** The studio's services with prices for the chosen car size; pick some to see an estimate and send a request. */
-export default function StudioOffer({ listing }: { listing: Listing }) {
+export function StudioOffer({ listing }: { listing: Listing }) {
   const searchParams = useSearchParams();
   const initialSize = searchParams.get('size');
   const [size, setSize] = useState<VehicleSize>(isSize(initialSize) ? initialSize : VehicleSize.Medium);

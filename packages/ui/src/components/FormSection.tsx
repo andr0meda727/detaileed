@@ -12,7 +12,7 @@ interface FormSectionProps {
 }
 
 /** A card with an icon + title header, used to group the steps of a longer form. */
-export default function FormSection({ icon: Icon, title, tone = 'dark', actions, children }: FormSectionProps) {
+export function FormSection({ icon: Icon, title, tone = 'dark', actions, children }: FormSectionProps) {
   return (
     <div
       className="rounded-2xl border border-slate-100 overflow-hidden bg-white"

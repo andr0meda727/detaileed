@@ -13,7 +13,7 @@ interface RequestCardProps {
 }
 
 /** One request in the list: who, which car, what, when they'd like to come, and the estimate. */
-export default function RequestCard({ request, timeZone, onOpen }: RequestCardProps) {
+export function RequestCard({ request, timeZone, onOpen }: RequestCardProps) {
   const status = requestStatus(request.status);
   const car = [request.vehicle.brand, request.vehicle.model].filter(Boolean).join(' ');
   return (

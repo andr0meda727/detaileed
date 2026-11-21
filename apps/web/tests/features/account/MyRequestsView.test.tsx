@@ -40,7 +40,7 @@ vi.mock('@/features/account/api/me', () => ({
 }));
 vi.mock('next/navigation', () => ({ useSearchParams: () => new URLSearchParams('sent=1') }));
 
-const { default: MyRequestsView } = await import('@/features/account/components/MyRequestsView');
+const { MyRequestsView } = await import('@/features/account/components/MyRequestsView');
 
 describe('MyRequestsView', () => {
   it('shows each status with what the customer needs and lets them withdraw a pending one', () => {

@@ -91,7 +91,7 @@ function Lines({ consumption }: { consumption: Consumption }) {
  * What a completed visit used from the stock: the norm for the car's size, what was taken off, and the actual
  * amounts the staff record (stock moves by the difference and the estimates learn from them).
  */
-export default function ConsumptionSection({ bookingId }: { bookingId: string }) {
+export function ConsumptionSection({ bookingId }: { bookingId: string }) {
   const { data, isLoading } = useConsumption(bookingId);
   return (
     <section className="space-y-2">

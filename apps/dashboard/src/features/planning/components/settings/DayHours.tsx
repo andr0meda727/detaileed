@@ -15,7 +15,7 @@ const timeClass =
   'px-3 py-2 bg-slate-50 rounded-lg font-semibold text-sm outline-hidden border-2 border-transparent focus:border-cream-warm/50';
 
 /** One weekday's opening periods; several periods make a break, none means closed. */
-export default function DayHours({ day, label, control, register, errors }: DayHoursProps) {
+export function DayHours({ day, label, control, register, errors }: DayHoursProps) {
   const { fields, append, remove } = useFieldArray({ control, name: `days.${day}` });
   const dayErrors = errors?.[day];
 

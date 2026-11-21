@@ -7,7 +7,7 @@ interface SkeletonProps {
   circle?: boolean;
 }
 
-const Skeleton: React.FC<SkeletonProps> = ({ className = '', width, height, circle = false }) => {
+export const Skeleton: React.FC<SkeletonProps> = ({ className = '', width, height, circle = false }) => {
   const style: React.CSSProperties = {
     width: width,
     height: height,
@@ -16,5 +16,3 @@ const Skeleton: React.FC<SkeletonProps> = ({ className = '', width, height, circ
 
   return <div className={`skeleton inline-block align-middle ${className}`} style={style} aria-hidden="true" />;
 };
-
-export default Skeleton;

@@ -23,7 +23,7 @@ vi.mock('@/features/clients/api/clients', () => ({
   useCreateClient: () => ({ mutateAsync: createClient }),
 }));
 
-const { default: ClientVehiclePicker } = await import('@/features/clients/components/ClientVehiclePicker');
+const { ClientVehiclePicker } = await import('@/features/clients/components/ClientVehiclePicker');
 
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 

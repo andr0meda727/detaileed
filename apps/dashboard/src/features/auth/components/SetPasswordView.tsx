@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { setPasswordSchema, SetPasswordValues } from '@/features/auth/model/schemas';
-import supabase from '@/shared/lib/supabase';
+import { supabase } from '@/shared/lib/supabase';
 
 interface SetPasswordViewProps {
   onSuccess: () => void;
 }
 
-const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
+export const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -96,5 +96,3 @@ const SetPasswordView: React.FC<SetPasswordViewProps> = ({ onSuccess }) => {
     </div>
   );
 };
-
-export default SetPasswordView;

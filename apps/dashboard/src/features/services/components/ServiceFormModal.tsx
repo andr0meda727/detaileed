@@ -23,7 +23,7 @@ interface ServiceFormModalProps {
 const CATEGORY_OPTIONS = SERVICE_CATEGORIES.map((c) => ({ value: c.value, label: c.label }));
 
 /** Add/edit a service: name, category, duration on a Medium car and a price per vehicle size. */
-export default function ServiceFormModal({ isOpen, service, onClose }: ServiceFormModalProps) {
+export function ServiceFormModal({ isOpen, service, onClose }: ServiceFormModalProps) {
   const { addToast } = useToast();
   const createService = useCreateService();
   const updateService = useUpdateService();

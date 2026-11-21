@@ -3,9 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 const auth = { updateUser: vi.fn() };
 
-vi.mock('@/shared/lib/supabase', () => ({ default: { auth } }));
+vi.mock('@/shared/lib/supabase', () => ({ supabase: { auth } }));
 
-const { default: SetPasswordView } = await import('@/features/auth/components/SetPasswordView');
+const { SetPasswordView } = await import('@/features/auth/components/SetPasswordView');
 
 const submit = (container: HTMLElement) => {
   const [password, confirm] = container.querySelectorAll('input[type="password"]');

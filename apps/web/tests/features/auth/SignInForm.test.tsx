@@ -8,7 +8,7 @@ const refresh = vi.fn();
 vi.mock('@/shared/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { signInWithPassword } }) }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ replace, refresh }) }));
 
-const { default: SignInForm } = await import('@/features/auth/components/SignInForm');
+const { SignInForm } = await import('@/features/auth/components/SignInForm');
 
 const fill = () => {
   fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: 'anna@example.com' } });

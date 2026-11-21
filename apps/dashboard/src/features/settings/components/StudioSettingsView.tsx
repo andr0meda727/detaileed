@@ -6,10 +6,10 @@ import { ServicesSettings } from '@/features/services';
 
 import { CategoriesSettings, SizeFactorsSettings } from '@/features/inventory';
 import { EmployeesSettings } from '@/features/team';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 
 import { useToast } from '@detaileed/ui';
-import { StudioTimeZoneSettings, useStudio } from '@/features/studios';
+import { StudioDetailsSettings, StudioTimeZoneSettings, useStudio } from '@/features/studios';
 import { isEmployeeRole, isOwnerRole } from '@/shared/lib/studioRole';
 
 // ─── Main View ────────────────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ const TABS: { id: TabId; label: string; icon: React.FC<{ size?: number; classNam
   { id: 'studio', label: 'Studio', icon: Building2 },
 ];
 
-const StudioSettingsView: React.FC = () => {
+export const StudioSettingsView: React.FC = () => {
   const [selectedTab, setActiveTab] = useState<TabId>('services');
   const { addToast } = useToast();
   const { selectedStudio } = useStudio();
@@ -66,11 +66,19 @@ const StudioSettingsView: React.FC = () => {
         )}
         {activeTab === 'employees' && <EmployeesSettings addToast={addToast} />}
         {activeTab === 'planning' && <PlanningSettings />}
-        {activeTab === 'listing' && <ListingSettings onOpenServices={() => setActiveTab('services')} />}
-        {activeTab === 'studio' && <StudioTimeZoneSettings />}
+        {activeTab === 'listing' && (
+          <ListingSettings
+            onOpenServices={() => setActiveTab('services')}
+            onOpenStudio={() => setActiveTab('studio')}
+          />
+        )}
+        {activeTab === 'studio' && (
+          <div className="space-y-8">
+            <StudioDetailsSettings />
+            <StudioTimeZoneSettings />
+          </div>
+        )}
       </div>
     </div>
   );
 };
-
-export default StudioSettingsView;

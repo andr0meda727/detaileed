@@ -12,10 +12,10 @@ import { TURNSTILE_SITE_KEY } from '@/shared/lib/site';
 import { signInSchema, type SignInValues } from '@/features/auth/model/schemas';
 import { authErrorMessage, isEmailNotConfirmed } from '@/features/auth/model/authErrors';
 import { confirmEmailPath } from '@/features/auth/model/returnPath';
-import CaptchaField from '@/features/auth/components/CaptchaField';
+import { CaptchaField } from '@/features/auth/components/CaptchaField';
 
 /** Email + password sign-in; goes back to `next` afterwards. */
-export default function SignInForm({ next, notice }: { next: string; notice?: ReactNode }) {
+export function SignInForm({ next, notice }: { next: string; notice?: ReactNode }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   // The email of an account that can't sign in until it's confirmed: offer to send the link again

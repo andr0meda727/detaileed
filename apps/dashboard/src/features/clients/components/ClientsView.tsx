@@ -1,21 +1,21 @@
 import React, { useState, useMemo } from 'react';
 
 import { Search, Trash2 } from 'lucide-react';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 import { Modal, LoadingSpinner, useToast } from '@detaileed/ui';
 
-import CreateClientModal from '@/features/clients/components/CreateClientModal';
+import { CreateClientModal } from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
-import VehicleModal from '@/features/clients/components/VehicleModal';
+import { VehicleModal } from '@/features/clients/components/VehicleModal';
 import type { Client } from '@/features/clients/model/types';
 import { useClients, useDeleteVehicle } from '@/features/clients/api/clients';
 
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
-import ClientDetailsModal from '@/features/clients/components/ClientDetailsModal';
-import ClientsTable from '@/features/clients/components/ClientsTable';
+import { ClientDetailsModal } from '@/features/clients/components/ClientDetailsModal';
+import { ClientsTable } from '@/features/clients/components/ClientsTable';
 import { filterClients } from '@/features/clients/model/filterClients';
 
-const ClientsView: React.FC = () => {
+export const ClientsView: React.FC = () => {
   const { addToast } = useToast();
   const { data: clients = [], isLoading, refetch: refetchClients } = useClients();
 
@@ -159,4 +159,3 @@ const ClientsView: React.FC = () => {
     </div>
   );
 };
-export default ClientsView;

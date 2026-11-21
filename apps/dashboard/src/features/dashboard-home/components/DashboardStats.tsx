@@ -11,7 +11,7 @@ export interface DashboardStatsProps {
   loading?: boolean;
 }
 
-const DashboardStats: React.FC<DashboardStatsProps> = ({
+export const DashboardStats: React.FC<DashboardStatsProps> = ({
   todayRevenue,
   activeCount,
   clientsCount,
@@ -81,5 +81,3 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
     </div>
   );
 };
-
-export default DashboardStats;

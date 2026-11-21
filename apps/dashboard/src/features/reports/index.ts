@@ -1,1 +1,1 @@
-export { default as ReportsView } from './components/ReportsView';
+export { ReportsView } from './components/ReportsView';

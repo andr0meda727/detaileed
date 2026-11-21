@@ -58,7 +58,7 @@ export interface TurnstileProps {
  * Cloudflare Turnstile challenge. It stays invisible unless Cloudflare wants the person to tick a box; the token
  * it produces goes to Supabase Auth as `captchaToken`, and Supabase checks it with Cloudflare.
  */
-export default function Turnstile({ siteKey, onToken, onError, action, className, ref }: TurnstileProps) {
+export function Turnstile({ siteKey, onToken, onError, action, className, ref }: TurnstileProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetRef = useRef<string | null>(null);
   const callbacks = useRef({ onToken, onError });

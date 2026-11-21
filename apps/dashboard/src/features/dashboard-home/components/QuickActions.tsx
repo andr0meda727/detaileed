@@ -9,7 +9,12 @@ interface QuickActionsProps {
 }
 
 /** Shortcuts: new booking, client and vehicle, and the inventory. */
-const QuickActions: React.FC<QuickActionsProps> = ({ onNewBooking, onNewClient, onNewVehicle, onOpenInventory }) => {
+export const QuickActions: React.FC<QuickActionsProps> = ({
+  onNewBooking,
+  onNewClient,
+  onNewVehicle,
+  onOpenInventory,
+}) => {
   return (
     <div className="floating-card-static p-6 sm:p-7">
       <h4 className="text-lg font-sans font-bold text-green-deep mb-5">Szybkie Akcje</h4>
@@ -65,5 +70,3 @@ const QuickActions: React.FC<QuickActionsProps> = ({ onNewBooking, onNewClient, 
     </div>
   );
 };
-
-export default QuickActions;

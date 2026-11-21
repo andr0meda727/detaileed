@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, ReactNode } from 'react';
-import ToastContainer from './Toast';
+import { ToastContainer } from './Toast';
 import { ToastContext, type ToastMessage, type ToastType } from './useToast';
 
 export function ToastProvider({ children }: { children: ReactNode }) {

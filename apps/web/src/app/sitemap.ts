@@ -32,6 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
   return [
     { url: siteUrl('/'), changeFrequency: 'daily', priority: 1 },
+    { url: siteUrl('/for-studios'), changeFrequency: 'monthly', priority: 0.9 },
     ...ids.map((id) => ({ url: siteUrl(`/studio/${id}`), changeFrequency: 'weekly' as const, priority: 0.8 })),
   ];
 }

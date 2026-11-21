@@ -11,7 +11,7 @@ interface VehicleFieldsProps {
 }
 
 /** Brand, model, plate and size inputs; takes `register(...)` results so it fits any form that has these fields. */
-export default function VehicleFields({ brand, model, licensePlate, size, plateError }: VehicleFieldsProps) {
+export function VehicleFields({ brand, model, licensePlate, size, plateError }: VehicleFieldsProps) {
   return (
     <div className="space-y-1">
       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Pojazdu</p>

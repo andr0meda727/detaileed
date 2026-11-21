@@ -8,24 +8,24 @@ import { BOOKING_STATUSES, useBookings, type Booking } from '@/features/bookings
 import { isLowStock, useInventory } from '@/features/inventory';
 import { useServices } from '@/features/services';
 
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 
-import DashboardStats from '@/features/dashboard-home/components/DashboardStats';
-import RevenueChart from '@/features/dashboard-home/components/RevenueChart';
+import { DashboardStats } from '@/features/dashboard-home/components/DashboardStats';
+import { RevenueChart } from '@/features/dashboard-home/components/RevenueChart';
 import { BookingDetailsModal, CreateBookingModal, useBookingStatusChange } from '@/features/bookings';
 import { AddVehicleModal } from '@/features/clients';
 
 import { useStudio, useStudioTimeZone } from '@/features/studios';
 import { dayInZone, todayInZone } from '@detaileed/domain/studioTime';
 
-import GreetingBanner from '@/features/dashboard-home/components/GreetingBanner';
-import TodaySchedule from '@/features/dashboard-home/components/TodaySchedule';
-import UpcomingBookings from '@/features/dashboard-home/components/UpcomingBookings';
-import QuickActions from '@/features/dashboard-home/components/QuickActions';
-import StockAlerts from '@/features/dashboard-home/components/StockAlerts';
-import ActivityFeed from '@/features/dashboard-home/components/ActivityFeed';
+import { GreetingBanner } from '@/features/dashboard-home/components/GreetingBanner';
+import { TodaySchedule } from '@/features/dashboard-home/components/TodaySchedule';
+import { UpcomingBookings } from '@/features/dashboard-home/components/UpcomingBookings';
+import { QuickActions } from '@/features/dashboard-home/components/QuickActions';
+import { StockAlerts } from '@/features/dashboard-home/components/StockAlerts';
+import { ActivityFeed } from '@/features/dashboard-home/components/ActivityFeed';
 
-const Dashboard: React.FC = () => {
+export const Dashboard: React.FC = () => {
   const { requestStatusChange, confirmDialog } = useBookingStatusChange();
   const navigate = useNavigate();
   const { data: bookings = [], isLoading: bookingsLoading } = useBookings();
@@ -173,5 +173,3 @@ const Dashboard: React.FC = () => {
     </div>
   );
 };
-
-export default Dashboard;

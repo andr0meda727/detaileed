@@ -9,7 +9,7 @@ interface RevenueChartProps {
   bookings: Booking[];
 }
 
-const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
+export const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
   const [revPeriod, setRevPeriod] = useState<'weekly' | 'monthly'>('weekly');
 
   const timeZone = useStudioTimeZone();
@@ -92,5 +92,3 @@ const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
     </div>
   );
 };
-
-export default RevenueChart;

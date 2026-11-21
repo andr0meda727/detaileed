@@ -82,7 +82,7 @@ function ReviewForm({ visit }: { visit: ReviewableVisitDto }) {
 }
 
 /** Completed visits the customer can still review (within 90 days), each with a rating form. */
-export default function PendingReviews() {
+export function PendingReviews() {
   const { data, isLoading } = usePendingReviews();
   if (isLoading) return <Skeleton width="100%" height="200px" className="rounded-2xl" />;
   if (!data?.length) {

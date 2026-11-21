@@ -13,7 +13,7 @@ import {
 } from '@/features/booking-requests/model/acceptForm';
 import { requestErrorMessage } from '@/features/booking-requests/model/errors';
 import type { BookingRequest } from '@/features/booking-requests/model/types';
-import RequestPlanSection, { type PickedSlot } from '@/features/booking-requests/components/RequestPlanSection';
+import { RequestPlanSection, type PickedSlot } from '@/features/booking-requests/components/RequestPlanSection';
 
 interface AcceptRequestFormProps {
   request: BookingRequest;
@@ -22,7 +22,7 @@ interface AcceptRequestFormProps {
 }
 
 /** Accepts a request: the time (preferred, a free slot from the plan, or typed), the final price and the bay. */
-export default function AcceptRequestForm({ request, timeZone, onDone }: AcceptRequestFormProps) {
+export function AcceptRequestForm({ request, timeZone, onDone }: AcceptRequestFormProps) {
   const { addToast } = useToast();
   const accept = useAcceptRequest();
   const [picked, setPicked] = useState<PickedSlot | null>(null);

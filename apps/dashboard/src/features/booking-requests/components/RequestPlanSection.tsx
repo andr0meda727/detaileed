@@ -19,7 +19,7 @@ const range = (start: string, end: string, timeZone: string) =>
   `${formatInZone(start, timeZone, { weekday: 'short', day: 'numeric', month: 'short' })}, ${timeInZone(start, timeZone)}–${timeInZone(end, timeZone)}`;
 
 /** The planner's view: does the preferred time fit, the closest times that do, and requests competing for it. */
-export default function RequestPlanSection({ requestId, timeZone, picked, onPick }: RequestPlanSectionProps) {
+export function RequestPlanSection({ requestId, timeZone, picked, onPick }: RequestPlanSectionProps) {
   const { data: plan, isLoading } = useRequestPlan(requestId);
   if (isLoading) return <Skeleton width="100%" height="80px" className="rounded-xl" />;
   if (!plan) return null;

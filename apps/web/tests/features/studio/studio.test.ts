@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { Listing } from '@detaileed/domain/listing';
+import type { PublicListing } from '@detaileed/domain/listing';
 import { studioJsonLd } from '@/features/studio/model/jsonLd';
 import { toReviewPage } from '@/features/studio/model/reviews';
 
-const listing: Listing = {
+const listing: PublicListing = {
   studioId: 's1',
   name: 'Detail Kraków',
   description: null,
@@ -13,6 +13,7 @@ const listing: Listing = {
   latitude: 50.06,
   longitude: 19.94,
   isPublished: true,
+  hasCompleteDetails: true,
   timeZone: 'Europe/Warsaw',
   categories: [],
   services: [],

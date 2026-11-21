@@ -13,7 +13,7 @@ interface UpcomingBookingsProps {
 }
 
 /** The next bookings after today, with a link to the full schedule. */
-const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({
+export const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({
   bookings: upcomingBookings,
   loading,
   onOpen: handleViewBooking,
@@ -114,5 +114,3 @@ const UpcomingBookings: React.FC<UpcomingBookingsProps> = ({
     </div>
   );
 };
-
-export default UpcomingBookings;

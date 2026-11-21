@@ -18,7 +18,7 @@ interface VehicleModalProps {
   onSuccess?: () => void;
 }
 
-export default function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit, onSuccess }: VehicleModalProps) {
+export function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit, onSuccess }: VehicleModalProps) {
   const { addToast } = useToast();
   const createVehicleMut = useCreateVehicle();
   const updateVehicleMut = useUpdateVehicle();

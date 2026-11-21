@@ -13,7 +13,7 @@ interface TodayScheduleProps {
 }
 
 /** Today's bookings with quick complete/cancel actions. */
-const TodaySchedule: React.FC<TodayScheduleProps> = ({
+export const TodaySchedule: React.FC<TodayScheduleProps> = ({
   bookings: todayBookings,
   loading: showLoading,
   onOpen: handleViewBooking,
@@ -190,5 +190,3 @@ const TodaySchedule: React.FC<TodayScheduleProps> = ({
     </div>
   );
 };
-
-export default TodaySchedule;

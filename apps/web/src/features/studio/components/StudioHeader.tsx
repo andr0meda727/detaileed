@@ -1,10 +1,10 @@
 import { MapPin, Phone } from 'lucide-react';
 import { Badge, StarRating } from '@detaileed/ui';
 import { serviceCategoryLabel } from '@detaileed/domain/serviceCategory';
-import type { Listing } from '@detaileed/domain/listing';
+import type { PublicListing } from '@detaileed/domain/listing';
 
 /** Name, address, phone, rating and the kinds of work the studio does. */
-export default function StudioHeader({ listing }: { listing: Listing }) {
+export function StudioHeader({ listing }: { listing: PublicListing }) {
   return (
     <header className="space-y-3">
       <h1 className="font-serif text-4xl sm:text-5xl tracking-tight">{listing.name}</h1>

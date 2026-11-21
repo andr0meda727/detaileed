@@ -12,7 +12,7 @@ import { authErrorMessage } from '@/features/auth/model/authErrors';
 import { setPassword } from '@/features/auth/api/password';
 
 /** The last step of a password reset: the link has signed the customer in, now they choose the new password. */
-export default function NewPasswordForm() {
+export function NewPasswordForm() {
   const router = useRouter();
   const { addToast } = useToast();
   const [error, setError] = useState<string | null>(null);

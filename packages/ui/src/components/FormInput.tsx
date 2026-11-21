@@ -9,7 +9,7 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   rightIcon?: React.ReactNode;
 }
 
-const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
+export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
   ({ label, error, leftIcon, rightIcon, className = '', id, ...props }, ref) => {
     const fallbackId = useId();
     const inputId = id ?? fallbackId;
@@ -52,5 +52,3 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
 );
 
 FormInput.displayName = 'FormInput';
-
-export default FormInput;

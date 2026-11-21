@@ -32,7 +32,7 @@ function boundsOf(map: MaplibreMap): Bounds {
 }
 
 /** A map with labelled pins (studios), reporting the visible area so a list can follow it. */
-export default function MapView({
+export function MapView({
   pins,
   selectedId,
   onPinClick,

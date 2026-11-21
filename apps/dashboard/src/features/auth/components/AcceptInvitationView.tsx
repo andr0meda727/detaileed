@@ -27,7 +27,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
+export const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
   token,
   isSignedIn,
   onSuccess,
@@ -132,7 +132,7 @@ const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
       <div className="bg-white p-8 rounded-3xl shadow-xs border border-cream-warm max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-green-deep mb-2">Masz zaproszenie!</h1>
-          <p className="text-gray-500 text-sm">Zostałeś zaproszony do dołączenia do studia w aplikacji DetailFlow.</p>
+          <p className="text-gray-500 text-sm">Zostałeś zaproszony do dołączenia do studia w aplikacji Detaileed.</p>
         </div>
 
         {/* Invitation details */}
@@ -212,5 +212,3 @@ function DetailRow({ label, value, bold }: { label: string; value: string; bold?
     </div>
   );
 }
-
-export default AcceptInvitationView;

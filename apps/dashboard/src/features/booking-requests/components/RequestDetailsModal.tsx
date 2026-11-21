@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Modal } from '@detaileed/ui';
 import type { BookingRequest } from '@/features/booking-requests/model/types';
-import RequestSummary from '@/features/booking-requests/components/RequestSummary';
-import AcceptRequestForm from '@/features/booking-requests/components/AcceptRequestForm';
-import RejectRequestForm from '@/features/booking-requests/components/RejectRequestForm';
+import { RequestSummary } from '@/features/booking-requests/components/RequestSummary';
+import { AcceptRequestForm } from '@/features/booking-requests/components/AcceptRequestForm';
+import { RejectRequestForm } from '@/features/booking-requests/components/RejectRequestForm';
 
 interface RequestDetailsModalProps {
   /** The request to show; null while the list is loading or when it isn't on the loaded page. */
@@ -15,7 +15,7 @@ interface RequestDetailsModalProps {
 }
 
 /** A request's details; pending ones can be accepted (with the plan) or rejected here. */
-export default function RequestDetailsModal({ request, missing, timeZone, onClose }: RequestDetailsModalProps) {
+export function RequestDetailsModal({ request, missing, timeZone, onClose }: RequestDetailsModalProps) {
   const [mode, setMode] = useState<'accept' | 'reject'>('accept');
   const isOpen = request !== null || missing;
 

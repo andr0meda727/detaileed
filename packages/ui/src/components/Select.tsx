@@ -18,7 +18,7 @@ export interface SelectProps extends Omit<ComponentPropsWithRef<'select'>, 'chil
  * A native select styled like `FormInput` (label above, error below with a stable height). Works with
  * react-hook-form's `register(...)`, which passes `ref`.
  */
-export default function Select({ label, error, options, id, className = '', ...props }: SelectProps) {
+export function Select({ label, error, options, id, className = '', ...props }: SelectProps) {
   const fallbackId = useId();
   const selectId = id ?? fallbackId;
   return (

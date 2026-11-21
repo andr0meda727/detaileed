@@ -1,2 +1,2 @@
 /** Public API of the booking request: the page a signed-in customer sends a request from. */
-export { default as BookingRequestPage } from './components/BookingRequestPage';
+export { BookingRequestPage } from './components/BookingRequestPage';

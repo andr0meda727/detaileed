@@ -14,7 +14,7 @@ interface ModalProps {
 }
 
 /** Single shared Modal component — renders via portal, consistent premium styling. */
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, size = 'md', children }) => {
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, size = 'md', children }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   const titleId = useId();
@@ -96,5 +96,3 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, size = 'md', chil
     document.body,
   );
 };
-
-export default Modal;

@@ -15,7 +15,7 @@ interface ReviewsListProps {
 }
 
 /** The studio's reviews, newest first, with "show more" (cursor paging). */
-export default function ReviewsList({ studioId, timeZone, reviewCount, initial }: ReviewsListProps) {
+export function ReviewsList({ studioId, timeZone, reviewCount, initial }: ReviewsListProps) {
   const reviews = useInfiniteQuery({
     queryKey: ['/api/public/studios', studioId, 'reviews'],
     queryFn: async ({ pageParam }) =>

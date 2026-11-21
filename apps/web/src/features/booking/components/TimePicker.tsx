@@ -21,7 +21,7 @@ interface TimePickerProps {
  * When the studio plans: its free slots for the next two weeks by day. Otherwise a preferred day and time (the studio
  * confirms or proposes another).
  */
-export default function TimePicker(props: TimePickerProps) {
+export function TimePicker(props: TimePickerProps) {
   const { planning, slots, loading, timeZone, slotStart, onPickSlot, dateField, timeField, error } = props;
   const days = groupSlotsByDay(slots, timeZone);
   const [dayIndex, setDayIndex] = useState(0);

@@ -3,8 +3,8 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyRound, CheckCircle, AlertCircle, Eye, EyeOff, Shield } from 'lucide-react';
 import { setPasswordSchema, SetPasswordValues } from '@/features/auth/model/schemas';
-import supabase from '@/shared/lib/supabase';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { supabase } from '@/shared/lib/supabase';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 import { Button } from '@detaileed/ui';
 
 function getErrorMessage(error: unknown, fallbackMessage: string): string {
@@ -12,7 +12,7 @@ function getErrorMessage(error: unknown, fallbackMessage: string): string {
   return fallbackMessage;
 }
 
-const UserSettingsView: React.FC = () => {
+export const UserSettingsView: React.FC = () => {
   // ── Change password state ──
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -171,5 +171,3 @@ const UserSettingsView: React.FC = () => {
     </div>
   );
 };
-
-export default UserSettingsView;

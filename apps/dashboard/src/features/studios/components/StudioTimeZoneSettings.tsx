@@ -16,7 +16,7 @@ function zoneList(current: string): string[] {
  * The studio's time zone: every time on the screens and in emails is shown in it. Owners change it; other
  * members see it.
  */
-export default function StudioTimeZoneSettings() {
+export function StudioTimeZoneSettings() {
   const { addToast } = useToast();
   const { selectedStudio } = useStudio();
   const current = selectedStudio?.timeZone || DEFAULT_TIME_ZONE;

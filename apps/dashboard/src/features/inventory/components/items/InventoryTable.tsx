@@ -15,7 +15,7 @@ interface InventoryTableProps {
 }
 
 /** Stock items with low-stock highlighting and an inline stock editor. */
-const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading, dimmed, onEdit, onOpenHistory }) => {
+export const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading, dimmed, onEdit, onOpenHistory }) => {
   return (
     <div
       className={`bg-white rounded-2xl lg:rounded-2xl shadow-xs border border-slate-100 overflow-hidden transition-opacity duration-200 ${dimmed ? 'opacity-70' : 'opacity-100'}`}
@@ -111,5 +111,3 @@ const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading, dimme
     </div>
   );
 };
-
-export default InventoryTable;

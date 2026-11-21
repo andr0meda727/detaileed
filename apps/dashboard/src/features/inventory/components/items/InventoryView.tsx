@@ -2,16 +2,16 @@ import React, { useState, useMemo } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 import { Plus, Search, Filter, ChevronDown } from 'lucide-react';
 import { type InventoryItem } from '@/features/inventory/model/types';
-import InventoryItemModal from '@/features/inventory/components/items/InventoryItemModal';
-import InventoryTable from '@/features/inventory/components/items/InventoryTable';
-import ItemHistoryModal from '@/features/inventory/components/ledger/ItemHistoryModal';
-import ForecastView from '@/features/inventory/components/ledger/ForecastView';
+import { InventoryItemModal } from '@/features/inventory/components/items/InventoryItemModal';
+import { InventoryTable } from '@/features/inventory/components/items/InventoryTable';
+import { ItemHistoryModal } from '@/features/inventory/components/ledger/ItemHistoryModal';
+import { ForecastView } from '@/features/inventory/components/ledger/ForecastView';
 import { filterInventory } from '@/features/inventory/model/filterInventory';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { useInventory } from '@/features/inventory/api/inventory';
 import { useCategories } from '@/features/inventory/api/categories';
 
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 
 import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
@@ -19,7 +19,7 @@ import { CreateClientModal } from '@/features/clients';
 // ─── View ─────────────────────────────────────────────────────────────────────
 const routeApi = getRouteApi('/_signed-in/s/$studioId/inventory');
 
-const InventoryView: React.FC = () => {
+export const InventoryView: React.FC = () => {
   const { data: items = [], isLoading: isInventoryLoading } = useInventory();
   const { data: categories = [] } = useCategories();
 
@@ -196,5 +196,3 @@ const InventoryView: React.FC = () => {
     </div>
   );
 };
-
-export default InventoryView;

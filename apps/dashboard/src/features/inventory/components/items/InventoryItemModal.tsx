@@ -8,8 +8,8 @@ import { useCategories } from '@/features/inventory/api/categories';
 import { inventoryItemFormSchema, type InventoryItemFormValues } from '@/features/inventory/model/schemas';
 import { itemFormDefaults, toInventoryItemInput } from '@/features/inventory/model/itemForm';
 import type { InventoryCategory, InventoryItem } from '@/features/inventory/model/types';
-import CategoryField from '@/features/inventory/components/items/CategoryField';
-import UnitField from '@/features/inventory/components/items/UnitField';
+import { CategoryField } from '@/features/inventory/components/items/CategoryField';
+import { UnitField } from '@/features/inventory/components/items/UnitField';
 
 interface InventoryItemModalProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ interface InventoryItemModalProps {
 }
 
 /** Add/edit form for a stock item, with an inline "new category". */
-export default function InventoryItemModal({ isOpen, item, onClose }: InventoryItemModalProps) {
+export function InventoryItemModal({ isOpen, item, onClose }: InventoryItemModalProps) {
   // An edit needs the categories first: the item only carries the category's name, not its id.
   const { data: categories, isPending } = useCategories();
   return (

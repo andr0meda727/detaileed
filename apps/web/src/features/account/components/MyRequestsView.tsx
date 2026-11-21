@@ -66,7 +66,7 @@ function RequestItem({ request }: { request: MyRequest }) {
 }
 
 /** The customer's requests at every studio, newest first, with withdraw for pending ones. */
-export default function MyRequestsView() {
+export function MyRequestsView() {
   const justSent = useSearchParams().get('sent') === '1';
   const [page, setPage] = useState(1);
   const { data, isLoading } = useMyRequests(page);

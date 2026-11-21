@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Save } from 'lucide-react';
-import Button from '../../src/components/Button';
+import { Button } from '../../src/components/Button';
 
 describe('Button', () => {
   it('is a plain button by default, so it never submits a form by accident', () => {

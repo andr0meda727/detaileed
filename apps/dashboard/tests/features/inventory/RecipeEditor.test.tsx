@@ -21,7 +21,7 @@ vi.mock('@/features/inventory/api/inventory', () => ({
   }),
 }));
 
-const { default: RecipeEditor } = await import('@/features/inventory/components/ledger/RecipeEditor');
+const { RecipeEditor } = await import('@/features/inventory/components/ledger/RecipeEditor');
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 
 describe('RecipeEditor', () => {

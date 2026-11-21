@@ -73,7 +73,7 @@ interface ToastContainerProps {
   removeToast: (id: string) => void;
 }
 
-const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeToast }) => {
+export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeToast }) => {
   const isClient = useIsClient();
   if (!isClient) return null;
   return createPortal(
@@ -87,5 +87,3 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeToast }) 
     document.body,
   );
 };
-
-export default ToastContainer;

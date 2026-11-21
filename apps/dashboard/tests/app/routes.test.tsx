@@ -15,7 +15,7 @@ const studios = [
 ];
 
 vi.mock('@/shared/lib/supabase', () => ({
-  default: {
+  supabase: {
     auth: {
       getSession: async () => ({ data: { session: auth.session } }),
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } }),

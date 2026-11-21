@@ -40,7 +40,7 @@ vi.mock('next/dynamic', () => ({
     },
 }));
 
-const { default: MapSearch } = await import('@/features/search/components/MapSearch');
+const { MapSearch } = await import('@/features/search/components/MapSearch');
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider>

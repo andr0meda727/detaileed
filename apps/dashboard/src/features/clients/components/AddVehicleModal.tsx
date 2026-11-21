@@ -5,11 +5,11 @@ import { useClients } from '@/features/clients/api/clients';
 import { useClientSearch } from '@/features/clients/hooks/useClientVehicleSearch';
 import type { Client } from '@/features/clients/model/types';
 import { describeClient } from '@/features/clients/model/describe';
-import ModeToggle, { type PickerMode } from '@/features/clients/components/picker/ModeToggle';
-import SearchDropdown from '@/features/clients/components/picker/SearchDropdown';
+import { ModeToggle, type PickerMode } from '@/features/clients/components/picker/ModeToggle';
+import { SearchDropdown } from '@/features/clients/components/picker/SearchDropdown';
 import { PickedItem } from '@/features/clients/components/picker/ItemSummary';
-import NewVehicleForm from '@/features/clients/components/picker/NewVehicleForm';
-import NewClientWithVehicleForm from '@/features/clients/components/picker/NewClientWithVehicleForm';
+import { NewVehicleForm } from '@/features/clients/components/picker/NewVehicleForm';
+import { NewClientWithVehicleForm } from '@/features/clients/components/picker/NewClientWithVehicleForm';
 
 interface AddVehicleModalProps {
   isOpen: boolean;
@@ -20,7 +20,7 @@ interface AddVehicleModalProps {
  * Adds a vehicle to an existing client (searched by name, phone or email), or creates a new client
  * together with the vehicle. Remount it (change `key`) to start with an empty form.
  */
-export default function AddVehicleModal({ isOpen, onClose }: AddVehicleModalProps) {
+export function AddVehicleModal({ isOpen, onClose }: AddVehicleModalProps) {
   const { addToast } = useToast();
   const { data: clients = [] } = useClients();
   const [mode, setMode] = useState<PickerMode>('existing');

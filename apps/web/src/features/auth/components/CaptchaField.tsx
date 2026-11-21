@@ -3,7 +3,7 @@
 import { Turnstile, type UseTurnstile } from '@detaileed/ui';
 
 /** The Turnstile widget of a form, and what to do when it can't load. Renders nothing when captcha is off. */
-export default function CaptchaField({ captcha }: { captcha: UseTurnstile }) {
+export function CaptchaField({ captcha }: { captcha: UseTurnstile }) {
   return (
     <>
       {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}

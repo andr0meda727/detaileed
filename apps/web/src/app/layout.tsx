@@ -1,10 +1,7 @@
 import type { Metadata } from 'next';
 import { DM_Sans, DM_Serif_Display, Syne } from 'next/font/google';
-import SiteHeader from '@/shared/ui/SiteHeader';
-import SiteFooter from '@/shared/ui/SiteFooter';
 import { SITE_URL } from '@/shared/lib/site';
-import Providers from './providers';
-import { AccountMenu } from '@/features/auth';
+import { Providers } from './providers';
 import './globals.css';
 
 const dmSans = DM_Sans({ subsets: ['latin', 'latin-ext'], variable: '--font-dm-sans', display: 'swap' });
@@ -24,15 +21,12 @@ export const metadata: Metadata = {
   openGraph: { siteName: 'Detaileed', locale: 'pl_PL', type: 'website' },
 };
 
+/** Fonts, metadata and providers. The header and footer come from the `(site)` layout; /for-studios has its own. */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pl" className={`${dmSans.variable} ${dmSerif.variable} ${syne.variable}`}>
       <body className="min-h-screen flex flex-col bg-cream text-green-deep antialiased">
-        <Providers>
-          <SiteHeader accountSlot={<AccountMenu />} />
-          <main className="flex-1">{children}</main>
-          <SiteFooter />
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

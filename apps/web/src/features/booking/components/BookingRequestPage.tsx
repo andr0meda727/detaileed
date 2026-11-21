@@ -5,7 +5,7 @@ import { FormSection, Skeleton } from '@detaileed/ui';
 import { UserRound } from 'lucide-react';
 import type { Listing } from '@detaileed/domain/listing';
 import { useGarage, useProfile, ProfileForm } from '@/features/account';
-import BookingRequestForm from '@/features/booking/components/BookingRequestForm';
+import { BookingRequestForm } from '@/features/booking/components/BookingRequestForm';
 
 interface BookingRequestPageProps {
   listing: Listing;
@@ -14,7 +14,7 @@ interface BookingRequestPageProps {
 }
 
 /** Asks for contact details first if the customer has none, then shows the request form. */
-export default function BookingRequestPage({ listing, initialServiceIds, initialSize }: BookingRequestPageProps) {
+export function BookingRequestPage({ listing, initialServiceIds, initialSize }: BookingRequestPageProps) {
   const profile = useProfile();
   const garage = useGarage();
 

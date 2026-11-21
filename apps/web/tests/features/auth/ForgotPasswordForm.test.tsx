@@ -5,7 +5,7 @@ const resetPasswordForEmail = vi.fn();
 
 vi.mock('@/shared/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { resetPasswordForEmail } }) }));
 
-const { default: ForgotPasswordForm } = await import('@/features/auth/components/ForgotPasswordForm');
+const { ForgotPasswordForm } = await import('@/features/auth/components/ForgotPasswordForm');
 
 const send = (email: string) => {
   fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: email } });

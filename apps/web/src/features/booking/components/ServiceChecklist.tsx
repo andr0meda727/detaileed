@@ -14,7 +14,7 @@ interface ServiceChecklistProps {
 }
 
 /** The studio's services by category as checkboxes, each with its price for the car size. */
-export default function ServiceChecklist({ services, size, selected, onChange }: ServiceChecklistProps) {
+export function ServiceChecklist({ services, size, selected, onChange }: ServiceChecklistProps) {
   const toggle = (id: string) => onChange(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
   return (
     <div className="space-y-4">

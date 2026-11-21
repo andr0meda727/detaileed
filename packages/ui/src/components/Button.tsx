@@ -33,7 +33,7 @@ const sizes: Record<ButtonSize, { box: string; icon: number }> = {
  * form never submits it by accident. Use `className` for layout only (margins, width); colours and sizes come
  * from `variant` and `size`.
  */
-export default function Button({
+export function Button({
   variant = 'primary',
   size = 'md',
   fullWidth = false,

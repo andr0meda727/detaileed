@@ -5,10 +5,10 @@ import { useClients } from '@/features/clients/api/clients';
 import { useClientVehicleSearch, type ClientVehicleMatch } from '@/features/clients/hooks/useClientVehicleSearch';
 import type { Client } from '@/features/clients/model/types';
 import { describeVehicleMatch } from '@/features/clients/model/describe';
-import ModeToggle, { type PickerMode } from '@/features/clients/components/picker/ModeToggle';
-import SearchDropdown from '@/features/clients/components/picker/SearchDropdown';
+import { ModeToggle, type PickerMode } from '@/features/clients/components/picker/ModeToggle';
+import { SearchDropdown } from '@/features/clients/components/picker/SearchDropdown';
 import { PickedItem } from '@/features/clients/components/picker/ItemSummary';
-import NewClientWithVehicleForm from '@/features/clients/components/picker/NewClientWithVehicleForm';
+import { NewClientWithVehicleForm } from '@/features/clients/components/picker/NewClientWithVehicleForm';
 
 interface ClientVehiclePickerProps {
   value: ClientVehicleMatch | null;
@@ -21,7 +21,7 @@ interface ClientVehiclePickerProps {
  * Picks a vehicle (and so its owner) by searching existing clients' vehicles, or creates a new client with a
  * vehicle and picks that one.
  */
-export default function ClientVehiclePicker({ value, onChange, error }: ClientVehiclePickerProps) {
+export function ClientVehiclePicker({ value, onChange, error }: ClientVehiclePickerProps) {
   const { addToast } = useToast();
   const { data: clients = [] } = useClients();
   const [mode, setMode] = useState<PickerMode>('existing');

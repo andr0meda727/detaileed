@@ -15,7 +15,7 @@ interface ClientDetailsModalProps {
 }
 
 /** Client card: contact details and vehicles, with edit/add/delete actions. */
-const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
+export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   client,
   onClose,
   onEditClient,
@@ -151,5 +151,3 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
     )}
   </Modal>
 );
-
-export default ClientDetailsModal;

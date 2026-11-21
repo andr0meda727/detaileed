@@ -6,15 +6,6 @@
  */
 
 export interface ListingRequest {
-  name: string;
   /** @nullable */
   description: string | null;
-  address: string;
-  city: string;
-  /** @nullable */
-  phone: string | null;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  latitude: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  longitude: number | string;
 }

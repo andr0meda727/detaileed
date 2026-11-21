@@ -21,7 +21,7 @@ vi.mock('@/features/account/api/me', () => ({
   useSubmitReview: () => ({ mutate: submit, isPending: false }),
 }));
 
-const { default: PendingReviews } = await import('@/features/account/components/PendingReviews');
+const { PendingReviews } = await import('@/features/account/components/PendingReviews');
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 
 describe('PendingReviews', () => {

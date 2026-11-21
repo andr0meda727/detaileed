@@ -1,1 +1,1 @@
-export { default as Dashboard } from './components/Dashboard';
+export { Dashboard } from './components/Dashboard';

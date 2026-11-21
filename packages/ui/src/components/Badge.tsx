@@ -27,7 +27,7 @@ const sizes: Record<BadgeSize, string> = {
 };
 
 /** A small uppercase label: a status, a role, a count. Tinted by `tone`, or by any `color`. */
-export default function Badge({ children, tone = 'brand', color, size = 'md', className = '' }: BadgeProps) {
+export function Badge({ children, tone = 'brand', color, size = 'md', className = '' }: BadgeProps) {
   const style = color
     ? {
         color,

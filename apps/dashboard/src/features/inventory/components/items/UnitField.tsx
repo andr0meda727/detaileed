@@ -7,7 +7,7 @@ interface UnitFieldProps {
 }
 
 /** Preset unit buttons plus a text field for any other unit; both edit the same value. */
-export default function UnitField({ value, onChange, error }: UnitFieldProps) {
+export function UnitField({ value, onChange, error }: UnitFieldProps) {
   const isPreset = DEFAULT_UNITS.includes(value);
   return (
     <div className="space-y-4">

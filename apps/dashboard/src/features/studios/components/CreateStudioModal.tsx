@@ -55,7 +55,12 @@ interface CreateStudioModalProps {
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
-const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, onSuccess, canClose = true }) => {
+export const CreateStudioModal: React.FC<CreateStudioModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  canClose = true,
+}) => {
   const { addToast } = useToast();
   const createStudio = useCreateStudio();
 
@@ -226,5 +231,3 @@ const CreateStudioModal: React.FC<CreateStudioModalProps> = ({ isOpen, onClose, 
     </div>
   );
 };
-
-export default CreateStudioModal;

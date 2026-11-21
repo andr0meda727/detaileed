@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { ASSIGNABLE_ROLES, OWNER_ROLE_ID, roleById } from '@/features/team/model/roles';
 import { Users, Search, Trash2, Mail, RefreshCw } from 'lucide-react';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
-import InviteEmployeeModal from '@/features/team/components/InviteEmployeeModal';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
+import { InviteEmployeeModal } from '@/features/team/components/InviteEmployeeModal';
 import {
   useEmployees,
   useInviteEmployee,
@@ -235,5 +235,3 @@ export const TeamView: React.FC = () => {
     </div>
   );
 };
-
-export default TeamView;

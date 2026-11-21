@@ -4,11 +4,11 @@ import type { Booking } from '@/features/bookings/model/types';
 import { formatPln } from '@detaileed/domain/money';
 import { useBookings } from '@/features/bookings/api/bookings';
 import { Button, useToast, Modal, Skeleton } from '@detaileed/ui';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 import { formatBookingDay, formatBookingTime } from '@/features/bookings/model/format';
 import { useStudioTimeZone } from '@/features/studios';
 
-const ArchivedView: React.FC = () => {
+export const ArchivedView: React.FC = () => {
   const { addToast } = useToast();
   const { data: bookings = [], isLoading: loading } = useBookings({ isCompleted: true });
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,7 +34,7 @@ const ArchivedView: React.FC = () => {
     <div className="space-y-8 pb-20">
       <GlobalHeader
         title="Archiwum"
-        subtitle="Pełna Historia Operacyjna • DetailFlow"
+        subtitle="Pełna Historia Operacyjna • Detaileed"
         onAddBooking={() => addToast('Globalny moduł tworzenia rezerwacji zostanie podpięty w kolejnym kroku.', 'info')}
         onAddClient={() =>
           addToast('Globalny moduł szybkiego dodawania klienta zostanie podpięty w kolejnym kroku.', 'info')
@@ -182,5 +182,3 @@ const ArchivedView: React.FC = () => {
     </div>
   );
 };
-
-export default ArchivedView;

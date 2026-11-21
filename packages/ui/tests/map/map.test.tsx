@@ -31,8 +31,8 @@ vi.mock('react-map-gl/maplibre', () => ({
 }));
 vi.mock('maplibre-gl/dist/maplibre-gl.css', () => ({}));
 
-const { default: MapPicker } = await import('../../src/map/MapPicker');
-const { default: MapView } = await import('../../src/map/MapView');
+const { MapPicker } = await import('../../src/map/MapPicker');
+const { MapView } = await import('../../src/map/MapView');
 
 describe('geo helpers', () => {
   it('rounds a coordinate', () => {

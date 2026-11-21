@@ -7,7 +7,7 @@ import { requestErrorMessage } from '@/features/booking-requests/model/errors';
 const MAX_REASON = 500;
 
 /** Rejects a request with an optional reason, which the customer gets by email. */
-export default function RejectRequestForm({ requestId, onDone }: { requestId: string; onDone: () => void }) {
+export function RejectRequestForm({ requestId, onDone }: { requestId: string; onDone: () => void }) {
   const { addToast } = useToast();
   const reject = useRejectRequest();
   const [reason, setReason] = useState('');

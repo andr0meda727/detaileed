@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { ListingDto } from '@detaileed/api-client';
 import { toListing } from '@/features/marketplace/model/types';
 import { listingFormSchema } from '@/features/marketplace/model/schemas';
-import { listingFormDefaults, toListingInput } from '@/features/marketplace/model/listingForm';
+import { listingAddress, listingFormDefaults, toListingInput } from '@/features/marketplace/model/listingForm';
 
 const dto: ListingDto = {
   studioId: 's1',
@@ -14,6 +14,7 @@ const dto: ListingDto = {
   latitude: '50.06',
   longitude: 19.94,
   isPublished: false,
+  hasCompleteDetails: true,
   timeZone: 'Europe/Warsaw',
   categories: ['Interior'],
   services: [{ id: 'x', name: 'Pranie', category: 'Interior', prices: [{ vehicleSize: 'Large', price: '349.99' }] }],
@@ -36,39 +37,25 @@ describe('toListing', () => {
 });
 
 describe('listing form', () => {
-  it('prefills a new profile from the studio', () => {
-    expect(listingFormDefaults(null, { name: 'Detail Kraków', address: 'ul. Długa 1' })).toEqual({
-      name: 'Detail Kraków',
-      description: '',
-      address: 'ul. Długa 1',
-      city: '',
-      phone: '',
-      location: null,
+  it('starts a new profile with an empty description', () => {
+    expect(listingFormDefaults(null)).toEqual({ description: '' });
+  });
+
+  it('limits the description', () => {
+    expect(listingFormSchema.safeParse({ description: 'x'.repeat(2000) }).success).toBe(true);
+    expect(listingFormSchema.safeParse({ description: 'x'.repeat(2001) }).success).toBe(false);
+  });
+
+  it('sends only the description, an empty one as null', () => {
+    expect(toListingInput(listingFormSchema.parse({ description: '  ' }))).toEqual({ description: null });
+    expect(toListingInput(listingFormSchema.parse({ description: ' Ceramika ' }))).toEqual({
+      description: 'Ceramika',
     });
   });
 
-  it('requires a pin and a valid phone', () => {
-    const values = listingFormDefaults(toListing(dto), { name: '' });
-    expect(listingFormSchema.safeParse(values).success).toBe(true);
-
-    const noPin = listingFormSchema.safeParse({ ...values, location: null });
-    expect(noPin.success).toBe(false);
-    expect(noPin.error?.issues[0].message).toBe('Zaznacz studio na mapie');
-
-    expect(listingFormSchema.safeParse({ ...values, phone: '123' }).success).toBe(false);
-    expect(listingFormSchema.safeParse({ ...values, phone: '+48 500 600 700' }).success).toBe(true);
-  });
-
-  it('builds the request, with empty optional fields as null', () => {
-    const values = { ...listingFormDefaults(toListing(dto), { name: '' }), description: '  ', phone: '' };
-    expect(toListingInput(listingFormSchema.parse(values))).toEqual({
-      name: 'Detail Kraków',
-      description: null,
-      address: 'ul. Długa 1',
-      city: 'Kraków',
-      phone: null,
-      latitude: 50.06,
-      longitude: 19.94,
-    });
+  it('joins the address and city, leaving out what is missing', () => {
+    expect(listingAddress({ address: 'ul. Długa 1', city: 'Kraków' })).toBe('ul. Długa 1, Kraków');
+    expect(listingAddress({ address: null, city: 'Kraków' })).toBe('Kraków');
+    expect(listingAddress({ address: null, city: null })).toBeNull();
   });
 });

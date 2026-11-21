@@ -7,11 +7,11 @@ import {
   useDeleteCategory,
 } from '@/features/inventory/api/categories';
 import { Button, Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
-import NameForm from '@/shared/ui/NameForm';
+import { NameForm } from '@/shared/ui/NameForm';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 
 /** Studio settings tab: inventory categories as cards, with add, rename and delete. */
-const CategoriesSettings: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({
+export const CategoriesSettings: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({
   addToast,
 }) => {
   const { data: items = [], isLoading } = useCategories();
@@ -120,5 +120,3 @@ const CategoriesSettings: React.FC<{ addToast: (message: string, type: 'success'
     </div>
   );
 };
-
-export default CategoriesSettings;

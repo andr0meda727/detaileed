@@ -8,7 +8,7 @@ interface LoadingSpinnerProps {
 }
 
 /** Centered loading spinner. Set fullPage for a full-height centered layout. */
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ fullPage = false }) => {
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ fullPage = false }) => {
   if (fullPage) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-cream mesh-bg">
@@ -49,5 +49,3 @@ const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ fullPage = false }) => 
     </div>
   );
 };
-
-export default LoadingSpinner;

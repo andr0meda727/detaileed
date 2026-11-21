@@ -7,7 +7,7 @@ import { useCreateClient } from '@/features/clients/api/clients';
 import { newClientWithVehicleSchema, type NewClientWithVehicleValues } from '@/features/clients/model/schemas';
 import { toNewClientInput } from '@/features/clients/model/toClientInput';
 import type { Client } from '@/features/clients/model/types';
-import VehicleFields from '@/features/clients/components/picker/VehicleFields';
+import { VehicleFields } from '@/features/clients/components/picker/VehicleFields';
 import { DEFAULT_VEHICLE_SIZE } from '@detaileed/domain/vehicleSize';
 
 interface NewClientWithVehicleFormProps {
@@ -28,7 +28,7 @@ const emptyValues: NewClientWithVehicleValues = {
  * Creates a client together with their first vehicle. It is not a `<form>` element, so it can sit inside
  * another form (the booking form); its button validates and submits it on its own.
  */
-export default function NewClientWithVehicleForm({ submitLabel, onCreated }: NewClientWithVehicleFormProps) {
+export function NewClientWithVehicleForm({ submitLabel, onCreated }: NewClientWithVehicleFormProps) {
   const { addToast } = useToast();
   const createClient = useCreateClient();
   const {

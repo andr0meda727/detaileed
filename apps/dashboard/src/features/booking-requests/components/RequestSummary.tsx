@@ -10,7 +10,7 @@ const when = (iso: string, timeZone: string) =>
   formatInZone(iso, timeZone, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
 
 /** Everything the customer sent, and what happened to the request. */
-export default function RequestSummary({ request, timeZone }: { request: BookingRequest; timeZone: string }) {
+export function RequestSummary({ request, timeZone }: { request: BookingRequest; timeZone: string }) {
   const status = requestStatus(request.status);
   const car = [request.vehicle.brand, request.vehicle.model].filter(Boolean).join(' ');
   return (

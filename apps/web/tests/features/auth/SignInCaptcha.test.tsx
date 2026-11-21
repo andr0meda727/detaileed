@@ -14,7 +14,7 @@ const turnstile = {
 };
 window.turnstile = turnstile;
 
-const { default: SignInForm } = await import('@/features/auth/components/SignInForm');
+const { SignInForm } = await import('@/features/auth/components/SignInForm');
 
 const solve = (token: string) =>
   act(() => (turnstile.render.mock.calls.at(-1)![1].callback as (token: string) => void)(token));
