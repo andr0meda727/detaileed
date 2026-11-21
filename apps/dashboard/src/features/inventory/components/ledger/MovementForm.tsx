@@ -12,7 +12,7 @@ const KINDS = [
 ];
 
 /** Records a delivery (adds to stock) or a stocktake (sets the counted stock), with an optional note. */
-export default function MovementForm({ itemId, unit }: { itemId: string; unit: string }) {
+export function MovementForm({ itemId, unit }: { itemId: string; unit: string }) {
   const { addToast } = useToast();
   const add = useAddMovement();
   const [kind, setKind] = useState<StockChangeKind>(StockChangeKind.Purchase);

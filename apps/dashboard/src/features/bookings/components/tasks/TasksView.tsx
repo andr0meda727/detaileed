@@ -7,15 +7,15 @@ import { useBookingStatusChange } from '@/features/bookings/hooks/useBookingStat
 import { visibleBookings } from '@/features/bookings/model/filters';
 import { dayInZone, todayInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
-import InProgressTab from '@/features/bookings/components/tasks/InProgressTab';
-import SearchTab from '@/features/bookings/components/tasks/SearchTab';
-import CalendarTab from '@/features/bookings/components/tasks/CalendarTab';
-import BookingDetailsModal from '@/features/bookings/components/BookingDetailsModal';
-import CreateBookingModal from '@/features/bookings/components/form/CreateBookingModal';
+import { InProgressTab } from '@/features/bookings/components/tasks/InProgressTab';
+import { SearchTab } from '@/features/bookings/components/tasks/SearchTab';
+import { CalendarTab } from '@/features/bookings/components/tasks/CalendarTab';
+import { BookingDetailsModal } from '@/features/bookings/components/BookingDetailsModal';
+import { CreateBookingModal } from '@/features/bookings/components/form/CreateBookingModal';
 import { CreateClientModal } from '@/features/clients';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 
-const TasksView: React.FC = () => {
+export const TasksView: React.FC = () => {
   const { data: bookings = [], isLoading: loading } = useBookings();
 
   const [isClientModalOpen, setIsClientModalOpen] = useState(false);
@@ -113,5 +113,3 @@ const TasksView: React.FC = () => {
     </div>
   );
 };
-
-export default TasksView;

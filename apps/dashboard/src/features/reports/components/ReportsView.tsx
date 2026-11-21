@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { getRouteApi } from '@tanstack/react-router';
 import { FileBarChart2, Download, Calendar as CalendarIcon } from 'lucide-react';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 import { useGenerateBookingsReport } from '@/features/reports/api/reports';
 import { reportRangeError } from '@/features/reports/model/reportRange';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
@@ -12,7 +12,7 @@ import { CreateClientModal } from '@/features/clients';
 
 const routeApi = getRouteApi('/_signed-in/s/$studioId/reports');
 
-const ReportsView: React.FC = () => {
+export const ReportsView: React.FC = () => {
   const { from: dateFrom = '', to: dateTo = '' } = routeApi.useSearch();
   const navigate = routeApi.useNavigate();
   const setRange = (range: { from?: string; to?: string }) =>
@@ -113,5 +113,3 @@ const ReportsView: React.FC = () => {
     </div>
   );
 };
-
-export default ReportsView;

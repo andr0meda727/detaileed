@@ -1,6 +1,6 @@
 import { configureApiClient } from '@detaileed/api-client';
 import { getActiveStudioId } from '@/features/studios';
-import supabase from '@/shared/lib/supabase';
+import { supabase } from '@/shared/lib/supabase';
 
 /**
  * API origin without the `/api` suffix (request paths already start with `/api`).

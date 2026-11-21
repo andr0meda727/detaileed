@@ -27,7 +27,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
+export const AcceptInvitationView: React.FC<AcceptInvitationViewProps> = ({
   token,
   isSignedIn,
   onSuccess,
@@ -212,5 +212,3 @@ function DetailRow({ label, value, bold }: { label: string; value: string; bold?
     </div>
   );
 }
-
-export default AcceptInvitationView;

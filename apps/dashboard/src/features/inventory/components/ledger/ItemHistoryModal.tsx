@@ -6,7 +6,7 @@ import { useStudioTimeZone } from '@/features/studios';
 import { useMovements } from '@/features/inventory/api/ledger';
 import { MOVEMENT_LABELS, formatQuantity } from '@/features/inventory/model/ledger';
 import type { InventoryItem } from '@/features/inventory/model/types';
-import MovementForm from '@/features/inventory/components/ledger/MovementForm';
+import { MovementForm } from '@/features/inventory/components/ledger/MovementForm';
 
 interface ItemHistoryModalProps {
   /** The item to show, or null when closed. */
@@ -69,7 +69,7 @@ function History({ item }: { item: InventoryItem }) {
 }
 
 /** An item's stock and its history (deliveries, stocktakes, what visits used), with a delivery/stocktake form. */
-export default function ItemHistoryModal({ item, onClose }: ItemHistoryModalProps) {
+export function ItemHistoryModal({ item, onClose }: ItemHistoryModalProps) {
   return (
     <Modal isOpen={item !== null} onClose={onClose} title={item ? item.name : ''}>
       {item && (

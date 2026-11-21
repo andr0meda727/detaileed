@@ -23,8 +23,8 @@ import {
   type RequestFormValues,
 } from '@/features/booking/model/requestForm';
 import { bookingErrorMessage } from '@/features/booking/model/errors';
-import ServiceChecklist from '@/features/booking/components/ServiceChecklist';
-import TimePicker from '@/features/booking/components/TimePicker';
+import { ServiceChecklist } from '@/features/booking/components/ServiceChecklist';
+import { TimePicker } from '@/features/booking/components/TimePicker';
 
 interface BookingRequestFormProps {
   listing: Listing;
@@ -34,12 +34,7 @@ interface BookingRequestFormProps {
 }
 
 /** Services, car, time and notes, with a live estimate; sends the request and goes to the request history. */
-export default function BookingRequestForm({
-  listing,
-  garage,
-  initialServiceIds,
-  initialSize,
-}: BookingRequestFormProps) {
+export function BookingRequestForm({ listing, garage, initialServiceIds, initialSize }: BookingRequestFormProps) {
   const router = useRouter();
   const submit = useSubmitRequest();
   const { timeZone, studioId } = listing;

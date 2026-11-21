@@ -97,7 +97,7 @@ function Lines({ serviceId, recipe, items }: { serviceId: string; recipe: Recipe
  * What one service uses from the stock on a Medium car (other sizes are scaled by the size factors). When a booking
  * with the service is completed, this much is taken off stock.
  */
-export default function RecipeEditor({ serviceId }: { serviceId: string }) {
+export function RecipeEditor({ serviceId }: { serviceId: string }) {
   const recipe = useRecipe(serviceId);
   const { data: items = [], isLoading } = useInventory();
   return (

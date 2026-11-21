@@ -70,7 +70,7 @@ function Form({ factors, canEdit }: { factors: SizeFactors; canEdit: boolean }) 
 }
 
 /** How much more material each car size uses than a Medium one (owners edit). */
-export default function SizeFactorsSettings({ canEdit }: { canEdit: boolean }) {
+export function SizeFactorsSettings({ canEdit }: { canEdit: boolean }) {
   const { data, isLoading } = useSizeFactors();
   return (
     <FormSection icon={Scaling} title="Zużycie materiałów wg wielkości auta">

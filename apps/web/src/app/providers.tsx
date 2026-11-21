@@ -21,7 +21,7 @@ function QueryLayer({ children }: { children: ReactNode }) {
 }
 
 /** Client-side providers: toasts and React Query (with failed mutations toasted). */
-export default function Providers({ children }: { children: ReactNode }) {
+export function Providers({ children }: { children: ReactNode }) {
   return (
     <ToastProvider>
       <QueryLayer>{children}</QueryLayer>

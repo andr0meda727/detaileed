@@ -12,7 +12,7 @@ import { newPasswordSchema, type NewPasswordValues, authErrorMessage, setPasswor
  * Changes the signed-in customer's password. When Supabase's "secure password change" wants proof that it's really
  * them (the session is older than a day), it emails a code; the form then asks for it and tries again.
  */
-export default function ChangePasswordForm() {
+export function ChangePasswordForm() {
   const { addToast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [pendingPassword, setPendingPassword] = useState<string | null>(null);

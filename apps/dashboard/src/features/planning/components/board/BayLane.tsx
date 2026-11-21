@@ -11,7 +11,7 @@ interface BayLaneProps {
 }
 
 /** One bay's row: its bookings as blocks and its free gaps, on the day's time axis. */
-export default function BayLane({ bay, day, timeZone, axis, hours }: BayLaneProps) {
+export function BayLane({ bay, day, timeZone, axis, hours }: BayLaneProps) {
   return (
     <div className="flex items-stretch gap-3">
       <div className="w-32 shrink-0 py-2">

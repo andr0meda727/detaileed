@@ -9,7 +9,7 @@ interface GlobalHeaderProps {
   onAddClient?: () => void;
 }
 
-const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooking, onAddClient }) => {
+export const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooking, onAddClient }) => {
   const openMenu = useOpenMobileMenu();
   return (
     <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 lg:mb-12 animate-slide-up">
@@ -59,5 +59,3 @@ const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooki
     </header>
   );
 };
-
-export default GlobalHeader;

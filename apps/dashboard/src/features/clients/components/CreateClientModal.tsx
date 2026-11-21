@@ -14,7 +14,7 @@ interface CreateClientModalProps {
   clientToEdit?: { id: string; name: string; email?: string | null; phone?: string | null; nip?: string | null } | null;
 }
 
-export default function CreateClientModal({ isOpen, onClose, onSuccess, clientToEdit }: CreateClientModalProps) {
+export function CreateClientModal({ isOpen, onClose, onSuccess, clientToEdit }: CreateClientModalProps) {
   const { addToast } = useToast();
   const createClientMutation = useCreateClient();
   const { mutateAsync: updateClient } = useUpdateClient();

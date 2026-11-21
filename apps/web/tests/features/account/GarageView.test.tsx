@@ -17,7 +17,7 @@ vi.mock('@/features/account/api/me', () => ({
   useDeleteVehicle: () => ({ mutate: remove, isPending: false }),
 }));
 
-const { default: GarageView } = await import('@/features/account/components/GarageView');
+const { GarageView } = await import('@/features/account/components/GarageView');
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 
 describe('GarageView', () => {

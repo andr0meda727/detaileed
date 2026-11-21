@@ -12,14 +12,14 @@ import { TURNSTILE_SITE_KEY } from '@/shared/lib/site';
 import { signUpSchema, type SignUpValues } from '@/features/auth/model/schemas';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
 import { confirmEmailRedirect } from '@/features/auth/model/returnPath';
-import ResendConfirmation from '@/features/auth/components/ResendConfirmation';
-import CaptchaField from '@/features/auth/components/CaptchaField';
+import { ResendConfirmation } from '@/features/auth/components/ResendConfirmation';
+import { CaptchaField } from '@/features/auth/components/CaptchaField';
 
 /**
  * Customer sign-up. First and last name go into the account's metadata, from which the backend fills the profile.
  * With email confirmation on, the link brings the person back through /auth/callback to `next`.
  */
-export default function SignUpForm({ next }: { next: string }) {
+export function SignUpForm({ next }: { next: string }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);

@@ -12,7 +12,7 @@ vi.mock('@/features/studios/api/studios', () => ({
   useChangeStudioTimeZone: () => ({ mutate, isPending: false }),
 }));
 
-const { default: StudioTimeZoneSettings } = await import('@/features/studios/components/StudioTimeZoneSettings');
+const { StudioTimeZoneSettings } = await import('@/features/studios/components/StudioTimeZoneSettings');
 
 const studio = (role: string): Studio => ({
   studioId: 's1',

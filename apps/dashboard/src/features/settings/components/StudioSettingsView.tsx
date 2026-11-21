@@ -6,7 +6,7 @@ import { ServicesSettings } from '@/features/services';
 
 import { CategoriesSettings, SizeFactorsSettings } from '@/features/inventory';
 import { EmployeesSettings } from '@/features/team';
-import GlobalHeader from '@/shared/ui/GlobalHeader';
+import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 
 import { useToast } from '@detaileed/ui';
 import { StudioTimeZoneSettings, useStudio } from '@/features/studios';
@@ -24,7 +24,7 @@ const TABS: { id: TabId; label: string; icon: React.FC<{ size?: number; classNam
   { id: 'studio', label: 'Studio', icon: Building2 },
 ];
 
-const StudioSettingsView: React.FC = () => {
+export const StudioSettingsView: React.FC = () => {
   const [selectedTab, setActiveTab] = useState<TabId>('services');
   const { addToast } = useToast();
   const { selectedStudio } = useStudio();
@@ -72,5 +72,3 @@ const StudioSettingsView: React.FC = () => {
     </div>
   );
 };
-
-export default StudioSettingsView;

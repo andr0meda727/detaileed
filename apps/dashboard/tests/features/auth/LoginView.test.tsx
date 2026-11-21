@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 const auth = { signInWithPassword: vi.fn(), resetPasswordForEmail: vi.fn() };
 
-vi.mock('@/shared/lib/supabase', () => ({ default: { auth } }));
+vi.mock('@/shared/lib/supabase', () => ({ supabase: { auth } }));
 vi.mock('@/shared/lib/siteConfig', () => ({ TURNSTILE_SITE_KEY: 'site-key' }));
 
 const turnstile = {
@@ -13,7 +13,7 @@ const turnstile = {
 };
 window.turnstile = turnstile;
 
-const { default: LoginView } = await import('@/features/auth/components/LoginView');
+const { LoginView } = await import('@/features/auth/components/LoginView');
 
 const solve = async (token: string) => {
   await waitFor(() => expect(turnstile.render).toHaveBeenCalled());

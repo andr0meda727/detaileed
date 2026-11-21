@@ -5,7 +5,7 @@ import { formatPln } from '@detaileed/domain/money';
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
 import { formatBookingTime } from '@/features/bookings/model/format';
-import BookingStatusBadge from '@/features/bookings/components/BookingStatusBadge';
+import { BookingStatusBadge } from '@/features/bookings/components/BookingStatusBadge';
 import { useStudioTimeZone } from '@/features/studios';
 import { ConsumptionSection } from '@/features/inventory';
 import { formatInZone } from '@detaileed/domain/studioTime';
@@ -18,7 +18,11 @@ interface BookingDetailsModalProps {
 }
 
 /** Client, date, price, services and notes of a booking, with complete/cancel for open ones. */
-const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({ booking, onClose, onRequestStatusChange }) => {
+export const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
+  booking,
+  onClose,
+  onRequestStatusChange,
+}) => {
   const timeZone = useStudioTimeZone();
   return (
     <>
@@ -159,5 +163,3 @@ const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({ booking, onCl
     </>
   );
 };
-
-export default BookingDetailsModal;

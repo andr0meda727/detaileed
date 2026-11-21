@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import Select from '../../src/components/Select';
+import { Select } from '../../src/components/Select';
 
 const options = [
   { value: 'Small', label: 'Małe' },

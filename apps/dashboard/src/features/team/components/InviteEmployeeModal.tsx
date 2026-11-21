@@ -9,7 +9,7 @@ interface InviteEmployeeModalProps {
   onInvite: (selectedRole: number, email: string) => Promise<void>;
 }
 
-const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClose, onInvite }) => {
+export const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClose, onInvite }) => {
   const [email, setEmail] = useState('');
   const [selectedRole, setSelectedRole] = useState<number>(3); // Default to the employee role
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,5 +87,3 @@ const InviteEmployeeModal: React.FC<InviteEmployeeModalProps> = ({ isOpen, onClo
     </Modal>
   );
 };
-
-export default InviteEmployeeModal;

@@ -8,7 +8,7 @@ import { formatQuantity } from '@/features/inventory/model/ledger';
 const th = 'py-2 px-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest';
 
 /** When each item runs out (daily use, planned use by the next two weeks' bookings), and how good the estimates are. */
-export default function ForecastView() {
+export function ForecastView() {
   const timeZone = useStudioTimeZone();
   const forecast = useForecast();
   const accuracy = useAccuracy();

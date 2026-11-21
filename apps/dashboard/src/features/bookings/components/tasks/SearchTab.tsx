@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import type { Booking } from '@/features/bookings/model/types';
 import type { BookingStatus } from '@/features/bookings/model/statuses';
 import { matchesBookingQuery } from '@/features/bookings/model/filters';
-import BookingCard from '@/features/bookings/components/BookingCard';
+import { BookingCard } from '@/features/bookings/components/BookingCard';
 
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 
@@ -16,7 +16,7 @@ interface TabProps {
 }
 
 /** Search across all bookings the schedule shows, newest first. */
-const SearchTab: React.FC<Omit<TabProps, 'loading'>> = ({ bookings, onOpen, onRequestStatusChange }) => {
+export const SearchTab: React.FC<Omit<TabProps, 'loading'>> = ({ bookings, onOpen, onRequestStatusChange }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebouncedValue(searchQuery);
 
@@ -94,5 +94,3 @@ const SearchTab: React.FC<Omit<TabProps, 'loading'>> = ({ bookings, onOpen, onRe
     </div>
   );
 };
-
-export default SearchTab;

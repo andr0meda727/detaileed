@@ -14,7 +14,7 @@ interface StudioCardProps {
 }
 
 /** A studio in the search results; links to its page with the chosen car size. */
-export default function StudioCard({ pin, size, selected, onHover }: StudioCardProps) {
+export function StudioCard({ pin, size, selected, onHover }: StudioCardProps) {
   return (
     <Link
       href={`/studio/${pin.studioId}?size=${size}`}

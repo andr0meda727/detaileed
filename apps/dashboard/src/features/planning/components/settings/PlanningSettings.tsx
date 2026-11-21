@@ -2,12 +2,12 @@ import { CalendarCheck2 } from 'lucide-react';
 import { useStudio } from '@/features/studios';
 import { isOwnerRole } from '@/shared/lib/studioRole';
 import { useSchedule } from '@/features/planning/api/planning';
-import BaysSettings from '@/features/planning/components/settings/BaysSettings';
-import ScheduleSettings from '@/features/planning/components/settings/ScheduleSettings';
-import ClosuresSettings from '@/features/planning/components/settings/ClosuresSettings';
+import { BaysSettings } from '@/features/planning/components/settings/BaysSettings';
+import { ScheduleSettings } from '@/features/planning/components/settings/ScheduleSettings';
+import { ClosuresSettings } from '@/features/planning/components/settings/ClosuresSettings';
 
 /** Studio settings tab: bays, opening hours, planning rules and closures. Owners edit; others see them. */
-export default function PlanningSettings() {
+export function PlanningSettings() {
   const { selectedStudio } = useStudio();
   const canEdit = isOwnerRole(selectedStudio?.role);
   const { data: schedule } = useSchedule();

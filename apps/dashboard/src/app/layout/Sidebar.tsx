@@ -109,7 +109,7 @@ const DIVIDER_STYLE: React.CSSProperties = {
   background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent)',
 };
 
-const Sidebar: React.FC<SidebarProps> = ({ studioId, onLogout, isOpen, onClose, userEmail }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ studioId, onLogout, isOpen, onClose, userEmail }) => {
   const { selectedStudio } = useStudio();
   const matchRoute = useMatchRoute();
   const isEmployee = isEmployeeRole(selectedStudio?.role);
@@ -267,5 +267,3 @@ const Sidebar: React.FC<SidebarProps> = ({ studioId, onLogout, isOpen, onClose, 
     </>
   );
 };
-
-export default Sidebar;

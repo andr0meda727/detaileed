@@ -4,7 +4,7 @@ import type { Studio } from '@/features/studios/model/types';
 import { useStudios } from '@/features/studios/api/studios';
 import { getLastStudioId } from '@/features/studios/model/activeStudio';
 import { LoadingSpinner } from '@detaileed/ui';
-import CreateStudioModal from '@/features/studios/components/CreateStudioModal';
+import { CreateStudioModal } from '@/features/studios/components/CreateStudioModal';
 
 interface StudioSelectViewProps {
   onSelect: (studio: Studio) => void;
@@ -61,7 +61,7 @@ const canCreateStudio = (studios: Studio[]) =>
   studios.length === 0 || studios.some((s) => s.role === 'Owner' || s.role === 'Manager');
 
 // ─── View ─────────────────────────────────────────────────────────────────────
-const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
+export const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
   const { data: studios = [], isLoading, isError, refetch } = useStudios();
   const lastStudioId = getLastStudioId();
 
@@ -257,5 +257,3 @@ const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) => {
     </>
   );
 };
-
-export default StudioSelectView;

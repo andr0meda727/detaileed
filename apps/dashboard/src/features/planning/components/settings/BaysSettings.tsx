@@ -72,7 +72,7 @@ function BayRow({ bay, canEdit }: { bay: Bay; canEdit: boolean }) {
 }
 
 /** The studio's bays (stations a car stands on); with hours set, bookings are placed on them automatically. */
-export default function BaysSettings({ canEdit }: { canEdit: boolean }) {
+export function BaysSettings({ canEdit }: { canEdit: boolean }) {
   const { addToast } = useToast();
   const { data: bays = [], isLoading } = useBays();
   const create = useCreateBay();

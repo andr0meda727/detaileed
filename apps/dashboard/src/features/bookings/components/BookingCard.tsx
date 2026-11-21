@@ -3,7 +3,7 @@ import { Check, MoreHorizontal, User, X } from 'lucide-react';
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
 import { formatBookingDay, formatBookingTime } from '@/features/bookings/model/format';
-import BookingStatusBadge from '@/features/bookings/components/BookingStatusBadge';
+import { BookingStatusBadge } from '@/features/bookings/components/BookingStatusBadge';
 import { useStudioTimeZone } from '@/features/studios';
 
 interface BookingCardProps {
@@ -15,7 +15,7 @@ interface BookingCardProps {
 }
 
 /** One booking in a list: date, vehicle, services, client and the complete/cancel menu. */
-const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, onRequestStatusChange }) => {
+export const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, onRequestStatusChange }) => {
   const timeZone = useStudioTimeZone();
   const [menuOpen, setMenuOpen] = useState(false);
   return (
@@ -138,5 +138,3 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, o
     </div>
   );
 };
-
-export default BookingCard;

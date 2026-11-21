@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient } from '@tanstack/react-query';
 
-vi.mock('@/shared/lib/supabase', () => ({ default: { auth: { getSession: vi.fn() } } }));
+vi.mock('@/shared/lib/supabase', () => ({ supabase: { auth: { getSession: vi.fn() } } }));
 
 const { activateStudio, forgetActiveStudio, getActiveStudioId, getLastStudioId } =
   await import('@/features/studios/model/activeStudio');

@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js';
-import supabase from '@/shared/lib/supabase';
+import { supabase } from '@/shared/lib/supabase';
 
 const PASSWORD_LINK_TYPES = ['invite', 'recovery', 'signup'];
 

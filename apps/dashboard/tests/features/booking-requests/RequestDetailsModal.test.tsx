@@ -36,7 +36,7 @@ vi.mock('@/features/booking-requests/api/requests', () => ({
   useRejectRequest: () => ({ mutate: reject, isPending: false }),
 }));
 
-const { default: RequestDetailsModal } = await import('@/features/booking-requests/components/RequestDetailsModal');
+const { RequestDetailsModal } = await import('@/features/booking-requests/components/RequestDetailsModal');
 
 const request: BookingRequest = {
   id: 'r1',

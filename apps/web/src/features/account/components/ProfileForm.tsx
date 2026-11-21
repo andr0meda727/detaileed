@@ -15,7 +15,7 @@ interface ProfileFormProps {
 }
 
 /** Name and phone that go on booking requests, so the studio can contact the customer. */
-export default function ProfileForm({ profile, onSaved, submitLabel = 'Zapisz' }: ProfileFormProps) {
+export function ProfileForm({ profile, onSaved, submitLabel = 'Zapisz' }: ProfileFormProps) {
   const { addToast } = useToast();
   const save = useSaveProfile();
   const {

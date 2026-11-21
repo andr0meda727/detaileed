@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { DM_Sans, DM_Serif_Display, Syne } from 'next/font/google';
-import SiteHeader from '@/shared/ui/SiteHeader';
-import SiteFooter from '@/shared/ui/SiteFooter';
+import { SiteHeader } from '@/shared/ui/SiteHeader';
+import { SiteFooter } from '@/shared/ui/SiteFooter';
 import { SITE_URL } from '@/shared/lib/site';
-import Providers from './providers';
+import { Providers } from './providers';
 import { AccountMenu } from '@/features/auth';
 import './globals.css';
 

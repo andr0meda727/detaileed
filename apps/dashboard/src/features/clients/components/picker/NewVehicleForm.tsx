@@ -6,7 +6,7 @@ import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useCreateVehicle } from '@/features/clients/api/clients';
 import { vehicleFormSchema, type VehicleFormValues } from '@/features/clients/model/schemas';
 import { toVehicleFields } from '@/features/clients/model/toClientInput';
-import VehicleFields from '@/features/clients/components/picker/VehicleFields';
+import { VehicleFields } from '@/features/clients/components/picker/VehicleFields';
 import { DEFAULT_VEHICLE_SIZE } from '@detaileed/domain/vehicleSize';
 
 interface NewVehicleFormProps {
@@ -16,7 +16,7 @@ interface NewVehicleFormProps {
 }
 
 /** Adds a vehicle to an existing client. */
-export default function NewVehicleForm({ clientId, onCreated }: NewVehicleFormProps) {
+export function NewVehicleForm({ clientId, onCreated }: NewVehicleFormProps) {
   const { addToast } = useToast();
   const createVehicle = useCreateVehicle();
   const {

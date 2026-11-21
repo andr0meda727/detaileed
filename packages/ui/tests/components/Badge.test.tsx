@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import Badge from '../../src/components/Badge';
+import { Badge } from '../../src/components/Badge';
 
 describe('Badge', () => {
   it('uses the tone classes by default', () => {

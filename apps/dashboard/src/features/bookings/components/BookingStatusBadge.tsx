@@ -8,7 +8,7 @@ interface BookingStatusBadgeProps {
 }
 
 /** The booking's status name, tinted with the status colour the API sends (brand green without one). */
-export default function BookingStatusBadge({ booking, size = 'md', className }: BookingStatusBadgeProps) {
+export function BookingStatusBadge({ booking, size = 'md', className }: BookingStatusBadgeProps) {
   return (
     <Badge color={booking.statusColor} size={size} className={className}>
       {booking.status}

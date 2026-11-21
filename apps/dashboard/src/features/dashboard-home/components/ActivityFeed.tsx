@@ -45,7 +45,7 @@ const activityFeed = [
 ];
 
 /** Recent activity (static sample entries until the API offers an activity log). */
-const ActivityFeed: React.FC = () => {
+export const ActivityFeed: React.FC = () => {
   return (
     <div className="floating-card-static p-6 sm:p-7">
       <div className="flex items-center justify-between mb-5">
@@ -77,5 +77,3 @@ const ActivityFeed: React.FC = () => {
     </div>
   );
 };
-
-export default ActivityFeed;

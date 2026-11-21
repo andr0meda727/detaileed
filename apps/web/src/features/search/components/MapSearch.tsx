@@ -12,7 +12,7 @@ import { MAP_STYLE_URL } from '@/shared/lib/site';
 import { PINS_PAGE_SIZE, useStudioPins } from '@/features/search/api/pins';
 import { pinLabel } from '@/features/search/model/pins';
 import { serializeSearch, type SearchState } from '@/features/search/model/searchState';
-import StudioCard from '@/features/search/components/StudioCard';
+import { StudioCard } from '@/features/search/components/StudioCard';
 
 // MapLibre needs a browser; load it only there.
 const MapView = dynamic(() => import('@detaileed/ui/map').then((m) => m.MapView), {
@@ -23,7 +23,7 @@ const MapView = dynamic(() => import('@detaileed/ui/map').then((m) => m.MapView)
 const CATEGORY_OPTIONS = [{ value: '', label: 'Wszystkie usługi' }, ...SERVICE_CATEGORIES];
 
 /** The home page search: studios inside the visible map area as pins and a list, with category and size filters. */
-export default function MapSearch({ initial }: { initial: SearchState }) {
+export function MapSearch({ initial }: { initial: SearchState }) {
   const [state, setState] = useState(initial);
   const [bounds, setBounds] = useState<Bounds | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);

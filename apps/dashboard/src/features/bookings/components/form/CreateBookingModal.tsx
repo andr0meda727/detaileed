@@ -7,9 +7,9 @@ import { ClientVehiclePicker, type ClientVehicleMatch } from '@/features/clients
 import { bookingFormSchema, type BookingFormValues } from '@/features/bookings/model/schemas';
 import { useCreateBooking } from '@/features/bookings/api/bookings';
 import { buildBookingCreateDto } from '@/features/bookings/model/buildBookingCreateDto';
-import BookingServicesSection from '@/features/bookings/components/form/BookingServicesSection';
-import BookingScheduleSection from '@/features/bookings/components/form/BookingScheduleSection';
-import FreeSlotsSection from '@/features/bookings/components/form/FreeSlotsSection';
+import { BookingServicesSection } from '@/features/bookings/components/form/BookingServicesSection';
+import { BookingScheduleSection } from '@/features/bookings/components/form/BookingScheduleSection';
+import { FreeSlotsSection } from '@/features/bookings/components/form/FreeSlotsSection';
 import { bookingSaveErrorMessage } from '@/features/bookings/model/errors';
 import { dayInZone, timeInZone, todayInZone, zonedToUtc } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
@@ -21,7 +21,7 @@ interface CreateBookingModalProps {
 }
 
 /** New booking form. It remounts whenever it opens or closes, so every opening starts with an empty form. */
-export default function CreateBookingModal(props: CreateBookingModalProps) {
+export function CreateBookingModal(props: CreateBookingModalProps) {
   return <CreateBookingForm key={props.isOpen ? 'open' : 'closed'} {...props} />;
 }
 

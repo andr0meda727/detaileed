@@ -7,7 +7,7 @@ import { getSupabase } from '@/shared/lib/supabase/client';
 import { TURNSTILE_SITE_KEY } from '@/shared/lib/site';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
 import { confirmEmailRedirect } from '@/features/auth/model/returnPath';
-import CaptchaField from '@/features/auth/components/CaptchaField';
+import { CaptchaField } from '@/features/auth/components/CaptchaField';
 
 /** Seconds between two sends, so an impatient click doesn't hit Supabase's email rate limit. */
 export const RESEND_COOLDOWN = 60;
@@ -16,7 +16,7 @@ export const RESEND_COOLDOWN = 60;
  * "Didn't get the email?": sends the sign-up confirmation link again. `justSent` starts the wait right away, for
  * the screen shown straight after sign-up.
  */
-export default function ResendConfirmation({
+export function ResendConfirmation({
   email,
   next,
   justSent = false,

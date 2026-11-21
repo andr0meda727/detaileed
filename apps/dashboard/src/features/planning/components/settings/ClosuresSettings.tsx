@@ -8,7 +8,7 @@ import { planningErrorMessage } from '@/features/planning/model/errors';
 import type { Schedule } from '@/features/planning/model/types';
 
 /** Days the studio is closed (holidays, stocktaking): no bookings or free times on them. */
-export default function ClosuresSettings({ closures, canEdit }: { closures: Schedule['closures']; canEdit: boolean }) {
+export function ClosuresSettings({ closures, canEdit }: { closures: Schedule['closures']; canEdit: boolean }) {
   const { addToast } = useToast();
   const timeZone = useStudioTimeZone();
   const add = useAddClosure();

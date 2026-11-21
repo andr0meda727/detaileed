@@ -13,7 +13,7 @@ export interface StarRatingProps {
 }
 
 /** Five stars: a read-only rating, or a picker when `onChange` is given. */
-export default function StarRating({ value, onChange, size = 16, label = 'Ocena' }: StarRatingProps) {
+export function StarRating({ value, onChange, size = 16, label = 'Ocena' }: StarRatingProps) {
   const stars = [1, 2, 3, 4, 5];
 
   if (!onChange) {

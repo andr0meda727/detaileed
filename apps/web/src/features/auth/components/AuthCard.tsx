@@ -1,15 +1,7 @@
 import type { ReactNode } from 'react';
 
 /** The title and card of a sign-in or password page; the `(auth)` layout provides the column around it. */
-export default function AuthCard({
-  title,
-  subtitle,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  children: ReactNode;
-}) {
+export function AuthCard({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
   return (
     <>
       <h1 className="font-serif text-4xl tracking-tight">{title}</h1>

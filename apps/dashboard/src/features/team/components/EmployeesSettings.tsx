@@ -13,7 +13,7 @@ const inviteSchema = z.object({
 type InviteFormValues = z.infer<typeof inviteSchema>;
 
 /** Studio settings tab: invite an employee by email. */
-const EmployeesSettings: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({
+export const EmployeesSettings: React.FC<{ addToast: (message: string, type: 'success' | 'error') => void }> = ({
   addToast,
 }) => {
   const inviteEmployee = useInviteEmployee();
@@ -97,5 +97,3 @@ const EmployeesSettings: React.FC<{ addToast: (message: string, type: 'success' 
     </div>
   );
 };
-
-export default EmployeesSettings;

@@ -3,7 +3,7 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-reac
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
 import { byScheduledAt, monthGrid } from '@/features/bookings/model/filters';
-import BookingCard from '@/features/bookings/components/BookingCard';
+import { BookingCard } from '@/features/bookings/components/BookingCard';
 import { Skeleton } from '@detaileed/ui';
 import { dayInZone, formatDay, todayInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
@@ -23,7 +23,7 @@ interface CalendarTabProps extends TabProps {
 }
 
 /** Month grid with booking dots, and the bookings of the selected day. */
-const CalendarTab: React.FC<CalendarTabProps> = ({
+export const CalendarTab: React.FC<CalendarTabProps> = ({
   bookings,
   loading,
   selectedDate,
@@ -166,5 +166,3 @@ const CalendarTab: React.FC<CalendarTabProps> = ({
     </div>
   );
 };
-
-export default CalendarTab;

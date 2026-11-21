@@ -20,7 +20,7 @@ interface ListingFormProps {
 }
 
 /** The public profile: name, description, address, phone and the pin customers see on the map. */
-export default function ListingForm({ listing, studio, readOnly }: ListingFormProps) {
+export function ListingForm({ listing, studio, readOnly }: ListingFormProps) {
   const { addToast } = useToast();
   const save = useSaveListing();
   const {

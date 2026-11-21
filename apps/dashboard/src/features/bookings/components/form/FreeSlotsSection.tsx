@@ -21,7 +21,7 @@ interface FreeSlotsSectionProps {
  * Free start times on the picked day for these services and the car's size, and the bay to use (or let the
  * planner choose). Shown only when the studio plans (hours and bays set).
  */
-export default function FreeSlotsSection(props: FreeSlotsSectionProps) {
+export function FreeSlotsSection(props: FreeSlotsSectionProps) {
   const { date, serviceIds, size, timeZone, pickedStart, bayId, onPickSlot, onBayChange } = props;
   const { data: schedule } = useSchedule();
   const { data: bays = [] } = useBays();

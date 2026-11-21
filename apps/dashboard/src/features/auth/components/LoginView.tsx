@@ -9,7 +9,7 @@ import {
 } from '@/features/auth/model/schemas';
 import { ArrowRight, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
 import { Turnstile, useTurnstile } from '@detaileed/ui';
-import supabase from '@/shared/lib/supabase';
+import { supabase } from '@/shared/lib/supabase';
 import { TURNSTILE_SITE_KEY } from '@/shared/lib/siteConfig';
 import logo from '@/shared/assets/logo.svg';
 
@@ -30,7 +30,7 @@ function getErrorMessage(error: unknown, fallbackMessage: string): string {
   return fallbackMessage;
 }
 
-const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
+export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
   const [mode, setMode] = useState<Mode>('login');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -289,5 +289,3 @@ const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
     </div>
   );
 };
-
-export default LoginView;

@@ -5,7 +5,7 @@ const resend = vi.fn();
 
 vi.mock('@/shared/lib/supabase/client', () => ({ getSupabase: () => ({ auth: { resend } }) }));
 
-const { default: ResendConfirmation } = await import('@/features/auth/components/ResendConfirmation');
+const { ResendConfirmation } = await import('@/features/auth/components/ResendConfirmation');
 
 describe('ResendConfirmation', () => {
   beforeEach(() => {

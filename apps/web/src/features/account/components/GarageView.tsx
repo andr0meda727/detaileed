@@ -10,7 +10,7 @@ import { vehicleSizeLabel } from '@detaileed/domain/vehicleSize';
 import { useAddVehicle, useDeleteVehicle, useGarage, useUpdateVehicle } from '@/features/account/api/me';
 import { carSchema, emptyCar, toCarRequest, type CarValues } from '@/features/account/model/schemas';
 import { garageErrorMessage } from '@/features/account/model/errors';
-import CarFields from '@/features/account/components/CarFields';
+import { CarFields } from '@/features/account/components/CarFields';
 
 const MAX_CARS = 10;
 
@@ -70,7 +70,7 @@ function CarForm({ car, onDone }: { car: GarageVehicleDto | null; onDone: () => 
 }
 
 /** The customer's saved cars (at most ten): pick one when sending a request instead of typing it again. */
-export default function GarageView() {
+export function GarageView() {
   const { addToast } = useToast();
   const garage = useGarage();
   const remove = useDeleteVehicle();

@@ -12,7 +12,7 @@ interface ListingStatusCardProps {
 }
 
 /** Whether customers can see the studio, its rating, and the publish switch for the owner. */
-export default function ListingStatusCard({ listing, isOwner, onOpenServices }: ListingStatusCardProps) {
+export function ListingStatusCard({ listing, isOwner, onOpenServices }: ListingStatusCardProps) {
   const { addToast } = useToast();
   const publish = usePublishListing();
   const unpublish = useUnpublishListing();

@@ -4,7 +4,7 @@ import type { Booking } from '@/features/bookings/model/types';
 import type { BookingStatus } from '@/features/bookings/model/statuses';
 import { BOOKING_STATUSES } from '@/features/bookings/model/statuses';
 import { byScheduledAt, groupBookingsByDay, matchesBookingQuery } from '@/features/bookings/model/filters';
-import BookingCard from '@/features/bookings/components/BookingCard';
+import { BookingCard } from '@/features/bookings/components/BookingCard';
 import { Skeleton } from '@detaileed/ui';
 import { useDebouncedValue } from '@/shared/hooks/useDebouncedValue';
 import { formatDay } from '@detaileed/domain/studioTime';
@@ -21,7 +21,7 @@ interface TabProps {
 type StatusFilter = 'all' | 'UTWORZONA' | 'ZAKONCZONA' | 'ANULOWANA';
 
 /** Bookings grouped by day, filterable by status and a search box. */
-const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, onRequestStatusChange }) => {
+export const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, onRequestStatusChange }) => {
   const [filterStatus, setFilterStatus] = useState<StatusFilter>('all');
   const [inProgressSearchQuery, setInProgressSearchQuery] = useState('');
   const query = useDebouncedValue(inProgressSearchQuery);
@@ -194,5 +194,3 @@ const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, onReques
     </div>
   );
 };
-
-export default InProgressTab;

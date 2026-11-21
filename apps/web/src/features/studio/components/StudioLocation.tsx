@@ -10,7 +10,7 @@ const MapView = dynamic(() => import('@detaileed/ui/map').then((m) => m.MapView)
 });
 
 /** A small map with the studio's pin and a link to directions. */
-export default function StudioLocation({ lat, lng, name }: { lat: number; lng: number; name: string }) {
+export function StudioLocation({ lat, lng, name }: { lat: number; lng: number; name: string }) {
   return (
     <div className="space-y-2">
       <div className="h-56">

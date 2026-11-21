@@ -11,7 +11,7 @@ interface GreetingBannerProps {
 }
 
 /** Greeting with the date and how many bookings are today and coming up. */
-const GreetingBanner: React.FC<GreetingBannerProps> = ({ loading, todayCount, upcomingCount }) => {
+export const GreetingBanner: React.FC<GreetingBannerProps> = ({ loading, todayCount, upcomingCount }) => {
   const timeZone = useStudioTimeZone();
   const now = new Date();
   const { hour } = zonedParts(now, timeZone);
@@ -61,5 +61,3 @@ const GreetingBanner: React.FC<GreetingBannerProps> = ({ loading, todayCount, up
     </div>
   );
 };
-
-export default GreetingBanner;

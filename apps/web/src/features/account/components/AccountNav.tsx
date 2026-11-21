@@ -12,7 +12,7 @@ const TABS = [
 ];
 
 /** Tabs of the customer account. */
-export default function AccountNav() {
+export function AccountNav() {
   const pathname = usePathname();
   return (
     <nav

@@ -7,14 +7,14 @@ import { serviceCategoryLabel } from '@detaileed/domain/serviceCategory';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 import { useDeleteService, useServices } from '@/features/services/api/services';
 import { fromPrice, type Service } from '@/features/services/model/types';
-import ServiceFormModal from '@/features/services/components/ServiceFormModal';
+import { ServiceFormModal } from '@/features/services/components/ServiceFormModal';
 
 interface ServicesSettingsProps {
   addToast: (message: string, type: 'success' | 'error') => void;
 }
 
 /** Studio settings tab: the studio's services as cards (category, duration, prices); click one to edit it. */
-export default function ServicesSettings({ addToast }: ServicesSettingsProps) {
+export function ServicesSettings({ addToast }: ServicesSettingsProps) {
   const { data: items = [], isLoading } = useServices();
   const deleteService = useDeleteService();
   // The open form: a new service (null) or one to edit; `key` remounts it with fresh values.

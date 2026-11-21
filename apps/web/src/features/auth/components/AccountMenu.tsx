@@ -7,7 +7,7 @@ import { LogOut, UserCircle } from 'lucide-react';
 import { getSupabase } from '@/shared/lib/supabase/client';
 
 /** "Zaloguj się", or the account link and sign-out once someone is signed in. */
-export default function AccountMenu() {
+export function AccountMenu() {
   const router = useRouter();
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
 

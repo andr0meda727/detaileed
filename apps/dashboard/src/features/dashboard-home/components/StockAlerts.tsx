@@ -8,7 +8,7 @@ interface StockAlertsProps {
 }
 
 /** Inventory items below their minimum stock. */
-const StockAlerts: React.FC<StockAlertsProps> = ({ items: lowStockItems, loading: showLoading }) => {
+export const StockAlerts: React.FC<StockAlertsProps> = ({ items: lowStockItems, loading: showLoading }) => {
   return (
     <div className="floating-card-static p-6 sm:p-7">
       <div className="flex items-center justify-between mb-5">
@@ -73,5 +73,3 @@ const StockAlerts: React.FC<StockAlertsProps> = ({ items: lowStockItems, loading
     </div>
   );
 };
-
-export default StockAlerts;

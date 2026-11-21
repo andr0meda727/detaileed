@@ -33,7 +33,7 @@ vi.mock('@/features/planning', () => ({
   },
 }));
 
-const { default: FreeSlotsSection } = await import('@/features/bookings/components/form/FreeSlotsSection');
+const { FreeSlotsSection } = await import('@/features/bookings/components/form/FreeSlotsSection');
 
 const props = {
   date: '2026-11-16',

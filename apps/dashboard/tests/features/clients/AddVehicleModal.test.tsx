@@ -14,7 +14,7 @@ vi.mock('@/features/clients/api/clients', () => ({
   useCreateVehicle: () => ({ mutateAsync: createVehicle }),
 }));
 
-const { default: AddVehicleModal } = await import('@/features/clients/components/AddVehicleModal');
+const { AddVehicleModal } = await import('@/features/clients/components/AddVehicleModal');
 
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 

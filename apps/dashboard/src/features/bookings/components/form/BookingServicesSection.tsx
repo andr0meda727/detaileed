@@ -12,7 +12,7 @@ interface BookingServicesSectionProps {
 }
 
 /** Toggle tiles for the studio's services, plus a field that creates a new service and selects it. */
-export default function BookingServicesSection({ value, onChange, error }: BookingServicesSectionProps) {
+export function BookingServicesSection({ value, onChange, error }: BookingServicesSectionProps) {
   const { addToast } = useToast();
   const { data: services = [] } = useServices();
   const createService = useCreateService();

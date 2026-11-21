@@ -17,7 +17,7 @@ export interface MapPickerProps {
 }
 
 /** A map to place one pin: click to put it, drag to move it, or use the location button. */
-export default function MapPicker({
+export function MapPicker({
   value,
   onChange,
   readOnly = false,

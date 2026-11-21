@@ -3,10 +3,10 @@
 import { UserRound } from 'lucide-react';
 import { FormSection, Skeleton } from '@detaileed/ui';
 import { useProfile } from '@/features/account/api/me';
-import ProfileForm from '@/features/account/components/ProfileForm';
+import { ProfileForm } from '@/features/account/components/ProfileForm';
 
 /** The contact details studios get with each request. */
-export default function ProfileSection() {
+export function ProfileSection() {
   const profile = useProfile();
   if (profile.isLoading) return <Skeleton width="100%" height="160px" className="rounded-2xl" />;
   return (

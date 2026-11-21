@@ -14,7 +14,7 @@ const dateTimeClass =
   'w-full px-3 py-4 bg-slate-50 border-2 border-transparent rounded-xl font-bold text-xs outline-hidden focus:border-cream-warm/50 text-green-deep';
 
 /** Price and date/time of the booking. `scheduledAt` is one `YYYY-MM-DDTHH:mm` value split into two inputs. */
-export default function BookingScheduleSection({ control, errors }: BookingScheduleSectionProps) {
+export function BookingScheduleSection({ control, errors }: BookingScheduleSectionProps) {
   return (
     <FormSection icon={Calendar} title="Termin i Cena" tone="amber">
       <div className="p-4 grid grid-cols-2 gap-3">

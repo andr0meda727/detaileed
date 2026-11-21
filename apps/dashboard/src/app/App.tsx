@@ -19,12 +19,10 @@ const QueryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };
 
-const App: React.FC = () => (
+export const App: React.FC = () => (
   <ToastProvider>
     <QueryProvider>
       <AppRouter />
     </QueryProvider>
   </ToastProvider>
 );
-
-export default App;

@@ -13,7 +13,7 @@ interface ClientsTableProps {
 }
 
 /** Client list with contact details, vehicles and call/edit actions. */
-const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed, onOpen, onEdit }) => (
+export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed, onOpen, onEdit }) => (
   <div
     className={`bg-white rounded-2xl border border-slate-100 overflow-hidden transition-opacity duration-200 ${dimmed ? 'opacity-70' : 'opacity-100'}`}
     style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.03)' }}
@@ -169,5 +169,3 @@ const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed,
     </div>
   </div>
 );
-
-export default ClientsTable;

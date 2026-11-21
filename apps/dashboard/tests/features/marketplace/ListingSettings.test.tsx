@@ -25,7 +25,7 @@ vi.mock('@detaileed/ui/map', () => ({
   ),
 }));
 
-const { default: ListingSettings } = await import('@/features/marketplace/components/ListingSettings');
+const { ListingSettings } = await import('@/features/marketplace/components/ListingSettings');
 
 const listing: Listing = {
   studioId: 's1',

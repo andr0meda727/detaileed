@@ -10,7 +10,7 @@ import { getSupabase } from '@/shared/lib/supabase/client';
 import { siteUrl, TURNSTILE_SITE_KEY } from '@/shared/lib/site';
 import { forgotPasswordSchema, type ForgotPasswordValues } from '@/features/auth/model/schemas';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
-import CaptchaField from '@/features/auth/components/CaptchaField';
+import { CaptchaField } from '@/features/auth/components/CaptchaField';
 
 /** Where the reset link leads: /auth/callback signs the person in, then the new-password page. */
 export const RESET_REDIRECT = '/auth/callback?next=/reset-password';
@@ -19,7 +19,7 @@ export const RESET_REDIRECT = '/auth/callback?next=/reset-password';
  * Asks Supabase to email a password reset link. The answer is the same whether or not the account exists, so the
  * form can't be used to find out who has one.
  */
-export default function ForgotPasswordForm() {
+export function ForgotPasswordForm() {
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const captcha = useTurnstile(TURNSTILE_SITE_KEY, 'password_reset');

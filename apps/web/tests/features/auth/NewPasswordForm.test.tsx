@@ -13,7 +13,7 @@ vi.mock('@detaileed/ui', async (original) => ({
   useToast: () => ({ addToast }),
 }));
 
-const { default: NewPasswordForm } = await import('@/features/auth/components/NewPasswordForm');
+const { NewPasswordForm } = await import('@/features/auth/components/NewPasswordForm');
 
 const submit = (password: string, confirm = password) => {
   fireEvent.change(screen.getByLabelText('Nowe hasło'), { target: { value: password } });

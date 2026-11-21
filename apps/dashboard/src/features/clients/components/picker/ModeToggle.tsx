@@ -7,7 +7,7 @@ interface ModeToggleProps {
 }
 
 /** Two-button switch between picking an existing record and creating a new one. */
-export default function ModeToggle({ value, onChange, labels }: ModeToggleProps) {
+export function ModeToggle({ value, onChange, labels }: ModeToggleProps) {
   return (
     <div className="flex bg-slate-50 p-1 rounded-xl">
       {(['existing', 'new'] as const).map((mode) => (
