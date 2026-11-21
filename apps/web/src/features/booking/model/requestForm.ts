@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { SubmitBookingRequest, VehicleSize } from '@detaileed/api-client';
 import { zonedToUtc } from '@detaileed/domain/studioTime';
-import { carSchema, emptyCar, toCarRequest, type CarValues } from '@/features/account/model/schemas';
+import { carSchema, emptyCar, toCarRequest, type CarValues } from '@/features/account';
 
 /** `vehicleChoice` for "another car" (typed into the form) instead of a garage car's id. */
 export const NEW_CAR = 'new';

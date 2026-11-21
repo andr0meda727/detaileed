@@ -5,10 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyRound, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Button, FormInput, FormSection, useToast } from '@detaileed/ui';
-import { getSupabase } from '@/lib/supabase/client';
-import { newPasswordSchema, type NewPasswordValues } from '@/features/auth/model/schemas';
-import { authErrorMessage } from '@/features/auth/model/authErrors';
-import { setPassword } from '@/features/auth/api/password';
+import { getSupabase } from '@/shared/lib/supabase/client';
+import { newPasswordSchema, type NewPasswordValues, authErrorMessage, setPassword } from '@/features/auth';
 
 /**
  * Changes the signed-in customer's password. When Supabase's "secure password change" wants proof that it's really

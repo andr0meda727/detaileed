@@ -7,7 +7,7 @@ import type { Schedule } from '@/features/planning/model/types';
 const save = vi.fn();
 vi.mock('@/features/planning/api/planning', () => ({ useSaveSchedule: () => ({ mutate: save, isPending: false }) }));
 
-const { default: ScheduleSettings } = await import('@/features/planning/components/ScheduleSettings');
+const { default: ScheduleSettings } = await import('@/features/planning/components/settings/ScheduleSettings');
 
 const schedule: Schedule = {
   planningEnabled: false,

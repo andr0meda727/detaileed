@@ -1,5 +1,6 @@
 import { ApiError } from '@detaileed/api-client';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
+import { GARAGE_MESSAGES } from '@/features/account';
 
 /** What the customer reads when sending a request fails, by the API's error code. */
 const MESSAGES: Record<string, string> = {
@@ -10,9 +11,8 @@ const MESSAGES: Record<string, string> = {
   CUSTOMER_PROFILE_REQUIRED: 'Uzupełnij imię i telefon, aby studio mogło się z Tobą skontaktować.',
   STUDIO_NOT_FOUND: 'To studio nie przyjmuje teraz zapytań.',
   BOOKING_REQUEST_UNKNOWN_SERVICES: 'Część wybranych usług nie jest już dostępna. Odśwież stronę i wybierz ponownie.',
-  CUSTOMER_VEHICLE_NOT_FOUND: 'Nie znaleziono wybranego auta. Wybierz je ponownie.',
-  CUSTOMER_GARAGE_FULL: 'W garażu jest już 10 aut. Usuń któreś, aby dodać nowe.',
-  CUSTOMER_VEHICLE_EXISTS: 'Auto z tym numerem rejestracyjnym jest już w garażu.',
+  // A request can add the car to the garage or pick a saved one
+  ...GARAGE_MESSAGES,
 };
 
 export function bookingErrorMessage(error: unknown, fallback = 'Nie udało się wysłać zapytania.'): string {

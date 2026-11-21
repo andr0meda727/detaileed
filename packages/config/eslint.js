@@ -64,7 +64,8 @@ export const nextApp = tseslint.config(
 
 /**
  * Feature-slice architecture for an app's `src`: imports flow app → routes → features → shared, a feature
- * uses another feature only through its index.ts, and network calls go through @detaileed/api-client.
+ * uses another feature only through its index.ts (or server.ts, for server-only code in the customer site), and
+ * network calls go through @detaileed/api-client.
  */
 export const featureSlices = tseslint.config({
   files: ['src/**/*.{ts,tsx}'],
@@ -94,7 +95,7 @@ export const featureSlices = tseslint.config({
           },
           {
             from: { element: { types: ['app', 'routes', 'features'] } },
-            allow: { to: { element: { type: 'features', fileInternalPath: 'index.ts' } } },
+            allow: { to: { element: { type: 'features', fileInternalPath: ['index.ts', 'server.ts'] } } },
           },
           { from: { element: { type: 'features' } }, allow: { to: { element: { type: 'shared' } } } },
         ],

@@ -1,4 +1,4 @@
-import { siteUrl } from '@/lib/site';
+import { siteUrl } from '@/shared/lib/site';
 
 /**
  * A safe place to go back to after signing in: only a path on this site (`/studio/…`), never another origin

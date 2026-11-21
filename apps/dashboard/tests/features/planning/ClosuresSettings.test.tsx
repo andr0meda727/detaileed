@@ -10,7 +10,7 @@ vi.mock('@/features/planning/api/planning', () => ({
   useRemoveClosure: () => ({ mutate: remove, isPending: false }),
 }));
 
-const { default: ClosuresSettings } = await import('@/features/planning/components/ClosuresSettings');
+const { default: ClosuresSettings } = await import('@/features/planning/components/settings/ClosuresSettings');
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 
 describe('ClosuresSettings', () => {

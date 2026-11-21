@@ -4,9 +4,9 @@ import { useState, type ReactNode } from 'react';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { configureApiClient } from '@detaileed/api-client';
 import { ToastProvider, useToast } from '@detaileed/ui';
-import { API_URL } from '@/lib/site';
-import { createQueryClient } from '@/lib/queryClient';
-import { getAccessToken } from '@/lib/supabase/client';
+import { API_URL } from '@/shared/lib/site';
+import { createQueryClient } from '@/shared/lib/queryClient';
+import { getAccessToken } from '@/shared/lib/supabase/client';
 
 // Browser-side API config. Only in the browser: on the server the fetcher's config is shared by every request,
 // so per-user settings must never be set there.

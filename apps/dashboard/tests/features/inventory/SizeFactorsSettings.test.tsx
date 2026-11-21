@@ -9,7 +9,7 @@ vi.mock('@/features/inventory/api/ledger', () => ({
   useSaveSizeFactors: () => ({ mutate: save, isPending: false }),
 }));
 
-const { default: SizeFactorsSettings } = await import('@/features/inventory/components/SizeFactorsSettings');
+const { default: SizeFactorsSettings } = await import('@/features/inventory/components/settings/SizeFactorsSettings');
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 
 describe('SizeFactorsSettings', () => {

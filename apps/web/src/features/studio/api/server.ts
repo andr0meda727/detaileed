@@ -1,7 +1,8 @@
+import 'server-only';
 import { cache } from 'react';
 import { getApiPublicStudiosStudioId, getApiPublicStudiosStudioIdReviews } from '@detaileed/api-client';
 import { toListing } from '@detaileed/domain/listing';
-import { orNotFound, publicRequest } from '@/lib/api/server';
+import { orNotFound, publicRequest } from '@/shared/lib/api/server';
 import { REVIEWS_PAGE_SIZE, toReviewPage } from '@/features/studio/model/reviews';
 
 /** Studio ids are UUIDs; anything else is a broken link, answered with 404 without asking the API. */

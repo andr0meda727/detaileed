@@ -1,3 +1,3 @@
-import { nextApp } from '@detaileed/config/eslint';
+import { featureSlices, nextApp } from '@detaileed/config/eslint';
 
-export default nextApp;
+export default [...nextApp, ...featureSlices];

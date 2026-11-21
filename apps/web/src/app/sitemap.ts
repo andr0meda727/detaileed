@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getApiPublicStudios } from '@detaileed/api-client';
-import { siteUrl } from '@/lib/site';
-import '@/lib/api/server';
+import { siteUrl } from '@/shared/lib/site';
+import '@/shared/lib/api/server';
 
 // Rebuilt at most once an hour.
 export const revalidate = 3600;

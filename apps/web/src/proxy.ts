@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { SUPABASE_KEY, SUPABASE_URL } from '@/lib/site';
+import { SUPABASE_KEY, SUPABASE_URL } from '@/shared/lib/site';
 
 /**
  * Refreshes the Supabase session on every page request and writes the new cookies to the response, so server

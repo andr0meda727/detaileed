@@ -21,7 +21,7 @@ import {
 import { useStudio } from '@/features/studios';
 import { usePendingRequestsCount } from '@/features/booking-requests';
 import { isEmployeeRole } from '@/shared/lib/studioRole';
-import logo from '@/images/logo.svg';
+import logo from '@/shared/assets/logo.svg';
 
 type StudioPath =
   | '/s/$studioId'

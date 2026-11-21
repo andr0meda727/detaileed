@@ -20,7 +20,7 @@ vi.mock('@/features/planning/api/planning', () => ({
   useDeleteBay: () => ({ mutate: remove, isPending: false }),
 }));
 
-const { default: BaysSettings } = await import('@/features/planning/components/BaysSettings');
+const { default: BaysSettings } = await import('@/features/planning/components/settings/BaysSettings');
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
 
 describe('BaysSettings', () => {

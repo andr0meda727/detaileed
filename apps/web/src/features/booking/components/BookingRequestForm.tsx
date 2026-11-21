@@ -14,8 +14,7 @@ import { Button, FormSection } from '@detaileed/ui';
 import type { Listing } from '@detaileed/domain/listing';
 import { formatPln } from '@detaileed/domain/money';
 import { addDays, todayInZone } from '@detaileed/domain/studioTime';
-import { useSubmitRequest } from '@/features/account/api/me';
-import CarFields from '@/features/account/components/CarFields';
+import { useSubmitRequest, CarFields } from '@/features/account';
 import {
   NEW_CAR,
   requestFormDefaults,

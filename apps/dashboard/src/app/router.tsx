@@ -8,7 +8,7 @@ export interface RouterContext {
 
 export const router = createRouter({
   routeTree,
-  // Filled in by <RouterProvider context> in App.tsx.
+  // Filled in by <RouterProvider context> in app/App.tsx.
   context: { queryClient: undefined! },
   defaultPreload: 'intent',
   scrollRestoration: true,
