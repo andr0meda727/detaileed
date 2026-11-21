@@ -8,7 +8,9 @@ requests on the customer site. The backend is a separate .NET API (`detaileed-ap
 | ---------------- | ---------------------------------------------------- | ----------------- | -------- |
 | `apps/dashboard` | studio management SPA (Vite, React, TanStack Router) | app.detaileed.com | 3000     |
 | `apps/web`       | customer site (Next.js App Router)                   | detaileed.com     | 3001     |
-| `apps/landing`   | marketing page for studios, with a clickable demo    | not deployed yet  | 4000     |
+
+The landing page for studio owners is part of the customer site, at
+[detaileed.com/for-studios](https://detaileed.com/for-studios).
 
 Shared packages: `packages/ui` (design system), `packages/domain` (pure helpers), `packages/api-client` (generated
 from the API's OpenAPI spec), `packages/config` (TypeScript, ESLint, Prettier).

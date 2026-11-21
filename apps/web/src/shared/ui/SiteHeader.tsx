@@ -1,7 +1,6 @@
 import Link from 'next/link';
-import { DASHBOARD_URL } from '@/shared/lib/site';
 
-/** Top bar: logo home link, the studio-owner link and the account link. */
+/** Top bar: logo home link, the link to the studio-owner landing page and the account link. */
 export function SiteHeader({ accountSlot }: { accountSlot?: React.ReactNode }) {
   return (
     <header className="sticky top-0 z-30 bg-cream/90 backdrop-blur-xs border-b border-green-deep/5">
@@ -10,9 +9,9 @@ export function SiteHeader({ accountSlot }: { accountSlot?: React.ReactNode }) {
           Detaileed
         </Link>
         <nav className="flex items-center gap-2 sm:gap-4 text-sm font-semibold">
-          <a href={DASHBOARD_URL} className="hidden sm:inline text-green-light hover:text-green-deep">
+          <Link href="/for-studios" className="hidden sm:inline text-green-light hover:text-green-deep">
             Dla studiów
-          </a>
+          </Link>
           {accountSlot}
         </nav>
       </div>

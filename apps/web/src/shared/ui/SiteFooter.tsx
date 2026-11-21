@@ -10,6 +10,9 @@ export function SiteFooter() {
           <Link href="/" className="hover:text-green-deep">
             Szukaj studia
           </Link>
+          <Link href="/for-studios" className="hover:text-green-deep">
+            Dla studiów
+          </Link>
           <a href={DASHBOARD_URL} className="hover:text-green-deep">
             Panel dla studiów
           </a>

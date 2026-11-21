@@ -6,7 +6,7 @@ import robots from '@/app/robots';
 const appDir = path.join(import.meta.dirname, '../../src/app');
 /** The top-level URL segments of a route group, e.g. `(auth)` → `/sign-in`, `/auth`. */
 const segmentsOf = (group: string) =>
-  readdirSync(path.join(appDir, group), { withFileTypes: true })
+  readdirSync(path.join(appDir, '(site)', group), { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => `/${entry.name}`);
 
