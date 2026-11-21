@@ -1,17 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  ArrowRight, Play, Calendar, Users, DollarSign,
-  Package, Activity, CalendarDays, BarChart3, Check
-} from 'lucide-react';
-import AppDemo from '../components/AppDemo';
+import { ArrowRight, Play, Users, DollarSign, Package, Activity, CalendarDays, Check } from 'lucide-react';
+import { AppDemo } from '../components/AppDemo';
 
 // ═══════════════════════════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════════════════════════
 
 const LOGOS = [
-  'Shine Masters', 'AutoGloss Studio', 'PerfectDetail', 'GlossWorks',
-  'CarCare Pro', 'DetailShop', 'CeramiQ', 'LuxDetail',
+  'Shine Masters',
+  'AutoGloss Studio',
+  'PerfectDetail',
+  'GlossWorks',
+  'CarCare Pro',
+  'DetailShop',
+  'CeramiQ',
+  'LuxDetail',
 ];
 
 const FEATURES = [
@@ -110,7 +113,14 @@ const PRICING = [
     tier: 'Pro',
     amount: 'YYY zł',
     period: '/ miesiąc',
-    features: ['Do 100 rezerwacji / miesiąc', 'CRM — do 200 klientów', 'Wszystkie funkcjonalności', 'Raporty', 'Archiwum zleceń', 'Wsparcie'],
+    features: [
+      'Do 100 rezerwacji / miesiąc',
+      'CRM — do 200 klientów',
+      'Wszystkie funkcjonalności',
+      'Raporty',
+      'Archiwum zleceń',
+      'Wsparcie',
+    ],
     btnClass: 'amber',
     btnLabel: 'Zacznij z Pro',
     featured: true,
@@ -143,8 +153,10 @@ const CalendarMiniUI: React.FC = () => {
   return (
     <div className="feat-ui">
       <div className="mini-calendar-row">
-        {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map(d => (
-          <div key={d} className="mini-cal-label">{d}</div>
+        {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map((d) => (
+          <div key={d} className="mini-cal-label">
+            {d}
+          </div>
         ))}
       </div>
       {days.map((week, wi) => (
@@ -154,7 +166,11 @@ const CalendarMiniUI: React.FC = () => {
             if (day === todayDay) cls += ' today';
             else if (amberDays.includes(day)) cls += ' event-amber';
             else if (eventDays.includes(day)) cls += ' event';
-            return <div key={di} className={cls}>{day}</div>;
+            return (
+              <div key={di} className={cls}>
+                {day}
+              </div>
+            );
           })}
         </div>
       ))}
@@ -169,7 +185,7 @@ const CRMMiniUI: React.FC = () => (
       { initials: 'AN', name: 'Anna Nowak', tag: 'Nowy', count: '1 wizyta' },
       { initials: 'MW', name: 'Marek Wiśniew.', tag: 'VIP', count: '28 wizyt' },
       { initials: 'PZ', name: 'Piotr Zając', tag: 'Stały', count: '6 wizyt' },
-    ].map(c => (
+    ].map((c) => (
       <div key={c.initials} className="crm-row">
         <div className="crm-avatar">{c.initials}</div>
         <div className="crm-name">{c.name}</div>
@@ -194,11 +210,7 @@ const FinanceMiniUI: React.FC = () => {
     <>
       <div className="feat-chart">
         {bars.map((bar, i) => (
-          <div
-            key={i}
-            className="feat-chart-bar"
-            style={{ height: bar.height, background: bar.bg }}
-          />
+          <div key={i} className="feat-chart-bar" style={{ height: bar.height, background: bar.bg }} />
         ))}
       </div>
       <div className="feat-chart-labels">
@@ -215,15 +227,12 @@ const InventoryMiniUI: React.FC = () => (
       { name: 'Piana aktywna', stock: '26 szt', pct: 80, low: false },
       { name: 'Szampon FX Protect', stock: '4 szt', pct: 15, low: true },
       { name: 'Szampon Szpontex', stock: '130 szt', pct: 95, low: false },
-    ].map(item => (
+    ].map((item) => (
       <div key={item.name} className="inv-row">
         <div>
           <div className="inv-name">{item.name}</div>
           <div className="inv-bar">
-            <div
-              className={`inv-fill ${item.low ? 'low' : ''}`}
-              style={{ width: `${item.pct}%` }}
-            />
+            <div className={`inv-fill ${item.low ? 'low' : ''}`} style={{ width: `${item.pct}%` }} />
           </div>
         </div>
         <div className={`inv-stock ${item.low ? 'low' : ''}`}>{item.stock}</div>
@@ -245,10 +254,7 @@ const ReportsMiniUI: React.FC = () => (
           <span className="feat-stat-value">{s.pct}%</span>
         </div>
         <div className={`feat-stat-bar ${i === 2 ? '' : ''}`}>
-          <div
-            className="feat-stat-fill"
-            style={{ width: `${s.pct}%`, background: s.color }}
-          />
+          <div className="feat-stat-fill" style={{ width: `${s.pct}%`, background: s.color }} />
         </div>
       </React.Fragment>
     ))}
@@ -267,7 +273,7 @@ const FEATURE_UI_MAP: Record<string, React.FC> = {
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════
 
-const LandingPage: React.FC = () => {
+export const LandingPage: React.FC = () => {
   const [navScrolled, setNavScrolled] = useState(false);
   const cursorRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -300,12 +306,12 @@ const LandingPage: React.FC = () => {
 
     const selector = 'a, button, .feat-card, .testi-card, .step, .price-card';
     const els = document.querySelectorAll(selector);
-    els.forEach(el => {
+    els.forEach((el) => {
       el.addEventListener('mouseenter', addHover);
       el.addEventListener('mouseleave', removeHover);
     });
     return () => {
-      els.forEach(el => {
+      els.forEach((el) => {
         el.removeEventListener('mouseenter', addHover);
         el.removeEventListener('mouseleave', removeHover);
       });
@@ -316,17 +322,17 @@ const LandingPage: React.FC = () => {
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal');
     const obs = new IntersectionObserver(
-      entries => {
-        entries.forEach(e => {
+      (entries) => {
+        entries.forEach((e) => {
           if (e.isIntersecting) {
             e.target.classList.add('visible');
             obs.unobserve(e.target);
           }
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.12 },
     );
-    reveals.forEach(el => obs.observe(el));
+    reveals.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
@@ -342,19 +348,16 @@ const LandingPage: React.FC = () => {
       <nav className={`landing-nav ${navScrolled ? 'scrolled' : ''}`} id="navbar">
         <a href="#" className="nav-logo">
           <img src="/detaileed-log.svg" alt="Detaileed" className="nav-logo-img" />
-          <span className="nav-logo-text"><span className="nav-logo-accent">D</span>etaileed</span>
+          <span className="nav-logo-text">
+            <span className="nav-logo-accent">D</span>etaileed
+          </span>
         </a>
         <div className="nav-links">
           <a href="#demo">Demo</a>
           <a href="#features">Funkcje</a>
           <a href="#how">Jak to działa</a>
           <a href="#pricing">Cennik</a>
-          <a
-            href="https://app.detaileed.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="nav-cta"
-          >
+          <a href="https://app.detaileed.com" target="_blank" rel="noopener noreferrer" className="nav-cta">
             Zacznij za darmo
           </a>
         </div>
@@ -370,22 +373,18 @@ const LandingPage: React.FC = () => {
         </div>
 
         <h1 className="hero-headline">
-          Zarządzaj studiem<br /><em>bez chaosu.</em>
+          Zarządzaj studiem
+          <br />
+          <em>bez chaosu.</em>
         </h1>
 
         <p className="hero-sub">
-          Detaileed to wszystko czego potrzebujesz — rezerwacje, klienci,
-          magazyn i finanse w jednym miejscu. Zaprojektowane specjalnie dla
-          studiów detailingu.
+          Detaileed to wszystko czego potrzebujesz — rezerwacje, klienci, magazyn i finanse w jednym miejscu.
+          Zaprojektowane specjalnie dla studiów detailingu.
         </p>
 
         <div className="hero-actions">
-          <a
-            href="https://app.detaileed.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary"
-          >
+          <a href="https://app.detaileed.com" target="_blank" rel="noopener noreferrer" className="btn-primary">
             Zacznij za darmo
             <ArrowRight size={16} />
           </a>
@@ -400,10 +399,18 @@ const LandingPage: React.FC = () => {
       <div className="logos-bar">
         <div className="logos-track">
           <span className="logos-label">Zaufali nam</span>
-          {LOGOS.map(l => <span key={l} className="logo-item">{l}</span>)}
+          {LOGOS.map((l) => (
+            <span key={l} className="logo-item">
+              {l}
+            </span>
+          ))}
           {/* Duplicate for seamless loop */}
           <span className="logos-label">Zaufali nam</span>
-          {LOGOS.map(l => <span key={`dup-${l}`} className="logo-item">{l}</span>)}
+          {LOGOS.map((l) => (
+            <span key={`dup-${l}`} className="logo-item">
+              {l}
+            </span>
+          ))}
         </div>
       </div>
 
@@ -430,16 +437,16 @@ const LandingPage: React.FC = () => {
         <div className="reveal">
           <div className="section-label">Funkcje</div>
           <h2 className="section-title">
-            Wszystko czego<br />potrzebuje <em>Twoje studio</em>
+            Wszystko czego
+            <br />
+            potrzebuje <em>Twoje studio</em>
           </h2>
         </div>
 
         <div className="features-grid">
           {FEATURES.map((feat, i) => {
             const iconVariant =
-              feat.variant === 'dark' ? '' :
-                feat.variant === 'amber' ? 'amber' :
-                  feat.variant === 'pale' ? 'pale' : '';
+              feat.variant === 'dark' ? '' : feat.variant === 'amber' ? 'amber' : feat.variant === 'pale' ? 'pale' : '';
             const MiniUI = FEATURE_UI_MAP[feat.id];
             const delayClass = `reveal-delay-${(i % 3) + 1}`;
 
@@ -465,7 +472,9 @@ const LandingPage: React.FC = () => {
         <div className="reveal">
           <div className="section-label light">Jak to działa</div>
           <h2 className="section-title light">
-            Gotowy w <em>3 minuty.</em><br />Serio.
+            Gotowy w <em>3 minuty.</em>
+            <br />
+            Serio.
           </h2>
         </div>
         <div className="steps-grid reveal">
@@ -485,7 +494,9 @@ const LandingPage: React.FC = () => {
         <div className="reveal" style={{ textAlign: 'center' }}>
           <div className="section-label centered">Cennik</div>
           <h2 className="section-title centered" style={{ marginBottom: 16 }}>
-            Prosty cennik,<br />bez niespodzianek
+            Prosty cennik,
+            <br />
+            bez niespodzianek
           </h2>
           <p className="section-subtitle centered" style={{ marginBottom: 64 }}>
             14 dni za darmo. Bez karty kredytowej.
@@ -502,7 +513,7 @@ const LandingPage: React.FC = () => {
               <div className="price-amount">{plan.amount}</div>
               <div className="price-period">{plan.period}</div>
               <ul className="price-features">
-                {plan.features.map(f => (
+                {plan.features.map((f) => (
                   <li key={f}>
                     <span className="price-check">
                       <Check size={10} color={plan.featured ? 'var(--color-amber)' : 'var(--color-green-dark)'} />
@@ -529,7 +540,9 @@ const LandingPage: React.FC = () => {
         <div className="reveal" style={{ textAlign: 'center' }}>
           <div className="section-label centered">Opinie</div>
           <h2 className="section-title centered" style={{ marginBottom: 64, maxWidth: 500 }}>
-            Co mówią<br /><em>właściciele studiów</em>
+            Co mówią
+            <br />
+            <em>właściciele studiów</em>
           </h2>
         </div>
         <div className="testi-grid">
@@ -557,18 +570,13 @@ const LandingPage: React.FC = () => {
       <section className="cta-section">
         <div className="section-label centered light reveal">Zaczynamy?</div>
         <h2 className="cta-title reveal">
-          Twoje studio zasługuje<br />na <em>lepsze narzędzia.</em>
+          Twoje studio zasługuje
+          <br />
+          na <em>lepsze narzędzia.</em>
         </h2>
-        <p className="cta-sub reveal">
-          Dołącz do setek detailerów którzy już zarządzają swoim studiem z Detaileed.
-        </p>
+        <p className="cta-sub reveal">Dołącz do setek detailerów którzy już zarządzają swoim studiem z Detaileed.</p>
         <div className="cta-actions reveal">
-          <a
-            href="https://app.detaileed.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary"
-          >
+          <a href="https://app.detaileed.com" target="_blank" rel="noopener noreferrer" className="btn-primary">
             Zacznij za darmo — 14 dni
             <ArrowRight size={16} />
           </a>
@@ -582,7 +590,9 @@ const LandingPage: React.FC = () => {
           <div className="footer-brand">
             <a href="#" className="nav-logo" style={{ color: 'var(--color-cream)' }}>
               <img src="/detaileed-log.svg" alt="Detaileed" className="nav-logo-img" />
-              <span className="nav-logo-text"><span className="nav-logo-accent">D</span>etaileed</span>
+              <span className="nav-logo-text">
+                <span className="nav-logo-accent">D</span>etaileed
+              </span>
             </a>
             <p>Studio OS zaprojektowany specjalnie dla branży detailingu. Prosty, szybki, bezpieczny.</p>
           </div>
@@ -613,5 +623,3 @@ const LandingPage: React.FC = () => {
     </>
   );
 };
-
-export default LandingPage;

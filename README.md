@@ -8,6 +8,7 @@ requests on the customer site. The backend is a separate .NET API (`detaileed-ap
 | ---------------- | ---------------------------------------------------- | ----------------- | -------- |
 | `apps/dashboard` | studio management SPA (Vite, React, TanStack Router) | app.detaileed.com | 3000     |
 | `apps/web`       | customer site (Next.js App Router)                   | detaileed.com     | 3001     |
+| `apps/landing`   | marketing page for studios, with a clickable demo    | not deployed yet  | 4000     |
 
 Shared packages: `packages/ui` (design system), `packages/domain` (pure helpers), `packages/api-client` (generated
 from the API's OpenAPI spec), `packages/config` (TypeScript, ESLint, Prettier).
@@ -20,7 +21,7 @@ Requirements: Node.js 22+ and pnpm (the version is pinned in `package.json`; `co
 pnpm install
 cp apps/dashboard/.env.example apps/dashboard/.env.local   # then fill in the Supabase values
 cp apps/web/.env.example apps/web/.env.local
-pnpm dev                                                    # both apps
+pnpm dev                                                    # all apps
 ```
 
 Use pnpm only: npm or yarn would create a second lockfile.
