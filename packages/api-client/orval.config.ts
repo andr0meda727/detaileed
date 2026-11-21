@@ -2,7 +2,7 @@ import { defineConfig } from 'orval';
 
 /**
  * Generates typed React Query hooks and models from `openapi.json` (the backend spec,
- * copied from detailflow-api/docs/openapi.json). Run `pnpm generate` after updating the spec;
+ * copied from detaileed-api/docs/openapi.json). Run `pnpm generate` after updating the spec;
  * the output is committed and CI checks that it is up to date.
  */
 export default defineConfig({

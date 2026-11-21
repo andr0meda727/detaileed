@@ -2,7 +2,7 @@
 
 A platform for car-detailing studios. Studios run their day in the dashboard (bookings, clients, services,
 inventory, planning, team, reports); customers find studios on a map, compare prices for their car and send booking
-requests on the customer site. The backend is a separate .NET API (`detailflow-api`); sign-in uses Supabase.
+requests on the customer site. The backend is a separate .NET API (`detaileed-api`); sign-in uses Supabase.
 
 | App              | What                                                 | Where             | Dev port |
 | ---------------- | ---------------------------------------------------- | ----------------- | -------- |

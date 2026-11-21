@@ -34,7 +34,7 @@ const ArchivedView: React.FC = () => {
     <div className="space-y-8 pb-20">
       <GlobalHeader
         title="Archiwum"
-        subtitle="Pełna Historia Operacyjna • DetailFlow"
+        subtitle="Pełna Historia Operacyjna • Detaileed"
         onAddBooking={() => addToast('Globalny moduł tworzenia rezerwacji zostanie podpięty w kolejnym kroku.', 'info')}
         onAddClient={() =>
           addToast('Globalny moduł szybkiego dodawania klienta zostanie podpięty w kolejnym kroku.', 'info')

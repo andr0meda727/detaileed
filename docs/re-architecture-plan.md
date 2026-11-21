@@ -161,7 +161,7 @@ Notes from doing it:
 
 ## Catching up with the backend (phases 6–10)
 
-The backend (`detailflow-api`, see its `docs/api-reference.md`, `api-conventions.md` and `marketplace-roadmap.md`) now
+The backend (`detaileed-api`, see its `docs/api-reference.md`, `api-conventions.md` and `marketplace-roadmap.md`) now
 has the whole marketplace: the public map search, studio pages, reviews, price estimates and free times, customer
 accounts (profile, garage, booking requests, reviews), the staff side of requests, planning (bays, opening hours,
 day board, free times) and the inventory ledger (movements, recipes, consumption, forecast). The generated client
@@ -196,7 +196,7 @@ the public listing and availability, email links to `/s/{studioId}/requests?id=`
 
 ### Phase 7: studio side of the marketplace (branch `feat/phase-7-studio-marketplace`)
 
-0. `build: update the api spec` (copy `detailflow-api/docs/openapi.json`, `pnpm generate`; `timeZone` on listing and
+0. `build: update the api spec` (copy `detaileed-api/docs/openapi.json`, `pnpm generate`; `timeZone` on listing and
    public availability).
 1. `build: add maplibre to the ui package`: `maplibre-gl` + `react-map-gl` (peer deps of `@detaileed/ui`).
 2. `feat: add MapView and MapPicker to the ui package` (`packages/ui/src/map/`): `MapPicker({ value, onChange, styleUrl })`
