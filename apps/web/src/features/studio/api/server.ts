@@ -1,7 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { getApiPublicStudiosStudioId, getApiPublicStudiosStudioIdReviews } from '@detaileed/api-client';
-import { toListing } from '@detaileed/domain/listing';
+import { toPublicListing } from '@detaileed/domain/listing';
 import { orNotFound, publicRequest } from '@/shared/lib/api/server';
 import { REVIEWS_PAGE_SIZE, toReviewPage } from '@/features/studio/model/reviews';
 
@@ -12,7 +12,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const getListing = cache(async (studioId: string) => {
   if (!UUID.test(studioId)) return null;
   const dto = await orNotFound(getApiPublicStudiosStudioId(studioId, publicRequest));
-  return dto && toListing(dto);
+  return dto && toPublicListing(dto);
 });
 
 /** The newest reviews for the first render; the page loads more in the browser. */

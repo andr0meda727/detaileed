@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { priceFor, servicesByCategory, toListing } from '../src/listing';
+import { priceFor, servicesByCategory, toListing, toPublicListing } from '../src/listing';
 
 const dto = {
   studioId: 's1',
@@ -11,6 +11,7 @@ const dto = {
   latitude: '50.06',
   longitude: 19.94,
   isPublished: true,
+  hasCompleteDetails: true,
   timeZone: '',
   categories: ['Interior' as const, 'ExteriorWash' as const],
   services: [
@@ -33,6 +34,17 @@ describe('listing helpers', () => {
     expect(listing.latitude).toBe(50.06);
     expect(listing.timeZone).toBe('Europe/Warsaw');
     expect(listing.services[0].prices[0].price).toBe(349.99);
+  });
+
+  it('keeps a missing pin as null, not 0', () => {
+    const listing = toListing({ ...dto, latitude: null, longitude: null, hasCompleteDetails: false });
+    expect(listing.latitude).toBeNull();
+    expect(listing.longitude).toBeNull();
+  });
+
+  it('gives a public page only a listing placed on the map', () => {
+    expect(toPublicListing(dto)?.city).toBe('Kraków');
+    expect(toPublicListing({ ...dto, address: null, hasCompleteDetails: false })).toBeNull();
   });
 
   it('gives the price for a size, or null for "on request"', () => {

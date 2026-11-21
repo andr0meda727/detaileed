@@ -1,7 +1,7 @@
-import type { Listing } from '@detaileed/domain/listing';
+import type { PublicListing } from '@detaileed/domain/listing';
 
 /** schema.org data for a studio page (a local business that details cars), for search engines. */
-export function studioJsonLd(listing: Listing, url: string) {
+export function studioJsonLd(listing: PublicListing, url: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'AutoWash',

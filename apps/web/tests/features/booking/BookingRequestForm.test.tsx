@@ -28,6 +28,7 @@ const listing: Listing = {
   latitude: 50.06,
   longitude: 19.94,
   isPublished: true,
+  hasCompleteDetails: true,
   timeZone: 'Europe/Warsaw',
   categories: ['Interior'],
   services: [
