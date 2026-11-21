@@ -12,15 +12,24 @@ export interface ListingDto {
   name: string;
   /** @nullable */
   description: string | null;
-  address: string;
-  city: string;
+  /** @nullable */
+  address: string | null;
+  /** @nullable */
+  city: string | null;
   /** @nullable */
   phone: string | null;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  latitude: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  longitude: number | string;
+  /**
+   * @nullable
+   * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$
+   */
+  latitude: number | string | null;
+  /**
+   * @nullable
+   * @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$
+   */
+  longitude: number | string | null;
   isPublished: boolean;
+  hasCompleteDetails: boolean;
   timeZone: string;
   categories: ServiceCategory[];
   services: ListingServiceDto[];
