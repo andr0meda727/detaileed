@@ -9,7 +9,7 @@ import { EmployeesSettings } from '@/features/team';
 import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 
 import { useToast } from '@detaileed/ui';
-import { StudioTimeZoneSettings, useStudio } from '@/features/studios';
+import { StudioDetailsSettings, StudioTimeZoneSettings, useStudio } from '@/features/studios';
 import { isEmployeeRole, isOwnerRole } from '@/shared/lib/studioRole';
 
 // ─── Main View ────────────────────────────────────────────────────────────────
@@ -66,8 +66,18 @@ export const StudioSettingsView: React.FC = () => {
         )}
         {activeTab === 'employees' && <EmployeesSettings addToast={addToast} />}
         {activeTab === 'planning' && <PlanningSettings />}
-        {activeTab === 'listing' && <ListingSettings onOpenServices={() => setActiveTab('services')} />}
-        {activeTab === 'studio' && <StudioTimeZoneSettings />}
+        {activeTab === 'listing' && (
+          <ListingSettings
+            onOpenServices={() => setActiveTab('services')}
+            onOpenStudio={() => setActiveTab('studio')}
+          />
+        )}
+        {activeTab === 'studio' && (
+          <div className="space-y-8">
+            <StudioDetailsSettings />
+            <StudioTimeZoneSettings />
+          </div>
+        )}
       </div>
     </div>
   );

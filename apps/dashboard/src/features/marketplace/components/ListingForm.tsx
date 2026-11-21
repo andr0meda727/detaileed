@@ -1,36 +1,36 @@
-import { lazy, Suspense } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MapPin, Save } from 'lucide-react';
-import { Button, FormInput, FormSection, Skeleton, useToast } from '@detaileed/ui';
-import { MAP_STYLE_URL } from '@/shared/lib/siteConfig';
+import { Button, FormSection, useToast } from '@detaileed/ui';
 import { useSaveListing } from '@/features/marketplace/api/listing';
 import { listingFormSchema, type ListingFormInput, type ListingFormValues } from '@/features/marketplace/model/schemas';
-import { listingFormDefaults, toListingInput } from '@/features/marketplace/model/listingForm';
+import { listingAddress, listingFormDefaults, toListingInput } from '@/features/marketplace/model/listingForm';
 import type { Listing } from '@/features/marketplace/model/types';
-
-// MapLibre is large; load it only when this form is shown.
-const MapPicker = lazy(() => import('@detaileed/ui/map').then((m) => ({ default: m.MapPicker })));
 
 interface ListingFormProps {
   listing: Listing | null;
-  studio: { name: string; address?: string | null };
+  /** The studio's name, shown before the first save creates the profile. */
+  studioName: string;
   /** Owners edit; other members see the profile read-only. */
   readOnly: boolean;
+  /** Opens the studio settings, where the name, phone, address and pin are edited. */
+  onOpenStudio: () => void;
 }
 
-/** The public profile: name, description, address, phone and the pin customers see on the map. */
-export function ListingForm({ listing, studio, readOnly }: ListingFormProps) {
+/**
+ * The public profile: the description the owner writes here, and the studio's name, phone, address and pin as
+ * customers see them (copied from the studio settings).
+ */
+export function ListingForm({ listing, studioName, readOnly, onOpenStudio }: ListingFormProps) {
   const { addToast } = useToast();
   const save = useSaveListing();
   const {
     register,
-    control,
     handleSubmit,
     formState: { errors },
   } = useForm<ListingFormInput, unknown, ListingFormValues>({
     resolver: zodResolver(listingFormSchema),
-    defaultValues: listingFormDefaults(listing, studio),
+    defaultValues: listingFormDefaults(listing),
   });
 
   const onSubmit = (values: ListingFormValues) =>
@@ -39,63 +39,46 @@ export function ListingForm({ listing, studio, readOnly }: ListingFormProps) {
         addToast(listing ? 'Zapisano profil.' : 'Zapisano profil. Teraz możesz go opublikować.', 'success'),
     });
 
+  const address = listing && listingAddress(listing);
+
   return (
     <FormSection icon={MapPin} title="Profil publiczny">
-      <form className="p-5 space-y-2" onSubmit={handleSubmit(onSubmit)}>
-        <fieldset disabled={readOnly} className="space-y-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-            <FormInput label="Nazwa na mapie" error={errors.name?.message} {...register('name')} />
-            <FormInput
-              label="Telefon dla klientów"
-              placeholder="500 600 700"
-              error={errors.phone?.message}
-              {...register('phone')}
-            />
-            <FormInput
-              label="Adres"
-              placeholder="ul. Długa 1"
-              error={errors.address?.message}
-              {...register('address')}
-            />
-            <FormInput label="Miasto" placeholder="Kraków" error={errors.city?.message} {...register('city')} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="listing-description"
-              className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1"
-            >
-              Opis
-            </label>
-            <textarea
-              id="listing-description"
-              rows={4}
-              placeholder="Czym zajmuje się studio, co je wyróżnia…"
-              className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-hidden font-semibold text-sm focus:border-cream-warm/50"
-              {...register('description')}
-            />
-            <p className="h-4 px-1 text-[10px] font-bold text-red-500 uppercase tracking-widest">
-              {errors.description?.message}
-            </p>
-          </div>
-        </fieldset>
+      <form className="p-5 space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <div className="rounded-xl bg-slate-50 p-4 space-y-1 text-sm">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dane widoczne dla klientów</p>
+          <p className="font-bold text-green-deep">{listing?.name ?? studioName}</p>
+          {listing && (
+            <>
+              <p className="text-slate-500">{address ?? 'Brak adresu'}</p>
+              <p className="text-slate-500">{listing.phone ?? 'Brak telefonu'}</p>
+              <p className="text-slate-500">
+                {listing.latitude !== null ? 'Pinezka na mapie ustawiona' : 'Brak pinezki na mapie'}
+              </p>
+            </>
+          )}
+          <button type="button" onClick={onOpenStudio} className="pt-1 text-xs font-bold text-green-deep underline">
+            Zmień w ustawieniach studia
+          </button>
+        </div>
 
-        <div className="space-y-1.5">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
-            Lokalizacja {readOnly ? '' : '(kliknij mapę lub przeciągnij pinezkę)'}
-          </p>
-          <Controller
-            name="location"
-            control={control}
-            render={({ field }) => (
-              <Suspense fallback={<Skeleton width="100%" height="320px" className="rounded-2xl" />}>
-                <MapPicker value={field.value} onChange={field.onChange} readOnly={readOnly} styleUrl={MAP_STYLE_URL} />
-              </Suspense>
-            )}
+        <fieldset disabled={readOnly} className="flex flex-col gap-1.5">
+          <label
+            htmlFor="listing-description"
+            className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1"
+          >
+            Opis
+          </label>
+          <textarea
+            id="listing-description"
+            rows={4}
+            placeholder="Czym zajmuje się studio, co je wyróżnia…"
+            className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-hidden font-semibold text-sm focus:border-cream-warm/50"
+            {...register('description')}
           />
           <p className="h-4 px-1 text-[10px] font-bold text-red-500 uppercase tracking-widest">
-            {errors.location?.message}
+            {errors.description?.message}
           </p>
-        </div>
+        </fieldset>
 
         {!readOnly && (
           <Button size="lg" fullWidth type="submit" icon={Save} loading={save.isPending}>

@@ -9,14 +9,17 @@ interface ListingStatusCardProps {
   isOwner: boolean;
   /** Opens the services tab (services are what customers see and book). */
   onOpenServices: () => void;
+  /** Opens the studio tab, where the address and pin are set. */
+  onOpenStudio: () => void;
 }
 
 /** Whether customers can see the studio, its rating, and the publish switch for the owner. */
-export function ListingStatusCard({ listing, isOwner, onOpenServices }: ListingStatusCardProps) {
+export function ListingStatusCard({ listing, isOwner, onOpenServices, onOpenStudio }: ListingStatusCardProps) {
   const { addToast } = useToast();
   const publish = usePublishListing();
   const unpublish = useUnpublishListing();
   const hasServices = (listing?.services.length ?? 0) > 0;
+  const hasDetails = listing?.hasCompleteDetails ?? false;
 
   return (
     <FormSection
@@ -54,6 +57,14 @@ export function ListingStatusCard({ listing, isOwner, onOpenServices }: ListingS
                 </button>
               </p>
             )}
+            {!hasDetails && (
+              <p className="text-sm text-amber-700 bg-amber/10 rounded-xl p-3">
+                Studio nie ma jeszcze adresu, miasta lub pinezki na mapie, więc klienci by go nie znaleźli.{' '}
+                <button type="button" onClick={onOpenStudio} className="font-bold underline">
+                  Uzupełnij dane studia
+                </button>
+              </p>
+            )}
             <div className="flex flex-wrap gap-3">
               {isOwner &&
                 (listing.isPublished ? (
@@ -71,7 +82,7 @@ export function ListingStatusCard({ listing, isOwner, onOpenServices }: ListingS
                   <Button
                     icon={Eye}
                     loading={publish.isPending}
-                    disabled={!hasServices}
+                    disabled={!hasServices || !hasDetails}
                     onClick={() =>
                       publish.mutate(undefined, {
                         onSuccess: () => addToast('Studio jest widoczne dla klientów.', 'success'),
