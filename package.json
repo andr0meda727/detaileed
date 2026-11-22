@@ -14,7 +14,8 @@
     "typecheck": "turbo run typecheck",
     "check": "turbo run lint typecheck && turbo run test && turbo run build",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "git config core.hooksPath .githooks || exit 0"
   },
   "devDependencies": {
     "@detaileed/config": "workspace:*",
