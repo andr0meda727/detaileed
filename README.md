@@ -40,7 +40,7 @@ Use pnpm only: npm or yarn would create a second lockfile.
 
 ## Docs
 
-- [`CLAUDE.md`](CLAUDE.md): conventions and the checks to run after every change.
+- [`AGENTS.md`](AGENTS.md): conventions and the checks to run after every change.
 - [`docs/architecture.md`](docs/architecture.md): how the apps and packages are organised.
 - [`docs/regression-checklist.md`](docs/regression-checklist.md): manual click-through before bigger merges.
 - [`docs/re-architecture-plan.md`](docs/re-architecture-plan.md): the plan the current structure came from.

@@ -1,5 +1,7 @@
 # Detaileed
 
+Guidance for coding agents (Claude Code, Codex, Cursor, Copilot, …) and people working in this repository. Claude Code reads it through `CLAUDE.md`, which only imports this file.
+
 pnpm + Turborepo monorepo for a car-detailing platform. UI text is Polish; **everything else is English**: folder and file names, URLs and query parameters (lowercase, kebab-case), identifiers, keys, comments, test names, commit messages. Polish appears only in strings people see on screen.
 
 ```
