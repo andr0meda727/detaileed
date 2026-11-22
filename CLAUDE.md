@@ -39,7 +39,13 @@ Never silence a rule with `eslint-disable` or `@ts-ignore`/`@ts-expect-error` wi
 - Each commit should leave the app building, with lint and tests green (run the checks above before committing).
 - Check `git status` before committing; stage only the files of that change (watch for leftovers already staged).
 - Work on a branch (e.g. `refactor/phase-2-api-client`), not directly on `main`; pushing to `main` deploys. When a phase is done, fast-forward local `main` to it; don't push unless asked.
-- Message style: short, lowercase, imperative, with an optional conventional prefix (`fix:`, `feat:`, `refactor:`, `chore:`, `build:`, `ci:`, `docs:`, `test:`).
+- Messages follow [Conventional Commits](https://www.conventionalcommits.org/): `<type>(<optional scope>): <summary>`.
+  - Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `build`, `ci`, `perf`, `style`, `revert`.
+  - Scope is the app or package when it helps: `dashboard`, `web`, `api-client`, `ui`, `domain`, `config`.
+  - Summary: short, lowercase, imperative, no trailing period, at most 72 characters for the whole first line.
+  - Breaking changes: `!` after the type/scope (`feat(api-client)!: …`) and a `BREAKING CHANGE:` footer.
+  - Examples: `feat(web): move the studio landing page to /for-studios`, `build: update the api spec with editable studio details`.
+- `.githooks/commit-msg` enforces this; `pnpm install` turns it on (the `prepare` script sets `core.hooksPath`). The `Commit Messages` workflow runs the same script on every commit of a pull request (merge commits excepted), so a skipped hook (`--no-verify`) still gets caught. Change the rule in the script, not here alone.
 
 ## Commands (run from the repo root)
 
