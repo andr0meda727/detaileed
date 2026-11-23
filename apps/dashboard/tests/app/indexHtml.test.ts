@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { themeInitScript } from '@detaileed/ui';
+import { logoMarkSvg, themeInitScript } from '@detaileed/ui';
 
 const html = readFileSync(path.join(import.meta.dirname, '../../index.html'), 'utf8');
 
@@ -13,5 +13,11 @@ describe('index.html', () => {
     const head = html.slice(0, html.indexOf('</head>'));
     const inlineScripts = [...head.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((match) => normalise(match[1]));
     expect(inlineScripts).toContain(normalise(themeInitScript));
+  });
+
+  it('uses the logo mark as the favicon', () => {
+    expect(html).toContain('<link rel="icon" type="image/svg+xml" href="/src/shared/assets/favicon.svg" />');
+    const favicon = readFileSync(path.join(import.meta.dirname, '../../src/shared/assets/favicon.svg'), 'utf8');
+    expect(favicon.trim()).toBe(logoMarkSvg());
   });
 });
