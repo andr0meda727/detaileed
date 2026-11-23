@@ -40,13 +40,15 @@ function MemberRow({
       </div>
       <div className="flex shrink-0 items-center gap-2 pl-11 sm:pl-0">
         {editable ? (
-          <Select
-            aria-label={`Rola: ${name}`}
-            options={ROLE_OPTIONS}
-            value={String(emp.roleId)}
-            onChange={(e) => onRoleChange(emp.userId, parseInt(e.target.value))}
-            className="w-40"
-          />
+          // Inline in a row: hide the field's empty hint/error slot so the select centres with the row.
+          <div className="w-40 [&>div>div:last-child]:hidden">
+            <Select
+              aria-label={`Rola: ${name}`}
+              options={ROLE_OPTIONS}
+              value={String(emp.roleId)}
+              onChange={(e) => onRoleChange(emp.userId, parseInt(e.target.value))}
+            />
+          </div>
         ) : (
           <Badge tone={role.tone}>{role.name}</Badge>
         )}
