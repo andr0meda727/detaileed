@@ -1,7 +1,6 @@
-import type { ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Modal, LoadingSpinner, useToast } from '@detaileed/ui';
+import { Button, FormInput, Modal, LoadingSpinner, cn, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useCreateInventoryItem, useUpdateInventoryItem } from '@/features/inventory/api/inventory';
 import { useCategories } from '@/features/inventory/api/categories';
@@ -23,36 +22,13 @@ export function InventoryItemModal({ isOpen, item, onClose }: InventoryItemModal
   // An edit needs the categories first: the item only carries the category's name, not its id.
   const { data: categories, isPending } = useCategories();
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={item ? 'Edycja Produktu' : 'Nowy Produkt'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={item ? 'Edycja produktu' : 'Nowy produkt'}>
       {item && isPending ? (
-        <LoadingSpinner />
+        <LoadingSpinner className="py-8" />
       ) : (
         <ItemForm item={item} categories={categories ?? []} onClose={onClose} />
       )}
     </Modal>
-  );
-}
-
-const labelClass = 'text-[10px] font-semibold uppercase tracking-widest ml-4';
-const errorClass = 'ml-4 text-red-500 font-bold tracking-widest uppercase text-[10px]';
-
-function Field({
-  label,
-  tone,
-  error,
-  children,
-}: {
-  label: string;
-  tone?: string;
-  error?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="space-y-2">
-      <label className={`${labelClass} ${tone ?? 'text-green-light'}`}>{label}</label>
-      {children}
-      {error && <p className={errorClass}>{error}</p>}
-    </div>
   );
 }
 
@@ -89,65 +65,52 @@ function ItemForm({ item, categories, onClose }: ItemFormProps) {
   };
 
   return (
-    <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
-      <Field label="Pełna Nazwa" error={errors.name?.message}>
-        <input
-          type="text"
-          {...register('name')}
-          className="w-full px-6 py-5 bg-slate-50 border-none rounded-xl outline-hidden font-bold text-base shadow-inner focus:ring-4 focus:ring-cream-warm/20"
-        />
-      </Field>
-      <Field label="Opis" error={errors.description?.message}>
-        <input
-          type="text"
-          {...register('description')}
-          placeholder="Opcjonalny opis..."
-          className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-hidden font-bold text-sm"
-        />
-      </Field>
-      <Field label="Kategoria">
-        <Controller
-          name="categoryId"
-          control={control}
-          render={({ field }) => <CategoryField value={field.value} onChange={field.onChange} />}
-        />
-      </Field>
-      <div className="grid grid-cols-2 gap-6">
-        <Field
-          label={item ? 'Stan (zmiana przez dostawę lub inwentaryzację)' : 'Stan początkowy'}
-          tone="text-slate-400"
+    <form className="flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
+      <FormInput label="Nazwa" error={errors.name?.message} {...register('name')} />
+      <FormInput
+        label="Opis"
+        placeholder="Opcjonalnie"
+        error={errors.description?.message}
+        {...register('description')}
+      />
+      <Controller
+        name="categoryId"
+        control={control}
+        render={({ field }) => <CategoryField value={field.value} onChange={field.onChange} />}
+      />
+      <div className="grid grid-cols-2 gap-3">
+        <FormInput
+          label={item ? 'Stan' : 'Stan początkowy'}
+          hint={item ? 'Zmienia się przez dostawę lub inwentaryzację' : undefined}
+          inputMode="decimal"
+          readOnly={!!item}
           error={errors.stock?.message}
-        >
-          <input
-            type="text"
-            inputMode="decimal"
-            readOnly={!!item}
-            {...register('stock')}
-            className="w-full px-6 py-5 bg-green-deep text-cream-warm border-none rounded-xl font-extrabold text-2xl font-mono shadow-xl"
-          />
-        </Field>
-        <Field label="Stan Minimalny" tone="text-red-400" error={errors.minStock?.message}>
-          <input
-            type="text"
-            inputMode="decimal"
-            placeholder="brak"
-            {...register('minStock')}
-            className="w-full px-6 py-5 bg-red-50 text-red-500 placeholder:text-red-200 border-none rounded-xl font-extrabold text-2xl font-mono"
-          />
-        </Field>
-      </div>
-      <Field label="Jednostka Miar">
-        <Controller
-          name="unit"
-          control={control}
-          render={({ field }) => (
-            <UnitField value={field.value} onChange={field.onChange} error={errors.unit?.message} />
-          )}
+          className={cn('font-mono tabular-nums', item && 'bg-muted text-muted-foreground')}
+          {...register('stock')}
         />
-      </Field>
-      <Button size="lg" fullWidth type="submit" disabled={isSubmitting}>
-        Zapisz
-      </Button>
+        <FormInput
+          label="Stan minimalny"
+          hint="Poniżej pokażemy niski stan"
+          inputMode="decimal"
+          placeholder="brak"
+          error={errors.minStock?.message}
+          className="font-mono tabular-nums"
+          {...register('minStock')}
+        />
+      </div>
+      <Controller
+        name="unit"
+        control={control}
+        render={({ field }) => <UnitField value={field.value} onChange={field.onChange} error={errors.unit?.message} />}
+      />
+      <div className="mt-2 flex justify-end gap-2">
+        <Button variant="secondary" onClick={onClose}>
+          Anuluj
+        </Button>
+        <Button type="submit" loading={isSubmitting}>
+          Zapisz
+        </Button>
+      </div>
     </form>
   );
 }

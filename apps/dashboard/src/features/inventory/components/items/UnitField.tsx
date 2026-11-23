@@ -1,3 +1,4 @@
+import { FormInput, SegmentedControl } from '@detaileed/ui';
 import { DEFAULT_UNITS } from '@/features/inventory/model/itemForm';
 
 interface UnitFieldProps {
@@ -6,32 +7,30 @@ interface UnitFieldProps {
   error?: string;
 }
 
-/** Preset unit buttons plus a text field for any other unit; both edit the same value. */
+const OPTIONS = DEFAULT_UNITS.map((unit) => ({ value: unit, label: unit }));
+
+/** Preset units side by side plus a text field for any other unit; both edit the same value. */
 export function UnitField({ value, onChange, error }: UnitFieldProps) {
   const isPreset = DEFAULT_UNITS.includes(value);
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap gap-2">
-        {DEFAULT_UNITS.map((unit) => (
-          <button
-            key={unit}
-            type="button"
-            aria-pressed={value === unit}
-            onClick={() => onChange(unit)}
-            className={`px-5 py-3 rounded-xl text-[10px] font-semibold uppercase tracking-widest border-2 transition-all ${value === unit ? 'bg-green-deep text-cream-warm border-green-deep' : 'bg-slate-50 text-slate-400 border-transparent'}`}
-          >
-            {unit}
-          </button>
-        ))}
+    <fieldset className="flex flex-col gap-1.5">
+      <legend className="mb-1.5 text-[13px] font-medium text-foreground">Jednostka</legend>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
+        <SegmentedControl
+          aria-label="Gotowe jednostki"
+          options={OPTIONS}
+          value={isPreset ? value : ''}
+          onValueChange={onChange}
+          className="self-start font-mono"
+        />
+        <FormInput
+          aria-label="Własna jednostka"
+          value={isPreset ? '' : value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Inna, np. opak."
+          error={error}
+        />
       </div>
-      <input
-        type="text"
-        value={isPreset ? '' : value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Własna jednostka..."
-        className="w-full px-6 py-4 bg-slate-50 border-none rounded-xl outline-hidden font-bold text-sm"
-      />
-      {error && <p className="ml-4 text-red-500 font-bold tracking-widest uppercase text-[10px]">{error}</p>}
-    </div>
+    </fieldset>
   );
 }
