@@ -34,10 +34,10 @@ export const UserMenu: React.FC<UserMenuProps> = ({ studioId, userEmail, onLogou
         <span className="min-w-0 flex-1 truncate text-left">{userEmail ?? 'Konto'}</span>
         <ChevronsUpDown className="size-4 shrink-0" strokeWidth={1.75} aria-hidden />
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="top" align="start" className="w-56">
+      <DropdownMenuContent side="top" align="start" className="min-w-60">
         {userEmail && <DropdownMenuLabel className="truncate">{userEmail}</DropdownMenuLabel>}
         <div className="px-1 py-1.5">
-          <ThemeSwitch fullWidth />
+          <ThemeSwitch />
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem
