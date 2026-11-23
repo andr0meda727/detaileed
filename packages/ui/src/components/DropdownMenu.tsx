@@ -1,7 +1,7 @@
 'use client';
 
 import type { ComponentProps } from 'react';
-import { DropdownMenu as MenuPrimitive } from 'radix-ui';
+import { DropdownMenu as MenuPrimitive, Slot } from 'radix-ui';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '../lib/cn';
 
@@ -54,8 +54,18 @@ export interface DropdownMenuItemProps extends ComponentProps<typeof MenuPrimiti
   icon?: LucideIcon;
 }
 
-/** One action; use `onSelect` (it closes the menu) rather than `onClick`. */
-export function DropdownMenuItem({ danger = false, icon: Icon, className, children, ...props }: DropdownMenuItemProps) {
+/**
+ * One action; use `onSelect` (it closes the menu) rather than `onClick`. With `asChild` it renders its one child (a
+ * router link) as the item, with the icon inside it, so navigation uses a real `<a href>`.
+ */
+export function DropdownMenuItem({
+  danger = false,
+  icon: Icon,
+  asChild = false,
+  className,
+  children,
+  ...props
+}: DropdownMenuItemProps) {
   return (
     <MenuPrimitive.Item
       className={cn(
@@ -64,6 +74,7 @@ export function DropdownMenuItem({ danger = false, icon: Icon, className, childr
         danger ? 'text-danger data-highlighted:bg-danger-soft' : 'text-foreground data-highlighted:bg-muted',
         className,
       )}
+      asChild={asChild}
       {...props}
     >
       {Icon && (
@@ -73,7 +84,8 @@ export function DropdownMenuItem({ danger = false, icon: Icon, className, childr
           aria-hidden
         />
       )}
-      {children}
+      {/* With asChild, Slot renders the Slottable child as the item and puts the icon inside it. */}
+      {asChild ? <Slot.Slottable>{children}</Slot.Slottable> : children}
     </MenuPrimitive.Item>
   );
 }
