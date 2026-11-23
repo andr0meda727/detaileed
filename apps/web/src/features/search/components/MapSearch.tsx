@@ -4,7 +4,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { SearchX } from 'lucide-react';
 import type { ServiceCategory, VehicleSize } from '@detaileed/api-client';
-import { EmptyState, Select, Skeleton } from '@detaileed/ui';
+import { Alert, EmptyState, Select, Skeleton } from '@detaileed/ui';
 import type { Bounds } from '@detaileed/ui/map/geo';
 import { SERVICE_CATEGORIES } from '@detaileed/domain/serviceCategory';
 import { VEHICLE_SIZE_OPTIONS } from '@detaileed/domain/vehicleSize';
@@ -17,7 +17,7 @@ import { StudioCard } from '@/features/search/components/StudioCard';
 // MapLibre needs a browser; load it only there.
 const MapView = dynamic(() => import('@detaileed/ui/map').then((m) => m.MapView), {
   ssr: false,
-  loading: () => <Skeleton width="100%" height="100%" className="rounded-2xl" />,
+  loading: () => <Skeleton width="100%" height="100%" className="rounded-lg" />,
 });
 
 const CATEGORY_OPTIONS = [{ value: '', label: 'Wszystkie usługi' }, ...SERVICE_CATEGORIES];
@@ -38,8 +38,9 @@ export function MapSearch({ initial }: { initial: SearchState }) {
   };
 
   return (
-    <div className="grid lg:grid-cols-[380px_1fr] gap-4 lg:h-[calc(100vh-11rem)] min-h-[520px]">
-      <div className="order-2 lg:order-1 flex flex-col gap-3 min-h-0">
+    // On desktop the list and the map fill the window below the 56px site header and the page title.
+    <div className="grid min-h-[520px] gap-4 lg:h-[calc(100vh-10.5rem)] lg:grid-cols-[380px_1fr]">
+      <div className="order-2 flex min-h-0 flex-col gap-3 lg:order-1">
         <div className="grid grid-cols-2 gap-2">
           <Select
             aria-label="Rodzaj usługi"
@@ -54,17 +55,21 @@ export function MapSearch({ initial }: { initial: SearchState }) {
             onChange={(e) => update({ ...state, size: e.target.value as VehicleSize })}
           />
         </div>
-        <p className="text-xs font-semibold text-green-light px-1" aria-live="polite">
-          {isError
-            ? 'Nie udało się pobrać studiów. Spróbuj przesunąć mapę.'
-            : !data
+        {isError ? (
+          <Alert tone="danger">Nie udało się pobrać studiów. Spróbuj przesunąć mapę.</Alert>
+        ) : (
+          <p className="px-1 text-sm text-muted-foreground" aria-live="polite">
+            {!data
               ? 'Szukamy studiów…'
               : data.totalCount > PINS_PAGE_SIZE
                 ? `Pokazujemy ${PINS_PAGE_SIZE} z ${data.totalCount} studiów. Przybliż mapę, aby zobaczyć resztę.`
                 : `${data.totalCount} studiów w tym obszarze${isFetching ? '…' : ''}`}
-        </p>
-        <div className="flex-1 min-h-0 overflow-y-auto space-y-3 pr-1">
-          {data && pins.length === 0 ? (
+          </p>
+        )}
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+          {!data && !isError ? (
+            [0, 1, 2].map((i) => <Skeleton key={i} width="100%" height="128px" className="rounded-lg" />)
+          ) : data && pins.length === 0 ? (
             <EmptyState message="Brak studiów w tym obszarze. Oddal mapę albo zmień filtry." icon={SearchX} />
           ) : (
             pins.map((pin) => (
@@ -79,7 +84,7 @@ export function MapSearch({ initial }: { initial: SearchState }) {
           )}
         </div>
       </div>
-      <div className="order-1 lg:order-2 h-[50vh] lg:h-full">
+      <div className="order-1 h-[50vh] lg:order-2 lg:h-full">
         <MapView
           pins={pins.map((p) => ({ id: p.studioId, lat: p.lat, lng: p.lng, label: pinLabel(p) }))}
           selectedId={selectedId}
