@@ -52,7 +52,7 @@ function CarForm({ car, onDone }: { car: GarageVehicleDto | null; onDone: () => 
       : add.mutate(toCarRequest(values), options);
 
   return (
-    <form className="space-y-3 rounded-lg border border-border p-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form className="space-y-2 rounded-lg border border-border p-4" onSubmit={handleSubmit(onSubmit)} noValidate>
       <CarFields
         fields={{
           licensePlate: register('licensePlate'),

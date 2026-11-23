@@ -72,8 +72,8 @@ export function SignUpForm({ next }: { next: string }) {
   }
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="grid grid-cols-1 gap-x-3 gap-y-3 min-[380px]:grid-cols-2">
+    <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
+      <div className="grid grid-cols-1 gap-x-3 gap-y-2 min-[380px]:grid-cols-2">
         <FormInput
           label="Imię"
           autoComplete="given-name"

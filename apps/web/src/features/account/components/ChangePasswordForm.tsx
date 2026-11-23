@@ -100,7 +100,7 @@ export function ChangePasswordForm() {
       />
       <CardContent className="max-w-md">
         {pendingPassword ? (
-          <form className="space-y-3" onSubmit={confirmWithCode} noValidate>
+          <form className="space-y-2" onSubmit={confirmWithCode} noValidate>
             <FormInput
               label="Kod z e-maila"
               inputMode="numeric"
@@ -122,7 +122,7 @@ export function ChangePasswordForm() {
             </div>
           </form>
         ) : (
-          <form className="space-y-3" onSubmit={handleSubmit(onSubmit)} noValidate>
+          <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
             <FormInput
               label="Nowe hasło"
               type="password"

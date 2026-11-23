@@ -36,7 +36,7 @@ export function ProfileForm({ profile, onSaved, submitLabel = 'Zapisz' }: Profil
     });
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="grid sm:grid-cols-2 gap-x-3">
         <FormInput label="Imię i nazwisko" autoComplete="name" error={errors.name?.message} {...register('name')} />
         <FormInput

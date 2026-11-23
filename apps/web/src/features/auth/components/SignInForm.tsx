@@ -45,7 +45,7 @@ export function SignInForm({ next, notice }: { next: string; notice?: ReactNode 
   };
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
       {notice && <Alert tone="warning">{notice}</Alert>}
       <FormInput
         label="E-mail"

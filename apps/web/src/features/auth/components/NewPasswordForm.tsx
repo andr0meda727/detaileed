@@ -42,7 +42,7 @@ export function NewPasswordForm() {
   };
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
       <FormInput
         label="Nowe hasło"
         type="password"

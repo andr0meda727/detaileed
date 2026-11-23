@@ -47,7 +47,7 @@ function ReviewForm({ visit }: { visit: ReviewableVisitDto }) {
   };
 
   return (
-    <li className="space-y-4 rounded-lg border border-border bg-surface p-4 sm:p-5">
+    <li className="space-y-3 rounded-lg border border-border bg-surface p-4 sm:p-5">
       <div className="space-y-0.5">
         <p className="font-medium">{visit.studioName ?? 'Studio'}</p>
         <p className="text-xs text-faint">
