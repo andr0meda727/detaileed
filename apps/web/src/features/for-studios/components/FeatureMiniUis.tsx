@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { Avatar, Badge, cn } from '@detaileed/ui';
 import type { FeatureId } from '../model/content';
 
 const WEEKS = [
@@ -7,34 +8,31 @@ const WEEKS = [
   ['14', '15', '16', '17', '18', '19', '20'],
 ];
 const EVENT_DAYS = ['1', '4', '7', '9', '15', '17'];
-const AMBER_DAYS = ['2', '11'];
+const BUSY_DAYS = ['2', '11'];
 const TODAY = '18';
+
+/** The inset panel the mini UIs sit in. */
+const panel = 'rounded-md border border-border bg-subtle p-3';
 
 function CalendarMiniUi() {
   const dayClass = (day: string) =>
     day === TODAY
-      ? 'mini-cal-day today'
-      : AMBER_DAYS.includes(day)
-        ? 'mini-cal-day event-amber'
+      ? 'bg-primary text-primary-foreground font-medium'
+      : BUSY_DAYS.includes(day)
+        ? 'bg-muted text-foreground font-medium ring-1 ring-inset ring-border-strong'
         : EVENT_DAYS.includes(day)
-          ? 'mini-cal-day event'
-          : 'mini-cal-day';
+          ? 'bg-muted text-foreground font-medium'
+          : 'text-faint';
   return (
-    <div className="feat-ui" aria-hidden>
-      <div className="mini-calendar-row">
-        {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map((d) => (
-          <div key={d} className="mini-cal-label">
-            {d}
-          </div>
-        ))}
-      </div>
-      {WEEKS.map((week, wi) => (
-        <div key={wi} className="mini-calendar-row">
-          {week.map((day, di) => (
-            <div key={di} className={dayClass(day)}>
-              {day}
-            </div>
-          ))}
+    <div className={cn(panel, 'grid grid-cols-7 gap-1 text-center text-xs')} aria-hidden>
+      {['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'].map((d) => (
+        <div key={d} className="py-1 font-medium text-muted-foreground">
+          {d}
+        </div>
+      ))}
+      {WEEKS.flat().map((day, i) => (
+        <div key={i} className={cn('rounded-md py-1.5 font-mono tabular-nums', day && dayClass(day))}>
+          {day}
         </div>
       ))}
     </div>
@@ -43,18 +41,20 @@ function CalendarMiniUi() {
 
 function CrmMiniUi() {
   return (
-    <div className="feat-ui-dark" aria-hidden>
+    <div className={cn(panel, 'flex flex-col py-1')} aria-hidden>
       {[
-        { initials: 'JK', name: 'Jan Kowalski', tag: 'VIP', count: '12 wizyt' },
-        { initials: 'AN', name: 'Anna Nowak', tag: 'Nowy', count: '1 wizyta' },
-        { initials: 'MW', name: 'Marek Wiśniew.', tag: 'VIP', count: '28 wizyt' },
-        { initials: 'PZ', name: 'Piotr Zając', tag: 'Stały', count: '6 wizyt' },
+        { name: 'Jan Kowalski', tag: 'VIP', count: '12 wizyt' },
+        { name: 'Anna Nowak', tag: 'Nowy', count: '1 wizyta' },
+        { name: 'Marek Wiśniew.', tag: 'VIP', count: '28 wizyt' },
+        { name: 'Piotr Zając', tag: 'Stały', count: '6 wizyt' },
       ].map((c) => (
-        <div key={c.initials} className="crm-row">
-          <div className="crm-avatar">{c.initials}</div>
-          <div className="crm-name">{c.name}</div>
-          <div className="crm-tag">{c.tag}</div>
-          <div className="crm-count">{c.count}</div>
+        <div key={c.name} className="flex items-center gap-2.5 border-b border-border py-2 last:border-b-0">
+          <Avatar name={c.name} size="sm" decorative />
+          <span className="min-w-0 flex-1 truncate text-sm font-medium">{c.name}</span>
+          <Badge size="sm" tone={c.tag === 'Nowy' ? 'info' : 'neutral'} dot={false}>
+            {c.tag}
+          </Badge>
+          <span className="w-16 text-right font-mono text-xs text-faint tabular-nums">{c.count}</span>
         </div>
       ))}
     </div>
@@ -63,22 +63,22 @@ function CrmMiniUi() {
 
 function FinanceMiniUi() {
   const bars = [
-    { height: '40%', bg: 'rgba(26,46,30,0.08)' },
-    { height: '55%', bg: 'rgba(26,46,30,0.12)' },
-    { height: '70%', bg: 'rgba(26,46,30,0.15)' },
-    { height: '60%', bg: 'rgba(26,46,30,0.2)' },
-    { height: '85%', bg: 'rgba(26,46,30,0.25)' },
-    { height: '100%', bg: 'var(--color-green-light)' },
-    { height: '75%', bg: 'rgba(232,168,48,0.4)' },
+    { height: '40%', fill: 'bg-foreground/10' },
+    { height: '55%', fill: 'bg-foreground/15' },
+    { height: '70%', fill: 'bg-foreground/20' },
+    { height: '60%', fill: 'bg-foreground/25' },
+    { height: '85%', fill: 'bg-foreground/30' },
+    { height: '100%', fill: 'bg-foreground' },
+    { height: '75%', fill: 'bg-foreground/40' },
   ];
   return (
     <div aria-hidden>
-      <div className="feat-chart">
+      <div className="flex h-24 items-end gap-1.5">
         {bars.map((bar, i) => (
-          <div key={i} className="feat-chart-bar" style={{ height: bar.height, background: bar.bg }} />
+          <div key={i} className={cn('flex-1 rounded-sm', bar.fill)} style={{ height: bar.height }} />
         ))}
       </div>
-      <div className="feat-chart-labels">
+      <div className="mt-2 flex justify-between text-xs text-faint">
         <span>Sty</span>
         <span>Lip</span>
       </div>
@@ -88,20 +88,25 @@ function FinanceMiniUi() {
 
 function InventoryMiniUi() {
   return (
-    <div className="feat-ui" aria-hidden>
+    <div className={cn(panel, 'flex flex-col gap-3')} aria-hidden>
       {[
         { name: 'Piana aktywna', stock: '26 szt', pct: 80, low: false },
         { name: 'Szampon FX Protect', stock: '4 szt', pct: 15, low: true },
         { name: 'Szampon Szpontex', stock: '130 szt', pct: 95, low: false },
       ].map((item) => (
-        <div key={item.name} className="inv-row">
-          <div>
-            <div className="inv-name">{item.name}</div>
-            <div className="inv-bar">
-              <div className={`inv-fill ${item.low ? 'low' : ''}`} style={{ width: `${item.pct}%` }} />
+        <div key={item.name} className="flex items-end gap-3">
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm">{item.name}</div>
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                className={cn('h-full rounded-full', item.low ? 'bg-warning' : 'bg-foreground/60')}
+                style={{ width: `${item.pct}%` }}
+              />
             </div>
           </div>
-          <div className={`inv-stock ${item.low ? 'low' : ''}`}>{item.stock}</div>
+          <div className={cn('font-mono text-xs tabular-nums', item.low ? 'text-warning' : 'text-faint')}>
+            {item.stock}
+          </div>
         </div>
       ))}
     </div>
@@ -110,19 +115,17 @@ function InventoryMiniUi() {
 
 function ReportsMiniUi() {
   return (
-    <div style={{ marginTop: 20 }} aria-hidden>
+    <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1.5" aria-hidden>
       {[
-        { label: 'Korekta lakieru', pct: 38, color: 'var(--color-green-light)' },
-        { label: 'Powłoka ceramiczna', pct: 29, color: 'var(--color-amber)' },
-        { label: 'Mycie szczegółowe', pct: 21, color: 'rgba(26,46,30,0.25)' },
+        { label: 'Korekta lakieru', pct: 38, fill: 'bg-foreground' },
+        { label: 'Powłoka ceramiczna', pct: 29, fill: 'bg-foreground/50' },
+        { label: 'Mycie szczegółowe', pct: 21, fill: 'bg-foreground/25' },
       ].map((s) => (
         <Fragment key={s.label}>
-          <div className="feat-stat-row">
-            <span className="feat-stat-label">{s.label}</span>
-            <span className="feat-stat-value">{s.pct}%</span>
-          </div>
-          <div className="feat-stat-bar">
-            <div className="feat-stat-fill" style={{ width: `${s.pct}%`, background: s.color }} />
+          <span className="text-sm text-muted-foreground">{s.label}</span>
+          <span className="text-right font-mono text-sm font-medium tabular-nums">{s.pct}%</span>
+          <div className="col-span-2 mb-2 h-1.5 overflow-hidden rounded-full bg-muted">
+            <div className={cn('h-full rounded-full', s.fill)} style={{ width: `${s.pct}%` }} />
           </div>
         </Fragment>
       ))}

@@ -6,43 +6,38 @@ export const FEATURES: {
   id: FeatureId;
   title: string;
   desc: string;
+  /** Width in the 12-column grid from md up: wide = 7, narrow = 5, third = 4. */
   layout: 'wide' | 'narrow' | 'third';
-  variant: 'default' | 'dark' | 'pale' | 'amber';
 }[] = [
   {
     id: 'calendar',
     title: 'Harmonogram & Rezerwacje',
     desc: 'Widok kalendarza i listy zleceń w jednym. Dodaj nową rezerwację w kilka sekund — klient, pojazd, usługa, termin.',
     layout: 'wide',
-    variant: 'default',
   },
   {
     id: 'crm',
     title: 'CRM — Baza Klientów',
     desc: 'Pełna historia każdego klienta, pojazdy, faktury i notatki w jednym miejscu.',
     layout: 'narrow',
-    variant: 'dark',
   },
   {
     id: 'finance',
     title: 'Finanse studia',
     desc: 'Przychody, zestawienia tygodniowe i miesięczne. Zawsze wiesz ile zarabia Twoje studio.',
     layout: 'third',
-    variant: 'pale',
   },
   {
     id: 'inventory',
     title: 'Magazyn',
     desc: 'Śledź stan produktów chemicznych i akcesoriów. Alerty przy niskim stanie.',
     layout: 'third',
-    variant: 'amber',
   },
   {
     id: 'reports',
     title: 'Raporty',
     desc: 'Statystyki studia, najpopularniejsze usługi i historia archiwalna.',
     layout: 'third',
-    variant: 'pale',
   },
 ];
 
@@ -60,13 +55,13 @@ export const STEPS = [
   },
 ];
 
+/** The plans; the featured one is highlighted and gets the primary button. */
 export const PRICING = [
   {
     tier: 'Starter',
     amount: 'XXX zł',
     period: '/ miesiąc',
     features: ['Do 8 rezerwacji / miesiąc', 'CRM — do 25 klientów', 'Podstawowe funkcjonalności'],
-    btnClass: 'outline',
     btnLabel: 'Zacznij za darmo',
     featured: false,
   },
@@ -82,7 +77,6 @@ export const PRICING = [
       'Archiwum zleceń',
       'Wsparcie',
     ],
-    btnClass: 'amber',
     btnLabel: 'Zacznij z Pro',
     featured: true,
   },
@@ -91,7 +85,6 @@ export const PRICING = [
     amount: 'XXX zł',
     period: '/ miesiąc',
     features: ['Nielimitowane rezerwacje', 'Priorytetowe wsparcie', 'Zaawansowane statystyki'],
-    btnClass: 'dark',
     btnLabel: 'Zacznij z MAX',
     featured: false,
   },

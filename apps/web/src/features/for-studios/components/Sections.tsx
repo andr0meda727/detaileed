@@ -1,77 +1,27 @@
-import type { LucideIcon } from 'lucide-react';
-import { Activity, ArrowRight, CalendarDays, Check, DollarSign, Package, Users } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { Button, cn } from '@detaileed/ui';
 import { DASHBOARD_URL } from '@/shared/lib/site';
-import { FEATURES, PRICING, STEPS, type FeatureId } from '../model/content';
-import { FeatureMiniUi } from './FeatureMiniUis';
+import { STEPS } from '../model/content';
 import { AppDemo } from './demo/AppDemo';
-
-const FEATURE_ICONS: Record<FeatureId, LucideIcon> = {
-  calendar: CalendarDays,
-  crm: Users,
-  finance: DollarSign,
-  inventory: Package,
-  reports: Activity,
-};
-
-/** A sign-up link to the studio dashboard. */
-function SignUpLink({ className, children }: { className: string; children: React.ReactNode }) {
-  return (
-    <a href={DASHBOARD_URL} className={className}>
-      {children}
-    </a>
-  );
-}
+import { column } from './landingStyles';
+import { Quiet, SectionHeading } from './SectionHeading';
 
 export function DemoSection() {
   return (
-    <section className="demo-section" id="demo">
-      <div className="demo-section-inner">
-        <div className="reveal" style={{ textAlign: 'center', marginBottom: 48 }}>
-          <div className="section-label centered">Interaktywne Demo</div>
-          <h2 className="section-title centered" style={{ marginBottom: 16 }}>
-            Wypróbuj jak to <em>działa</em>
-          </h2>
-          <p className="section-subtitle centered">
-            Klikaj po zakładkach w sidebarze, aby zobaczyć poszczególne widoki aplikacji z przykładowymi danymi.
-          </p>
-        </div>
-        <div className="reveal">
-          <AppDemo />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function FeaturesSection() {
-  return (
-    <section className="features-section" id="features">
+    <section id="demo" className={cn(column, 'scroll-mt-14 pb-20 sm:pb-28')}>
+      <SectionHeading
+        align="center"
+        eyebrow="Interaktywne demo"
+        title={
+          <>
+            Wypróbuj jak to <Quiet>działa</Quiet>
+          </>
+        }
+        subtitle="Klikaj po zakładkach w sidebarze, aby zobaczyć poszczególne widoki aplikacji z przykładowymi danymi."
+        className="mb-12"
+      />
       <div className="reveal">
-        <div className="section-label">Funkcje</div>
-        <h2 className="section-title">
-          Wszystko czego
-          <br />
-          potrzebuje <em>Twoje studio</em>
-        </h2>
-      </div>
-      <div className="features-grid">
-        {FEATURES.map((feat, i) => {
-          const Icon = FEATURE_ICONS[feat.id];
-          const iconVariant = feat.variant === 'amber' || feat.variant === 'pale' ? feat.variant : '';
-          return (
-            <div
-              key={feat.id}
-              className={`feat-card ${feat.layout} ${feat.variant === 'dark' ? 'dark' : ''} reveal reveal-delay-${(i % 3) + 1}`}
-            >
-              <div className={`feat-icon ${iconVariant}`}>
-                <Icon size={20} />
-              </div>
-              <h3 className="feat-title">{feat.title}</h3>
-              <p className="feat-desc">{feat.desc}</p>
-              <FeatureMiniUi id={feat.id} />
-            </div>
-          );
-        })}
+        <AppDemo />
       </div>
     </section>
   );
@@ -79,67 +29,28 @@ export function FeaturesSection() {
 
 export function HowItWorksSection() {
   return (
-    <section className="how-section" id="how">
-      <div className="reveal">
-        <div className="section-label light">Jak to działa</div>
-        <h2 className="section-title light">
-          Gotowy w <em>3 minuty.</em>
-          <br />
-          Serio.
-        </h2>
-      </div>
-      <ol className="steps-grid reveal">
-        {STEPS.map((step, i) => (
-          <li key={step.num} className="step">
-            <div className="step-number" aria-hidden>
-              {step.num}
-            </div>
-            <div className="step-badge" aria-hidden>
-              {i + 1}
-            </div>
-            <h3 className="step-title">{step.title}</h3>
-            <p className="step-desc">{step.desc}</p>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-export function PricingSection() {
-  return (
-    <section className="pricing-section" id="pricing">
-      <div className="reveal" style={{ textAlign: 'center' }}>
-        <div className="section-label centered">Cennik</div>
-        <h2 className="section-title centered" style={{ marginBottom: 16 }}>
-          Prosty cennik,
-          <br />
-          bez niespodzianek
-        </h2>
-        <p className="section-subtitle centered" style={{ marginBottom: 64 }}>
-          XXX dni za darmo. Bez karty kredytowej.
-        </p>
-      </div>
-      <div className="pricing-grid">
-        {PRICING.map((plan, i) => (
-          <div key={plan.tier} className={`price-card ${plan.featured ? 'featured' : ''} reveal reveal-delay-${i + 1}`}>
-            {plan.featured && <div className="popular-badge">Najpopularniejszy</div>}
-            <h3 className="price-tier">{plan.tier}</h3>
-            <div className="price-amount">{plan.amount}</div>
-            <div className="price-period">{plan.period}</div>
-            <ul className="price-features">
-              {plan.features.map((f) => (
-                <li key={f}>
-                  <span className="price-check">
-                    <Check size={10} color={plan.featured ? 'var(--color-amber)' : 'var(--color-green-dark)'} />
-                  </span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <SignUpLink className={`price-btn ${plan.btnClass}`}>{plan.btnLabel}</SignUpLink>
-          </div>
-        ))}
+    <section id="how" className="scroll-mt-14 border-y border-border bg-subtle">
+      <div className={cn(column, 'py-20 sm:py-28')}>
+        <SectionHeading
+          eyebrow="Jak to działa"
+          title={
+            <>
+              Gotowy w 3 minuty. <Quiet>Serio.</Quiet>
+            </>
+          }
+          className="mb-12"
+        />
+        <ol className="reveal grid gap-4 md:grid-cols-3">
+          {STEPS.map((step) => (
+            <li key={step.num} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-6">
+              <span className="font-mono text-sm text-faint tabular-nums" aria-hidden>
+                {step.num}
+              </span>
+              <h3 className="text-lg font-semibold">{step.title}</h3>
+              <p className="text-sm text-muted-foreground">{step.desc}</p>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );
@@ -147,21 +58,23 @@ export function PricingSection() {
 
 export function CtaSection() {
   return (
-    <section className="cta-section">
-      <div className="section-label centered light reveal">Zaczynamy?</div>
-      <h2 className="cta-title reveal">
-        Twoje studio zasługuje
-        <br />
-        na <em>lepsze narzędzia.</em>
-      </h2>
-      <p className="cta-sub reveal">Rezerwacje, klienci, magazyn i zespół w jednym miejscu, od pierwszego dnia.</p>
-      <div className="cta-actions reveal">
-        <SignUpLink className="btn-primary">
-          Zacznij za darmo — XXX dni
-          <ArrowRight size={16} />
-        </SignUpLink>
+    <section className={cn(column, 'py-20 sm:py-28')}>
+      <div className="reveal flex flex-col items-center rounded-lg border border-border bg-subtle px-6 py-16 text-center sm:px-12">
+        <p className="text-sm font-medium text-muted-foreground">Zaczynamy?</p>
+        <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
+          Twoje studio zasługuje <Quiet>na lepsze narzędzia.</Quiet>
+        </h2>
+        <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
+          Rezerwacje, klienci, magazyn i zespół w jednym miejscu, od pierwszego dnia.
+        </p>
+        <Button asChild size="lg" className="mt-8">
+          <a href={DASHBOARD_URL}>
+            Zacznij za darmo — XXX dni
+            <ArrowRight size={16} strokeWidth={1.75} aria-hidden />
+          </a>
+        </Button>
+        <p className="mt-4 text-sm text-faint">Bez karty kredytowej. Anuluj kiedy chcesz.</p>
       </div>
-      <p className="cta-fine reveal">Bez karty kredytowej. Anuluj kiedy chcesz.</p>
     </section>
   );
 }

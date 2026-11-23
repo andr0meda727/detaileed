@@ -4,7 +4,9 @@ import { ScrollReveal } from './LandingEffects';
 import { LandingNav } from './LandingNav';
 import { LandingFooter } from './LandingFooter';
 import { HeroSection } from './HeroSection';
-import { CtaSection, DemoSection, FeaturesSection, HowItWorksSection, PricingSection } from './Sections';
+import { FeaturesSection } from './FeaturesSection';
+import { PricingSection } from './PricingSection';
+import { CtaSection, DemoSection, HowItWorksSection } from './Sections';
 import '../styles/landing.css';
 
 /**
