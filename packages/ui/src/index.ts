@@ -1,5 +1,6 @@
 /** Shared design system of the Detaileed apps: theme tokens (theme.css) and generic React components. */
 export { Modal } from './components/Modal';
+export type { ModalProps, ModalSize } from './components/Modal';
 export { FormInput } from './components/FormInput';
 export { FormSection } from './components/FormSection';
 export { Skeleton } from './components/Skeleton';
