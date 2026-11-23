@@ -38,7 +38,7 @@ export function BookingServicesSection({ value, onChange, error }: BookingServic
 
   return (
     <FormSection icon={Wrench} title="Wybierz usługi" actions={counter}>
-      <div className="grid grid-cols-2 gap-2 p-5 pb-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 p-5 pb-3 sm:grid-cols-3">
         {services.map((svc) => {
           const isSelected = value.includes(svc.id);
           return (
@@ -70,7 +70,7 @@ export function BookingServicesSection({ value, onChange, error }: BookingServic
         })}
       </div>
 
-      <div className="flex items-end gap-2 px-5 pb-5">
+      <div className="flex items-start gap-2 px-5 pb-5">
         <div className="flex-1">
           <FormInput
             aria-label="Nowa usługa"

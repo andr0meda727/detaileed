@@ -57,7 +57,7 @@ export function FreeSlotsSection(props: FreeSlotsSectionProps) {
             </p>
             <RadioCardGroup
               aria-label="Wolne terminy"
-              columns={3}
+              columns={2}
               options={slots.map((slot) => ({
                 value: slot.start,
                 label: `${timeInZone(slot.start, timeZone)} · ${slot.suggestedBayName}`,

@@ -52,13 +52,16 @@ export const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, o
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="flex max-w-full items-center gap-1">
-          <SegmentedControl
-            aria-label="Status zleceń"
-            options={STATUS_FILTERS}
-            value={filterStatus}
-            onValueChange={setFilterStatus}
-            className="overflow-x-auto"
-          />
+          {/* On phones the segments keep their labels and scroll sideways instead of truncating. */}
+          <div className="min-w-0 overflow-x-auto [scrollbar-width:none]">
+            <SegmentedControl
+              aria-label="Status zleceń"
+              options={STATUS_FILTERS}
+              value={filterStatus}
+              onValueChange={setFilterStatus}
+              className="w-max max-w-none"
+            />
+          </div>
           <Tooltip content={<VisibilityRules />} side="bottom" align="start">
             <Button variant="ghost" size="sm" icon={Info} aria-label="Zasady wyświetlania" />
           </Tooltip>
