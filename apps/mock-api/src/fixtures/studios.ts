@@ -1,7 +1,7 @@
 import type { VehicleSize } from '@detaileed/api-client';
 import { stableId } from '../store/ids.ts';
 import { TZ, at } from '../store/time.ts';
-import type { Client, Membership, Studio, Vehicle } from '../store/types.ts';
+import type { Client, Invitation, Membership, Studio, Vehicle } from '../store/types.ts';
 import { USER } from './accounts.ts';
 
 /** The owner's two studios: a busy one with months of data and a new, empty one (for empty states). */
@@ -205,4 +205,19 @@ export function seedClients(): { clients: Client[]; vehicles: Vehicle[] } {
     }
   }
   return { clients, vehicles };
+}
+
+/** An open invitation for the demo employee to join the empty studio: `/accept-invitation?token=demo-invitation`. */
+export function seedInvitations(): Invitation[] {
+  return [
+    {
+      id: stableId('invitation:demo'),
+      token: 'demo-invitation',
+      studioId: STUDIO.empty,
+      email: 'pracownik@demo.detaileed.com',
+      roleId: 3,
+      expiresAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
+      status: 'pending',
+    },
+  ];
 }

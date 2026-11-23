@@ -42,9 +42,16 @@ export function route(method: string, path: string, handler: Handler): Route {
   return { method: method.toUpperCase(), path, handler, pattern: new RegExp(`^${source}/?$`, 'i'), keys };
 }
 
-/** The first route for this method and path, with its path parameters. */
+const bySpecificity = new WeakMap<Route[], Route[]>();
+
+/**
+ * The route for this method and path, with its path parameters. Routes with fewer parameters win, like ASP.NET's
+ * literal segments: `/api/inventory/forecast` before `/api/Inventory/{id}`.
+ */
 export function matchRoute(routes: Route[], method: string, path: string) {
-  for (const r of routes) {
+  let sorted = bySpecificity.get(routes);
+  if (!sorted) bySpecificity.set(routes, (sorted = [...routes].sort((a, b) => a.keys.length - b.keys.length)));
+  for (const r of sorted) {
     if (r.method !== method) continue;
     const match = r.pattern.exec(path);
     if (!match) continue;

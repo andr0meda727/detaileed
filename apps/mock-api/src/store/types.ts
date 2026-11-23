@@ -1,4 +1,4 @@
-import type { DayOfWeek, ServiceCategory, VehicleSize } from '@detaileed/api-client';
+import type { DayOfWeek, ServiceCategory, StockMovementType, VehicleSize } from '@detaileed/api-client';
 
 /**
  * The mock's own records. Handlers turn them into the API's DTOs (generated models), so related data
@@ -107,4 +107,64 @@ export interface Schedule {
   slotStepMinutes: number;
   minLeadHours: number;
   durationMultipliers: SizeMultipliers;
+}
+
+export interface InventoryCategory {
+  id: string;
+  studioId: string;
+  name: string;
+}
+
+export interface InventoryItem {
+  id: string;
+  studioId: string;
+  categoryId: string | null;
+  name: string;
+  description: string | null;
+  unit: string;
+  stock: number;
+  minStock: number | null;
+}
+
+export interface StockMovement {
+  id: string;
+  itemId: string;
+  type: StockMovementType;
+  /** Signed: purchases are positive, consumption negative. */
+  quantity: number;
+  bookingId: string | null;
+  note: string | null;
+  /** Name of the person who recorded it; null for automatic movements. */
+  createdBy: string | null;
+  createdAt: string;
+}
+
+export interface Recipe {
+  studioId: string;
+  serviceId: string;
+  lines: { itemId: string; quantityForMedium: number }[];
+}
+
+export interface Consumption {
+  bookingId: string;
+  studioId: string;
+  vehicleSize: VehicleSize;
+  completedAt: string;
+  lines: {
+    serviceId: string;
+    itemId: string;
+    baseQuantity: number;
+    estimatedQuantity: number;
+    actualQuantity: number | null;
+  }[];
+}
+
+export interface Invitation {
+  id: string;
+  token: string;
+  studioId: string;
+  email: string;
+  roleId: RoleId;
+  expiresAt: string;
+  status: 'pending' | 'accepted' | 'declined';
 }
