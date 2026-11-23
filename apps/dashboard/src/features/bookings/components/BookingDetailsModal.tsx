@@ -123,14 +123,10 @@ export const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
 };
 
 /** A square outline link (call, text) next to the client's name. */
-function ContactLink({ href, icon: Icon, label }: { href: string; icon: LucideIcon; label: string }) {
+function ContactLink({ href, icon, label }: { href: string; icon: LucideIcon; label: string }) {
   return (
-    <a
-      href={href}
-      aria-label={label}
-      className="inline-flex size-9 items-center justify-center rounded-md border border-border-strong bg-surface text-foreground transition-colors duration-150 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-    >
-      <Icon size={16} strokeWidth={1.75} aria-hidden />
-    </a>
+    <Button asChild variant="secondary" icon={icon} className="size-9 px-0">
+      <a href={href} aria-label={label} />
+    </Button>
   );
 }
