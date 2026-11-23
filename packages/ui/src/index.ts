@@ -51,3 +51,5 @@ export {
 export type { DropdownMenuItemProps } from './components/DropdownMenu';
 export { Tooltip } from './components/Tooltip';
 export type { TooltipProps } from './components/Tooltip';
+export { ThemeSwitch } from './components/ThemeSwitch';
+export type { ThemeSwitchProps } from './components/ThemeSwitch';
