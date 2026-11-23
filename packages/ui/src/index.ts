@@ -28,6 +28,8 @@ export { PageHeader } from './components/PageHeader';
 export type { PageHeaderProps } from './components/PageHeader';
 export { Stat } from './components/Stat';
 export type { StatProps, StatTone } from './components/Stat';
+export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/Table';
+export type { TableProps } from './components/Table';
 export { Turnstile } from './captcha/Turnstile';
 export type { TurnstileHandle, TurnstileProps } from './captcha/Turnstile';
 export { useTurnstile } from './captcha/useTurnstile';
