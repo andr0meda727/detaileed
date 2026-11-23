@@ -40,7 +40,7 @@ export function DemoBookingCard({ booking }: { booking: DemoBooking }) {
         </div>
       </div>
       <div className="flex shrink-0 items-center justify-end gap-2">
-        <Badge color={booking.statusColor}>{booking.status}</Badge>
+        <Badge tone={booking.statusTone}>{booking.status}</Badge>
         {booking.completedAt === null && <DemoBookingMenu />}
       </div>
     </div>

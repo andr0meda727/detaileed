@@ -73,7 +73,7 @@ export function TodaySchedule({ bookings }: { bookings: DemoBooking[] }) {
               <TableCell className="min-w-40 text-muted-foreground">{booking.services.join(', ')}</TableCell>
               <TableCell className="whitespace-nowrap text-muted-foreground">{booking.bay}</TableCell>
               <TableCell>
-                <Badge color={booking.statusColor}>{booking.status}</Badge>
+                <Badge tone={booking.statusTone}>{booking.status}</Badge>
               </TableCell>
               <TableCell className="text-right font-mono whitespace-nowrap tabular-nums">
                 {formatPln(booking.totalPrice)} zł

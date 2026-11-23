@@ -3,10 +3,13 @@
  * the server and every browser render the same text. Money is złoty, as in the API.
  */
 
+import type { BadgeTone } from '@detaileed/ui';
+
 export type DemoBooking = (typeof MOCK_BOOKINGS)[number];
 
 export const DEMO_TODAY = '2026-04-15';
 
+/** Status tones as the dashboard maps booking statuses: Utworzona is info, Zakończona success. */
 export const MOCK_BOOKINGS = [
   {
     id: '1',
@@ -16,7 +19,7 @@ export const MOCK_BOOKINGS = [
     completedAt: null,
     totalPrice: 4500,
     status: 'Utworzona',
-    statusColor: '#3b82f6',
+    statusTone: 'info',
     vehicle: { licensePlate: 'WA 12345', brand: 'BMW', model: 'M4 Competition' },
     client: { name: 'Jan Kowalski' },
     services: ['Korekta lakieru', 'Ceramika'],
@@ -29,7 +32,7 @@ export const MOCK_BOOKINGS = [
     completedAt: null,
     totalPrice: 1200,
     status: 'Utworzona',
-    statusColor: '#3b82f6',
+    statusTone: 'info',
     vehicle: { licensePlate: 'KR 98765', brand: 'Mercedes', model: 'AMG GT' },
     client: { name: 'Anna Nowak' },
     services: ['Mycie detailingowe', 'Wosk'],
@@ -42,7 +45,7 @@ export const MOCK_BOOKINGS = [
     completedAt: '2026-04-15T16:00',
     totalPrice: 9800,
     status: 'Zakończona',
-    statusColor: '#22c55e',
+    statusTone: 'success',
     vehicle: { licensePlate: 'GD 55555', brand: 'Porsche', model: '911 Turbo S' },
     client: { name: 'Marek Wiśniewski' },
     services: ['PPF folia ochronna', 'Korekta lakieru', 'Ceramika'],
@@ -55,7 +58,7 @@ export const MOCK_BOOKINGS = [
     completedAt: null,
     totalPrice: 2400,
     status: 'Utworzona',
-    statusColor: '#3b82f6',
+    statusTone: 'info',
     vehicle: { licensePlate: 'PO 77777', brand: 'Audi', model: 'RS6 Avant' },
     client: { name: 'Karolina Dąbrowska' },
     services: ['Korekta lakieru'],
@@ -68,7 +71,7 @@ export const MOCK_BOOKINGS = [
     completedAt: null,
     totalPrice: 5200,
     status: 'Utworzona',
-    statusColor: '#3b82f6',
+    statusTone: 'info',
     vehicle: { licensePlate: 'WR 33333', brand: 'Tesla', model: 'Model S Plaid' },
     client: { name: 'Piotr Lewandowski' },
     services: ['Ceramika', 'Detailing wnętrza'],
@@ -81,7 +84,7 @@ export const MOCK_BOOKINGS = [
     completedAt: null,
     totalPrice: 450,
     status: 'Utworzona',
-    statusColor: '#3b82f6',
+    statusTone: 'info',
     vehicle: { licensePlate: 'LU 44444', brand: 'Volkswagen', model: 'Golf R' },
     client: { name: 'Tomasz Zieliński' },
     services: ['Mycie detailingowe'],
@@ -94,12 +97,12 @@ export const MOCK_BOOKINGS = [
     completedAt: '2026-04-14T15:00',
     totalPrice: 14500,
     status: 'Zakończona',
-    statusColor: '#22c55e',
+    statusTone: 'success',
     vehicle: { licensePlate: 'WA 99999', brand: 'Lamborghini', model: 'Huracán EVO' },
     client: { name: 'Robert Szymański' },
     services: ['PPF folia ochronna', 'Ceramika', 'Detailing wnętrza'],
   },
-];
+] satisfies ({ statusTone: BadgeTone } & Record<string, unknown>)[];
 
 export const MOCK_CLIENTS = [
   {
@@ -176,29 +179,30 @@ export const MOCK_INVENTORY = [
   { id: 'i7', name: 'XPEL Ultimate Plus PPF', categoryName: 'Folie ochronne', unit: 'm²', stock: 12, minStock: 5 },
 ];
 
+/** Role tones as in the dashboard's team list: the owner info, everyone else neutral. */
 export const MOCK_EMPLOYEES = [
   {
     userId: 'u1',
     email: 'jan.detailer@studio.pl',
     name: 'Jan Majewski',
     role: 'Właściciel',
-    color: 'text-amber-600 bg-amber-50',
+    tone: 'info',
   },
   {
     userId: 'u2',
     email: 'kasia.wraps@studio.pl',
     name: 'Katarzyna Wójcik',
     role: 'Manager',
-    color: 'text-indigo-600 bg-indigo-50',
+    tone: 'neutral',
   },
   {
     userId: 'u3',
     email: 'mateusz@studio.pl',
     name: 'Mateusz Kamiński',
     role: 'Pracownik',
-    color: 'text-emerald-600 bg-emerald-50',
+    tone: 'neutral',
   },
-];
+] satisfies ({ tone: BadgeTone } & Record<string, unknown>)[];
 
 /** Revenue of completed bookings in złoty: per day of the last week and per week of the last month. */
 export const MOCK_REVENUE = {

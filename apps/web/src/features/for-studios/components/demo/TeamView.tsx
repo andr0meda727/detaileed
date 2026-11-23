@@ -63,7 +63,7 @@ export function TeamView() {
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2 pl-11 sm:pl-0">
-                  <Badge>{emp.role}</Badge>
+                  <Badge tone={emp.tone}>{emp.role}</Badge>
                   <Button variant="ghost" size="sm" icon={Trash2} aria-label={`Usuń pracownika: ${emp.name}`} />
                 </div>
               </li>
