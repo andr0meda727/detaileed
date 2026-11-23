@@ -16,6 +16,21 @@ describe('Button', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it('renders a link with the button look and its icon inside when asChild is set', () => {
+    render(
+      <Button asChild variant="secondary" icon={Save}>
+        <a href="/sign-in">Zaloguj się</a>
+      </Button>,
+    );
+    const link = screen.getByRole('link', { name: 'Zaloguj się' });
+    expect(link).toHaveAttribute('href', '/sign-in');
+    expect(link).not.toHaveAttribute('type');
+    expect(link).not.toHaveAttribute('disabled');
+    expect(link).toHaveClass('border-border-strong', 'h-9');
+    expect(link.querySelector('svg')).not.toBeNull();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('submits when asked to', () => {
     const onSubmit = vi.fn((e: { preventDefault: () => void }) => e.preventDefault());
     render(

@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Loader2, type LucideIcon } from 'lucide-react';
+import { Slot } from 'radix-ui';
 import { cn } from '../lib/cn';
 import { focusRing } from '../lib/focusRing';
 
@@ -17,6 +18,11 @@ interface ButtonBaseProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 
   icon?: LucideIcon;
   /** Shows a spinner in place of the icon and disables the button (e.g. while saving). */
   loading?: boolean;
+  /**
+   * Render the single child element (e.g. a Next `<Link>`) with the button's look instead of a `<button>`; the icon
+   * goes inside it. `type` and `disabled` are not passed on.
+   */
+  asChild?: boolean;
 }
 
 /** A button has a visible label, or (icon only) an `aria-label` that names it. */
@@ -49,14 +55,16 @@ export function Button({
   loading = false,
   disabled,
   type = 'button',
+  asChild = false,
   className,
   children,
   ...props
 }: ButtonProps) {
   const iconOnly = children === undefined || children === null;
+  const Comp = asChild ? Slot.Root : 'button';
   return (
-    <button
-      type={type}
+    <Comp
+      {...(asChild ? {} : { type, disabled: disabled || loading })}
       className={cn(
         'inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md text-sm font-medium',
         'transition-colors duration-150 disabled:pointer-events-none disabled:opacity-50',
@@ -66,7 +74,6 @@ export function Button({
         fullWidth && 'w-full',
         className,
       )}
-      disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...props}
     >
@@ -75,7 +82,7 @@ export function Button({
       ) : (
         Icon && <Icon size={16} strokeWidth={1.75} aria-hidden />
       )}
-      {children}
-    </button>
+      <Slot.Slottable>{children}</Slot.Slottable>
+    </Comp>
   );
 }

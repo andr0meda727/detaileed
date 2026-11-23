@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
+import { PageHeader } from '@detaileed/ui';
 import { getSignedInUser } from '@/shared/lib/supabase/server';
 import { signInPath } from '@/features/auth';
 import { AccountNav } from '@/features/account';
@@ -11,11 +12,8 @@ export default async function AccountLayout({ children }: { children: React.Reac
   const user = await getSignedInUser();
   if (!user) redirect(signInPath('/account'));
   return (
-    <section className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
-      <div>
-        <h1 className="font-serif text-4xl tracking-tight">Moje konto</h1>
-        <p className="text-green-light mt-1">{user.email}</p>
-      </div>
+    <section className="mx-auto w-full max-w-4xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+      <PageHeader title="Moje konto" description={user.email} />
       <AccountNav />
       {children}
     </section>

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { CalendarCheck, ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
-import { Badge, Button, EmptyState, Skeleton, useToast } from '@detaileed/ui';
+import { CalendarCheck, Clock, Inbox } from 'lucide-react';
+import { Alert, Badge, Button, EmptyState, LicensePlate, Pagination, Skeleton, useToast } from '@detaileed/ui';
 import { formatPln } from '@detaileed/domain/money';
 import { DEFAULT_TIME_ZONE, formatInZone } from '@detaileed/domain/studioTime';
 import { vehicleSizeLabel } from '@detaileed/domain/vehicleSize';
@@ -27,39 +27,57 @@ function RequestItem({ request }: { request: MyRequest }) {
   const status = MY_REQUEST_STATUS[request.status] ?? { label: request.status, tone: 'neutral' as const };
   const car = [request.vehicle.brand, request.vehicle.model].filter(Boolean).join(' ');
   return (
-    <li className="bg-white rounded-2xl border border-green-deep/5 p-4 space-y-2">
+    <li className="space-y-3 rounded-lg border border-border bg-surface p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Link href={`/studio/${request.studioId}`} className="font-bold hover:underline">
+        <Link
+          href={`/studio/${request.studioId}`}
+          className="font-medium underline-offset-4 transition-colors duration-150 hover:underline"
+        >
           {request.studioName}
         </Link>
         <Badge tone={status.tone} size="sm">
           {status.label}
         </Badge>
       </div>
-      <p className="text-sm text-green-light">
-        {request.services.map((s) => s.name).join(', ')} · {car && `${car} `}
-        <span className="font-mono">{request.vehicle.licensePlate}</span> ({vehicleSizeLabel(request.vehicle.size)})
-      </p>
+      <div className="space-y-1.5 text-sm text-muted-foreground">
+        <p className="text-foreground">{request.services.map((s) => s.name).join(', ')}</p>
+        <p className="flex flex-wrap items-center gap-2">
+          {car && <span>{car}</span>}
+          <LicensePlate plate={request.vehicle.licensePlate} />
+          <span>{vehicleSizeLabel(request.vehicle.size)}</span>
+        </p>
+      </div>
       {request.booking ? (
-        <p className="text-sm font-semibold flex items-center gap-1.5">
-          <CalendarCheck size={15} className="text-green-light" /> Termin: {when(request.booking.scheduledAt)}
+        <p className="flex items-center gap-2 text-sm font-medium tabular-nums">
+          <CalendarCheck size={16} strokeWidth={1.75} aria-hidden className="shrink-0 text-muted-foreground" />
+          Termin: {when(request.booking.scheduledAt)}
           {request.booking.totalPrice !== null && ` · ${formatPln(request.booking.totalPrice)} zł`}
         </p>
       ) : (
-        <p className="text-sm">
-          Preferowany termin: {when(request.preferredAt)} · szacunkowo {formatPln(request.estimatedPrice)} zł
-          {request.hasUnpricedServices && ' + wycena'}
+        <p className="flex items-start gap-2 text-sm tabular-nums text-muted-foreground">
+          <Clock size={16} strokeWidth={1.75} aria-hidden className="mt-0.5 shrink-0" />
+          <span>
+            Preferowany termin: {when(request.preferredAt)} · szacunkowo {formatPln(request.estimatedPrice)} zł
+            {request.hasUnpricedServices && ' + wycena'}
+          </span>
         </p>
       )}
-      {request.rejectionReason && <p className="text-sm text-red-600">Studio: {request.rejectionReason}</p>}
+      {request.rejectionReason && (
+        <p className="border-l-2 border-border-strong pl-3 text-sm text-muted-foreground">
+          Studio: {request.rejectionReason}
+        </p>
+      )}
       {request.status === 'Pending' && (
-        <Button
-          variant="ghost"
-          loading={withdraw.isPending}
-          onClick={() => withdraw.mutate(request.id, { onSuccess: () => addToast('Zapytanie wycofane.', 'success') })}
-        >
-          Wycofaj zapytanie
-        </Button>
+        <div className="flex justify-end border-t border-border pt-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            loading={withdraw.isPending}
+            onClick={() => withdraw.mutate(request.id, { onSuccess: () => addToast('Zapytanie wycofane.', 'success') })}
+          >
+            Wycofaj zapytanie
+          </Button>
+        </div>
       )}
     </li>
   );
@@ -71,15 +89,15 @@ export function MyRequestsView() {
   const [page, setPage] = useState(1);
   const { data, isLoading } = useMyRequests(page);
 
-  if (isLoading) return <Skeleton width="100%" height="240px" className="rounded-2xl" />;
+  if (isLoading) return <Skeleton width="100%" height="240px" className="rounded-lg" />;
   const items = data?.items ?? [];
 
   return (
     <div className="space-y-4">
       {justSent && (
-        <p role="status" className="bg-green-pale/40 rounded-2xl p-4 text-sm font-semibold">
-          Zapytanie wysłane. Studio odpowie e-mailem; status zobaczysz tutaj.
-        </p>
+        <Alert tone="success" title="Zapytanie wysłane">
+          Studio odpowie e-mailem; status zobaczysz tutaj.
+        </Alert>
       )}
       {items.length === 0 ? (
         <EmptyState message="Nie wysłano jeszcze żadnego zapytania. Znajdź studio na mapie." icon={Inbox} />
@@ -90,29 +108,7 @@ export function MyRequestsView() {
           ))}
         </ul>
       )}
-      {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 text-sm font-semibold">
-          <button
-            type="button"
-            aria-label="Poprzednia strona"
-            disabled={page <= 1}
-            onClick={() => setPage(page - 1)}
-            className="p-2 disabled:opacity-30"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          {page} / {data.totalPages}
-          <button
-            type="button"
-            aria-label="Następna strona"
-            disabled={page >= data.totalPages}
-            onClick={() => setPage(page + 1)}
-            className="p-2 disabled:opacity-30"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      )}
+      {data && <Pagination page={page} totalPages={data.totalPages} onPageChange={setPage} />}
     </div>
   );
 }

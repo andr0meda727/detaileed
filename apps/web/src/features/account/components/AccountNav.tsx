@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Tabs, TabsList, TabsTrigger } from '@detaileed/ui';
 
 const TABS = [
   { href: '/account', label: 'Dane kontaktowe' },
@@ -11,27 +12,20 @@ const TABS = [
   { href: '/account/security', label: 'Hasło' },
 ];
 
-/** Tabs of the customer account. */
+/** Tabs of the customer account: one page per tab, so the tab follows the URL and the page renders the content. */
 export function AccountNav() {
   const pathname = usePathname();
   return (
-    <nav
-      className="flex gap-1 bg-white border border-green-deep/5 rounded-2xl p-1.5 overflow-x-auto"
-      aria-label="Konto"
-    >
-      {TABS.map((tab) => {
-        const active = pathname === tab.href;
-        return (
-          <Link
-            key={tab.href}
-            href={tab.href}
-            aria-current={active ? 'page' : undefined}
-            className={`px-4 py-2.5 rounded-xl text-[11px] font-semibold uppercase tracking-widest whitespace-nowrap ${active ? 'bg-green-deep text-cream-warm' : 'text-green-light hover:text-green-deep hover:bg-cream/50'}`}
-          >
-            {tab.label}
-          </Link>
-        );
-      })}
-    </nav>
+    <Tabs value={pathname}>
+      <TabsList aria-label="Konto">
+        {TABS.map((tab) => (
+          <TabsTrigger key={tab.href} value={tab.href} asChild>
+            <Link href={tab.href} aria-current={pathname === tab.href ? 'page' : undefined}>
+              {tab.label}
+            </Link>
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }

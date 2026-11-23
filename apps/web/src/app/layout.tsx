@@ -24,6 +24,7 @@ export const metadata: Metadata = {
   description:
     'Znajdź studio detailingu na mapie, porównaj ceny dla swojego auta, przeczytaj opinie i wyślij zapytanie o termin.',
   openGraph: { siteName: 'Detaileed', locale: 'pl_PL', type: 'website' },
+  icons: { icon: { url: '/icon.svg', type: 'image/svg+xml' } },
 };
 
 /**

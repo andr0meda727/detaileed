@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { MessageSquareHeart, Send } from 'lucide-react';
 import { ApiError, type ReviewableVisitDto } from '@detaileed/api-client';
-import { Button, EmptyState, Skeleton, StarRating, useToast } from '@detaileed/ui';
+import { Alert, Button, EmptyState, Skeleton, StarRating, Textarea, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { DEFAULT_TIME_ZONE, formatInZone } from '@detaileed/domain/studioTime';
 import { usePendingReviews, useSubmitReview } from '@/features/account/api/me';
@@ -47,10 +47,10 @@ function ReviewForm({ visit }: { visit: ReviewableVisitDto }) {
   };
 
   return (
-    <li className="bg-white rounded-2xl border border-green-deep/5 p-4 space-y-3">
-      <div>
-        <p className="font-bold">{visit.studioName ?? 'Studio'}</p>
-        <p className="text-xs text-green-light">
+    <li className="space-y-3 rounded-lg border border-border bg-surface p-4 sm:p-5">
+      <div className="space-y-0.5">
+        <p className="font-medium">{visit.studioName ?? 'Studio'}</p>
+        <p className="text-xs text-faint">
           Wizyta {day(visit.completedAt)} · opinię możesz wystawić do {day(visit.reviewableUntil)}
         </p>
       </div>
@@ -60,23 +60,20 @@ function ReviewForm({ visit }: { visit: ReviewableVisitDto }) {
         size={26}
         label={`Ocena wizyty w ${visit.studioName ?? 'studiu'}`}
       />
-      <textarea
-        aria-label="Komentarz (opcjonalnie)"
+      <Textarea
+        label="Komentarz (opcjonalnie)"
         rows={3}
         maxLength={MAX_COMMENT}
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder="Jak było? Co studio zrobiło dobrze, co można poprawić?"
-        className="w-full px-4 py-3 bg-cream/40 border-2 border-transparent rounded-xl outline-hidden text-sm focus:border-cream-warm"
       />
-      {error && (
-        <p role="alert" className="text-sm text-red-600">
-          {error}
-        </p>
-      )}
-      <Button icon={Send} loading={submit.isPending} onClick={send}>
-        Wyślij opinię
-      </Button>
+      {error && <Alert tone="danger">{error}</Alert>}
+      <div className="flex justify-end">
+        <Button icon={Send} loading={submit.isPending} onClick={send}>
+          Wyślij opinię
+        </Button>
+      </div>
     </li>
   );
 }
@@ -84,7 +81,7 @@ function ReviewForm({ visit }: { visit: ReviewableVisitDto }) {
 /** Completed visits the customer can still review (within 90 days), each with a rating form. */
 export function PendingReviews() {
   const { data, isLoading } = usePendingReviews();
-  if (isLoading) return <Skeleton width="100%" height="200px" className="rounded-2xl" />;
+  if (isLoading) return <Skeleton width="100%" height="200px" className="rounded-lg" />;
   if (!data?.length) {
     return (
       <EmptyState

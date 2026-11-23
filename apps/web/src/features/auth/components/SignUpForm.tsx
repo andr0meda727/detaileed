@@ -5,15 +5,17 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { MailCheck, UserPlus } from 'lucide-react';
-import { Button, FormInput, useTurnstile } from '@detaileed/ui';
+import { UserPlus } from 'lucide-react';
+import { Alert, Button, FormInput, useTurnstile } from '@detaileed/ui';
 import { getSupabase } from '@/shared/lib/supabase/client';
+import { textLink } from '@/shared/ui/textLink';
 import { TURNSTILE_SITE_KEY } from '@/shared/lib/site';
 import { signUpSchema, type SignUpValues } from '@/features/auth/model/schemas';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
 import { confirmEmailRedirect } from '@/features/auth/model/returnPath';
 import { ResendConfirmation } from '@/features/auth/components/ResendConfirmation';
 import { CaptchaField } from '@/features/auth/components/CaptchaField';
+import { MailSent } from '@/features/auth/components/MailSent';
 
 /**
  * Customer sign-up. First and last name go into the account's metadata, from which the backend fills the profile.
@@ -59,20 +61,19 @@ export function SignUpForm({ next }: { next: string }) {
 
   if (sentTo) {
     return (
-      <div className="text-center space-y-3">
-        <MailCheck size={40} className="mx-auto text-green-light" />
-        <p className="font-bold">Sprawdź skrzynkę</p>
-        <p className="text-sm text-green-light">
-          Wysłaliśmy link potwierdzający na <strong>{sentTo}</strong>. Kliknij go, aby dokończyć zakładanie konta.
+      <MailSent>
+        <p>
+          Wysłaliśmy link potwierdzający na <strong className="font-medium text-foreground">{sentTo}</strong>. Kliknij
+          go, aby dokończyć zakładanie konta.
         </p>
         <ResendConfirmation email={sentTo} next={next} justSent />
-      </div>
+      </MailSent>
     );
   }
 
   return (
     <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-x-3 gap-y-2 min-[380px]:grid-cols-2">
         <FormInput
           label="Imię"
           autoComplete="given-name"
@@ -108,17 +109,13 @@ export function SignUpForm({ next }: { next: string }) {
         {...register('confirmPassword')}
       />
       <CaptchaField captcha={captcha} />
-      {error && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="danger">{error}</Alert>}
       <Button size="lg" fullWidth type="submit" icon={UserPlus} loading={isSubmitting} disabled={!captcha.ready}>
         Załóż konto
       </Button>
-      <p className="pt-4 text-sm text-center text-green-light">
+      <p className="pt-2 text-sm text-center text-muted-foreground">
         Masz już konto?{' '}
-        <Link href={`/sign-in?next=${encodeURIComponent(next)}`} className="font-bold text-green-deep underline">
+        <Link href={`/sign-in?next=${encodeURIComponent(next)}`} className={textLink}>
           Zaloguj się
         </Link>
       </p>
