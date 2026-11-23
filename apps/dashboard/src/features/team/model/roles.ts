@@ -1,27 +1,26 @@
-/** Studio roles as the API numbers them, with their Polish labels and badge colours. */
+import type { BadgeTone } from '@detaileed/ui';
+
+/** Studio roles as the API numbers them, with their Polish labels and badge tones. */
 export const ROLES = [
   {
     id: 1,
     name: 'Właściciel',
     description: 'Pełen dostęp, fakturowanie, statystyki, zarządzanie zespołem',
-    color: 'text-amber-600 bg-amber-50',
-    badgeColor: 'bg-amber-500',
+    tone: 'info',
   },
   {
     id: 2,
     name: 'Manager',
     description: 'Zarządzanie rezerwacjami, magazynem i klientami',
-    color: 'text-indigo-600 bg-indigo-50',
-    badgeColor: 'bg-indigo-500',
+    tone: 'neutral',
   },
   {
     id: 3,
     name: 'Pracownik',
     description: 'Tylko odczyt grafiku i listy zadań',
-    color: 'text-emerald-600 bg-emerald-50',
-    badgeColor: 'bg-emerald-500',
+    tone: 'neutral',
   },
-] as const;
+] as const satisfies readonly { id: number; name: string; description: string; tone: BadgeTone }[];
 
 export type Role = (typeof ROLES)[number];
 

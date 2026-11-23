@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { ASSIGNABLE_ROLES, OWNER_ROLE_ID, roleById } from '@/features/team/model/roles';
-import { Users, Search, Trash2, Mail, RefreshCw } from 'lucide-react';
+import { RefreshCw, UserPlus } from 'lucide-react';
 import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 import { InviteEmployeeModal } from '@/features/team/components/InviteEmployeeModal';
+import { TeamMemberList } from '@/features/team/components/TeamMemberList';
+import { memberName } from '@/features/team/model/memberName';
 import {
   useEmployees,
   useInviteEmployee,
   useChangeEmployeeRole,
   useRemoveEmployee,
 } from '@/features/team/api/employees';
-import { Button, useToast, Skeleton } from '@detaileed/ui';
+import type { Employee } from '@/features/team/model/types';
+import { Button, Card, CardHeader, ConfirmDialog, SearchInput, useToast } from '@detaileed/ui';
 
-import { UserPlus } from 'lucide-react';
 import { CreateBookingModal } from '@/features/bookings';
 import { CreateClientModal } from '@/features/clients';
 
@@ -26,6 +27,7 @@ export const TeamView: React.FC = () => {
 
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [toRemove, setToRemove] = useState<Employee | null>(null);
 
   const { addToast } = useToast();
   const { selectedStudio } = useStudio();
@@ -34,10 +36,6 @@ export const TeamView: React.FC = () => {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   const isOwner = isOwnerRole(selectedStudio?.role);
-
-  const onAddBooking = () => {
-    setIsBookingModalOpen(true);
-  };
 
   const handleInvite = async (roleId: number, email: string) => {
     try {
@@ -60,14 +58,16 @@ export const TeamView: React.FC = () => {
     }
   };
 
-  const handleRemove = async (userId: string) => {
-    if (!window.confirm('Czy na pewno chcesz usunąć tego pracownika ze studia?')) return;
+  const handleRemove = async () => {
+    if (!toRemove) return;
     try {
-      await removeEmployeeMut.mutateAsync(userId);
+      await removeEmployeeMut.mutateAsync(toRemove.userId);
       addToast('Pracownik został pomyślnie usunięty.', 'success');
     } catch (e) {
       console.error(e);
       addToast('Usuwanie nie powiodło się.', 'error');
+    } finally {
+      setToRemove(null);
     }
   };
 
@@ -77,152 +77,66 @@ export const TeamView: React.FC = () => {
       (emp.email || '').toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  // Removed full-page loading to keep layout static
-
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-6 pb-20">
       <GlobalHeader
         title="Zespół"
-        subtitle="Zarządzaj Pracownikami w Studiu"
-        onAddBooking={onAddBooking}
+        subtitle="Zarządzaj pracownikami w studiu"
+        onAddBooking={() => setIsBookingModalOpen(true)}
         onAddClient={() => setIsClientModalOpen(true)}
       />
 
-      {/* Actions / top panel */}
-      <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
-        <div className="flex-1 relative group max-w-sm">
-          <Search
-            size={20}
-            className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-light transition-colors"
-          />
-          <input
-            type="text"
-            placeholder="Szukaj osoby..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-14 pr-8 py-4 bg-white border border-slate-100 rounded-xl font-bold text-sm outline-hidden shadow-xs focus:border-cream-warm/40 focus:ring-4 focus:ring-cream-warm/20 transition-all text-green-deep placeholder:text-slate-400"
-          />
-        </div>
-
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <SearchInput
+          aria-label="Szukaj osoby"
+          placeholder="Szukaj osoby…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onClear={() => setSearchQuery('')}
+          wrapperClassName="sm:max-w-sm"
+        />
         {isOwner && (
-          <Button size="lg" onClick={() => setIsInviteModalOpen(true)}>
-            <UserPlus size={16} /> Zaproś do Zespołu
+          <Button variant="secondary" icon={UserPlus} onClick={() => setIsInviteModalOpen(true)}>
+            Zaproś do zespołu
           </Button>
         )}
       </div>
 
-      <div className="bg-white rounded-2xl lg:rounded-2xl p-6 lg:p-8 border border-slate-100 shadow-xs relative z-0">
-        <div className="flex items-center justify-between mb-8">
-          <h3 className="text-xl sm:text-2xl font-bold text-green-deep tracking-tight flex items-center gap-3">
-            <Users className="text-amber-500" /> Kadra Pracownicza
-            <span className="text-xs font-semibold text-slate-400 py-1 px-3 bg-slate-50 rounded-full">
-              {employees.length} OSÓB
+      <Card>
+        <CardHeader
+          title={
+            <span className="flex items-center gap-2">
+              Kadra pracownicza
+              <span className="font-mono text-xs font-normal text-faint tabular-nums">{employees.length} osób</span>
             </span>
-          </h3>
-          <button
-            onClick={() => refetch()}
-            className="text-slate-400 hover:text-green-deep transition-colors p-2 bg-slate-50 hover:bg-slate-100 rounded-full"
-          >
-            <RefreshCw size={18} />
-          </button>
-        </div>
+          }
+          actions={
+            <Button variant="ghost" size="sm" icon={RefreshCw} aria-label="Odśwież listę" onClick={() => refetch()} />
+          }
+        />
+        <TeamMemberList
+          employees={filteredEmployees}
+          loading={loading}
+          canManage={isOwner}
+          onRoleChange={handleRoleChange}
+          onRemove={setToRemove}
+        />
+      </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {loading ? (
-            [1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="p-6 rounded-3xl border border-slate-100 bg-slate-50/50 flex flex-col justify-between h-[180px]"
-              >
-                <div>
-                  <div className="flex items-start justify-between mb-4">
-                    <Skeleton width="48px" height="48px" className="rounded-2xl shrink-0" />
-                    <Skeleton width="80px" height="28px" className="rounded-xl shrink-0" />
-                  </div>
-                  <Skeleton width="140px" height="22px" className="mb-3 rounded-lg" />
-                  <div className="flex items-center gap-2">
-                    <Skeleton width="16px" height="16px" className="rounded-md shrink-0" />
-                    <Skeleton width="180px" height="14px" className="rounded-md" />
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <>
-              {filteredEmployees.map((emp) => {
-                const roleDetails = roleById(emp.roleId);
-                return (
-                  <div
-                    key={emp.userId}
-                    className="p-6 rounded-3xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:shadow-lg transition-all group relative overflow-hidden flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-start justify-between mb-4">
-                        <div
-                          className="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg"
-                          style={{ backgroundColor: 'var(--green-deep)', color: '#fbf8f1' }}
-                        >
-                          {(emp.name || emp.email || 'N')[0].toUpperCase()}
-                        </div>
-                        {isOwner && emp.roleId !== OWNER_ROLE_ID ? (
-                          <select
-                            value={emp.roleId}
-                            onChange={(e) => handleRoleChange(emp.userId, parseInt(e.target.value))}
-                            className={`text-[10px] font-bold uppercase tracking-widest pl-3 pr-8 py-2 rounded-xl outline-hidden cursor-pointer appearance-none ${roleDetails.color} border-none`}
-                          >
-                            {ASSIGNABLE_ROLES.map((r) => (
-                              <option key={r.id} value={r.id}>
-                                {r.name}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <span
-                            className={`text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded-xl ${roleDetails.color}`}
-                          >
-                            {roleDetails.name}
-                          </span>
-                        )}
-                      </div>
-                      <h4 className="text-lg font-bold text-green-deep mb-1 truncate" title={emp.name || emp.email}>
-                        {emp.name || emp.email.split('@')[0]}
-                      </h4>
-                      <div className="flex items-center gap-2 text-slate-500 text-xs font-semibold">
-                        <Mail size={12} className="text-green-deep/40" />
-                        <span className="truncate">{emp.email}</span>
-                      </div>
-                    </div>
-
-                    {isOwner && (
-                      <div className="border-t border-slate-200 pt-4 mt-6 flex justify-end">
-                        <button
-                          onClick={() => handleRemove(emp.userId)}
-                          className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-xl transition-colors shrink-0"
-                          title="Usuń pracownika"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </>
-          )}
-        </div>
-
-        {filteredEmployees.length === 0 && !loading && (
-          <div className="py-20 text-center flex flex-col items-center">
-            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 mb-4">
-              <Users size={32} />
-            </div>
-            <h4 className="text-lg font-bold text-slate-400">Brak pracowników</h4>
-            <p className="text-sm font-semibold text-slate-400 mt-1 max-w-xs mx-auto">
-              Zaproś personel, aby zacząć zarządzać studiem.
-            </p>
-          </div>
-        )}
-      </div>
+      <ConfirmDialog
+        open={toRemove !== null}
+        onOpenChange={(open) => !open && setToRemove(null)}
+        tone="danger"
+        title="Usunąć pracownika?"
+        description={
+          toRemove
+            ? `Czy na pewno chcesz usunąć ${memberName(toRemove)} ze studia?`
+            : 'Czy na pewno chcesz usunąć tego pracownika ze studia?'
+        }
+        confirmLabel="Usuń"
+        loading={removeEmployeeMut.isPending}
+        onConfirm={handleRemove}
+      />
 
       <InviteEmployeeModal
         isOpen={isInviteModalOpen}
