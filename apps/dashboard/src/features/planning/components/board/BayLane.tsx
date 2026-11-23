@@ -1,8 +1,22 @@
-import { cn } from '@detaileed/ui';
+import { cn, type BadgeTone } from '@detaileed/ui';
 import { timeInZone } from '@detaileed/domain/studioTime';
 import { blockPosition } from '@/features/planning/model/boardLayout';
-import { bookingBlockTone } from '@/features/planning/model/blockTone';
+import { bookingStatusTone } from '@/features/bookings';
 import type { DayBoard } from '@/features/planning/model/types';
+
+/**
+ * A booking block's colours by its status tone: the soft fill (on a `::before` layer over an opaque surface, so the
+ * hour lines don't show through) with a solid edge in the tone.
+ */
+const BLOCK_TONES: Record<BadgeTone, string> = {
+  info: 'before:bg-info-soft border-info',
+  success: 'before:bg-success-soft border-success',
+  warning: 'before:bg-warning-soft border-warning',
+  amber: 'before:bg-warning-soft border-warning',
+  danger: 'before:bg-danger-soft border-danger',
+  neutral: 'before:bg-muted border-border-strong',
+  brand: 'before:bg-muted border-border-strong',
+};
 
 interface BayLaneProps {
   bay: DayBoard['bays'][number];
@@ -56,7 +70,7 @@ export function BayLane({ bay, day, timeZone, axis, hours }: BayLaneProps) {
               className={cn(
                 'absolute top-1 bottom-1 overflow-hidden rounded-md border-l-2 bg-surface px-2 py-1 text-foreground',
                 'before:pointer-events-none before:absolute before:inset-0 before:content-[""] [&>*]:relative',
-                bookingBlockTone(b.status),
+                BLOCK_TONES[bookingStatusTone(b.status) ?? 'neutral'],
               )}
               style={{ left: `${pos.left}%`, width: `${pos.width}%` }}
             >
