@@ -6,10 +6,9 @@ primary buttons, thin borders, no gradients, light and dark themes. Everything h
 the theme code in `src/theme/`, components in `src/components/`. The approved mockup is in `docs/design/grafit-mockup/`;
 where it and this guide disagree, this guide wins.
 
-While phase 11 is in progress the old Forest & Cream palette (`green-*`, `cream*`, `amber*`, `text-dim`/`text-mid`),
-fonts (`font-serif`, `font-syne`) and utilities (`.floating-card*`, `.premium-shadow`, `.mesh-bg`,
-`bg-brand-gradient`) are still defined for screens not migrated yet. They are deprecated: migrated and new code never
-uses them. Task T13 removes them and adds a lint rule.
+ESLint (`no-restricted-syntax` in `packages/config/eslint.js`) reports colours that bypass the tokens: default palette
+classes with a shade (`text-slate-500`, `bg-red-50`), `bg-white`/`text-black` and the like, and the removed Forest &
+Cream tokens in any string, plus hex and `rgb()` values inside `className` and `cn()`/`clsx()` arguments.
 
 ## Colour tokens
 
@@ -150,7 +149,7 @@ Do:
 
 Don't:
 
-- use `white`, `black`, default palette classes, hex, `rgb()`, gradients, or the deprecated Forest & Cream tokens;
+- use `white`, `black`, default palette classes, hex, `rgb()` or gradients (the lint rule catches most of them);
 - add shadows to cards, hover lifts, scaling, or animations longer than 150 ms on colours;
 - write uppercase, letter-spaced labels or tiny `text-[9–11px]` text;
 - add `dark:` colour variants (the tokens switch already) or read the OS theme yourself (use `useTheme()`).
@@ -182,8 +181,7 @@ and a dark panel side by side and links to `/dev/ui/interactive`.
 ### Status and identity
 
 - **`Badge`** (`tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger'`, `color?`, `size?`, `dot = true`): a
-  status pill with a 6px dot, toned by the status → tone map above. `brand` and `amber` are kept as aliases of
-  `neutral` and `warning`. `color` (a status colour from the API) colours only the dot, on a neutral pill.
+  status pill with a 6px dot, toned by the status → tone map above. `color` (a status colour from the API) colours only the dot, on a neutral pill.
 - **`Avatar`** (`name`, `size: 'sm' | 'md' | 'lg'` = 24/32/40px, `decorative?`): a round tile with up to two initials,
   named by `name` for screen readers; pass `decorative` when the name is written next to it.
 - **`LicensePlate`** (`plate`): a registration number in a bordered mono chip, upper case with single spaces.
@@ -200,15 +198,18 @@ and a dark panel side by side and links to `/dev/ui/interactive`.
   every prop of the native control, which gets `className` and `ref` (they work with react-hook-form's `register`).
   36px high (the textarea grows), `bg-surface`, `border-strong`, a focus ring; the label sits above in 13px medium;
   the hint and the error sit below and are linked with `aria-describedby`; an error also sets `aria-invalid` and a
-  `danger` border. `FormInput` takes `leftIcon` / `rightIcon`.
+  `danger` border. `FormInput` takes `leftIcon` / `rightIcon`. A form field (one with a `label`, or an `error` prop
+  even while it is `undefined`, as `errors.x?.message` is) keeps an empty line for the message, so the form doesn't
+  jump when an error appears; an inline control without either (a filter, a select in a table row) collapses it, so
+  it centres with its neighbours.
 - **`FieldError`** (`id`, `children`): the error line for controls that don't show one themselves (a `Checkbox`, a
   `RadioCardGroup`, a custom picker). Point the control's `aria-describedby` at its `id`; it renders nothing without
   a message.
 - **`SearchInput`** (`aria-label` or `aria-labelledby` required, `onClear?`, every `<input>` prop and `ref`): a search
   field with an icon; with a controlled `value` and `onClear` it shows a clear button ("Wyczyść wyszukiwanie") and
   Escape clears it.
-- **`FormSection`** (`icon`, `title`, `tone?: 'dark' | 'amber'`, `actions?`, `children`): a card with an icon tile and
-  a title, grouping the steps of a long form; `tone="amber"` only tints the tile. The body brings its own padding.
+- **`FormSection`** (`icon`, `title`, `tone?: 'neutral' | 'warning'`, `actions?`, `children`): a card with an icon tile and
+  a title, grouping the steps of a long form; `tone="warning"` only tints the tile. The body brings its own padding.
 
 ```tsx
 <FormInput label="Telefon" hint="9 cyfr" error={errors.phone?.message} {...register('phone')} />

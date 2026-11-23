@@ -8,8 +8,4 @@
 @theme inline {
   --font-sans: var(--font-geist-sans), 'Geist', ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), 'Geist Mono', ui-monospace, monospace;
-
-  /* Deprecated: the Forest & Cream fonts, until the remaining screens are migrated (phase 11, T13). */
-  --font-serif: var(--font-dm-serif), 'DM Serif Display', serif;
-  --font-syne: var(--font-syne-family), Syne, sans-serif;
 }

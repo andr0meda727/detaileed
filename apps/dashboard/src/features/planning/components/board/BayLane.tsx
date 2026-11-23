@@ -12,10 +12,8 @@ const BLOCK_TONES: Record<BadgeTone, string> = {
   info: 'before:bg-info-soft border-info',
   success: 'before:bg-success-soft border-success',
   warning: 'before:bg-warning-soft border-warning',
-  amber: 'before:bg-warning-soft border-warning',
   danger: 'before:bg-danger-soft border-danger',
   neutral: 'before:bg-muted border-border-strong',
-  brand: 'before:bg-muted border-border-strong',
 };
 
 interface BayLaneProps {

@@ -51,7 +51,7 @@ export function ControlsSection() {
           <Badge size="sm" dot={false}>
             3
           </Badge>
-          <Badge size="lg" tone="amber">
+          <Badge size="lg" tone="warning">
             Właściciel
           </Badge>
         </Row>

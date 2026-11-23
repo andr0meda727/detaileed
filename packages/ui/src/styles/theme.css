@@ -129,47 +129,6 @@
   }
 }
 
-/* ── Deprecated: Forest & Cream ──────────────────────────────────
-   The old palette, fonts and utilities (green-*, cream*, amber*, text-dim/-mid, font-serif, font-syne,
-   .mesh-bg, .floating-card*, .premium-shadow, bg-brand-gradient). Screens not migrated to grafit yet still
-   use them; new code must not. Removed in phase 11, task T13. */
-@theme {
-  --color-green-deep: var(--green-deep);
-  --color-green-dark: var(--green-dark);
-  --color-green-mid: var(--green-mid);
-  --color-green-light: var(--green-light);
-  --color-green-pale: var(--green-pale);
-
-  --color-cream: var(--cream);
-  --color-cream-warm: var(--cream-warm);
-  --color-cream-dark: var(--cream-dark);
-
-  --color-amber: var(--amber);
-  --color-amber-light: var(--amber-light);
-
-  --color-text-dim: var(--text-dim);
-  --color-text-mid: var(--text-mid);
-
-  --font-serif: DM Serif Display, serif;
-  --font-syne: Syne, sans-serif;
-}
-
-:root {
-  --green-deep: #1a2e1e;
-  --green-dark: #1e3523;
-  --green-mid: #2a4a30;
-  --green-light: #3d6b46;
-  --green-pale: #c8dfc2;
-  --cream: #f5f0e8;
-  --cream-warm: #ede7d8;
-  --cream-dark: #d4ccc0;
-  --amber: #e8a830;
-  --amber-light: #f5c84a;
-  --white: #ffffff;
-  --text-dim: rgba(245, 240, 232, 0.55);
-  --text-mid: rgba(245, 240, 232, 0.75);
-}
-
 /* ── Base ────────────────────────────────────────────────────────
    Tailwind v4 borders default to currentcolor; ours default to the border token. */
 @layer base {
@@ -224,127 +183,19 @@
   }
 }
 
-/* ── Component classes ───────────────────────────────────────────
-   In the components layer, so Tailwind utilities on the same element (rounded-*, bg-*, …) override them. */
-@layer components {
-  /* Deprecated: mesh background (from the landing page). */
-  .mesh-bg {
-    background-image:
-      radial-gradient(at 0% 0%, #ffffff 0px, transparent 50%),
-      radial-gradient(at 100% 100%, #ede7d8 0px, transparent 50%);
-    background-attachment: fixed;
-  }
-
-  /* Deprecated: floating card, the old core visual primitive. */
-  .floating-card {
-    background: white;
-    border-radius: 1rem;
-    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    box-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.02),
-      0 10px 30px -5px rgba(0, 0, 0, 0.05);
-  }
-
-  .floating-card:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 4px 8px rgba(0, 0, 0, 0.02),
-      0 20px 40px -10px rgba(0, 0, 0, 0.07);
-    border-color: rgba(61, 107, 70, 0.12);
-  }
-
-  /* Deprecated: non-interactive floating card. */
-  .floating-card-static {
-    background: white;
-    border-radius: 1rem;
-    border: 1px solid rgba(0, 0, 0, 0.04);
-    box-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.02),
-      0 10px 30px -5px rgba(0, 0, 0, 0.05);
-  }
-
-  /* Deprecated: premium shadow (from the landing page). */
-  .premium-shadow {
-    box-shadow:
-      0 10px 20px -5px rgba(0, 0, 0, 0.03),
-      0 25px 50px -12px rgba(0, 0, 0, 0.06);
-  }
-
-  /* Skeleton shimmer. */
-  .skeleton {
-    background: linear-gradient(
-      90deg,
-      rgba(26, 46, 30, 0.04) 25%,
-      rgba(26, 46, 30, 0.08) 50%,
-      rgba(26, 46, 30, 0.04) 75%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.8s ease-in-out infinite;
-    border-radius: 0.5rem;
-    min-height: 1em;
-  }
-}
-
-/* ── Deprecated: brand gradient (avatars, logo tiles, primary highlights) ── */
-@utility bg-brand-gradient {
-  background-image: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
-}
-
 /* ── Animations ──────────────────────────────────────────────────
-   animate-fade-in, animate-slide-up(-1…4), animate-zoom-in and data-entry-fade are theme utilities, so
-   variants (motion-safe:, …) work on them; animate-spin is Tailwind's own. */
+   animate-fade-in is a theme utility, so variants (motion-safe:, …) work on it; animate-spin and animate-pulse are
+   Tailwind's own. */
 @theme {
   --animate-fade-in: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-slide-up: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-slide-up-1: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
-  --animate-slide-up-2: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-  --animate-slide-up-3: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
-  --animate-slide-up-4: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-  --animate-zoom-in: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Keyframes stay outside @theme so they are always emitted (data-entry-fade and .skeleton use them too). */
+/* Keyframes stay outside @theme so they are always emitted. */
 @keyframes fadeIn {
   from {
     opacity: 0;
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes zoomIn {
-  from {
-    opacity: 0;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@utility data-entry-fade {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
   }
 }

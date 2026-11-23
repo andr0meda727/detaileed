@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { cn } from '../lib/cn';
 
-/** Status tones; `brand` (→ neutral) and `amber` (→ warning) are aliases kept for screens written before Grafit. */
-export type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger' | 'brand' | 'amber';
+/** Status tones (see the status → tone map in docs/design-system.md). */
+export type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps {
@@ -21,11 +21,9 @@ export interface BadgeProps {
 
 const tones: Record<BadgeTone, string> = {
   neutral: 'bg-muted text-muted-foreground',
-  brand: 'bg-muted text-muted-foreground',
   info: 'bg-info-soft text-info',
   success: 'bg-success-soft text-success',
   warning: 'bg-warning-soft text-warning',
-  amber: 'bg-warning-soft text-warning',
   danger: 'bg-danger-soft text-danger',
 };
 

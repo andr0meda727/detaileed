@@ -7,7 +7,7 @@ interface FormSectionProps {
   icon: LucideIcon;
   title: string;
   /** A neutral icon tile (default) or a warning-toned one; it changes only the tile. */
-  tone?: 'dark' | 'amber';
+  tone?: 'neutral' | 'warning';
   /** Rendered on the right of the header, e.g. a mode toggle or a counter. */
   actions?: ReactNode;
   /** The section's body; it brings its own padding. */
@@ -15,7 +15,7 @@ interface FormSectionProps {
 }
 
 /** A card with an icon + title header, used to group the steps of a longer form. */
-export function FormSection({ icon: Icon, title, tone = 'dark', actions, children }: FormSectionProps) {
+export function FormSection({ icon: Icon, title, tone = 'neutral', actions, children }: FormSectionProps) {
   return (
     <Card className="overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3.5">
@@ -23,7 +23,7 @@ export function FormSection({ icon: Icon, title, tone = 'dark', actions, childre
           <div
             className={cn(
               'flex size-8 shrink-0 items-center justify-center rounded-md',
-              tone === 'amber' ? 'bg-warning-soft text-warning' : 'bg-muted text-foreground',
+              tone === 'warning' ? 'bg-warning-soft text-warning' : 'bg-muted text-foreground',
             )}
           >
             <Icon size={16} strokeWidth={1.75} aria-hidden />

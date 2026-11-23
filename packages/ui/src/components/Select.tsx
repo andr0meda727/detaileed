@@ -4,7 +4,7 @@ import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { FieldShell } from './FieldShell';
-import { controlClasses, useFieldIds } from './fieldParts';
+import { controlClasses, reservesMessage, useFieldIds } from './fieldParts';
 
 export interface SelectOption {
   value: string;
@@ -24,16 +24,8 @@ export interface SelectProps extends Omit<ComponentPropsWithRef<'select'>, 'chil
  * A native select styled like `FormInput` (label above, hint or error below). `className` goes on the `<select>`.
  * Works with react-hook-form's `register(...)`, which passes `ref`.
  */
-export function Select({
-  label,
-  error,
-  hint,
-  options,
-  id,
-  className,
-  'aria-describedby': describedBy,
-  ...props
-}: SelectProps) {
+export function Select(allProps: SelectProps) {
+  const { label, error, hint, options, id, className, 'aria-describedby': describedBy, ...props } = allProps;
   const ids = useFieldIds({ id, error, hint, describedBy });
   return (
     <FieldShell
@@ -43,6 +35,7 @@ export function Select({
       controlId={ids.controlId}
       hintId={ids.hintId}
       errorId={ids.errorId}
+      reserveMessage={reservesMessage(allProps)}
     >
       <div className="relative">
         <select

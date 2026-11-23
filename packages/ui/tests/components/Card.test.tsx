@@ -75,7 +75,7 @@ describe('FormSection', () => {
     expect(heading.previousElementSibling).toHaveClass('bg-muted');
 
     rerender(
-      <FormSection icon={CalendarDays} title="Termin" tone="amber">
+      <FormSection icon={CalendarDays} title="Termin" tone="warning">
         <div>Pola</div>
       </FormSection>,
     );

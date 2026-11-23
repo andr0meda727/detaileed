@@ -21,7 +21,7 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 8: customer site        | done (merged to `main`); `apps/web` Next.js, map search, studio pages, requests   |
 | 9: planning             | done (merged to `main`); bays, hours, closures, day board, slots in bookings      |
 | 10: inventory ledger    | done (merged to `main`); history, deliveries, recipes, consumption, forecast      |
-| 11: grafit redesign     | in progress on `redesign/grafit`; tasks and commits in the phase 11 section       |
+| 11: grafit redesign     | done on `redesign/grafit` (final PR to `main`); Grafit look, themes, mock API     |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
@@ -360,8 +360,8 @@ User decisions:
   isn't there? Ask the coordinator (`ask`); don't build a private copy.
 - **Keep props stable** where other tasks use a component: `GlobalHeader` (11 screens), `CreateBookingModal` and
   `CreateClientModal` (6 screens each) and every existing `@detaileed/ui` component.
-- **The old palette stays defined** (`green-deep`, `cream*`, `amber`, the old fonts and utilities) until T13, so screens
-  not migrated yet keep working; migrated code uses only the new tokens.
+- **The old palette stayed defined** (`green-deep`, `cream*`, `amber`, the old fonts and utilities) until T13, so screens
+  not migrated yet kept working; migrated code used only the new tokens. T13 removed them.
 - AGENTS.md applies in full: small Conventional Commits with the exact subjects below, file moves in their own commits,
   prettier + eslint `--fix` on the changed files, lint, typecheck, test and build green. Commits end with
   `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`; PR bodies end with
@@ -420,7 +420,7 @@ OpenFreeMap positron or dark style from `useTheme().resolved` (the env style URL
 
 Fonts: the dashboard self-hosts `@fontsource-variable/geist` and `@fontsource-variable/geist-mono` (imported in
 `main.tsx`); the site uses `next/font/google` `Geist` and `Geist_Mono` (subsets `latin`, `latin-ext`) as
-`--font-geist-sans` / `--font-geist-mono`, mapped in `globals.css`. The old fonts stay loaded until T13.
+`--font-geist-sans` / `--font-geist-mono`, mapped in `globals.css`. The old fonts stayed loaded until T13 removed them.
 
 Components: `packages/ui` gets `radix-ui`, `clsx` and `tailwind-merge` (v3), and `cn()` in `src/lib/cn.ts` (tested with
 the custom tokens).
@@ -677,6 +677,20 @@ T13, cleanup:
 8. `docs: mark phase 11 done`
 
 A commit may be split further when it grows; keep the subjects in this style.
+
+### Notes from doing it
+
+- Every screen task (T3–T12b) was merged before T13, so removing the Forest & Cream tokens, fonts and utilities was a
+  pure deletion: a grep found no users left, and the screens look the same. The unused animations (`slide-up`,
+  `zoom-in`, `data-entry-fade`, the `.skeleton` shimmer) went too; only `animate-fade-in` remains.
+- The pre-Grafit tone aliases (`Badge` `brand`/`amber`, `FormSection` `amber`) were only used by the gallery and
+  tests by then and were dropped; `FormSection` tones are now `neutral` and `warning`.
+- The colour lint rule is `no-restricted-syntax` with esquery regexes (which can't contain `/`). Palette classes and old tokens are flagged in any string, so class maps count; hex and `rgb()`
+  only inside `className` and `cn()`/`clsx()` arguments, since map styles, chart data and API colours use them
+  legitimately. One `:matches(...)` context per selector keeps `className={cn(...)}` from reporting twice.
+- `FieldShell` used to reserve a message line under every field, which pushed inline controls off-centre (T7 hid it
+  in `TeamMemberList` with a layout class, now redundant). Fields with a `label` or an `error` prop keep the line,
+  so forms don't jump; other fields collapse it.
 
 ### Definition of done (every worker task)
 
