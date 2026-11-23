@@ -42,7 +42,7 @@ function StudioLayout() {
   return (
     <StudioScope studio={studio}>
       <MobileMenuContext.Provider value={() => setIsSidebarOpen(true)}>
-        <div className="min-h-screen flex bg-cream selection:bg-amber-light/30 selection:text-green-deep">
+        <div className="min-h-screen bg-background text-foreground">
           <Sidebar
             studioId={studio.studioId}
             onLogout={handleLogout}
@@ -50,7 +50,7 @@ function StudioLayout() {
             onClose={() => setIsSidebarOpen(false)}
             userEmail={session.user.email ?? null}
           />
-          <main className="flex-1 transition-all duration-300 lg:ml-72 p-4 sm:p-8 lg:p-12 overflow-y-auto">
+          <main className="min-w-0 p-4 sm:p-8 lg:ml-60 lg:p-12">
             <div className="max-w-7xl mx-auto pb-24 pt-2 lg:pt-0">
               <Outlet />
             </div>
