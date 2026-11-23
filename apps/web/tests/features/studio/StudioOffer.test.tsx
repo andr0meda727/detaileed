@@ -75,7 +75,8 @@ describe('StudioOffer', () => {
 
   it('switches prices when the size changes', () => {
     render(<StudioOffer listing={listing} />, { wrapper });
-    fireEvent.change(screen.getByLabelText('Wielkość auta'), { target: { value: 'Medium' } });
+    expect(screen.getByRole('radiogroup', { name: 'Wielkość auta' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: 'Średnie' }));
     expect(screen.getByText('249,00 zł')).toBeInTheDocument();
   });
 });

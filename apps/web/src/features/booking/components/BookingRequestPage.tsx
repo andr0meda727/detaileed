@@ -18,13 +18,13 @@ export function BookingRequestPage({ listing, initialServiceIds, initialSize }: 
   const profile = useProfile();
   const garage = useGarage();
 
-  if (profile.isLoading || garage.isLoading) return <Skeleton width="100%" height="320px" className="rounded-2xl" />;
+  if (profile.isLoading || garage.isLoading) return <Skeleton width="100%" height="320px" className="rounded-lg" />;
 
   if (!profile.data) {
     return (
       <FormSection icon={UserRound} title="Twoje dane kontaktowe">
-        <div className="p-5 space-y-3">
-          <p className="text-sm text-green-light">
+        <div className="flex flex-col gap-3 p-5">
+          <p className="text-sm text-muted-foreground">
             Studio użyje ich, aby potwierdzić termin. Zapiszemy je na Twoim koncie na następne zapytania.
           </p>
           <ProfileForm profile={null} submitLabel="Zapisz i przejdź dalej" />

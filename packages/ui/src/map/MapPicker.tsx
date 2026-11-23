@@ -3,6 +3,8 @@
 import Map, { GeolocateControl, Marker, NavigationControl } from 'react-map-gl/maplibre';
 import { MapPin } from 'lucide-react';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import './map.css';
+import './worker';
 import { POLAND_VIEW, roundCoord, type LatLng } from './geo';
 import { useMapStyle } from './useMapStyle';
 

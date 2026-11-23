@@ -3,6 +3,8 @@
 import Map, { GeolocateControl, Marker, NavigationControl, type ViewStateChangeEvent } from 'react-map-gl/maplibre';
 import type { Map as MaplibreMap } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import './map.css';
+import './worker';
 import { cn } from '../lib/cn';
 import { focusRing } from '../lib/focusRing';
 import { POLAND_VIEW, type Bounds } from './geo';
