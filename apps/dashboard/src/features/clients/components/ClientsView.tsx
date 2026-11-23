@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 
-import { Trash2 } from 'lucide-react';
 import { GlobalHeader } from '@/shared/ui/GlobalHeader';
-import { Modal, LoadingSpinner, SearchInput, useToast } from '@detaileed/ui';
+import { ConfirmDialog, LoadingSpinner, SearchInput, useToast } from '@detaileed/ui';
 
 import { CreateClientModal } from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
@@ -121,31 +120,16 @@ export const ClientsView: React.FC = () => {
         />
       )}
 
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={!!deleteConfirmation} onClose={() => setDeleteConfirmation(null)} title="Usuń pojazd">
-        <div className="text-center space-y-6 pb-4">
-          <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Trash2 size={32} />
-          </div>
-          <p className="text-slate-600 font-medium">
-            Czy na pewno chcesz usunąć ten pojazd? Tej operacji nie można cofnąć, a dane zostaną trwale utracone.
-          </p>
-          <div className="grid grid-cols-2 gap-4 mt-8">
-            <button
-              onClick={() => setDeleteConfirmation(null)}
-              className="py-4 bg-slate-50 text-slate-500 rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:bg-slate-100 transition-all"
-            >
-              Anuluj
-            </button>
-            <button
-              onClick={executeDeleteVehicle}
-              className="py-4 bg-red-500 text-white rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:bg-red-600 shadow-lg shadow-red-500/30 transition-all"
-            >
-              Usuń pojazd
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <ConfirmDialog
+        open={!!deleteConfirmation}
+        onOpenChange={(open) => !open && setDeleteConfirmation(null)}
+        tone="danger"
+        title="Usunąć pojazd?"
+        description="Tej operacji nie można cofnąć, a dane zostaną trwale utracone."
+        confirmLabel="Usuń pojazd"
+        loading={deleteVehicleMut.isPending}
+        onConfirm={executeDeleteVehicle}
+      />
     </div>
   );
 };
