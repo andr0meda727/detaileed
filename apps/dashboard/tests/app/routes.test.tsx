@@ -91,3 +91,12 @@ describe('rendering', () => {
     expect(await screen.findByRole('heading', { name: 'Detaileed' })).toBeInTheDocument();
   });
 });
+
+describe('root screens', () => {
+  it('shows the not-found screen for unknown addresses', async () => {
+    auth.session = null;
+    render(<RouterProvider router={makeRouter('/no-such-page')} />);
+    expect(await screen.findByRole('heading', { name: 'Nie znaleziono strony' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Wróć do panelu' })).toBeInTheDocument();
+  });
+});
