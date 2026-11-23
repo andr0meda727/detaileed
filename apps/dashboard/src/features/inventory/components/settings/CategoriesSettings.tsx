@@ -6,7 +6,7 @@ import {
   useUpdateCategory,
   useDeleteCategory,
 } from '@/features/inventory/api/categories';
-import { Button, Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
+import { Button, ConfirmDialog, Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
 import { NameForm } from '@/shared/ui/NameForm';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 
@@ -21,6 +21,7 @@ export const CategoriesSettings: React.FC<{ addToast: (message: string, type: 's
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null);
 
   const openAdd = () => {
     setEditing(null);
@@ -50,6 +51,7 @@ export const CategoriesSettings: React.FC<{ addToast: (message: string, type: 's
   const handleDelete = async (id: string) => {
     try {
       await deleteCategory.mutateAsync(id);
+      setDeleting(null);
       addToast('Kategoria usunięta', 'success');
     } catch {
       addToast('Nie udało się usunąć kategorii', 'error');
@@ -102,9 +104,7 @@ export const CategoriesSettings: React.FC<{ addToast: (message: string, type: 's
                   size="sm"
                   icon={Trash2}
                   aria-label={`Usuń kategorię: ${item.name}`}
-                  loading={deleteCategory.isPending && deleteCategory.variables === item.id}
-                  disabled={deleteCategory.isPending}
-                  onClick={() => handleDelete(item.id)}
+                  onClick={() => setDeleting(item)}
                 />
               </div>
             </div>
@@ -115,6 +115,17 @@ export const CategoriesSettings: React.FC<{ addToast: (message: string, type: 's
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        tone="danger"
+        title="Usunąć kategorię?"
+        description={`Kategoria „${deleting?.name ?? ''}” zniknie z listy. Tej operacji nie można cofnąć.`}
+        confirmLabel="Usuń"
+        loading={deleteCategory.isPending}
+        onConfirm={() => deleting && void handleDelete(deleting.id)}
+      />
 
       <Modal
         isOpen={isModalOpen}
