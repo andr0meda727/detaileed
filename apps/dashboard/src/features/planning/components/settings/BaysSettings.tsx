@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Check, Pencil, Plus, Trash2, Warehouse, X } from 'lucide-react';
-import { Button, FormInput, FormSection, Skeleton, useToast } from '@detaileed/ui';
+import { Button, Card, CardContent, CardHeader, FormInput, Skeleton, useToast } from '@detaileed/ui';
 import { useBays, useCreateBay, useDeleteBay, useRenameBay } from '@/features/planning/api/planning';
 import { planningErrorMessage } from '@/features/planning/model/errors';
 import type { Bay } from '@/features/planning/model/types';
@@ -16,56 +16,45 @@ function BayRow({ bay, canEdit }: { bay: Bay; canEdit: boolean }) {
 
   if (name !== null) {
     return (
-      <li className="flex items-center gap-2">
-        <input
-          aria-label="Nazwa stanowiska"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="flex-1 px-4 py-3 bg-slate-50 rounded-xl font-semibold text-sm outline-hidden border-2 border-transparent focus:border-cream-warm/50"
-        />
-        <button
-          type="button"
+      <li className="flex items-start gap-2 px-4 pt-2">
+        <FormInput aria-label="Nazwa stanowiska" value={name} onChange={(e) => setName(e.target.value)} />
+        <Button
+          icon={Check}
           aria-label="Zapisz nazwę"
           disabled={!name.trim()}
+          loading={rename.isPending}
           onClick={() =>
             rename.mutate({ id: bay.id, name: name.trim() }, { onSuccess: () => setName(null), onError: fail })
           }
-          className="p-3 rounded-xl bg-green-deep text-cream-warm disabled:opacity-50"
-        >
-          <Check size={16} />
-        </button>
-        <button type="button" aria-label="Anuluj" onClick={() => setName(null)} className="p-3 rounded-xl bg-slate-100">
-          <X size={16} />
-        </button>
+        />
+        <Button variant="secondary" icon={X} aria-label="Anuluj" onClick={() => setName(null)} />
       </li>
     );
   }
 
   return (
-    <li className="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-50">
-      <Warehouse size={16} className="text-green-light" />
-      <span className="flex-1 font-semibold text-green-deep">{bay.name}</span>
+    <li className="flex min-h-13 items-center gap-3 px-4 py-2">
+      <Warehouse size={16} strokeWidth={1.75} className="text-muted-foreground" aria-hidden />
+      <span className="flex-1 text-sm font-medium text-foreground">{bay.name}</span>
       {canEdit && (
-        <>
-          <button
-            type="button"
+        <div className="flex gap-0.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={Pencil}
             aria-label={`Zmień nazwę: ${bay.name}`}
             onClick={() => setName(bay.name)}
-            className="p-2 rounded-lg hover:bg-white"
-          >
-            <Pencil size={15} />
-          </button>
-          <button
-            type="button"
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={Trash2}
             aria-label={`Wyłącz: ${bay.name}`}
             onClick={() =>
               remove.mutate(bay.id, { onSuccess: () => addToast('Stanowisko wyłączone.', 'success'), onError: fail })
             }
-            className="p-2 rounded-lg hover:bg-red-50 hover:text-red-600"
-          >
-            <Trash2 size={15} />
-          </button>
-        </>
+          />
+        </div>
       )}
     </li>
   );
@@ -89,24 +78,26 @@ export function BaysSettings({ canEdit }: { canEdit: boolean }) {
     });
 
   return (
-    <FormSection icon={Warehouse} title={`Stanowiska (${active.length}/${MAX_BAYS})`}>
-      <div className="p-5 space-y-3">
-        <p className="text-sm text-slate-500">
-          Każde stanowisko to miejsce na jedno auto naraz. Rezerwacje trafiają na wolne stanowisko automatycznie.
-        </p>
+    <Card>
+      <CardHeader
+        title={`Stanowiska (${active.length}/${MAX_BAYS})`}
+        description="Każde stanowisko to miejsce na jedno auto naraz. Rezerwacje trafiają na wolne stanowisko automatycznie."
+      />
+      <CardContent className="flex flex-col gap-4">
         {isLoading ? (
-          <Skeleton width="100%" height="96px" className="rounded-xl" />
+          <Skeleton width="100%" height="96px" className="rounded-md" />
+        ) : active.length === 0 ? (
+          <p className="text-sm text-faint">Brak stanowisk.</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="divide-y divide-border rounded-md border border-border">
             {active.map((bay) => (
               <BayRow key={bay.id} bay={bay} canEdit={canEdit} />
             ))}
-            {active.length === 0 && <li className="text-sm text-slate-400">Brak stanowisk.</li>}
           </ul>
         )}
         {canEdit && active.length < MAX_BAYS && (
           <form
-            className="flex gap-2 items-start"
+            className="flex items-start gap-2"
             onSubmit={(e) => {
               e.preventDefault();
               if (newName.trim()) add();
@@ -118,12 +109,12 @@ export function BaysSettings({ canEdit }: { canEdit: boolean }) {
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
             />
-            <Button type="submit" icon={Plus} loading={create.isPending} disabled={!newName.trim()}>
+            <Button variant="secondary" type="submit" icon={Plus} loading={create.isPending} disabled={!newName.trim()}>
               Dodaj
             </Button>
           </form>
         )}
-      </div>
-    </FormSection>
+      </CardContent>
+    </Card>
   );
 }

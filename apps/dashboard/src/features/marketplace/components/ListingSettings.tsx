@@ -20,7 +20,7 @@ export function ListingSettings({ onOpenServices, onOpenStudio }: ListingSetting
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <ListingStatusCard
         listing={listing ?? null}
         isOwner={isOwner}

@@ -3,7 +3,7 @@ import type { BadgeTone } from '@detaileed/ui';
 
 /** Request statuses in filter order, with Polish labels and badge tones. */
 export const REQUEST_STATUSES: { value: OnlineRequestStatus; label: string; tone: BadgeTone }[] = [
-  { value: OnlineRequestStatus.Pending, label: 'Oczekujące', tone: 'amber' },
+  { value: OnlineRequestStatus.Pending, label: 'Oczekujące', tone: 'warning' },
   { value: OnlineRequestStatus.Accepted, label: 'Przyjęte', tone: 'success' },
   { value: OnlineRequestStatus.Rejected, label: 'Odrzucone', tone: 'danger' },
   { value: OnlineRequestStatus.Withdrawn, label: 'Wycofane', tone: 'neutral' },

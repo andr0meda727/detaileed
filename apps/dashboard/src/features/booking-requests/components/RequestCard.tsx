@@ -1,5 +1,5 @@
 import { Car, Clock } from 'lucide-react';
-import { Badge } from '@detaileed/ui';
+import { Badge, LicensePlate } from '@detaileed/ui';
 import { formatPln } from '@detaileed/domain/money';
 import { formatInZone } from '@detaileed/domain/studioTime';
 import { vehicleSizeLabel } from '@detaileed/domain/vehicleSize';
@@ -20,35 +20,39 @@ export function RequestCard({ request, timeZone, onOpen }: RequestCardProps) {
     <button
       type="button"
       onClick={onOpen}
-      className="w-full text-left floating-card p-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between"
+      className="flex w-full flex-col justify-between gap-4 rounded-lg border border-border bg-surface p-5 text-left transition-colors duration-150 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:flex-row sm:items-center"
     >
-      <div className="space-y-1.5 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="font-bold text-green-deep truncate">{request.customerName}</p>
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="truncate text-sm font-medium text-foreground">{request.customerName}</p>
           <Badge tone={status.tone} size="sm">
             {status.label}
           </Badge>
         </div>
-        <p className="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
-          <Car size={13} />
-          {car && `${car} · `}
-          <span className="font-mono">{request.vehicle.licensePlate}</span> · {vehicleSizeLabel(request.vehicle.size)}
+        <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+          <Car size={14} strokeWidth={1.75} aria-hidden />
+          {car && <span>{car}</span>}
+          <LicensePlate plate={request.vehicle.licensePlate} />
+          <span>{vehicleSizeLabel(request.vehicle.size)}</span>
         </p>
-        <p className="text-xs text-slate-400 truncate">{request.services.map((s) => s.name).join(', ')}</p>
+        <p className="truncate text-xs text-faint">{request.services.map((s) => s.name).join(', ')}</p>
       </div>
-      <div className="sm:text-right shrink-0 space-y-1">
-        <p className="text-sm font-bold text-green-deep flex sm:justify-end items-center gap-1.5">
-          <Clock size={13} />
-          {formatInZone(request.preferredAt, timeZone, {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
+      <div className="flex shrink-0 flex-col gap-1 sm:items-end">
+        <p className="flex items-center gap-1.5 text-sm text-foreground">
+          <Clock size={14} strokeWidth={1.75} className="text-muted-foreground" aria-hidden />
+          <span className="font-mono tabular-nums">
+            {formatInZone(request.preferredAt, timeZone, {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </span>
         </p>
-        <p className="text-xs font-semibold text-slate-500">
-          ≈ {formatPln(request.estimatedPrice)} zł{request.hasUnpricedServices && ' + wycena'}
+        <p className="text-xs text-muted-foreground">
+          ≈ <span className="font-mono tabular-nums">{formatPln(request.estimatedPrice)}</span> zł
+          {request.hasUnpricedServices && ' + wycena'}
         </p>
       </div>
     </button>
