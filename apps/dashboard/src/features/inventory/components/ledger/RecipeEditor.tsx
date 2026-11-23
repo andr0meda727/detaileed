@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FlaskConical, Plus, Save, X } from 'lucide-react';
-import { Button, Select, Skeleton, useToast } from '@detaileed/ui';
+import { Button, FormInput, Select, Skeleton, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useInventory } from '@/features/inventory/api/inventory';
 import { useRecipe, useSaveRecipe } from '@/features/inventory/api/ledger';
@@ -50,38 +50,38 @@ function Lines({ serviceId, recipe, items }: { serviceId: string; recipe: Recipe
   };
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-1">
+      {lines.length === 0 && <p className="pb-2 text-sm text-muted-foreground">Usługa nie ma jeszcze materiałów.</p>}
       {lines.map((line, i) => (
-        <div key={i} className="grid grid-cols-[1fr_110px_auto] gap-2 items-start">
+        <div key={i} className="grid grid-cols-[1fr_96px_auto] items-start gap-2">
           <Select
             aria-label="Materiał"
             options={options}
             value={line.itemId}
             onChange={(e) => update(i, { itemId: e.target.value })}
           />
-          <input
+          <FormInput
             aria-label="Ilość na średnie auto"
             inputMode="decimal"
+            placeholder="0"
             value={line.quantity}
             onChange={(e) => update(i, { quantity: e.target.value })}
-            className="px-3 py-3.5 bg-slate-50 rounded-xl font-semibold text-sm outline-hidden border-2 border-transparent focus:border-cream-warm/50"
+            className="text-right font-mono tabular-nums"
           />
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            icon={X}
             aria-label="Usuń materiał"
             onClick={() => setLines((ls) => ls.filter((_, k) => k !== i))}
-            className="p-3 rounded-xl hover:bg-red-50 hover:text-red-600"
-          >
-            <X size={15} />
-          </button>
+          />
         </div>
       ))}
       {error && (
-        <p role="alert" className="text-xs font-bold text-red-500">
+        <p role="alert" className="pb-2 text-xs text-danger">
           {error}
         </p>
       )}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button variant="ghost" icon={Plus} onClick={() => setLines((ls) => [...ls, { itemId: '', quantity: '' }])}>
           Dodaj materiał
         </Button>
@@ -101,15 +101,16 @@ export function RecipeEditor({ serviceId }: { serviceId: string }) {
   const recipe = useRecipe(serviceId);
   const { data: items = [], isLoading } = useInventory();
   return (
-    <div className="space-y-2">
-      <p className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
-        <FlaskConical size={13} /> Materiały na średnie auto
-      </p>
+    <section className="flex flex-col gap-3">
+      <h3 className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <FlaskConical size={16} strokeWidth={1.75} className="text-muted-foreground" aria-hidden />
+        Materiały na średnie auto
+      </h3>
       {recipe.isLoading || isLoading || !recipe.data ? (
-        <Skeleton width="100%" height="56px" className="rounded-xl" />
+        <Skeleton width="100%" height="56px" className="rounded-lg" />
       ) : (
         <Lines key={serviceId} serviceId={serviceId} recipe={recipe.data} items={items} />
       )}
-    </div>
+    </section>
   );
 }

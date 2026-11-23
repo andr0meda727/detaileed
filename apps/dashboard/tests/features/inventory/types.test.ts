@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { InventoryResponseDto } from '@detaileed/api-client';
-import { isLowStock, toInventoryItem } from '@/features/inventory/model/types';
+import { isLowStock, stockLevel, toInventoryItem } from '@/features/inventory/model/types';
 
 describe('inventory items', () => {
   it('turns quantities into numbers', () => {
@@ -14,5 +14,13 @@ describe('inventory items', () => {
     expect(isLowStock({ stock: 2, minStock: 3 })).toBe(true);
     expect(isLowStock({ stock: 3, minStock: 3 })).toBe(false);
     expect(isLowStock({ stock: 0, minStock: null })).toBe(false);
+  });
+
+  it('tells empty, low and fine stock apart', () => {
+    expect(stockLevel({ stock: 0, minStock: null })).toBe('out');
+    expect(stockLevel({ stock: 0, minStock: 2 })).toBe('out');
+    expect(stockLevel({ stock: 1, minStock: 2 })).toBe('low');
+    expect(stockLevel({ stock: 2, minStock: 2 })).toBe('ok');
+    expect(stockLevel({ stock: 5, minStock: null })).toBe('ok');
   });
 });
