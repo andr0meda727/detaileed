@@ -65,14 +65,8 @@ export const SearchTab: React.FC<Omit<TabProps, 'loading'>> = ({ bookings, onOpe
           </div>
           {globalSearchResults.length > 0 ? (
             <div className="space-y-2">
-              {globalSearchResults.map((b, idx) => (
-                <BookingCard
-                  key={b.id}
-                  booking={b}
-                  index={idx}
-                  onOpen={onOpen}
-                  onRequestStatusChange={onRequestStatusChange}
-                />
+              {globalSearchResults.map((b) => (
+                <BookingCard key={b.id} booking={b} onOpen={onOpen} onRequestStatusChange={onRequestStatusChange} />
               ))}
             </div>
           ) : (

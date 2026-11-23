@@ -93,14 +93,8 @@ export const InProgressTab: React.FC<TabProps> = ({ bookings, loading, onOpen, o
                 {formatDay(group.date, { weekday: 'long', day: 'numeric', month: 'long' })}
               </h3>
               <div className="space-y-2">
-                {group.bookings.map((b, idx) => (
-                  <BookingCard
-                    key={b.id}
-                    booking={b}
-                    index={idx}
-                    onOpen={onOpen}
-                    onRequestStatusChange={onRequestStatusChange}
-                  />
+                {group.bookings.map((b) => (
+                  <BookingCard key={b.id} booking={b} onOpen={onOpen} onRequestStatusChange={onRequestStatusChange} />
                 ))}
               </div>
             </section>

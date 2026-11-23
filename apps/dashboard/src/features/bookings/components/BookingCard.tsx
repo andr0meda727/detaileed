@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Check, MoreHorizontal, User, X } from 'lucide-react';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  LicensePlate,
+} from '@detaileed/ui';
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
 import { formatBookingDay, formatBookingTime } from '@/features/bookings/model/format';
@@ -8,132 +17,88 @@ import { useStudioTimeZone } from '@/features/studios';
 
 interface BookingCardProps {
   booking: Booking;
-  /** Position in the list, for the staggered fade-in. */
-  index?: number;
   onOpen: (booking: Booking) => void;
   onRequestStatusChange: (booking: Booking, status: BookingStatus) => void;
 }
 
-/** One booking in a list: date, vehicle, services, client and the complete/cancel menu. */
-export const BookingCard: React.FC<BookingCardProps> = ({ booking, index = 0, onOpen, onRequestStatusChange }) => {
+/** One booking in a list: date, vehicle, services, client, status and the complete/cancel menu. */
+export const BookingCard: React.FC<BookingCardProps> = ({ booking, onOpen, onRequestStatusChange }) => {
   const timeZone = useStudioTimeZone();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const { vehicle } = booking;
   return (
-    <div
-      onClick={() => onOpen(booking)}
-      className={`floating-card flex flex-col sm:flex-row items-stretch cursor-pointer ${menuOpen ? 'relative z-50' : 'relative z-10'}`}
-      style={{ animationDelay: `${index * 50}ms` }}
-    >
-      {/* Date/Time column */}
-      <div
-        className="p-5 sm:p-6 flex flex-col items-center justify-center min-w-[110px] shrink-0 rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl"
-        style={{ borderRight: '1px solid rgba(26,46,30,0.05)', background: 'rgba(26,46,30,0.02)' }}
-      >
-        <span className="text-2xl font-bold text-green-deep font-mono leading-none">
+    <div className="relative flex flex-col gap-3 rounded-lg border border-border bg-surface px-4 py-3 transition-colors duration-150 hover:bg-subtle sm:flex-row sm:items-center sm:gap-5">
+      {/* The whole card opens the details; the menu sits above this button. */}
+      <button
+        type="button"
+        onClick={() => onOpen(booking)}
+        aria-label={`Szczegóły rezerwacji ${vehicle.licensePlate}, ${vehicle.brand} ${vehicle.model}`}
+        className="absolute inset-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      />
+      <div className="pointer-events-none flex shrink-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 sm:w-28 sm:flex-col">
+        <span className="font-mono text-sm font-medium text-foreground tabular-nums">
           {formatBookingDay(booking.scheduledAt, timeZone)}
         </span>
-        <span className="text-[10px] font-semibold text-green-deep/35 font-mono tracking-widest mt-2">
+        <span className="font-mono text-xs text-muted-foreground tabular-nums">
           {formatBookingTime(booking.scheduledAt, timeZone)}–{formatBookingTime(booking.endsAt, timeZone)}
         </span>
-        {booking.bay && (
-          <span className="mt-1.5 text-[9px] font-bold text-green-light uppercase tracking-widest">
-            {booking.bay.name}
-          </span>
-        )}
+        {booking.bay && <span className="text-xs text-faint">{booking.bay.name}</span>}
       </div>
-      {/* Content */}
-      <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center space-y-2">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="bg-green-deep text-cream-warm px-4 py-1.5 rounded-lg font-mono text-[13px] font-bold tracking-widest shadow-xs">
-            {booking.vehicle.licensePlate}
-          </span>
-          <h4 className="font-sans font-bold text-green-deep text-base tracking-tight truncate">
-            {booking.vehicle.brand} {booking.vehicle.model}
+      <div className="pointer-events-none min-w-0 flex-1 space-y-1.5">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
+          <LicensePlate plate={vehicle.licensePlate} />
+          <h4 className="truncate text-sm font-medium text-foreground">
+            {vehicle.brand} {vehicle.model}
           </h4>
         </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-          <div className="flex flex-wrap gap-1.5">
-            {booking.services.length > 0 ? (
-              booking.services.map((s, idx) => (
-                <span
-                  key={idx}
-                  className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-widest bg-amber text-green-deep shadow-xs"
-                >
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          {booking.services.length > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              {booking.services.map((s, idx) => (
+                <span key={idx} className="rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
                   {s}
                 </span>
-              ))
-            ) : (
-              <span className="text-[11px] font-semibold text-green-deep/30 uppercase tracking-wide">Brak usług</span>
-            )}
-          </div>
-          <span className="text-[11px] font-semibold text-green-light/70">
-            <User size={10} className="inline mr-1" />
+              ))}
+            </div>
+          ) : (
+            <span className="text-xs text-faint">Brak usług</span>
+          )}
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <User size={12} strokeWidth={1.75} aria-hidden />
             {booking.client.name}
           </span>
         </div>
       </div>
-      {/* Status + quick actions */}
-      <div
-        className="px-5 sm:px-6 py-4 flex items-center justify-end gap-3 sm:shrink-0 rounded-b-2xl sm:rounded-b-none sm:rounded-r-2xl"
-        style={{ borderTop: '1px solid rgba(26,46,30,0.04)', background: 'rgba(26,46,30,0.01)' }}
-      >
-        {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setMenuOpen(!menuOpen);
-              }}
-              title="Więcej akcji"
-              className="w-11 h-11 flex items-center justify-center rounded-xl bg-white text-slate-500 hover:bg-slate-50 hover:text-green-deep transition-all active:scale-95 border border-slate-200 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]"
-            >
-              <MoreHorizontal size={22} strokeWidth={2.5} />
-            </button>
-            {menuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMenuOpen(false);
-                  }}
-                />
-                <div
-                  className="absolute right-0 top-12 z-50 w-48 bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-100 py-1.5 animate-zoom-in"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    onClick={(e) => {
-                      setMenuOpen(false);
-                      e.stopPropagation();
-                      onRequestStatusChange(booking, BOOKING_STATUSES.ZAKONCZONA);
-                    }}
-                    className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-green-50 transition-colors text-[12px] font-bold text-green-deep"
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0">
-                      <Check size={14} strokeWidth={2.5} />
-                    </div>
-                    Zakończ zlecenie
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      setMenuOpen(false);
-                      e.stopPropagation();
-                      onRequestStatusChange(booking, BOOKING_STATUSES.ANULOWANA);
-                    }}
-                    className="w-full px-3 py-2 text-left flex items-center gap-3 hover:bg-red-50 transition-colors text-[12px] font-bold text-red-500"
-                  >
-                    <div className="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
-                      <X size={14} strokeWidth={2.5} />
-                    </div>
-                    Anuluj zlecenie
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        )}
+      <div className="pointer-events-none flex shrink-0 items-center justify-end gap-2">
         <BookingStatusBadge booking={booking} />
+        {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={MoreHorizontal}
+                aria-label="Więcej akcji"
+                className="pointer-events-auto relative"
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem
+                icon={Check}
+                onSelect={() => onRequestStatusChange(booking, BOOKING_STATUSES.ZAKONCZONA)}
+              >
+                Zakończ zlecenie
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                danger
+                icon={X}
+                onSelect={() => onRequestStatusChange(booking, BOOKING_STATUSES.ANULOWANA)}
+              >
+                Anuluj zlecenie
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </div>
   );
