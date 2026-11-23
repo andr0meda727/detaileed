@@ -1,12 +1,14 @@
 ﻿import React, { useState, useMemo } from 'react';
-import { Search, User, Download } from 'lucide-react';
+import { Archive, Download } from 'lucide-react';
 import type { Booking } from '@/features/bookings/model/types';
 import { formatPln } from '@detaileed/domain/money';
 import { useBookings } from '@/features/bookings/api/bookings';
-import { Button, useToast, Modal, Skeleton } from '@detaileed/ui';
+import { Button, Card, EmptyState, LicensePlate, SearchInput, Skeleton, useToast } from '@detaileed/ui';
 import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 import { formatBookingDay, formatBookingTime } from '@/features/bookings/model/format';
 import { useStudioTimeZone } from '@/features/studios';
+import { BookingStatusBadge } from '@/features/bookings/components/BookingStatusBadge';
+import { ArchivedBookingModal } from '@/features/bookings/components/ArchivedBookingModal';
 
 export const ArchivedView: React.FC = () => {
   const { addToast } = useToast();
@@ -25,160 +27,90 @@ export const ArchivedView: React.FC = () => {
   }, [searchQuery, bookings]);
 
   const timeZone = useStudioTimeZone();
-  const formatTime = (iso: string) => formatBookingTime(iso, timeZone);
-  const formatDateShort = (iso: string) => formatBookingDay(iso, timeZone);
-
-  // Removed full-page loading to keep layout static
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="space-y-6 pb-20">
       <GlobalHeader
         title="Archiwum"
-        subtitle="Pełna Historia Operacyjna • Detaileed"
+        subtitle="Pełna historia operacyjna"
         onAddBooking={() => addToast('Globalny moduł tworzenia rezerwacji zostanie podpięty w kolejnym kroku.', 'info')}
         onAddClient={() =>
           addToast('Globalny moduł szybkiego dodawania klienta zostanie podpięty w kolejnym kroku.', 'info')
         }
       />
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1 relative group">
-          <div className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-light transition-colors">
-            <Search size={20} />
-          </div>
-          <input
-            type="text"
-            placeholder="Szukaj w historii..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-14 pr-8 py-5 bg-white border border-slate-200 rounded-2xl font-bold text-sm outline-hidden shadow-xs focus:ring-8 focus:ring-cream-warm/20 focus:border-cream-warm/40 transition-all"
-          />
-        </div>
-        <Button size="lg" icon={Download}>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <SearchInput
+          aria-label="Szukaj w historii"
+          placeholder="Szukaj w historii..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onClear={() => setSearchQuery('')}
+          wrapperClassName="flex-1"
+        />
+        <Button variant="secondary" icon={Download}>
           Eksportuj
         </Button>
       </div>
 
-      <div className="space-y-4">
+      <Card className="overflow-hidden">
         {loading ? (
-          [1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="floating-card-static p-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-6 h-auto sm:h-[104px]"
-            >
-              <div className="w-24 sm:border-r border-slate-50 flex flex-col items-center justify-center shrink-0 space-y-2">
-                <Skeleton width="48px" height="24px" className="rounded-md" />
-                <Skeleton width="36px" height="12px" className="rounded-md" />
-              </div>
-              <div className="flex-1 min-w-0 space-y-3 flex flex-col justify-center">
-                <div className="flex items-center gap-3">
-                  <Skeleton width="70px" height="22px" className="rounded-lg shrink-0" />
-                  <Skeleton width="140px" height="22px" className="rounded-lg" />
+          <ul className="divide-y divide-border">
+            {[1, 2, 3, 4].map((i) => (
+              <li key={i} className="flex items-center gap-4 px-4 py-3">
+                <Skeleton width="48px" height="32px" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton width="180px" height="16px" />
+                  <Skeleton width="40%" height="12px" />
                 </div>
-                <Skeleton width="40%" height="16px" className="rounded-md" />
-              </div>
-              <div className="flex flex-col items-end justify-center shrink-0 space-y-3">
-                <Skeleton width="80px" height="28px" className="rounded-lg" />
-                <Skeleton width="60px" height="14px" className="rounded-md" />
-              </div>
-            </div>
-          ))
-        ) : (
-          <>
-            {filteredBookings.map((booking) => (
-              <div
-                key={booking.id}
-                onClick={() => setSelectedBooking(booking)}
-                className="bg-white rounded-3xl border border-slate-100 p-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-6 hover:shadow-lg transition-all cursor-pointer group"
-              >
-                <div className="w-24 sm:border-r border-slate-100 flex flex-col items-center justify-center shrink-0">
-                  <span className="text-xl font-extrabold text-green-deep font-mono">
-                    {formatDateShort(booking.scheduledAt)}
-                  </span>
-                  <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-1">
-                    {formatTime(booking.scheduledAt)}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className="bg-green-deep text-cream-warm px-3 py-1 rounded-lg font-mono text-[10px] font-semibold">
-                      {booking.vehicle.licensePlate}
-                    </span>
-                    <h4 className="text-lg font-bold text-green-deep truncate">
-                      {booking.vehicle.brand} {booking.vehicle.model}
-                    </h4>
-                  </div>
-                  <p className="text-xs font-bold text-slate-500 truncate">
-                    {booking.services.join(', ') || 'Brak usług'}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end justify-center shrink-0">
-                  <p className="text-xl font-extrabold text-green-deep font-mono leading-none">
-                    {formatPln(booking.totalPrice)}
-                  </p>
-                  <span
-                    className="text-[9px] font-semibold uppercase mt-1"
-                    style={{ color: booking.statusColor || '#22c55e' }}
-                  >
-                    {booking.status}
-                  </span>
-                </div>
-              </div>
+                <Skeleton width="80px" height="20px" />
+              </li>
             ))}
-          </>
+          </ul>
+        ) : filteredBookings.length > 0 ? (
+          <ul className="divide-y divide-border">
+            {filteredBookings.map((booking) => (
+              <li key={booking.id}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedBooking(booking)}
+                  className="flex w-full flex-col gap-3 px-4 py-3 text-left transition-colors duration-150 hover:bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:flex-row sm:items-center sm:gap-5"
+                >
+                  <span className="flex shrink-0 items-baseline gap-2 font-mono tabular-nums sm:w-16 sm:flex-col sm:gap-0.5">
+                    <span className="text-sm font-medium text-foreground">
+                      {formatBookingDay(booking.scheduledAt, timeZone)}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatBookingTime(booking.scheduledAt, timeZone)}
+                    </span>
+                  </span>
+                  <span className="min-w-0 flex-1 space-y-1">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <LicensePlate plate={booking.vehicle.licensePlate} />
+                      <span className="truncate text-sm font-medium text-foreground">
+                        {booking.vehicle.brand} {booking.vehicle.model}
+                      </span>
+                    </span>
+                    <span className="block truncate text-xs text-muted-foreground">
+                      {booking.services.join(', ') || 'Brak usług'}
+                    </span>
+                  </span>
+                  <span className="flex shrink-0 items-center justify-between gap-3 sm:flex-col sm:items-end sm:gap-1">
+                    <span className="font-mono text-sm font-medium text-foreground tabular-nums">
+                      {formatPln(booking.totalPrice)}
+                    </span>
+                    <BookingStatusBadge booking={booking} />
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <EmptyState icon={Archive} message="Brak archiwalnych zleceń" />
         )}
-        {!loading && filteredBookings.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-lg font-bold text-slate-300">Brak archiwalnych zleceń</p>
-          </div>
-        )}
-      </div>
+      </Card>
 
-      <Modal isOpen={!!selectedBooking} onClose={() => setSelectedBooking(null)} title="Szczegóły Archiwalne">
-        {selectedBooking && (
-          <div className="space-y-6">
-            <div className="p-6 bg-green-deep rounded-3xl text-cream-warm flex items-center justify-between">
-              <div>
-                <p className="text-[9px] font-semibold text-white/40 uppercase tracking-widest mb-1">Klient</p>
-                <h4 className="text-xl font-semibold">{selectedBooking.client.name}</h4>
-              </div>
-              <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center">
-                <User size={24} />
-              </div>
-            </div>
-            <div className="p-6 bg-slate-50 rounded-3xl space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-slate-400 uppercase">Pojazd</span>
-                <span className="text-sm font-semibold text-green-deep">
-                  {selectedBooking.vehicle.brand} {selectedBooking.vehicle.model} •{' '}
-                  {selectedBooking.vehicle.licensePlate}
-                </span>
-              </div>
-              <div className="flex justify-between items-center border-t border-slate-200 pt-4">
-                <span className="text-xs font-bold text-slate-400 uppercase">Usługi</span>
-                <span className="text-sm font-semibold text-green-deep">
-                  {selectedBooking.services.join(', ') || '—'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center border-t border-slate-200 pt-4">
-                <span className="text-xs font-bold text-slate-400 uppercase">Cena Netto</span>
-                <span className="text-xl font-semibold text-green-deep font-mono">
-                  {formatPln(selectedBooking.totalPrice)} PLN
-                </span>
-              </div>
-              {selectedBooking.notes && (
-                <div className="border-t border-slate-200 pt-4">
-                  <span className="text-xs font-bold text-slate-400 uppercase">Notatki</span>
-                  <p className="text-sm text-slate-600 mt-1">{selectedBooking.notes}</p>
-                </div>
-              )}
-            </div>
-            <Button size="lg" fullWidth onClick={() => setSelectedBooking(null)}>
-              Zamknij
-            </Button>
-          </div>
-        )}
-      </Modal>
+      <ArchivedBookingModal booking={selectedBooking} onClose={() => setSelectedBooking(null)} />
     </div>
   );
 };
