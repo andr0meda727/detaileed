@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { PackagePlus } from 'lucide-react';
 import { StockChangeKind } from '@detaileed/api-client';
-import { Button, FormInput, useToast } from '@detaileed/ui';
+import { Button, FormInput, SegmentedControl, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useAddMovement } from '@/features/inventory/api/ledger';
 import { QUANTITY, parseQuantity } from '@/features/inventory/model/ledger';
@@ -42,32 +42,28 @@ export function MovementForm({ itemId, unit }: { itemId: string; unit: string })
 
   return (
     <form
-      className="space-y-2 bg-slate-50 rounded-2xl p-4"
+      className="flex flex-col gap-3 rounded-lg border border-border bg-subtle p-4"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
       }}
     >
-      <div className="flex bg-white p-1 rounded-xl w-fit">
-        {KINDS.map((k) => (
-          <button
-            key={k.value}
-            type="button"
-            aria-pressed={kind === k.value}
-            onClick={() => setKind(k.value)}
-            className={`px-4 py-2 rounded-lg text-[10px] font-bold uppercase tracking-widest ${kind === k.value ? 'bg-green-deep text-cream-warm' : 'text-slate-400'}`}
-          >
-            {k.label}
-          </button>
-        ))}
-      </div>
-      <div className="grid sm:grid-cols-[160px_1fr] gap-x-3">
+      <SegmentedControl
+        aria-label="Rodzaj zmiany stanu"
+        size="sm"
+        options={KINDS}
+        value={kind}
+        onValueChange={setKind}
+        className="self-start"
+      />
+      <div className="grid gap-x-3 sm:grid-cols-2">
         <FormInput
           label={`${current.hint} (${unit})`}
           inputMode="decimal"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           error={error ?? undefined}
+          className="font-mono tabular-nums"
         />
         <FormInput
           label="Notatka (opcjonalnie)"
@@ -76,7 +72,7 @@ export function MovementForm({ itemId, unit }: { itemId: string; unit: string })
           onChange={(e) => setNote(e.target.value)}
         />
       </div>
-      <Button type="submit" icon={PackagePlus} loading={add.isPending}>
+      <Button type="submit" icon={PackagePlus} loading={add.isPending} className="self-end">
         Zapisz
       </Button>
     </form>

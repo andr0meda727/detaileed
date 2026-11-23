@@ -66,7 +66,7 @@ describe('ItemHistoryModal', () => {
       expect.anything(),
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Inwentaryzacja' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Inwentaryzacja' }));
     fireEvent.change(screen.getByLabelText(/Ile jest naprawdę/), { target: { value: '4' } });
     fireEvent.click(screen.getByRole('button', { name: 'Zapisz' }));
     expect(add).toHaveBeenLastCalledWith(
