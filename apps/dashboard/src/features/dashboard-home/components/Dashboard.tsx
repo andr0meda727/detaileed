@@ -105,10 +105,9 @@ export const Dashboard: React.FC = () => {
         loading={showLoading}
       />
 
-      {/* Main Content Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        {/* === LEFT COLUMN === */}
-        <div className="lg:col-span-8 flex flex-col gap-6 lg:gap-8">
+      {/* Schedule, revenue and upcoming bookings on the left; shortcuts, stock and activity on the right. */}
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="flex min-w-0 flex-col gap-6">
           <TodaySchedule
             bookings={todayBookings}
             loading={showLoading}
@@ -116,7 +115,6 @@ export const Dashboard: React.FC = () => {
             onRequestStatusChange={requestStatusChange}
           />
 
-          {/* Revenue Chart */}
           <RevenueChart bookings={completedBookings} />
 
           <UpcomingBookings
@@ -127,8 +125,7 @@ export const Dashboard: React.FC = () => {
           />
         </div>
 
-        {/* === RIGHT COLUMN === */}
-        <div className="lg:col-span-4 flex flex-col gap-6 lg:gap-8">
+        <div className="flex min-w-0 flex-col gap-6">
           <QuickActions
             onNewBooking={handleOpenNewBooking}
             onNewClient={() => setIsClientModalOpen(true)}
@@ -142,7 +139,6 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* === MODALS === */}
       {confirmDialog}
 
       <CreateClientModal
