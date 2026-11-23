@@ -157,7 +157,115 @@ Don't:
 
 ## Components: basics
 
-<!-- Filled by task T2b. -->
+Plain React components from `@detaileed/ui`, styled with the tokens above; `className` is merged last with `cn()`, so it
+wins, and it is for layout (margins, width, grid placement). Every prop they had before Grafit still works. The dev page
+`/dev/ui` on the site (`pnpm --filter @detaileed/web dev`, absent from production builds) shows each of them in a light
+and a dark panel side by side and links to `/dev/ui/interactive`.
+
+### Actions
+
+- **`Button`** (`variant: 'primary' | 'secondary' | 'ghost' | 'danger'`, `size: 'sm' | 'md' | 'lg'` = 32/36/40px,
+  `icon?`, `loading?`, `fullWidth?`, every `<button>` prop): `primary` is the inverted main action (one per view),
+  `secondary` an outline, `ghost` a quiet action in toolbars and rows, `danger` a solid destructive one. `success` is
+  kept as an alias of `primary`. `type` defaults to `"button"`. `loading` swaps the icon for a spinner and disables the
+  button. Without children it is a square icon button, and TypeScript then requires an `aria-label`.
+
+```tsx
+<Button icon={Plus}>Nowa rezerwacja</Button>
+<Button variant="secondary" loading={save.isPending} type="submit">Zapisz</Button>
+<Button variant="ghost" size="sm" icon={Trash2} aria-label="Usuń pojazd" />
+```
+
+### Status and identity
+
+- **`Badge`** (`tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger'`, `color?`, `size?`, `dot = true`): a
+  status pill with a 6px dot, toned by the status → tone map above. `brand` and `amber` are kept as aliases of
+  `neutral` and `warning`. `color` (a status colour from the API) colours only the dot, on a neutral pill.
+- **`Avatar`** (`name`, `size: 'sm' | 'md' | 'lg'` = 24/32/40px, `decorative?`): a round tile with up to two initials,
+  named by `name` for screen readers; pass `decorative` when the name is written next to it.
+- **`LicensePlate`** (`plate`): a registration number in a bordered mono chip, upper case with single spaces.
+- **`Kbd`**: a key or shortcut, `<Kbd>Esc</Kbd>`.
+- **`Logo`** (`variant: 'full' | 'mark'`, `size = 24`): the mark (a rounded square with a "d" cut out) plus the
+  "detaileed" wordmark, in `currentColor`, so it takes the text colour around it. `LogoMark` is the mark alone;
+  `logoMarkSvg(color)` returns it as an SVG document for favicons.
+- **`StarRating`** (`value`, `onChange?`, `size?`, `label?`): read-only stars (fractions fill part of a star) or, with
+  `onChange`, a radio group picking a whole rating. Stars use the `star` token.
+
+### Forms
+
+- **`FormInput`**, **`Select`** (a native `<select>` with `options`), **`Textarea`**: `label?`, `error?`, `hint?` and
+  every prop of the native control, which gets `className` and `ref` (they work with react-hook-form's `register`).
+  36px high (the textarea grows), `bg-surface`, `border-strong`, a focus ring; the label sits above in 13px medium;
+  the hint and the error sit below and are linked with `aria-describedby`; an error also sets `aria-invalid` and a
+  `danger` border. `FormInput` takes `leftIcon` / `rightIcon`.
+- **`FieldError`** (`id`, `children`): the error line for controls that don't show one themselves (a `Checkbox`, a
+  `RadioCardGroup`, a custom picker). Point the control's `aria-describedby` at its `id`; it renders nothing without
+  a message.
+- **`SearchInput`** (`aria-label` or `aria-labelledby` required, `onClear?`, every `<input>` prop and `ref`): a search
+  field with an icon; with a controlled `value` and `onClear` it shows a clear button ("Wyczyść wyszukiwanie") and
+  Escape clears it.
+- **`FormSection`** (`icon`, `title`, `tone?: 'dark' | 'amber'`, `actions?`, `children`): a card with an icon tile and
+  a title, grouping the steps of a long form; `tone="amber"` only tints the tile. The body brings its own padding.
+
+```tsx
+<FormInput label="Telefon" hint="9 cyfr" error={errors.phone?.message} {...register('phone')} />
+<Select label="Wielkość auta" options={VEHICLE_SIZE_OPTIONS} {...register('size')} />
+<SearchInput aria-label="Szukaj klienta" value={q} onChange={(e) => setQ(e.target.value)} onClear={() => setQ('')} />
+```
+
+### Layout
+
+- **`PageHeader`** (`title`, `description?`, `actions?`, `breadcrumb?`): the screen's `<h1>` in `text-2xl`, one line of
+  description, the actions on the right (below the title on phones).
+- **`Card`**, **`CardHeader`** (`title?`, `description?`, `actions?`, `titleAs = 'h2'`), **`CardContent`** (`p-5`),
+  **`CardFooter`** (actions on the right, primary last): the bordered `surface` panel, no shadow.
+- **`Stat`** (`label`, `value`, `hint?`, `tone?`): a key figure in mono with tabular digits; `tone` colours the hint
+  (growth in `success`, a shortage in `warning`). Put stats in cards.
+- **`Table`** (`wrapperClassName?`), **`TableHeader`**, **`TableBody`**, **`TableRow`**, **`TableHead`**,
+  **`TableCell`**: a data table with row borders only and a 12px `faint` head on `subtle`. It scrolls sideways inside
+  its wrapper, never the page: give it a `min-w-*` when the columns need room, and put it in a `Card` without padding.
+  Times, money and counts in cells get `font-mono tabular-nums`; numbers align right.
+- **`Pagination`** (`page` from 1, `totalPages`, `onPageChange`): "Poprzednia", "Strona X z Y", "Następna"; renders
+  nothing for a single page.
+
+```tsx
+<PageHeader title="Klienci" description="218 osób w bazie" actions={<Button icon={Plus}>Nowy klient</Button>} />
+<Card>
+  <CardHeader title="Dzisiejszy grafik" actions={<Link to="…">Otwórz grafik</Link>} />
+  <Table aria-label="Dzisiejsze wizyty" className="min-w-[640px]">…</Table>
+</Card>
+```
+
+### Feedback and states
+
+- **`Alert`** (`tone`, `title?`, `children`, `icon?`, `action?`): a message in the page on a `-soft` fill. `danger` is
+  `role="alert"` (announced at once), the rest `role="status"`. Errors get a retry action.
+- **`EmptyState`** (`message`, `title?`, `icon?`, `action?`): an icon in a `muted` circle, one sentence, one action.
+- **`Skeleton`** (`width?`, `height?`, `circle?`, `className?`): a `muted` block in the shape of loading content; it
+  pulses only without `prefers-reduced-motion`; `className` overrides its shape.
+- **`LoadingSpinner`** (`size = 20`, `className?`, `fullPage?`, `label = 'Ładowanie…'`): `role="status"` with
+  screen-reader text; for actions and whole-page loads, not for content (use skeletons).
+- **Toasts** (`ToastProvider` once at the root, `useToast().addToast(message, 'success' | 'error' | 'info')`): a card
+  in the bottom-right corner (full width on phones) for about 5 s, held while hovered or focused, with a close button
+  labelled "Zamknij". Errors are announced assertively (`role="alert"`), the rest politely. Failed mutations are
+  toasted globally already.
+
+```tsx
+<Alert
+  tone="danger"
+  title="Nie udało się wczytać rezerwacji"
+  action={<Button size="sm" variant="secondary" onClick={() => refetch()}>Spróbuj ponownie</Button>}
+/>
+<EmptyState icon={Inbox} message="Brak zapytań. Opublikuj profil studia." action={<Button>Opublikuj profil</Button>} />
+```
+
+### Maps and captcha
+
+- **`MapView`** and **`MapPicker`** (from `@detaileed/ui/map`, load them lazily): without `styleUrl` they follow the
+  theme with `useTheme().resolved`, OpenFreeMap positron in light and dark in dark (`MAP_STYLES`, `useMapStyle`); an
+  app's env style URL overrides both. `DEFAULT_MAP_STYLE` (positron) stays exported. Pins are `surface` pills with a
+  `border-strong` outline; the selected one is the inverted primary. The picker's pin is a `primary` marker.
+- **`Turnstile`** renders with `theme: 'auto'`.
 
 ## Components: interactive
 
