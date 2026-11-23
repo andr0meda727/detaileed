@@ -1,92 +1,94 @@
 import { useMemo, useState } from 'react';
-import { Edit2, Package, Plus, Search } from 'lucide-react';
+import { History, Package, Pencil, Plus } from 'lucide-react';
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  SearchInput,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@detaileed/ui';
 import { MOCK_INVENTORY } from '../../model/demoData';
 import { DemoHeader } from './DemoHeader';
 
-const TH = 'px-10 py-8 text-[10px] font-semibold uppercase tracking-widest text-slate-400';
-
-/** The demo's stock list with a search; items under their minimum are red. */
+/** The demo's stock list with a search; items under their minimum get a "Niski stan" badge. */
 export function InventoryView() {
   const [query, setQuery] = useState('');
   const filtered = useMemo(() => {
-    const q = query.toLowerCase();
+    const q = query.trim().toLowerCase();
     return MOCK_INVENTORY.filter((i) => i.name.toLowerCase().includes(q) || i.categoryName.toLowerCase().includes(q));
   }, [query]);
 
   return (
-    <div className="space-y-6 sm:space-y-10">
-      <DemoHeader title="Magazyn" subtitle="Baza Produktów Studio OS" />
+    <div className="space-y-6">
+      <DemoHeader title="Magazyn" subtitle="Baza produktów" />
 
-      <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1 relative group">
-          <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            aria-label="Szukaj produktu"
-            placeholder="Szukaj produktu..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-14 pr-6 py-5 bg-white border border-slate-200 rounded-xl outline-none shadow-sm focus:ring-8 focus:ring-cream-warm/20 transition-all font-bold text-sm sm:text-base"
-          />
-        </div>
-        <button
-          type="button"
-          className="bg-green-deep text-cream px-10 py-5 rounded-xl font-semibold text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl transition-all"
-        >
-          <Plus size={18} /> Dodaj Produkt
-        </button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <SearchInput
+          aria-label="Szukaj produktu"
+          placeholder="Szukaj produktu..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onClear={() => setQuery('')}
+          wrapperClassName="sm:w-80"
+        />
+        <Button variant="secondary" icon={Plus}>
+          Dodaj produkt
+        </Button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[750px]">
-            <thead>
-              <tr className="bg-slate-50/50 border-b border-slate-100">
-                <th className={TH}>Produkt</th>
-                <th className={TH}>Kategoria</th>
-                <th className={`${TH} text-right`}>Stan</th>
-                <th className={`${TH} text-center`}>Akcje</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filtered.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/50 transition-all group">
-                  <td className="px-10 py-8">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center text-slate-300 group-hover:text-green-light transition-colors">
-                        <Package size={20} />
-                      </div>
-                      <span className="font-bold text-green-deep text-base lg:text-lg tracking-tighter">
-                        {item.name}
-                      </span>
+      <Card className="overflow-hidden">
+        <Table aria-label="Produkty w magazynie" className="sm:min-w-[640px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Produkt</TableHead>
+              <TableHead className="max-sm:hidden">Kategoria</TableHead>
+              <TableHead className="text-right">Stan</TableHead>
+              <TableHead className="w-20 text-right sm:w-24">
+                <span className="sr-only">Akcje</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((item) => (
+              <TableRow key={item.id} className="hover:bg-muted/50">
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground max-sm:hidden">
+                      <Package size={16} strokeWidth={1.75} aria-hidden />
                     </div>
-                  </td>
-                  <td className="px-10 py-8">
-                    <span className="px-4 py-1.5 bg-white border border-slate-100 text-slate-500 rounded-lg text-[10px] font-semibold uppercase tracking-widest">
-                      {item.categoryName}
+                    <div className="flex min-w-0 flex-col">
+                      <span className="font-medium">{item.name}</span>
+                      <span className="text-xs text-muted-foreground sm:hidden">{item.categoryName}</span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground max-sm:hidden">{item.categoryName}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex flex-col-reverse items-end gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
+                    {item.stock < item.minStock && <Badge tone="warning">Niski stan</Badge>}
+                    <span className="font-mono font-medium tabular-nums whitespace-nowrap">
+                      {item.stock} <span className="text-faint">{item.unit}</span>
                     </span>
-                  </td>
-                  <td
-                    className={`px-10 py-8 text-right font-mono text-xl lg:text-2xl font-extrabold ${item.stock < item.minStock ? 'text-red-500' : 'text-green-deep'}`}
-                  >
-                    {item.stock}
-                    <span className="text-[10px] ml-1 opacity-40 uppercase">{item.unit}</span>
-                  </td>
-                  <td className="px-10 py-8 text-center">
-                    <button
-                      type="button"
-                      aria-label="Edytuj"
-                      className="p-3 bg-white border border-slate-200 text-slate-400 rounded-xl hover:bg-green-deep hover:text-cream transition-all"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                  </div>
+                </TableCell>
+                <TableCell className="max-sm:px-2">
+                  <div className="flex justify-end gap-0.5 sm:gap-1">
+                    <Button variant="ghost" size="sm" icon={History} aria-label={`Historia i dostawy: ${item.name}`} />
+                    <Button variant="ghost" size="sm" icon={Pencil} aria-label={`Edytuj: ${item.name}`} />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {filtered.length === 0 && <EmptyState message="Brak produktów w magazynie" icon={Package} />}
+      </Card>
     </div>
   );
 }
