@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { ToastProvider } from '@detaileed/ui';
@@ -19,6 +19,18 @@ const schedule: Schedule = {
   durationMultipliers: { small: 0.85, medium: 1, large: 1.25, xl: 1.5 },
 };
 const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{children}</ToastProvider>;
+
+// jsdom has no ResizeObserver; the Radix switch measures itself with one.
+beforeEach(() => {
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+});
 
 describe('ScheduleSettings', () => {
   it('copies Monday to the workdays and saves the hours', async () => {
@@ -56,5 +68,18 @@ describe('ScheduleSettings', () => {
     render(<ScheduleSettings schedule={schedule} canEdit={false} />, { wrapper });
     expect(screen.queryByRole('button', { name: 'Zapisz godziny i zasady' })).toBeNull();
     expect(screen.getAllByLabelText('Poniedziałek: otwarcie')[0]).toBeDisabled();
+  });
+
+  it('opens and closes a day with its switch', () => {
+    render(<ScheduleSettings schedule={schedule} canEdit />, { wrapper });
+    const tuesday = screen.getByRole('switch', { name: 'Wtorek: otwarte' });
+    expect(tuesday).not.toBeChecked();
+
+    fireEvent.click(tuesday);
+    expect(screen.getAllByText('Zamknięte')).toHaveLength(5);
+    expect(screen.getByLabelText('Wtorek: otwarcie')).toHaveValue('08:00');
+
+    fireEvent.click(screen.getByRole('switch', { name: 'Poniedziałek: otwarte' }));
+    expect(screen.getAllByText('Zamknięte')).toHaveLength(6);
   });
 });

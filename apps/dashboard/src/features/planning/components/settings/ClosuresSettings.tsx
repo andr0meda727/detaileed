@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CalendarOff, Plus, Trash2 } from 'lucide-react';
-import { Button, FormInput, FormSection, useToast } from '@detaileed/ui';
+import { Button, Card, CardContent, CardHeader, FormInput, useToast } from '@detaileed/ui';
 import { formatDay, todayInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 import { useAddClosure, useRemoveClosure } from '@/features/planning/api/planning';
@@ -33,27 +33,28 @@ export function ClosuresSettings({ closures, canEdit }: { closures: Schedule['cl
     );
 
   return (
-    <FormSection icon={CalendarOff} title="Dni zamknięcia">
-      <div className="p-5 space-y-3">
+    <Card>
+      <CardHeader title="Dni zamknięcia" />
+      <CardContent className="flex flex-col gap-4">
         {upcoming.length === 0 ? (
-          <p className="text-sm text-slate-400">Brak zaplanowanych dni zamknięcia.</p>
+          <p className="text-sm text-faint">Brak zaplanowanych dni zamknięcia.</p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="divide-y divide-border rounded-md border border-border">
             {upcoming.map((c) => (
-              <li key={c.date} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50">
-                <span className="font-semibold text-green-deep first-letter:uppercase">
+              <li key={c.date} className="flex min-h-13 flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
+                <CalendarOff size={16} strokeWidth={1.75} className="text-muted-foreground" aria-hidden />
+                <span className="text-sm font-medium text-foreground first-letter:uppercase">
                   {formatDay(c.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
-                <span className="flex-1 text-sm text-slate-500">{c.reason}</span>
+                <span className="flex-1 text-sm text-muted-foreground">{c.reason}</span>
                 {canEdit && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    icon={Trash2}
                     aria-label={`Usuń zamknięcie ${c.date}`}
                     onClick={() => remove.mutate(c.date, { onError: fail })}
-                    className="p-2 rounded-lg hover:bg-red-50 hover:text-red-600"
-                  >
-                    <Trash2 size={15} />
-                  </button>
+                  />
                 )}
               </li>
             ))}
@@ -61,7 +62,7 @@ export function ClosuresSettings({ closures, canEdit }: { closures: Schedule['cl
         )}
         {canEdit && (
           <form
-            className="grid sm:grid-cols-[180px_1fr_auto] gap-x-3 items-start"
+            className="grid items-start gap-x-3 sm:grid-cols-[180px_1fr_auto]"
             onSubmit={(e) => {
               e.preventDefault();
               if (date) submit();
@@ -73,6 +74,7 @@ export function ClosuresSettings({ closures, canEdit }: { closures: Schedule['cl
               min={today}
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              className="font-mono tabular-nums"
             />
             <FormInput
               aria-label="Powód"
@@ -80,12 +82,12 @@ export function ClosuresSettings({ closures, canEdit }: { closures: Schedule['cl
               value={reason}
               onChange={(e) => setReason(e.target.value)}
             />
-            <Button type="submit" icon={Plus} loading={add.isPending} disabled={!date}>
+            <Button variant="secondary" type="submit" icon={Plus} loading={add.isPending} disabled={!date}>
               Dodaj
             </Button>
           </form>
         )}
-      </div>
-    </FormSection>
+      </CardContent>
+    </Card>
   );
 }
