@@ -1,5 +1,6 @@
 import React from 'react';
 import { Plus, UserPlus } from 'lucide-react';
+import { Button, PageHeader } from '@detaileed/ui';
 
 interface GlobalHeaderProps {
   title: string;
@@ -8,44 +9,27 @@ interface GlobalHeaderProps {
   onAddClient?: () => void;
 }
 
-export const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooking, onAddClient }) => {
-  return (
-    <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 lg:mb-12 animate-slide-up">
-      <div className="space-y-2">
-        <div className="flex items-center gap-4">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-green-deep tracking-tight leading-none">
-            {title}
-          </h1>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-deep/8 text-green-deep rounded-lg text-[9px] font-bold uppercase tracking-[0.15em] border border-green-deep/10 shrink-0">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-light" style={{ animation: 'pulse 2s infinite' }}></div>
-            Live Mode
-          </div>
-          <p className="text-green-light/70 font-semibold text-[12px] truncate">{subtitle}</p>
-        </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        {onAddBooking && (
-          <button
-            onClick={onAddBooking}
-            className="flex items-center justify-center gap-2.5 bg-amber text-green-deep px-6 lg:px-8 py-3.5 lg:py-4 rounded-lg font-bold text-[12px] lg:text-[13px] shadow-[0_8px_24px_-8px_rgba(232,168,48,0.5)] hover:-translate-y-1 hover:bg-amber-light hover:shadow-[0_16px_32px_-8px_rgba(232,168,48,0.55)] transition-all duration-300 group"
-          >
-            <Plus size={16} strokeWidth={3} className="group-hover:rotate-90 transition-transform duration-300" />
-            <span className="whitespace-nowrap tracking-wide uppercase">Dodaj Rezerwację</span>
-          </button>
-        )}
-        {onAddClient && (
-          <button
-            onClick={onAddClient}
-            className="flex items-center justify-center gap-2 bg-white text-green-deep border border-green-deep/15 px-6 lg:px-8 py-3.5 lg:py-4 rounded-lg font-bold text-[12px] lg:text-[13px] hover:bg-green-deep/4 hover:border-green-deep/25 hover:-translate-y-0.5 transition-all duration-300 group shadow-xs"
-          >
-            <UserPlus size={16} strokeWidth={2.5} />
-            <span className="whitespace-nowrap tracking-wide uppercase">Nowy Klient</span>
-          </button>
-        )}
-      </div>
-    </header>
-  );
-};
+/** The top of a studio screen: its title, one line of description and the quick "new booking / client" actions. */
+export const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooking, onAddClient }) => (
+  <PageHeader
+    className="mb-6"
+    title={title}
+    description={subtitle}
+    actions={
+      (onAddBooking || onAddClient) && (
+        <>
+          {onAddClient && (
+            <Button variant={onAddBooking ? 'secondary' : 'primary'} icon={UserPlus} onClick={onAddClient}>
+              Nowy klient
+            </Button>
+          )}
+          {onAddBooking && (
+            <Button icon={Plus} onClick={onAddBooking}>
+              Nowa rezerwacja
+            </Button>
+          )}
+        </>
+      )
+    }
+  />
+);
