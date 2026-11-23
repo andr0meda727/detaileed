@@ -34,8 +34,8 @@ export function AddVehicleModal({ isOpen, onClose }: AddVehicleModalProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Dodaj Nowy Pojazd">
-      <div className="pb-6">
+    <Modal isOpen={isOpen} onClose={onClose} title="Dodaj nowy pojazd">
+      <div>
         <FormSection
           icon={User}
           title="Właściciel"
@@ -43,11 +43,12 @@ export function AddVehicleModal({ isOpen, onClose }: AddVehicleModalProps) {
             <ModeToggle
               value={mode}
               onChange={setMode}
-              labels={{ existing: 'Znajdź Właściciela', new: 'Nowy Klient' }}
+              label="Właściciel pojazdu"
+              labels={{ existing: 'Znajdź właściciela', new: 'Nowy klient' }}
             />
           }
         >
-          <div className="p-4 space-y-3">
+          <div className="space-y-3 p-5">
             {mode === 'existing' ? (
               <>
                 <SearchDropdown
@@ -59,7 +60,7 @@ export function AddVehicleModal({ isOpen, onClose }: AddVehicleModalProps) {
                   onPick={setOwner}
                 />
                 {owner && <PickedItem item={describeClient(owner)} icon={User} />}
-                <div className="pt-3 border-t border-slate-100">
+                <div className="border-t border-border pt-3">
                   <NewVehicleForm
                     clientId={owner?.id ?? null}
                     onCreated={() => done('Nowy pojazd został pomyślnie dodany do klienta.')}
@@ -68,7 +69,7 @@ export function AddVehicleModal({ isOpen, onClose }: AddVehicleModalProps) {
               </>
             ) : (
               <NewClientWithVehicleForm
-                submitLabel="Utwórz Klienta i Pojazd"
+                submitLabel="Utwórz klienta i pojazd"
                 onCreated={() => done('Dodano nowego klienta wraz z pojazdem.')}
               />
             )}

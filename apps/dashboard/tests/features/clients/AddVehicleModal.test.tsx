@@ -21,8 +21,8 @@ const wrapper = ({ children }: { children: ReactNode }) => <ToastProvider>{child
 describe('AddVehicleModal', () => {
   it('asks for an owner before saving the vehicle', async () => {
     render(<AddVehicleModal isOpen onClose={vi.fn()} />, { wrapper });
-    fireEvent.change(screen.getByPlaceholderText('Nr Rejestracyjny *'), { target: { value: 'WX1234A' } });
-    fireEvent.click(screen.getByText('Zapisz Pojazd'));
+    fireEvent.change(screen.getByPlaceholderText('Nr rejestracyjny *'), { target: { value: 'WX1234A' } });
+    fireEvent.click(screen.getByText('Zapisz pojazd'));
 
     expect(await screen.findByText('Wybierz istniejącego klienta lub dodaj nowego.')).toBeInTheDocument();
     expect(createVehicle).not.toHaveBeenCalled();
@@ -35,9 +35,9 @@ describe('AddVehicleModal', () => {
       target: { value: 'jan' },
     });
     fireEvent.click(screen.getByText('Jan Kowalski'));
-    fireEvent.change(screen.getByPlaceholderText('Nr Rejestracyjny *'), { target: { value: 'wx1234a' } });
+    fireEvent.change(screen.getByPlaceholderText('Nr rejestracyjny *'), { target: { value: 'wx1234a' } });
     fireEvent.change(screen.getByLabelText('Wielkość pojazdu'), { target: { value: 'Large' } });
-    fireEvent.click(screen.getByText('Zapisz Pojazd'));
+    fireEvent.click(screen.getByText('Zapisz pojazd'));
 
     await waitFor(() => expect(onClose).toHaveBeenCalled());
     expect(createVehicle).toHaveBeenCalledWith({

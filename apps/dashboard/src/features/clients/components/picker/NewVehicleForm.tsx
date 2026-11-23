@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save } from 'lucide-react';
-import { Button, useToast } from '@detaileed/ui';
+import { Button, FieldError, useToast } from '@detaileed/ui';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useCreateVehicle } from '@/features/clients/api/clients';
 import { vehicleFormSchema, type VehicleFormValues } from '@/features/clients/model/schemas';
@@ -51,11 +51,9 @@ export function NewVehicleForm({ clientId, onCreated }: NewVehicleFormProps) {
         size={register('size')}
         plateError={errors.licensePlate?.message}
       />
-      {errors.root && (
-        <p className="text-red-500 font-bold tracking-widest uppercase text-[10px]">{errors.root.message}</p>
-      )}
-      <Button size="lg" fullWidth type="submit" disabled={isSubmitting} icon={Save}>
-        Zapisz Pojazd
+      <FieldError>{errors.root?.message}</FieldError>
+      <Button fullWidth type="submit" loading={isSubmitting} icon={Save}>
+        Zapisz pojazd
       </Button>
     </form>
   );

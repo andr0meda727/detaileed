@@ -40,8 +40,8 @@ describe('ClientVehiclePicker', () => {
 
   it('shows validation errors inline and does not create an invalid client', async () => {
     render(<ClientVehiclePicker value={null} onChange={vi.fn()} />, { wrapper });
-    fireEvent.click(screen.getByText('Dodaj Nowy'));
-    fireEvent.click(screen.getByText('Dodaj Klienta i Wybierz'));
+    fireEvent.click(screen.getByRole('radio', { name: 'Dodaj nowy' }));
+    fireEvent.click(screen.getByText('Dodaj klienta i wybierz'));
 
     expect(await screen.findByText('Imię i nazwisko jest wymagane (min. 2 znaki)')).toBeInTheDocument();
     expect(screen.getByText('Numer rejestracyjny jest wymagany (min. 3 znaki)')).toBeInTheDocument();
@@ -51,11 +51,11 @@ describe('ClientVehiclePicker', () => {
   it('creates a client with a vehicle and picks it', async () => {
     const onChange = vi.fn();
     render(<ClientVehiclePicker value={null} onChange={onChange} />, { wrapper });
-    fireEvent.click(screen.getByText('Dodaj Nowy'));
-    fireEvent.change(screen.getByPlaceholderText('Imię i Nazwisko *'), { target: { value: 'Anna Nowak' } });
+    fireEvent.click(screen.getByRole('radio', { name: 'Dodaj nowy' }));
+    fireEvent.change(screen.getByPlaceholderText('Imię i nazwisko *'), { target: { value: 'Anna Nowak' } });
     fireEvent.change(screen.getByPlaceholderText('Telefon *'), { target: { value: '500600700' } });
-    fireEvent.change(screen.getByPlaceholderText('Nr Rejestracyjny *'), { target: { value: 'wx999' } });
-    fireEvent.click(screen.getByText('Dodaj Klienta i Wybierz'));
+    fireEvent.change(screen.getByPlaceholderText('Nr rejestracyjny *'), { target: { value: 'wx999' } });
+    fireEvent.click(screen.getByText('Dodaj klienta i wybierz'));
 
     await waitFor(() => expect(onChange).toHaveBeenCalledWith({ client: created, vehicle: created.vehicles[0] }));
     expect(createClient).toHaveBeenCalledWith({

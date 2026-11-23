@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Loader2, Mail, CheckCircle } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Alert, Button, Card, CardContent, CardHeader, FormInput } from '@detaileed/ui';
 import { useInviteEmployee } from '@/features/team/api/employees';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 
@@ -42,58 +43,38 @@ export const EmployeesSettings: React.FC<{ addToast: (message: string, type: 'su
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-green-deep/5 border border-green-deep/10 rounded-3xl p-6 sm:p-8">
-        <div className="flex items-start gap-4 mb-6">
-          <div className="w-10 h-10 bg-green-deep rounded-xl flex items-center justify-center shrink-0">
-            <Mail size={18} className="text-cream-warm" />
-          </div>
-          <div>
-            <h3 className="font-extrabold text-green-deep text-base tracking-tight">Zaproś pracownika</h3>
-            <p className="text-sm text-slate-400 mt-0.5">
-              Wyślij zaproszenie e-mailem. Pracownik otrzyma link do rejestracji.
-            </p>
-          </div>
-        </div>
-        <form onSubmit={handleSubmit(onInvite)} className="flex flex-col sm:flex-row gap-3 items-start">
-          <div className="flex-1 w-full">
-            <div className="relative">
-              <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
-              <input
-                type="email"
-                {...register('email')}
-                placeholder="adres@email.com"
-                className={`w-full pl-10 pr-4 py-4 bg-white border-2 rounded-2xl outline-hidden font-semibold text-sm ${errors.email ? 'border-red-400 focus:ring-red-400/20' : 'border-slate-100 focus:ring-cream-warm/20 focus:border-cream-warm/40'} transition-all`}
-              />
-            </div>
-            {errors.email && (
-              <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-1 mt-2">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
-          <button
-            type="submit"
-            disabled={sending}
-            className="h-[52px] flex items-center justify-center gap-2 bg-green-deep text-cream-warm px-7 rounded-2xl font-semibold text-[11px] uppercase tracking-widest active:scale-95 transition-all whitespace-nowrap disabled:opacity-60"
-          >
-            {sending ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />} Wyślij zaproszenie
-          </button>
-        </form>
-      </div>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader
+          title="Zaproś pracownika"
+          description="Wyślij zaproszenie e-mailem. Pracownik otrzyma link do rejestracji."
+        />
+        <CardContent>
+          <form onSubmit={handleSubmit(onInvite)} className="flex flex-col items-start gap-3 sm:flex-row">
+            <FormInput
+              type="email"
+              aria-label="Email pracownika"
+              placeholder="adres@email.com"
+              leftIcon={<Mail size={16} strokeWidth={1.75} />}
+              error={errors.email?.message}
+              {...register('email')}
+            />
+            <Button type="submit" icon={Mail} loading={sending} className="w-full sm:w-auto">
+              Wyślij zaproszenie
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       {lastSent && (
-        <div className="flex items-center gap-3 px-6 py-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-700 text-sm font-semibold">
-          <CheckCircle size={17} />
-          Zaproszono: <span className="font-extrabold">{lastSent}</span>
-        </div>
+        <Alert tone="success">
+          Zaproszono: <span className="font-medium">{lastSent}</span>
+        </Alert>
       )}
 
-      <div className="p-5 bg-amber-50 border border-amber-100 rounded-2xl">
-        <p className="text-xs text-amber-700 font-semibold leading-relaxed">
-          <strong>Jak to działa?</strong> Pracownik dostanie e-mail z linkiem do akceptacji i ustawienia hasła.
-        </p>
-      </div>
+      <Alert tone="info" title="Jak to działa?">
+        Pracownik dostanie e-mail z linkiem do akceptacji i ustawienia hasła.
+      </Alert>
     </div>
   );
 };
