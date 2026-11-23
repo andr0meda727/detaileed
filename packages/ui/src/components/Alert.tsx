@@ -36,11 +36,11 @@ export function Alert({ tone = 'neutral', title, children, icon, action, classNa
       className={cn('flex flex-wrap items-start gap-3 rounded-lg border px-4 py-3 text-sm', box, className)}
     >
       <Icon size={16} strokeWidth={1.75} aria-hidden className={cn('mt-0.5 shrink-0', accent)} />
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+      <div className="flex min-w-48 flex-1 basis-0 flex-col gap-0.5">
         {title && <p className={cn('font-medium', accent)}>{title}</p>}
         {children && <div className="text-foreground">{children}</div>}
       </div>
-      {action && <div className="flex shrink-0 items-center gap-2">{action}</div>}
+      {action && <div className="flex shrink-0 items-center gap-2 max-sm:w-full max-sm:pl-7">{action}</div>}
     </div>
   );
 }

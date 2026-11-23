@@ -16,7 +16,7 @@ export interface PaginationProps {
 export function Pagination({ page, totalPages, onPageChange, label = 'Stronicowanie', className }: PaginationProps) {
   if (totalPages <= 1) return null;
   return (
-    <nav aria-label={label} className={cn('flex items-center justify-between gap-3', className)}>
+    <nav aria-label={label} className={cn('flex items-center justify-between gap-2', className)}>
       <Button
         variant="secondary"
         size="sm"
@@ -26,8 +26,9 @@ export function Pagination({ page, totalPages, onPageChange, label = 'Stronicowa
       >
         Poprzednia
       </Button>
-      <p className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
-        Strona {page} z {totalPages}
+      <p className="whitespace-nowrap text-sm text-muted-foreground tabular-nums" aria-live="polite">
+        <span className="max-sm:sr-only">Strona </span>
+        {page} z {totalPages}
       </p>
       <Button
         variant="secondary"
