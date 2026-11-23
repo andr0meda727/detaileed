@@ -118,6 +118,17 @@ proxy.ts            refreshes the Supabase session cookie on every page request
 - Styling: Tailwind v4. Tokens, base styles and shared utilities live in `packages/ui/src/styles/theme.css`
   (imported as `@detaileed/ui/theme.css` after `tailwindcss`, with `@source` pointing at the package so its classes
   are generated). Use tokens, not hex.
+- Design system: **Grafit** (`docs/design-system.md`, the guide for tokens, type, layout patterns and components).
+  Semantic colour tokens (`background`, `surface`, `muted`, `border`, `foreground`, `primary`, the status tones
+  with `-soft` fills, …) are CSS variables with light values on `:root` and dark ones on `[data-theme='dark']`, so
+  the same classes serve both themes. ESLint reports default palette classes and hex/`rgb()` in class names.
+- Themes: `system`, `light` or `dark`, stored per device under `detaileed-theme`. `themeInitScript` sets
+  `data-theme` and `color-scheme` on `<html>` before the first paint (inline in the dashboard's `index.html`, kept
+  equal by a test; rendered in the site's root layout), `useTheme()` reads and changes it, `ThemeSwitch` sits in
+  the dashboard's user menu and the site header. Maps pick a light or dark style from the resolved theme.
+- Fonts: Geist and Geist Mono; self-hosted in the dashboard (`@fontsource-variable`), `next/font` on the site.
+- Component galleries: `/dev/ui` and `/dev/ui/interactive` on the customer site (dev builds only) show every shared
+  component in a light and a dark panel. `pnpm dev:mock` runs both apps on sample data (`apps/mock-api`).
 - Keep components under about 250 lines.
 
 ## packages/ui
@@ -125,13 +136,17 @@ proxy.ts            refreshes the Supabase session cookie on every page request
 ```
 src/
   index.ts      the package entry (components, toasts, captcha)
-  components/   Badge, Button, EmptyState, FormInput, FormSection, LoadingSpinner, Modal, Select, Skeleton, StarRating
+  components/   Button, Badge, Card, PageHeader, Stat, Table, Tabs, form controls (FormInput, Select, Textarea,
+                SearchInput, Checkbox, Switch, RadioCardGroup, SegmentedControl), Modal, ConfirmDialog,
+                DropdownMenu, Tooltip, Alert, EmptyState, Skeleton, Logo, ThemeSwitch, …
+  theme/        THEME_STORAGE_KEY, themeInitScript, useTheme
+  lib/          cn() (clsx + tailwind-merge that knows the custom tokens), focus ring, initials, plate helpers
   toast/        ToastProvider, useToast and the toast list
   captcha/      Turnstile widget and useTurnstile
   hooks/        useIsClient
   map/          MapView, MapPicker (MapLibre), geo helpers; separate entries @detaileed/ui/map and /map/geo,
                 loaded lazily by the apps so MapLibre stays out of the main bundle
-  styles/       theme.css (@detaileed/ui/theme.css)
+  styles/       theme.css (@detaileed/ui/theme.css): tokens, light and dark values, base styles, fade-in animation
 ```
 
 A new generic component goes in `components/` (or a folder of its own when it comes with hooks or context, like
