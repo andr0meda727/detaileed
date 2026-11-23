@@ -19,3 +19,11 @@ export function toInventoryItem(dto: InventoryResponseDto): InventoryItem {
 export function isLowStock(item: Pick<InventoryItem, 'stock' | 'minStock'>): boolean {
   return item.minStock !== null && item.stock < item.minStock;
 }
+
+export type StockLevel = 'out' | 'low' | 'ok';
+
+/** Out of stock (nothing left), low (below the minimum) or fine; drives the stock badge's tone. */
+export function stockLevel(item: Pick<InventoryItem, 'stock' | 'minStock'>): StockLevel {
+  if (item.stock <= 0) return 'out';
+  return isLowStock(item) ? 'low' : 'ok';
+}
