@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 
-import { Search, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { GlobalHeader } from '@/shared/ui/GlobalHeader';
-import { Modal, LoadingSpinner, useToast } from '@detaileed/ui';
+import { Modal, LoadingSpinner, SearchInput, useToast } from '@detaileed/ui';
 
 import { CreateClientModal } from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
@@ -54,32 +54,22 @@ export const ClientsView: React.FC = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="space-y-8 animate-slide-up pb-20">
+    <div className="space-y-6 pb-20">
       <GlobalHeader
         title="Klienci"
-        subtitle="CRM • Zarządzanie Relacjami"
+        subtitle="CRM • Zarządzanie relacjami"
         onAddBooking={() => setIsBookingModalOpen(true)}
         onAddClient={() => setIsClientModalOpen(true)}
       />
 
-      {/* Search */}
-      <div className="relative group">
-        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-green-deep/30 group-focus-within:text-green-light transition-colors">
-          <Search size={20} strokeWidth={2.5} />
-        </div>
-        <input
-          type="text"
-          placeholder="Szukaj klienta, tablicy, modelu..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-14 pr-6 py-5 rounded-4xl font-semibold text-base text-green-deep outline-hidden transition-all focus:border-[rgba(61,107,70,0.3)] focus:shadow-[0_0_0_4px_rgba(61,107,70,0.08),0_4px_16px_-4px_rgba(0,0,0,0.04)]"
-          style={{
-            background: 'white',
-            border: '1px solid rgba(26,46,30,0.07)',
-            boxShadow: '0 4px 16px -4px rgba(0,0,0,0.04)',
-          }}
-        />
-      </div>
+      <SearchInput
+        aria-label="Szukaj klienta"
+        placeholder="Szukaj klienta, tablicy, modelu…"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onClear={() => setSearchQuery('')}
+        wrapperClassName="sm:max-w-sm"
+      />
 
       <ClientsTable
         clients={filteredClients}

@@ -1,6 +1,20 @@
 import React from 'react';
-import { Phone, Edit2 } from 'lucide-react';
-import { Skeleton } from '@detaileed/ui';
+import { Pencil, Phone, Users } from 'lucide-react';
+import {
+  Avatar,
+  Button,
+  Card,
+  EmptyState,
+  LicensePlate,
+  Skeleton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  cn,
+} from '@detaileed/ui';
 import type { Client } from '@/features/clients/model/types';
 
 interface ClientsTableProps {
@@ -12,160 +26,139 @@ interface ClientsTableProps {
   onEdit: (client: Client) => void;
 }
 
+const COLUMNS = 4;
+
+function SkeletonRows() {
+  return Array.from({ length: 5 }).map((_, i) => (
+    <TableRow key={`skeleton-${i}`}>
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <Skeleton circle width="32px" height="32px" />
+          <Skeleton width="140px" height="14px" />
+        </div>
+      </TableCell>
+      <TableCell>
+        <div className="space-y-1.5">
+          <Skeleton width="100px" height="14px" />
+          <Skeleton width="140px" height="12px" />
+        </div>
+      </TableCell>
+      <TableCell>
+        <Skeleton width="200px" height="22px" />
+      </TableCell>
+      <TableCell>
+        <Skeleton width="72px" height="32px" className="ml-auto" />
+      </TableCell>
+    </TableRow>
+  ));
+}
+
+function VehicleList({ vehicles }: { vehicles: Client['vehicles'] }) {
+  if (vehicles.length === 0) return <span className="text-faint">Brak pojazdów</span>;
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+      {vehicles.slice(0, 2).map((v) => (
+        <span key={v.id} className="inline-flex min-w-0 items-center gap-2">
+          {(v.brand || v.model) && (
+            <span className="max-w-[140px] truncate text-muted-foreground">
+              {[v.brand, v.model].filter(Boolean).join(' ')}
+            </span>
+          )}
+          <LicensePlate plate={v.licensePlate} />
+        </span>
+      ))}
+      {vehicles.length > 2 && <span className="font-mono text-xs text-faint tabular-nums">+{vehicles.length - 2}</span>}
+    </div>
+  );
+}
+
+function ClientRow({ client, onOpen, onEdit }: { client: Client } & Pick<ClientsTableProps, 'onOpen' | 'onEdit'>) {
+  return (
+    <TableRow onClick={() => onOpen(client)} className="cursor-pointer hover:bg-muted">
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <Avatar name={client.name} decorative />
+          <div className="min-w-0">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpen(client);
+              }}
+              className="block max-w-[220px] truncate rounded-sm text-left font-medium text-foreground outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {client.name}
+            </button>
+            {client.nip && <p className="font-mono text-xs text-faint tabular-nums">NIP {client.nip}</p>}
+          </div>
+        </div>
+      </TableCell>
+
+      <TableCell>
+        {client.phone ? (
+          <p className="font-mono tabular-nums">{client.phone}</p>
+        ) : (
+          <p className="text-faint">Brak telefonu</p>
+        )}
+        {client.email && <p className="max-w-[200px] truncate text-xs text-muted-foreground">{client.email}</p>}
+      </TableCell>
+
+      <TableCell>
+        <VehicleList vehicles={client.vehicles} />
+      </TableCell>
+
+      <TableCell>
+        <div className="flex items-center justify-end gap-1">
+          {client.phone && (
+            <Button asChild variant="ghost" size="sm" icon={Phone} className="size-8 px-0">
+              <a
+                href={`tel:${client.phone}`}
+                aria-label={`Zadzwoń: ${client.name}`}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={Pencil}
+            aria-label={`Edytuj klienta: ${client.name}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(client);
+            }}
+          />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 /** Client list with contact details, vehicles and call/edit actions. */
 export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed, onOpen, onEdit }) => (
-  <div
-    className={`bg-white rounded-2xl border border-slate-100 overflow-hidden transition-opacity duration-200 ${dimmed ? 'opacity-70' : 'opacity-100'}`}
-    style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.03)' }}
-  >
-    <div className="overflow-x-auto custom-scrollbar">
-      <table className="w-full text-left border-collapse whitespace-nowrap min-w-[900px]">
-        <thead>
-          <tr className="border-b border-slate-100" style={{ backgroundColor: 'rgba(245,240,232,0.3)' }}>
-            <th className="px-6 py-5 text-[10px] font-bold text-green-deep/60 uppercase tracking-[0.2em] w-[25%] rounded-tl-2xl">
-              Klient
-            </th>
-            <th className="px-6 py-5 text-[10px] font-bold text-green-deep/60 uppercase tracking-[0.2em] w-[20%]">
-              Kontakt
-            </th>
-            <th className="px-6 py-5 text-[10px] font-bold text-green-deep/60 uppercase tracking-[0.2em] w-[40%]">
-              Pojazdy we flocie
-            </th>
-            <th className="px-6 py-5 text-[10px] font-bold text-green-deep/60 uppercase tracking-[0.2em] text-right w-[15%] rounded-tr-2xl">
-              Akcje
-            </th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100/80 text-sm">
-          {isLoading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <tr key={`skel-${i}`}>
-                <td className="px-6 py-5">
-                  <div className="flex items-center gap-4">
-                    <Skeleton width="44px" height="44px" className="rounded-xl shrink-0" />
-                    <Skeleton width="120px" height="20px" className="rounded-md" />
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="space-y-2">
-                    <Skeleton width="100px" height="14px" className="rounded-md" />
-                    <Skeleton width="140px" height="12px" className="rounded-md" />
-                  </div>
-                </td>
-                <td className="px-6 py-5">
-                  <div className="flex gap-2">
-                    <Skeleton width="110px" height="36px" className="rounded-xl" />
-                    <Skeleton width="110px" height="36px" className="rounded-xl" />
-                  </div>
-                </td>
-                <td className="px-6 py-5 text-right">
-                  <Skeleton width="80px" height="36px" className="rounded-xl ml-auto" />
-                </td>
-              </tr>
-            ))
-          ) : clients.length === 0 ? (
-            <tr>
-              <td colSpan={4} className="px-6 py-16 text-center">
-                <p className="text-slate-400 font-semibold">Nie znaleziono klientów.</p>
-              </td>
-            </tr>
-          ) : (
-            clients.map((client) => (
-              <tr
-                key={client.id}
-                onClick={() => onOpen(client)}
-                className="group hover:bg-green-deep/2 cursor-pointer transition-colors"
-              >
-                {/* Client */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm text-cream-warm shrink-0 shadow-xs transition-transform group-hover:scale-105 bg-brand-gradient">
-                      {client.name
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')
-                        .slice(0, 2)}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-green-deep text-base truncate max-w-[200px]">{client.name}</h3>
-                      {client.nip && (
-                        <p className="text-[10px] font-semibold text-green-deep/40 mt-1 uppercase tracking-wider">
-                          NIP: {client.nip}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </td>
-
-                {/* Contact */}
-                <td className="px-6 py-4">
-                  <div className="space-y-1.5 flex flex-col justify-center">
-                    <p className="font-bold text-green-deep/80 text-[13px]">
-                      {client.phone || <span className="text-slate-400 font-normal">Brak telefonu</span>}
-                    </p>
-                    {client.email && (
-                      <p className="font-semibold text-green-deep/50 text-[11px] max-w-[180px] truncate">
-                        {client.email}
-                      </p>
-                    )}
-                  </div>
-                </td>
-
-                {/* Vehicles */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {client.vehicles.slice(0, 2).map((v) => (
-                      <div
-                        key={v.id}
-                        className="flex items-center bg-slate-50 border border-slate-100 rounded-xl pr-1.5 py-1 pl-3 gap-3 transition-colors group-hover:bg-white group-hover:border-slate-200 shadow-xs break-inside-avoid"
-                      >
-                        <span className="font-bold text-green-deep text-[11px] max-w-[100px] truncate">
-                          {v.brand} {v.model}
-                        </span>
-                        <span className="bg-green-deep text-cream-warm px-2 py-1 rounded-md font-mono text-[10px] font-bold tracking-widest">
-                          {v.licensePlate}
-                        </span>
-                      </div>
-                    ))}
-                    {client.vehicles.length > 2 && (
-                      <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl font-bold text-green-deep/60 text-[10px] tracking-widest uppercase items-center flex">
-                        + {client.vehicles.length - 2}
-                      </div>
-                    )}
-                    {client.vehicles.length === 0 && (
-                      <span className="text-[11px] font-semibold text-slate-400">Brak pojazdów</span>
-                    )}
-                  </div>
-                </td>
-
-                {/* Actions */}
-                <td className="px-6 py-4 text-right">
-                  <div className="flex flex-wrap items-center justify-end gap-2">
-                    {client.phone && (
-                      <a
-                        href={`tel:${client.phone}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-9 h-9 rounded-xl flex items-center justify-center bg-green-deep/5 text-green-deep hover:bg-green-deep hover:text-cream-warm transition-all group/btn shadow-xs"
-                      >
-                        <Phone size={14} className="group-hover/btn:scale-110 transition-transform" />
-                      </a>
-                    )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(client);
-                      }}
-                      className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-green-deep border border-slate-100 transition-all group/btn shadow-xs"
-                    >
-                      <Edit2 size={14} className="group-hover/btn:scale-110 transition-transform" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <Card className={cn('overflow-hidden transition-opacity duration-150', dimmed && 'opacity-70')}>
+    <Table aria-label="Klienci" className="min-w-[760px]">
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[28%]">Klient</TableHead>
+          <TableHead className="w-[22%]">Kontakt</TableHead>
+          <TableHead>Pojazdy</TableHead>
+          <TableHead className="w-24 text-right">Akcje</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {isLoading ? (
+          <SkeletonRows />
+        ) : clients.length === 0 ? (
+          <TableRow>
+            <TableCell colSpan={COLUMNS}>
+              <EmptyState icon={Users} message="Nie znaleziono klientów." />
+            </TableCell>
+          </TableRow>
+        ) : (
+          clients.map((client) => <ClientRow key={client.id} client={client} onOpen={onOpen} onEdit={onEdit} />)
+        )}
+      </TableBody>
+    </Table>
+  </Card>
 );
