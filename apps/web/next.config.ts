@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
   turbopack: { root: repoRoot },
   reactStrictMode: true,
   poweredByHeader: false,
+  // `next dev` would write an AGENTS.md for AI agents into apps/web; the repo's own AGENTS.md is the guide.
+  agentRules: false,
 };
 
 export default nextConfig;
