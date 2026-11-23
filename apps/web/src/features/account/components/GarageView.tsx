@@ -5,7 +5,17 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Car, Pencil, Plus, Save, Trash2 } from 'lucide-react';
 import type { GarageVehicleDto } from '@detaileed/api-client';
-import { Button, EmptyState, FormSection, Skeleton, useToast } from '@detaileed/ui';
+import {
+  Alert,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  EmptyState,
+  LicensePlate,
+  Skeleton,
+  useToast,
+} from '@detaileed/ui';
 import { vehicleSizeLabel } from '@detaileed/domain/vehicleSize';
 import { useAddVehicle, useDeleteVehicle, useGarage, useUpdateVehicle } from '@/features/account/api/me';
 import { carSchema, emptyCar, toCarRequest, type CarValues } from '@/features/account/model/schemas';
@@ -42,7 +52,7 @@ function CarForm({ car, onDone }: { car: GarageVehicleDto | null; onDone: () => 
       : add.mutate(toCarRequest(values), options);
 
   return (
-    <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form className="space-y-3 rounded-lg border border-border p-4" onSubmit={handleSubmit(onSubmit)} noValidate>
       <CarFields
         fields={{
           licensePlate: register('licensePlate'),
@@ -52,17 +62,13 @@ function CarForm({ car, onDone }: { car: GarageVehicleDto | null; onDone: () => 
         }}
         errors={errors}
       />
-      {errors.root && (
-        <p role="alert" className="text-sm text-red-600">
-          {errors.root.message}
-        </p>
-      )}
-      <div className="flex gap-2">
-        <Button type="submit" icon={Save} loading={add.isPending || update.isPending}>
-          Zapisz
-        </Button>
+      {errors.root && <Alert tone="danger">{errors.root.message}</Alert>}
+      <div className="flex justify-end gap-2">
         <Button variant="ghost" onClick={onDone}>
           Anuluj
+        </Button>
+        <Button type="submit" icon={Save} loading={add.isPending || update.isPending}>
+          Zapisz
         </Button>
       </div>
     </form>
@@ -78,11 +84,23 @@ export function GarageView() {
   const [editing, setEditing] = useState<GarageVehicleDto | 'new' | null>(null);
   const cars = garage.data ?? [];
 
-  if (garage.isLoading) return <Skeleton width="100%" height="200px" className="rounded-2xl" />;
+  if (garage.isLoading) return <Skeleton width="100%" height="200px" className="rounded-lg" />;
 
   return (
-    <FormSection icon={Car} title={`Moje auta (${cars.length}/${MAX_CARS})`}>
-      <div className="p-5 space-y-3">
+    <Card>
+      <CardHeader
+        title={`Moje auta (${cars.length}/${MAX_CARS})`}
+        description="Wybierz zapisane auto przy zapytaniu, zamiast wpisywać je od nowa."
+        actions={
+          editing !== 'new' &&
+          cars.length < MAX_CARS && (
+            <Button variant="secondary" size="sm" icon={Plus} onClick={() => setEditing('new')}>
+              Dodaj auto
+            </Button>
+          )
+        }
+      />
+      <CardContent className="space-y-3">
         {cars.length === 0 && editing === null && (
           <EmptyState message="Nie masz zapisanych aut. Dodaj auto, aby szybciej wysyłać zapytania." icon={Car} />
         )}
@@ -90,42 +108,33 @@ export function GarageView() {
           editing !== 'new' && editing?.id === car.id ? (
             <CarForm key={car.id} car={car} onDone={() => setEditing(null)} />
           ) : (
-            <div key={car.id} className="flex items-center gap-3 p-3 rounded-xl border border-green-deep/10">
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold truncate">{[car.brand, car.model].filter(Boolean).join(' ') || 'Auto'}</p>
-                <p className="text-sm text-green-light">
-                  <span className="font-mono">{car.licensePlate}</span> · {vehicleSizeLabel(car.size)}
+            <div key={car.id} className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+              <div className="min-w-0 flex-1 space-y-1">
+                <p className="truncate font-medium">{[car.brand, car.model].filter(Boolean).join(' ') || 'Auto'}</p>
+                <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                  <LicensePlate plate={car.licensePlate} />
+                  {vehicleSizeLabel(car.size)}
                 </p>
               </div>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={Pencil}
                 aria-label={`Edytuj ${car.licensePlate}`}
                 onClick={() => setEditing(car)}
-                className="p-2 rounded-xl hover:bg-cream"
-              >
-                <Pencil size={16} />
-              </button>
-              <button
-                type="button"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={Trash2}
                 aria-label={`Usuń ${car.licensePlate}`}
                 onClick={() => remove.mutate(car.id, { onSuccess: () => addToast('Usunięto auto.', 'success') })}
-                className="p-2 rounded-xl hover:bg-red-50 hover:text-red-600"
-              >
-                <Trash2 size={16} />
-              </button>
+              />
             </div>
           ),
         )}
-        {editing === 'new' ? (
-          <CarForm car={null} onDone={() => setEditing(null)} />
-        ) : (
-          cars.length < MAX_CARS && (
-            <Button variant="secondary" icon={Plus} onClick={() => setEditing('new')}>
-              Dodaj auto
-            </Button>
-          )
-        )}
-      </div>
-    </FormSection>
+        {editing === 'new' && <CarForm car={null} onDone={() => setEditing(null)} />}
+      </CardContent>
+    </Card>
   );
 }
