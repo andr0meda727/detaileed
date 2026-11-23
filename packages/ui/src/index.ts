@@ -33,3 +33,9 @@ export type {
   SegmentedControlProps,
   SegmentedControlSize,
 } from './components/SegmentedControl';
+export { Checkbox } from './components/Checkbox';
+export type { CheckboxProps } from './components/Checkbox';
+export { Switch } from './components/Switch';
+export type { SwitchProps } from './components/Switch';
+export { RadioCardGroup } from './components/RadioCardGroup';
+export type { RadioCardGroupProps, RadioCardOption } from './components/RadioCardGroup';
