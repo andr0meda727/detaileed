@@ -12,6 +12,15 @@ export function controlClasses(invalid: boolean): string {
   );
 }
 
+/**
+ * Whether a field keeps its hint/error line while empty: form fields do (they have a label, or take an `error` prop,
+ * even an undefined one like `errors.name?.message`), so they don't jump when an error appears; unlabelled controls
+ * without an `error` prop (filters, a select in a table row) don't, so they centre with what's next to them.
+ */
+export function reservesMessage(props: { label?: string }): boolean {
+  return Boolean(props.label) || 'error' in props;
+}
+
 interface FieldIdsInput {
   id?: string;
   error?: string;

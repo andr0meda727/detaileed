@@ -3,7 +3,7 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { cn } from '../lib/cn';
 import { FieldShell } from './FieldShell';
-import { controlClasses, useFieldIds } from './fieldParts';
+import { controlClasses, reservesMessage, useFieldIds } from './fieldParts';
 
 export interface TextareaProps extends ComponentPropsWithRef<'textarea'> {
   label?: string;
@@ -17,16 +17,8 @@ export interface TextareaProps extends ComponentPropsWithRef<'textarea'> {
  * A multi-line text field styled like `FormInput` (label above, hint or error below), resizable vertically.
  * `className` goes on the `<textarea>`. Works with react-hook-form's `register(...)`, which passes `ref`.
  */
-export function Textarea({
-  label,
-  error,
-  hint,
-  id,
-  rows = 3,
-  className,
-  'aria-describedby': describedBy,
-  ...props
-}: TextareaProps) {
+export function Textarea(allProps: TextareaProps) {
+  const { label, error, hint, id, rows = 3, className, 'aria-describedby': describedBy, ...props } = allProps;
   const ids = useFieldIds({ id, error, hint, describedBy });
   return (
     <FieldShell
@@ -36,6 +28,7 @@ export function Textarea({
       controlId={ids.controlId}
       hintId={ids.hintId}
       errorId={ids.errorId}
+      reserveMessage={reservesMessage(allProps)}
     >
       <textarea
         id={ids.controlId}
