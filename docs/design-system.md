@@ -53,9 +53,9 @@ Rules:
 | --------- | --------------------------- | --------------------------------------- | ------------ | ----------------------------- |
 | `info`    | Utworzona (planned)         |                                         |              | new, informational notices    |
 | `warning` |                             | Pending                                 | low stock    | unsaved changes, expiring     |
-| `success` |                             | Accepted                                | in stock     | paid, saved, invitation taken |
+| `success` | Zakończona (done, archived) | Accepted                                | in stock     | paid, saved, invitation taken |
 | `danger`  | Anulowana                   | Rejected                                | out of stock | errors, failed payments       |
-| `neutral` | Zakończona (done, archived) | Withdrawn                               | not tracked  | drafts, disabled, unknown     |
+| `neutral` |                             | Withdrawn                               | not tracked  | drafts, disabled, unknown     |
 
 `neutral` is `muted` fill with `muted-foreground` text. Booking statuses also carry a colour of their own
 (`features/bookings/model/statuses.ts`); it may only colour the badge's dot, never text or fills.
