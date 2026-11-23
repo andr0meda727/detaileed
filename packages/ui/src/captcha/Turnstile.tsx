@@ -83,7 +83,8 @@ export function Turnstile({ siteKey, onToken, onError, action, className, ref }:
             sitekey: siteKey,
             action,
             language: 'pl',
-            theme: 'light',
+            // Cloudflare follows the OS setting; our tokens do too unless the person picked a theme.
+            theme: 'auto',
             appearance: 'interaction-only',
             callback: (token: string) => callbacks.current.onToken(token),
             'expired-callback': () => callbacks.current.onToken(null),
