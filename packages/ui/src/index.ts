@@ -24,3 +24,5 @@ export type { UseTurnstile } from './captcha/useTurnstile';
 export { cn } from './lib/cn';
 export { THEME_PREFERENCES, THEME_STORAGE_KEY, themeInitScript, useTheme } from './theme';
 export type { ResolvedTheme, ThemePreference, UseTheme } from './theme';
+export { ConfirmDialog } from './components/ConfirmDialog';
+export type { ConfirmDialogProps, ConfirmDialogTone } from './components/ConfirmDialog';
