@@ -4,13 +4,15 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { MailCheck, Send } from 'lucide-react';
-import { Button, FormInput, useTurnstile } from '@detaileed/ui';
+import { Send } from 'lucide-react';
+import { Alert, Button, FormInput, useTurnstile } from '@detaileed/ui';
 import { getSupabase } from '@/shared/lib/supabase/client';
+import { textLink } from '@/shared/ui/textLink';
 import { siteUrl, TURNSTILE_SITE_KEY } from '@/shared/lib/site';
 import { forgotPasswordSchema, type ForgotPasswordValues } from '@/features/auth/model/schemas';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
 import { CaptchaField } from '@/features/auth/components/CaptchaField';
+import { MailSent } from '@/features/auth/components/MailSent';
 
 /** Where the reset link leads: /auth/callback signs the person in, then the new-password page. */
 export const RESET_REDIRECT = '/auth/callback?next=/reset-password';
@@ -45,24 +47,22 @@ export function ForgotPasswordForm() {
 
   if (sentTo) {
     return (
-      <div className="text-center space-y-3">
-        <MailCheck size={40} className="mx-auto text-green-light" />
-        <p className="font-bold">Sprawdź skrzynkę</p>
-        <p className="text-sm text-green-light">
-          Jeśli konto z adresem <strong>{sentTo}</strong> istnieje, wysłaliśmy na nie link do ustawienia nowego hasła.
-          Otwórz go w tej samej przeglądarce.
+      <MailSent>
+        <p>
+          Jeśli konto z adresem <strong className="font-medium text-foreground">{sentTo}</strong> istnieje, wysłaliśmy
+          na nie link do ustawienia nowego hasła. Otwórz go w tej samej przeglądarce.
         </p>
-        <p className="pt-2 text-sm">
-          <Link href="/sign-in" className="font-bold text-green-deep underline">
+        <p>
+          <Link href="/sign-in" className={textLink}>
             Wróć do logowania
           </Link>
         </p>
-      </div>
+      </MailSent>
     );
   }
 
   return (
-    <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form className="space-y-3" onSubmit={handleSubmit(onSubmit)} noValidate>
       <FormInput
         label="E-mail"
         type="email"
@@ -71,17 +71,13 @@ export function ForgotPasswordForm() {
         {...register('email')}
       />
       <CaptchaField captcha={captcha} />
-      {error && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
-          {error}
-        </p>
-      )}
+      {error && <Alert tone="danger">{error}</Alert>}
       <Button size="lg" fullWidth type="submit" icon={Send} loading={isSubmitting} disabled={!captcha.ready}>
         Wyślij link
       </Button>
-      <p className="pt-4 text-sm text-center text-green-light">
+      <p className="pt-2 text-sm text-center text-muted-foreground">
         Pamiętasz hasło?{' '}
-        <Link href="/sign-in" className="font-bold text-green-deep underline">
+        <Link href="/sign-in" className={textLink}>
           Zaloguj się
         </Link>
       </p>
