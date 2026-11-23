@@ -6,8 +6,9 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LogIn } from 'lucide-react';
-import { Button, FormInput, useTurnstile } from '@detaileed/ui';
+import { Alert, Button, FormInput, useTurnstile } from '@detaileed/ui';
 import { getSupabase } from '@/shared/lib/supabase/client';
+import { textLink } from '@/shared/ui/textLink';
 import { TURNSTILE_SITE_KEY } from '@/shared/lib/site';
 import { signInSchema, type SignInValues } from '@/features/auth/model/schemas';
 import { authErrorMessage, isEmailNotConfirmed } from '@/features/auth/model/authErrors';
@@ -44,8 +45,8 @@ export function SignInForm({ next, notice }: { next: string; notice?: ReactNode 
   };
 
   return (
-    <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
-      {notice && <div className="mb-4 text-sm bg-amber/10 text-green-deep rounded-xl p-3">{notice}</div>}
+    <form className="space-y-3" onSubmit={handleSubmit(onSubmit)} noValidate>
+      {notice && <Alert tone="warning">{notice}</Alert>}
       <FormInput
         label="E-mail"
         type="email"
@@ -60,31 +61,31 @@ export function SignInForm({ next, notice }: { next: string; notice?: ReactNode 
         error={errors.password?.message}
         {...register('password')}
       />
-      <p className="text-right text-sm">
-        <Link href="/forgot-password" className="font-bold text-green-deep underline">
+      <p className="-mt-2 text-right text-sm">
+        <Link href="/forgot-password" className={textLink}>
           Nie pamiętasz hasła?
         </Link>
       </p>
       <CaptchaField captcha={captcha} />
       {error && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
+        <Alert tone="danger">
           {error}
           {unconfirmed && (
             <>
               {' '}
-              <Link href={confirmEmailPath(unconfirmed, next)} className="font-bold underline">
+              <Link href={confirmEmailPath(unconfirmed, next)} className={textLink}>
                 Wyślij link ponownie
               </Link>
             </>
           )}
-        </p>
+        </Alert>
       )}
       <Button size="lg" fullWidth type="submit" icon={LogIn} loading={isSubmitting} disabled={!captcha.ready}>
         Zaloguj się
       </Button>
-      <p className="pt-4 text-sm text-center text-green-light">
+      <p className="pt-2 text-sm text-center text-muted-foreground">
         Nie masz konta?{' '}
-        <Link href={`/sign-up?next=${encodeURIComponent(next)}`} className="font-bold text-green-deep underline">
+        <Link href={`/sign-up?next=${encodeURIComponent(next)}`} className={textLink}>
           Załóż je
         </Link>
       </p>

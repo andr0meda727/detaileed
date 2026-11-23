@@ -5,5 +5,5 @@ export const metadata: Metadata = { robots: { index: false } };
 
 /** The narrow column every sign-in and password page sits in. */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
-  return <section className="max-w-md mx-auto px-4 py-12 sm:py-16">{children}</section>;
+  return <section className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">{children}</section>;
 }
