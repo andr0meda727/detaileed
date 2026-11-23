@@ -91,8 +91,8 @@ function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalPro
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Nowa Rezerwacja">
-      <form className="space-y-5 pb-6" onSubmit={handleSubmit(onSubmit)}>
+    <Modal isOpen={isOpen} onClose={onClose} title="Nowa rezerwacja">
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <ClientVehiclePicker value={selectedVehicle} onChange={handlePickVehicle} error={errors.vehicleId?.message} />
 
         <BookingServicesSection
@@ -114,9 +114,14 @@ function CreateBookingForm({ isOpen, onClose, onSuccess }: CreateBookingModalPro
           onBayChange={(id) => setValue('bayId', id)}
         />
 
-        <Button size="lg" fullWidth type="submit" disabled={isSubmitting} icon={Save}>
-          Zapisz Rezerwację
-        </Button>
+        <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+          <Button variant="secondary" onClick={onClose}>
+            Anuluj
+          </Button>
+          <Button type="submit" loading={isSubmitting} icon={Save}>
+            Zapisz rezerwację
+          </Button>
+        </div>
       </form>
     </Modal>
   );

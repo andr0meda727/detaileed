@@ -61,6 +61,13 @@ describe('FreeSlotsSection', () => {
     expect(onBayChange).toHaveBeenCalledWith('b1');
   });
 
+  it('marks the picked slot', () => {
+    render(
+      <FreeSlotsSection {...props} pickedStart="2026-11-16T09:00:00Z" onPickSlot={vi.fn()} onBayChange={vi.fn()} />,
+    );
+    expect(screen.getByRole('radio', { name: '10:00 · Stanowisko 2' })).toBeChecked();
+  });
+
   it('stays hidden while the studio does not plan', () => {
     state.planning = false;
     const { container } = render(<FreeSlotsSection {...props} onPickSlot={vi.fn()} onBayChange={vi.fn()} />);
