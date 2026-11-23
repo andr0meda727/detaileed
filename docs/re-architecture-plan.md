@@ -458,7 +458,8 @@ the custom tokens).
   `turbo run dev:mock`; `.gitignore` gets `!.env.mock` (`.dockerignore` already drops `.env.*`).
 - `scripts/publish-screenshots.mjs` commits PNGs to the orphan branch `screenshots` (folder per task) with git plumbing
   (temporary index, `commit-tree`, push with retries) and prints Markdown image links
-  (`https://github.com/anteklekawa/detailflow/blob/screenshots/<path>?raw=true`). The repo is public: mock data only,
+  (`https://github.com/andr0meda727/detaileed/blob/screenshots/<path>?raw=true`; take the owner and name from
+  `gh repo view`, the repo has moved before). The repo is public: mock data only,
   never real data. T1 also publishes a baseline of every route in the old look (`baseline/`) for before/after pairs.
 
 ### Screenshots and ports
