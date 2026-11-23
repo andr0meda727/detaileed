@@ -39,3 +39,15 @@ export { Switch } from './components/Switch';
 export type { SwitchProps } from './components/Switch';
 export { RadioCardGroup } from './components/RadioCardGroup';
 export type { RadioCardGroupProps, RadioCardOption } from './components/RadioCardGroup';
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './components/DropdownMenu';
+export type { DropdownMenuItemProps } from './components/DropdownMenu';
+export { Tooltip } from './components/Tooltip';
+export type { TooltipProps } from './components/Tooltip';
