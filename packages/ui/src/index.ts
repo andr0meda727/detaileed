@@ -39,6 +39,8 @@ export type { AvatarProps, AvatarSize } from './components/Avatar';
 export { Kbd } from './components/Kbd';
 export { LicensePlate } from './components/LicensePlate';
 export type { LicensePlateProps } from './components/LicensePlate';
+export { SearchInput } from './components/SearchInput';
+export type { SearchInputProps } from './components/SearchInput';
 export { Turnstile } from './captcha/Turnstile';
 export type { TurnstileHandle, TurnstileProps } from './captcha/Turnstile';
 export { useTurnstile } from './captcha/useTurnstile';
