@@ -42,8 +42,9 @@
   --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-/* Light theme: the default, and what data-theme='light' asks for. */
-:root {
+/* Light theme: the default, and what data-theme='light' asks for (also on an element inside a dark page). */
+:root,
+[data-theme='light'] {
   color-scheme: light;
   --background: #ffffff;
   --subtle: #fafafa;
