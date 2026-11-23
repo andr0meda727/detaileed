@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet, createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { activateStudio, forgetActiveStudio, StudioScope, studiosQueryOptions } from '@/features/studios';
-import { MobileMenuContext } from '@/shared/ui/mobileMenu';
+import { TopBar } from '@/app/layout/TopBar';
 import { Sidebar } from '@/app/layout/Sidebar';
 import { supabase } from '@/shared/lib/supabase';
 import type { Studio } from '@/features/studios';
@@ -41,22 +41,21 @@ function StudioLayout() {
 
   return (
     <StudioScope studio={studio}>
-      <MobileMenuContext.Provider value={() => setIsSidebarOpen(true)}>
-        <div className="min-h-screen bg-background text-foreground">
-          <Sidebar
-            studioId={studio.studioId}
-            onLogout={handleLogout}
-            isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
-            userEmail={session.user.email ?? null}
-          />
-          <main className="min-w-0 p-4 sm:p-8 lg:ml-60 lg:p-12">
-            <div className="max-w-7xl mx-auto pb-24 pt-2 lg:pt-0">
-              <Outlet />
-            </div>
+      <div className="min-h-screen bg-background text-foreground">
+        <Sidebar
+          studioId={studio.studioId}
+          onLogout={handleLogout}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          userEmail={session.user.email ?? null}
+        />
+        <div className="min-w-0 lg:ml-60">
+          <TopBar studioName={studio.name} onOpenMenu={() => setIsSidebarOpen(true)} />
+          <main className="mx-auto w-full max-w-[1180px] p-4 pb-24 sm:p-7 sm:pb-24">
+            <Outlet />
           </main>
         </div>
-      </MobileMenuContext.Provider>
+      </div>
     </StudioScope>
   );
 }

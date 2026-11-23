@@ -1,6 +1,5 @@
 import React from 'react';
-import { Plus, UserPlus, Menu } from 'lucide-react';
-import { useOpenMobileMenu } from '@/shared/ui/mobileMenu';
+import { Plus, UserPlus } from 'lucide-react';
 
 interface GlobalHeaderProps {
   title: string;
@@ -10,19 +9,10 @@ interface GlobalHeaderProps {
 }
 
 export const GlobalHeader: React.FC<GlobalHeaderProps> = ({ title, subtitle, onAddBooking, onAddClient }) => {
-  const openMenu = useOpenMobileMenu();
   return (
     <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 lg:mb-12 animate-slide-up">
       <div className="space-y-2">
         <div className="flex items-center gap-4">
-          {openMenu && (
-            <button
-              onClick={openMenu}
-              className="lg:hidden p-2.5 bg-green-deep text-cream-warm rounded-xl shadow-lg active:scale-95 transition-all"
-            >
-              <Menu size={20} strokeWidth={2.5} />
-            </button>
-          )}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-green-deep tracking-tight leading-none">
             {title}
           </h1>
