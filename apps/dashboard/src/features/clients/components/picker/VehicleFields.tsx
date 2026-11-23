@@ -16,11 +16,12 @@ export function VehicleFields({ brand, model, licensePlate, size, plateError }: 
     <div className="space-y-2">
       <p className="text-xs font-medium text-muted-foreground">Dane pojazdu</p>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <FormInput placeholder="Marka (opcjonalnie)" {...brand} />
-        <FormInput placeholder="Model (opcjonalnie)" {...model} />
+        <FormInput aria-label="Marka" placeholder="Marka (opcjonalnie)" {...brand} />
+        <FormInput aria-label="Model" placeholder="Model (opcjonalnie)" {...model} />
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <FormInput
+          aria-label="Nr rejestracyjny"
           placeholder="Nr rejestracyjny *"
           className="font-mono uppercase"
           error={plateError}
