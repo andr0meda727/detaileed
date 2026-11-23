@@ -37,11 +37,11 @@ function Form({ factors, canEdit }: { factors: SizeFactors; canEdit: boolean }) 
   };
 
   return (
-    <div className="p-5 space-y-3">
-      <p className="text-sm text-slate-500">
+    <div className="flex flex-col gap-3 p-5">
+      <p className="text-sm text-muted-foreground">
         Ile razy więcej materiału zużywa auto danej wielkości niż średnie (np. SUV 1,3). Osobno od czasu wizyty.
       </p>
-      <fieldset disabled={!canEdit} className="grid grid-cols-2 sm:grid-cols-4 gap-x-4">
+      <fieldset disabled={!canEdit} className="grid grid-cols-2 gap-x-4 sm:grid-cols-4">
         {VEHICLE_SIZES.map((size) => {
           const key = KEYS[size.value];
           return (
@@ -51,17 +51,18 @@ function Form({ factors, canEdit }: { factors: SizeFactors; canEdit: boolean }) 
               inputMode="decimal"
               value={values[key]}
               onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
+              className="font-mono tabular-nums"
             />
           );
         })}
       </fieldset>
       {error && (
-        <p role="alert" className="text-xs font-bold text-red-500">
+        <p role="alert" className="text-xs text-danger">
           {error}
         </p>
       )}
       {canEdit && (
-        <Button icon={Save} loading={save.isPending} onClick={submit}>
+        <Button icon={Save} loading={save.isPending} onClick={submit} className="self-start">
           Zapisz mnożniki
         </Button>
       )}
@@ -76,7 +77,7 @@ export function SizeFactorsSettings({ canEdit }: { canEdit: boolean }) {
     <FormSection icon={Scaling} title="Zużycie materiałów wg wielkości auta">
       {isLoading || !data ? (
         <div className="p-5">
-          <Skeleton width="100%" height="64px" className="rounded-xl" />
+          <Skeleton width="100%" height="64px" className="rounded-lg" />
         </div>
       ) : (
         <Form factors={data} canEdit={canEdit} />
