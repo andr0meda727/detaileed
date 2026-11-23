@@ -91,17 +91,23 @@ describe('Sidebar', () => {
   it('switches studios and links to the studio list', async () => {
     const { router } = renderSidebar();
     const menu = await openMenu(await screen.findByRole('button', { name: /Studio: Połysk Detailing/ }));
-    expect(within(menu).getByRole('menuitem', { name: 'Połysk Detailing' })).toHaveAttribute('aria-current', 'true');
-    expect(within(menu).getByRole('menuitem', { name: 'Wszystkie studia' })).toBeInTheDocument();
-    fireEvent.click(within(menu).getByRole('menuitem', { name: 'Lśnij' }));
+    expect(within(menu).getByRole('menuitem', { name: 'Połysk Detailing' })).toHaveAttribute('aria-current', 'page');
+    expect(within(menu).getByRole('menuitem', { name: 'Wszystkie studia' })).toHaveAttribute('href', '/studios');
+    const other = within(menu).getByRole('menuitem', { name: 'Lśnij' });
+    expect(other).toHaveAttribute('href', '/s/staff');
+    fireEvent.click(other);
     await waitFor(() => expect(router.state.location.pathname).toBe('/s/staff'));
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
   });
 
   it('offers the theme, the account and signing out in the user menu', async () => {
     const { onLogout } = renderSidebar();
     const menu = await openMenu(await screen.findByRole('button', { name: 'Menu użytkownika' }));
     expect(within(menu).getByRole('radiogroup', { name: 'Motyw' })).toBeInTheDocument();
-    expect(within(menu).getByRole('menuitem', { name: 'Moje konto' })).toBeInTheDocument();
+    expect(within(menu).getByRole('menuitem', { name: 'Moje konto' })).toHaveAttribute(
+      'href',
+      '/s/owned/settings/user',
+    );
     fireEvent.click(within(menu).getByRole('menuitem', { name: 'Wyloguj' }));
     expect(onLogout).toHaveBeenCalledOnce();
   });

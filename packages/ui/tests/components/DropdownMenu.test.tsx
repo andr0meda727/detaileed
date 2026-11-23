@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, UserCircle } from 'lucide-react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   DropdownMenu,
@@ -63,5 +63,26 @@ describe('DropdownMenu', () => {
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
     expect(onEdit).not.toHaveBeenCalled();
     expect(onDelete).not.toHaveBeenCalled();
+  });
+
+  it('renders an item with asChild as its link, with the icon inside, and closes on select', async () => {
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Konto</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem asChild icon={UserCircle}>
+            <a href="#account">Moje konto</a>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    );
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Konto' }), { key: 'Enter' });
+    const item = await screen.findByRole('menuitem', { name: 'Moje konto' });
+
+    expect(item.tagName).toBe('A');
+    expect(item).toHaveAttribute('href', '#account');
+    expect(item.querySelector('svg')).not.toBeNull();
+    fireEvent.click(item);
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
   });
 });

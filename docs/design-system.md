@@ -363,7 +363,9 @@ page theme, not a `data-theme` wrapper around their trigger. The dev page `/dev/
   icon button with an `aria-label`), the user menu. `bg-surface`, `rounded-lg`, border, `shadow-lg`; the highlighted
   item is `bg-muted`, a `danger` item has `text-danger` and a `danger-soft` highlight and goes last, after a separator.
   Enter, Space or ArrowDown opens it, arrows move, typing jumps to an item, Escape closes it and focus returns to the
-  trigger. Use `onSelect`, not `onClick`. A destructive item opens a `ConfirmDialog` rather than acting at once.
+  trigger. Use `onSelect`, not `onClick`. A destructive item opens a `ConfirmDialog` rather than acting at once. An
+  item that goes somewhere is a real link: `asChild` around a router `<Link>` (the icon goes inside the link), not
+  `onSelect` with `navigate()`, so the address shows and a middle-click opens a new tab.
 - **`Tooltip`** (`content`, `children` (one focusable element), `side?`, `align?`, `delayDuration = 300`): a short
   hint on hover and keyboard focus, inverted (`bg-primary text-primary-foreground`, `text-xs`). The trigger gets
   `aria-describedby`. It brings its own provider. A tooltip is extra: icon-only buttons still need an `aria-label`,
