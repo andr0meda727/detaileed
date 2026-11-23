@@ -7,7 +7,7 @@ export {
   useDeleteBooking,
 } from './api/bookings';
 export type { BookingFilters } from './api/bookings';
-export { BOOKING_STATUSES } from './model/statuses';
+export { BOOKING_STATUSES, bookingStatusTone } from './model/statuses';
 export type { BookingStatus } from './model/statuses';
 export { buildBookingCreateDto } from './model/buildBookingCreateDto';
 export type { Booking, BookingInput } from './model/types';
