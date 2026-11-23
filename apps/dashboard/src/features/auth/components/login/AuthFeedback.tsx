@@ -1,5 +1,5 @@
 import React from 'react';
-import { Turnstile, type UseTurnstile } from '@detaileed/ui';
+import { Alert, Turnstile, type UseTurnstile } from '@detaileed/ui';
 
 export interface AuthFeedbackProps {
   captcha: UseTurnstile;
@@ -11,15 +11,8 @@ export const AuthFeedback: React.FC<AuthFeedbackProps> = ({ captcha, error }) =>
   <>
     {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}
     {captcha.failed && (
-      <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
-        Nie udało się załadować weryfikacji. Odśwież stronę albo wyłącz blokowanie skryptów.
-      </div>
+      <Alert tone="danger">Nie udało się załadować weryfikacji. Odśwież stronę albo wyłącz blokowanie skryptów.</Alert>
     )}
-
-    {error && (
-      <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
-        {error}
-      </div>
-    )}
+    {error && <Alert tone="danger">{error}</Alert>}
   </>
 );

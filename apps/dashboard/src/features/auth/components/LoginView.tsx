@@ -3,7 +3,7 @@ import { LoginFormValues, PasswordResetValues } from '@/features/auth/model/sche
 import { useTurnstile } from '@detaileed/ui';
 import { supabase } from '@/shared/lib/supabase';
 import { TURNSTILE_SITE_KEY } from '@/shared/lib/siteConfig';
-import logo from '@/shared/assets/logo.svg';
+import { AuthScreen } from './AuthScreen';
 import { LoginForm } from './login/LoginForm';
 import { ResetPasswordForm } from './login/ResetPasswordForm';
 import { ResetSentMessage } from './login/ResetSentMessage';
@@ -79,44 +79,26 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cream p-10 mesh-bg">
-      <div className="max-w-[480px] w-full space-y-12 animate-zoom-in">
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center bg-green-deep w-24 h-24 rounded-2xl mb-10 shadow-[0_30px_60px_rgba(16,44,38,0.25)] border border-[#1A3D33]">
-            <img
-              src={logo}
-              alt="Detaileed logo"
-              className="h-14 w-auto shrink-0 transition-transform duration-300 group-hover:scale-105"
-            />
-          </div>
-          <h1 className="text-5xl font-bold text-green-deep tracking-tighter">Detaileed</h1>
-          <p className="text-green-light font-bold mt-3 uppercase tracking-[0.4em] text-[10px]">
-            Twój panel do zarządzania firmą
-          </p>
-        </div>
-
-        <div className="bg-white p-12 rounded-2xl premium-shadow border border-[#EDD9B7]">
-          {mode === 'login' && (
-            <LoginForm
-              captcha={captcha}
-              error={error}
-              isLoading={isLoading}
-              onSubmit={onLoginSubmit}
-              onForgotPassword={() => switchMode('reset')}
-            />
-          )}
-          {mode === 'reset' && (
-            <ResetPasswordForm
-              captcha={captcha}
-              error={error}
-              isLoading={isLoading}
-              onSubmit={onResetSubmit}
-              onBack={() => switchMode('login')}
-            />
-          )}
-          {mode === 'reset-sent' && <ResetSentMessage email={resetEmailSentTo} onBack={() => switchMode('login')} />}
-        </div>
-      </div>
-    </div>
+    <AuthScreen title="Detaileed" description="Twój panel do zarządzania firmą">
+      {mode === 'login' && (
+        <LoginForm
+          captcha={captcha}
+          error={error}
+          isLoading={isLoading}
+          onSubmit={onLoginSubmit}
+          onForgotPassword={() => switchMode('reset')}
+        />
+      )}
+      {mode === 'reset' && (
+        <ResetPasswordForm
+          captcha={captcha}
+          error={error}
+          isLoading={isLoading}
+          onSubmit={onResetSubmit}
+          onBack={() => switchMode('login')}
+        />
+      )}
+      {mode === 'reset-sent' && <ResetSentMessage email={resetEmailSentTo} onBack={() => switchMode('login')} />}
+    </AuthScreen>
   );
 };
