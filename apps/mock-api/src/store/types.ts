@@ -1,4 +1,4 @@
-import type { VehicleSize } from '@detaileed/api-client';
+import type { DayOfWeek, ServiceCategory, VehicleSize } from '@detaileed/api-client';
 
 /**
  * The mock's own records. Handlers turn them into the API's DTOs (generated models), so related data
@@ -46,4 +46,65 @@ export interface Vehicle {
   brand: string | null;
   model: string | null;
   size: VehicleSize;
+}
+
+export interface Service {
+  id: string;
+  studioId: string;
+  name: string;
+  category: ServiceCategory;
+  /** Prices in złoty per car size; a missing size means "price on request". */
+  prices: { vehicleSize: VehicleSize; price: number }[];
+  durationMinutes: number;
+  /** Deleted services stay for the bookings that used them. */
+  deleted: boolean;
+}
+
+export type BookingStatusKey = 'created' | 'completed' | 'cancelled';
+
+export interface Booking {
+  id: string;
+  studioId: string;
+  clientId: string;
+  vehicleId: string;
+  scheduledAt: string;
+  endsAt: string;
+  completedAt: string | null;
+  status: BookingStatusKey;
+  /** Złoty; null = not priced. */
+  price: number | null;
+  notes: string | null;
+  bayId: string | null;
+  serviceIds: string[];
+}
+
+export interface Bay {
+  id: string;
+  studioId: string;
+  name: string;
+  isActive: boolean;
+}
+
+export interface OpeningPeriod {
+  day: DayOfWeek;
+  /** Studio-local `HH:mm:ss`, as the API sends times of day. */
+  opens: string;
+  closes: string;
+}
+
+export interface SizeMultipliers {
+  small: number;
+  medium: number;
+  large: number;
+  xl: number;
+}
+
+export interface Schedule {
+  studioId: string;
+  openingHours: OpeningPeriod[];
+  closures: { date: string; reason: string | null }[];
+  bufferMinutes: number;
+  slotStepMinutes: number;
+  minLeadHours: number;
+  durationMultipliers: SizeMultipliers;
 }

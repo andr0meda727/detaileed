@@ -157,6 +157,9 @@ export const clientRoutes: Route[] = [
     const { studio } = requireStudio(req);
     const client = findClient(studio.id, req.params.id);
     const state = db();
+    if (state.bookings.some((b) => b.clientId === client.id)) {
+      throw problem(409, 'CLIENT_HAS_BOOKINGS', 'Nie można usunąć klienta, który ma rezerwacje.');
+    }
     state.vehicles = state.vehicles.filter((v) => v.clientId !== client.id);
     state.clients = state.clients.filter((c) => c.id !== client.id);
     return empty();
@@ -185,6 +188,9 @@ export const clientRoutes: Route[] = [
   route('DELETE', '/api/vehicle/{id}', (req) => {
     const { studio } = requireStudio(req);
     const vehicle = findVehicle(studio.id, req.params.id);
+    if (db().bookings.some((b) => b.vehicleId === vehicle.id)) {
+      throw problem(409, 'VEHICLE_HAS_BOOKINGS', 'Nie można usunąć pojazdu, który ma rezerwacje.');
+    }
     db().vehicles = db().vehicles.filter((v) => v.id !== vehicle.id);
     return empty();
   }),
