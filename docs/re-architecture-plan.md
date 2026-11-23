@@ -21,6 +21,7 @@ User decisions: **pnpm**; **merge each phase into local `main` (fast-forward, no
 | 8: customer site        | done (merged to `main`); `apps/web` Next.js, map search, studio pages, requests   |
 | 9: planning             | done (merged to `main`); bays, hours, closures, day board, slots in bookings      |
 | 10: inventory ledger    | done (merged to `main`); history, deliveries, recipes, consumption, forecast      |
+| 11: grafit redesign     | in progress on `redesign/grafit`; tasks and commits in the phase 11 section       |
 
 Update this table when a phase is merged. Implement phases in order, following the commit lists below.
 
@@ -331,6 +332,366 @@ through the ledger); the size factors sit in the settings tab now called "Magazy
 stock alerts still list items below their minimum; showing the forecast's `runsOutAt` there is a small follow-up.
 
 Not in the API yet (from the backend reference): editing a studio's name/phone/address, `statusId` on bookings.
+
+## Phase 11: Grafit redesign (integration branch `redesign/grafit`)
+
+A visual rebuild of both apps and `packages/ui`. The "Forest & Cream" look (DM Sans / DM Serif Display / Syne, green,
+cream and amber) gives way to **Grafit**, the direction the user picked from three mockups: monochrome greys, Geist +
+Geist Mono, inverted primary buttons, thin borders, no gradients. Reference markup: `docs/design/grafit-mockup/`.
+
+User decisions:
+
+- One look for the dashboard, the customer site and `/for-studios` (the landing goes last).
+- Light and dark themes, following the OS by default, with a switch (dashboard user menu, site header) saved per device.
+- Every PR targets `redesign/grafit`; the coordinator merges them after green CI and a review. The user reviews one final
+  PR `redesign/grafit` → `main` (merging it deploys both apps).
+- A mock API with Polish sample data and a fake Supabase sign-in comes first, so every screen can be opened and
+  screenshotted in both themes without the real backend; screenshots go into the PR descriptions.
+- The work is split between Orca workers (Claude), each in its own worktree and branch, at most about four at once.
+
+### Rules for every task
+
+- **Visual changes only**: behaviour and API calls stay the same. Out of scope: a global search (it was only in the
+  mockup), new features, rewording beyond sentence-case labels ("Nowa rezerwacja", not "Dodaj Rezerwację") and dropping
+  filler such as the fake "Live Mode" pill. Bug or accessibility fixes in code you are restyling anyway are welcome,
+  in their own commits.
+- **Only edit the paths your task owns** (task table below). Feature tasks never edit `packages/ui`, `apps/*/src/app`,
+  `shared/ui`, routes, `pnpm-lock.yaml` or `apps/mock-api`. Need a shared component, a fixture or a dependency that
+  isn't there? Ask the coordinator (`ask`); don't build a private copy.
+- **Keep props stable** where other tasks use a component: `GlobalHeader` (11 screens), `CreateBookingModal` and
+  `CreateClientModal` (6 screens each) and every existing `@detaileed/ui` component.
+- **The old palette stays defined** (`green-deep`, `cream*`, `amber`, the old fonts and utilities) until T13, so screens
+  not migrated yet keep working; migrated code uses only the new tokens.
+- AGENTS.md applies in full: small Conventional Commits with the exact subjects below, file moves in their own commits,
+  prettier + eslint `--fix` on the changed files, lint, typecheck, test and build green. Commits end with
+  `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`; PR bodies end with
+  `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
+- Stage explicit paths only (`git add <files>`); never commit a line-ending-only change.
+
+### Design system (T2a–T2c)
+
+Semantic tokens in `packages/ui/src/styles/theme.css`: `@theme { --color-<name>: var(--<name>) }`, light values on
+`:root`, dark values on `[data-theme='dark']`, the same dark values under
+`@media (prefers-color-scheme: dark) { :root:not([data-theme]) { … } }` for pages without the script, and
+`@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));`. The base border colour is `border`.
+
+| Token (utility)                                | Use                                       | Dark                                      | Light                       |
+| ---------------------------------------------- | ----------------------------------------- | ----------------------------------------- | --------------------------- |
+| `background`                                   | page                                      | #0a0a0a                                   | #ffffff                     |
+| `subtle`                                       | sidebar, table head, segmented track      | #0f0f0f                                   | #fafafa                     |
+| `surface`                                      | cards, inputs, menus, dialogs             | #141414                                   | #ffffff                     |
+| `muted`                                        | hover and selected fill, skeleton         | #1c1c1c                                   | #f4f4f5                     |
+| `border` / `border-strong`                     | dividers, cards / inputs, outline buttons | #262626 / #383838                         | #e7e7e7 / #d4d4d4           |
+| `foreground`                                   | main text                                 | #ededed                                   | #0a0a0a                     |
+| `muted-foreground`                             | secondary text                            | #a3a3a3                                   | #525252                     |
+| `faint`                                        | meta text, table head, placeholders       | #8f8f8f                                   | #666666                     |
+| `primary` / `primary-foreground`               | main button, active pill (inverted)       | #ededed / #0a0a0a                         | #0a0a0a / #ffffff           |
+| `ring`                                         | focus ring (2px, offset 2px)              | #a3a3a3                                   | #525252                     |
+| `success` / `success-soft`                     | status                                    | #4ade80 / rgba(74,222,128,.12)            | #15803d / #ecfdf3           |
+| `info` / `info-soft`                           | status                                    | #7cb4ff / rgba(96,165,250,.12)            | #1d4ed8 / #eff6ff           |
+| `warning` / `warning-soft`                     | status                                    | #fbbf24 / rgba(251,191,36,.12)            | #a16207 / #fefce8           |
+| `danger` / `danger-soft` / `danger-foreground` | errors, destructive actions               | #f87171 / rgba(248,113,113,.12) / #0a0a0a | #b91c1c / #fef2f2 / #ffffff |
+| `star`                                         | rating stars                              | #fbbf24                                   | #d97706                     |
+| `overlay`                                      | dialog backdrop                           | rgba(0,0,0,.6)                            | rgba(0,0,0,.4)              |
+
+Type, shape and motion:
+
+- `font-sans` = Geist, `font-mono` = Geist Mono; times, money and counts use `font-mono tabular-nums`; weights 400, 500
+  and 600 only.
+- `text-xs` meta and table heads, `text-sm` dashboard body and controls, `text-base` site body, page titles
+  `text-2xl font-semibold tracking-tight`, the studio name on the site `text-4xl`. No `text-[9–11px] uppercase
+tracking-widest` labels.
+- Controls 36px high with `rounded-md`; cards and dialogs `rounded-lg` with a 1px border; no shadows on cards (one soft
+  shadow on menus and dialogs); status badges are pills with a dot; tables have row borders only.
+- 150 ms colour transitions only: no hover lifts, scaling or gradients; respect `prefers-reduced-motion`.
+- Dashboard: 240px sidebar (`subtle`, right border), a slim top bar, content up to about 1180px with 28px padding.
+  Site: 56px header, 1160px column. Everything works at 390px wide.
+- The plain classes in `theme.css` (`.skeleton`, `.floating-card`, …) move into `@layer components` or `@utility`, so
+  utilities override them again.
+
+Themes: `packages/ui/src/theme/` exports `THEME_STORAGE_KEY = 'detaileed-theme'` (values `system`, `light`, `dark`),
+`themeInitScript` (inline: reads the stored choice, resolves `matchMedia('(prefers-color-scheme: dark)')`, sets
+`document.documentElement.dataset.theme` and `style.colorScheme`), `useTheme()` (`useSyncExternalStore` over storage and
+the media query: `{ theme, resolved, setTheme }`) and `ThemeSwitch` (Systemowy / Jasny / Ciemny). The dashboard keeps an
+inline copy of the script in `index.html` `<head>` with a test that it equals `themeInitScript`; the site renders it
+with `dangerouslySetInnerHTML` in the root layout's `<head>` (`suppressHydrationWarning` on `<html>`). Maps pick the
+OpenFreeMap positron or dark style from `useTheme().resolved` (the env style URL still overrides both), Turnstile uses
+`theme: 'auto'`, Recharts reads CSS variables.
+
+Fonts: the dashboard self-hosts `@fontsource-variable/geist` and `@fontsource-variable/geist-mono` (imported in
+`main.tsx`); the site uses `next/font/google` `Geist` and `Geist_Mono` (subsets `latin`, `latin-ext`) as
+`--font-geist-sans` / `--font-geist-mono`, mapped in `globals.css`. The old fonts stay loaded until T13.
+
+Components: `packages/ui` gets `radix-ui`, `clsx` and `tailwind-merge` (v3), and `cn()` in `src/lib/cn.ts` (tested with
+the custom tokens).
+
+- Restyled with backward-compatible props: `Button` (primary, secondary = outline, ghost, danger; `success` kept as an
+  alias; new size `sm`; icon-only needs `aria-label`), `Badge` (tones neutral, info, success, warning, danger; `brand` →
+  neutral, `amber` → warning; the `color` prop for API status colours becomes the dot), `FormInput` (error linked with
+  `aria-describedby`), `Select` (stays native), `FormSection` (a card with a header), `EmptyState`, `LoadingSpinner`
+  (its props work; `role=status`), `Skeleton`, `StarRating`, toasts (`aria-live`, labelled close, longer), `Modal` (on
+  Radix Dialog: same props plus `description`, focus trap), `MapView` / `MapPicker` (pins, both styles), `Turnstile`.
+- New, each with a test: `Card`, `PageHeader`, `Stat`, `Table` parts, `Tabs`, `SegmentedControl`, `Checkbox`, `Switch`,
+  `RadioCardGroup`, `DropdownMenu`, `Tooltip`, `ConfirmDialog`, `Textarea`, `FieldError`, `Alert` (`role=alert` when
+  danger), `Pagination`, `Avatar`, `Kbd`, `SearchInput`, `LicensePlate`, `Logo` (mark + wordmark in `currentColor`),
+  `ThemeSwitch`.
+- `docs/design-system.md` is the guide for everyone: tokens and when to use them, typography, layout patterns (page
+  header, list or table, card, form, empty, loading and error states), status → tone map, do's and don'ts.
+
+### Mock API (T1, `apps/mock-api`)
+
+- `@detaileed/mock-api` (private): Node 22 + `tsx`, `node:http` with a small route table, no framework; port 5180
+  (`MOCK_API_PORT`); CORS for any `http://localhost:*` origin (headers `Authorization`, `Content-Type`, `X-Studio-Id`,
+  `apikey`, `x-client-info`, credentials). No app depends on it, so `turbo prune` leaves it out of the Docker images.
+- Fake Supabase under `/auth/v1`: `POST /token?grant_type=password|refresh_token|pkce`, `GET`/`PUT /user`,
+  `POST /logout`, `/signup`, `/recover`, `/resend`, `GET /reauthenticate`, `GET /settings`; JWT-shaped tokens (`exp`,
+  `sub`, `email`, `role: authenticated`); Supabase's error shape (`invalid_grant`). Demo accounts, password `demo1234`:
+  `wlasciciel@demo.detaileed.com` (owns a full studio and an empty one, for empty states), `pracownik@demo.detaileed.com`
+  (employee), `klient@demo.detaileed.com` (customer with cars, requests and pending reviews).
+- Every path in `packages/api-client/openapi.json` has a handler; data typed with the generated models (`satisfies`),
+  Polish, in Europe/Warsaw, dated relative to today (so "today" screens are always full); mutations change an
+  in-memory store, `POST /__mock/reset` restores it; errors are ProblemDetails with the codes the UI handles. A test
+  checks that every method and path of the spec has a handler.
+- `apps/dashboard/.env.mock` is loaded by `vite --mode mock` (mode files beat `.env.local`); `apps/web/.env.mock` is
+  loaded by `apps/web/scripts/dev-mock.mjs` (`process.loadEnvFile`, then `next dev -p <port>`; process env beats
+  `.env.local`). `dev:mock` scripts in the mock API and both apps (`--port` works), root `pnpm dev:mock` =
+  `turbo run dev:mock`; `.gitignore` gets `!.env.mock` (`.dockerignore` already drops `.env.*`).
+- `scripts/publish-screenshots.mjs` commits PNGs to the orphan branch `screenshots` (folder per task) with git plumbing
+  (temporary index, `commit-tree`, push with retries) and prints Markdown image links
+  (`https://github.com/anteklekawa/detailflow/blob/screenshots/<path>?raw=true`). The repo is public: mock data only,
+  never real data. T1 also publishes a baseline of every route in the old look (`baseline/`) for before/after pairs.
+
+### Screenshots and ports
+
+After T1 is merged the coordinator runs one shared mock API on :5180; workers don't start their own (ask for fixture
+changes). Each worker runs only its own app, on its own ports, so parallel workers don't collide (3000/3001 stay free
+for the user):
+
+| Task           | T1   | T2a  | T2b  | T2c  | T3   | T4   | T5   | T6   | T7   | T8   | T9   | T10  | T11  | T12a | T12b | T13  |
+| -------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Dashboard port | 3010 | 3020 | 3030 | 3040 | 3050 |      | 3070 | 3080 | 3090 | 3100 | 3110 | 3120 |      |      |      | 3150 |
+| Web port       | 3011 | 3021 | 3031 | 3041 |      | 3061 |      |      |      |      |      |      | 3131 | 3141 | 3143 | 3151 |
+
+Capture with Orca's embedded browser (orca-cli skill): each screen you own at 1440×900 and 390×844, dark and light (set
+`localStorage['detaileed-theme']` and reload), signed in as the matching demo account. Name files
+`<task>/<app>-<screen>-<theme>-<desktop|phone>.png` (e.g. `t5/dashboard-bookings-dark-desktop.png`), publish them with the
+script and put before/after pairs in the PR body.
+
+### Tasks
+
+| Id   | Owns                                                                                                                                                                                                                                                                     | Needs merged  | Branch                            |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- | --------------------------------- |
+| T0   | coordinator: this plan, `.gitattributes`, mockup reference                                                                                                                                                                                                               | –             | `redesign/grafit`                 |
+| T1   | `apps/mock-api/**`, `apps/*/.env.mock`, the `dev:mock` scripts, `apps/web/scripts/**`, `scripts/publish-screenshots.mjs`, `turbo.json`, root `package.json`, `.gitignore`, lockfile, AGENTS.md (commands table, env notes)                                               | T0            | `feat/phase-11-mock-api`          |
+| T2a  | `packages/ui/src/{styles,theme,lib}/**`, `packages/ui/package.json`, font and theme bootstrap (`apps/dashboard/{index.html,package.json,src/main.tsx}`, `apps/web/src/app/{layout.tsx,globals.css}`), lockfile, AGENTS.md (UI and colour rules), `docs/design-system.md` | T0            | `feat/phase-11-tokens`            |
+| T2b  | `packages/ui`: existing components except `Modal`, new non-Radix components, `map/`, `captcha/`, `toast/`, their tests and sections of `docs/design-system.md`                                                                                                           | T2a           | `feat/phase-11-ui-basics`         |
+| T2c  | `packages/ui`: `radix-ui`, `Modal`, `ConfirmDialog`, `Tabs`, `SegmentedControl`, `Checkbox`, `Switch`, `RadioCardGroup`, `DropdownMenu`, `Tooltip`, `ThemeSwitch`, their tests and sections of `docs/design-system.md`, lockfile                                         | T2a           | `feat/phase-11-ui-radix`          |
+| T3   | dashboard `src/app/layout/**`, `src/routes/_signed-in/s/$studioId/route.tsx` (markup only), `src/routes/__root.tsx`, `src/shared/ui/**`, `src/shared/assets/**`, `index.html` (favicon)                                                                                  | T1, T2b, T2c  | `feat/phase-11-dashboard-shell`   |
+| T4   | web `src/app/**` (layouts, chrome, not-found, error), `src/shared/ui/**`, `src/features/{auth,account}/**`, `public/**`, their tests                                                                                                                                     | T1, T2b, T2c  | `feat/phase-11-web-shell`         |
+| T5   | dashboard `src/features/bookings/**` + tests                                                                                                                                                                                                                             | T1, T2b, T2c  | `feat/phase-11-bookings`          |
+| T6   | dashboard `src/features/inventory/**` + tests                                                                                                                                                                                                                            | T1, T2b, T2c  | `feat/phase-11-inventory`         |
+| T7   | dashboard `src/features/{clients,team}/**` + tests                                                                                                                                                                                                                       | T1, T2b, T2c  | `feat/phase-11-clients-team`      |
+| T8   | dashboard `src/features/{dashboard-home,reports}/**` + tests                                                                                                                                                                                                             | T1, T2b, T2c  | `feat/phase-11-home-reports`      |
+| T9   | dashboard `src/features/{auth,studios}/**` + tests                                                                                                                                                                                                                       | T1, T2b, T2c  | `feat/phase-11-auth-studios`      |
+| T10  | dashboard `src/features/{settings,services,marketplace,planning,booking-requests}/**` + tests                                                                                                                                                                            | T1, T2b, T2c  | `feat/phase-11-settings-planning` |
+| T11  | web `src/features/{search,studio,booking}/**` + tests                                                                                                                                                                                                                    | T1, T2b, T2c  | `feat/phase-11-web-pages`         |
+| T12a | web `src/features/for-studios/components/*.tsx` (not `demo/`), `styles/landing.css`, `model/content.ts`                                                                                                                                                                  | T3, T4, T8    | `feat/phase-11-landing`           |
+| T12b | web `src/features/for-studios/components/demo/**`, `model/{demoData,demoFormat}.ts`                                                                                                                                                                                      | T3, T4, T8    | `feat/phase-11-landing-demo`      |
+| T13  | removing the old palette, fonts and utilities; the colour lint rule (`packages/config/eslint.js`); AGENTS.md; `docs/**`                                                                                                                                                  | all the above | `chore/phase-11-cleanup`          |
+
+Order (at most about four workers at once): T1 + T2a; then T2b + T2c; then T3, T4, T5, T6; then T7–T11 as slots free;
+then T12a + T12b; then T13; then the coordinator opens the final PR `redesign/grafit` → `main`.
+
+### Commits per task
+
+T0 (coordinator, on `redesign/grafit`):
+
+1. `chore: keep the generated route tree in lf line endings`
+2. `docs: add the grafit mockup as a design reference`
+3. `docs: plan phase 11, the grafit redesign`
+
+T1, mock API:
+
+1. `build(mock-api): add the mock api package`
+2. `feat(mock-api): fake supabase sign-in for demo accounts`
+3. `feat(mock-api): studio, client and vehicle data`
+4. `feat(mock-api): bookings, services and planning data`
+5. `feat(mock-api): inventory, team and reports data`
+6. `feat(mock-api): marketplace, booking requests and public studios`
+7. `feat(mock-api): customer account endpoints`
+8. `test(mock-api): cover sign-in and every endpoint in the spec`
+9. `build: run both apps against the mock api with dev:mock`
+10. `build: script to publish pr screenshots to the screenshots branch`
+11. `docs: describe the mock api and the demo accounts`
+
+T2a, tokens, themes and fonts:
+
+1. `build: align tailwind versions across the apps`
+2. `build(ui): add clsx and tailwind-merge`
+3. `feat(ui): add a cn helper for class names`
+4. `feat(ui): grafit colour tokens with light and dark themes`
+5. `fix(ui): move theme classes into tailwind layers`
+6. `feat(ui): theme preference hook and no-flash script`
+7. `build(dashboard): self-host the geist fonts`
+8. `feat(dashboard): apply the saved theme before first paint`
+9. `build(web): load the geist fonts with next/font`
+10. `feat(web): apply the saved theme before first paint`
+11. `docs: document the grafit tokens and point the guide at them`
+
+T2b, basic components:
+
+1. `feat(ui): restyle button for grafit`
+2. `feat(ui): restyle badge with status tones`
+3. `feat(ui): restyle form fields and add textarea and field error`
+4. `feat(ui): add card, page header and stat`
+5. `feat(ui): add table parts`
+6. `feat(ui): add alert, pagination, avatar, kbd and licence plate`
+7. `feat(ui): add a search input`
+8. `feat(ui): restyle empty state, spinner, skeleton and stars`
+9. `feat(ui): restyle toasts and announce them`
+10. `feat(ui): map pins and map styles for both themes`
+11. `feat(ui): follow the theme in the captcha widget`
+12. `feat(ui): add the detaileed logo`
+13. `docs: document the basic grafit components`
+
+T2c, interactive components:
+
+1. `build(ui): add radix-ui`
+2. `feat(ui): build modal on radix dialog`
+3. `feat(ui): add confirm dialog`
+4. `feat(ui): add tabs and segmented control`
+5. `feat(ui): add checkbox, switch and radio cards`
+6. `feat(ui): add dropdown menu and tooltip`
+7. `feat(ui): add a theme switch`
+8. `docs: document the interactive grafit components`
+
+T3, dashboard shell:
+
+1. `refactor(dashboard): split the sidebar into smaller parts`
+2. `feat(dashboard): grafit sidebar with studio switcher and user menu`
+3. `feat(dashboard): slim top bar with breadcrumb and mobile menu button`
+4. `feat(dashboard): restyle the page header`
+5. `feat(dashboard): restyle the root loading, not-found and error screens`
+6. `feat(dashboard): restyle the shared name form and card grid`
+7. `chore(dashboard): use the new logo and favicon`
+
+T4, site shell, sign-in and account:
+
+1. `feat(web): grafit site header and footer with a theme switch`
+2. `feat(web): restyle the account menu`
+3. `feat(web): restyle the not-found and error pages`
+4. `feat(web): restyle the sign-in and sign-up pages`
+5. `feat(web): restyle the password pages`
+6. `feat(web): restyle the account layout and navigation`
+7. `feat(web): restyle profile, garage and security`
+8. `feat(web): restyle my requests and pending reviews`
+9. `chore(web): use the new logo and favicon`
+
+T5, bookings:
+
+1. `feat(dashboard): restyle the bookings list and tabs`
+2. `feat(dashboard): restyle the booking calendar`
+3. `feat(dashboard): restyle booking cards and status badges`
+4. `feat(dashboard): restyle the booking form`
+5. `feat(dashboard): restyle booking details`
+6. `feat(dashboard): confirm booking status changes in a dialog`
+7. `feat(dashboard): restyle the booking archive`
+8. `refactor(dashboard): drop unused booking status colours`
+
+T6, inventory:
+
+1. `feat(dashboard): restyle the inventory list and filters`
+2. `feat(dashboard): restyle the inventory item form`
+3. `feat(dashboard): restyle item history and stock movements`
+4. `feat(dashboard): restyle the stock forecast`
+5. `feat(dashboard): restyle recipes and visit consumption`
+6. `feat(dashboard): restyle inventory settings`
+
+T7, clients and team:
+
+1. `feat(dashboard): restyle the clients list and table`
+2. `feat(dashboard): restyle client details`
+3. `feat(dashboard): restyle the client and vehicle forms`
+4. `feat(dashboard): restyle the client and vehicle picker`
+5. `feat(dashboard): restyle the team screen`
+6. `feat(dashboard): restyle invitations and employee settings`
+
+T8, dashboard home and reports:
+
+1. `feat(dashboard): restyle the dashboard greeting and stats`
+2. `fix(dashboard): show today's booking status with the status badge`
+3. `feat(dashboard): restyle today's schedule and upcoming bookings`
+4. `feat(dashboard): theme the revenue chart`
+5. `feat(dashboard): restyle quick actions, stock alerts and activity`
+6. `feat(dashboard): restyle the reports screen`
+
+T9, dashboard sign-in and studios:
+
+1. `refactor(dashboard): split the sign-in screen into parts`
+2. `feat(dashboard): restyle the sign-in screen`
+3. `feat(dashboard): restyle set password and invitation screens`
+4. `feat(dashboard): restyle user settings`
+5. `feat(dashboard): restyle the studio picker`
+6. `feat(dashboard): build the new studio form on the shared modal`
+7. `feat(dashboard): restyle studio details and time zone settings`
+
+T10, settings, services, public profile, planning and requests:
+
+1. `feat(dashboard): restyle the studio settings tabs`
+2. `feat(dashboard): restyle services settings and the service form`
+3. `feat(dashboard): restyle the public profile settings`
+4. `feat(dashboard): restyle the day board`
+5. `feat(dashboard): restyle planning settings`
+6. `feat(dashboard): restyle the booking request inbox`
+
+T11, map search, studio page and booking:
+
+1. `feat(web): restyle the map search and studio cards`
+2. `feat(web): restyle the studio page header and reviews`
+3. `feat(web): restyle services, prices and the estimate`
+4. `feat(web): restyle the studio location card`
+5. `feat(web): restyle the booking request form`
+
+T12a, landing page:
+
+1. `feat(web): grafit landing nav, hero and footer`
+2. `feat(web): restyle the landing sections`
+3. `refactor(web): drop landing styles the tokens replace`
+
+T12b, landing demo:
+
+1. `feat(web): rebuild the landing demo with the new dashboard look`
+2. `refactor(web): demo data uses status tones instead of hex colours`
+
+T13, cleanup:
+
+1. `refactor(ui): remove the forest and cream palette and old utilities`
+2. `build(dashboard): stop loading the old google fonts`
+3. `build(web): stop loading the old fonts`
+4. `build(config): flag hard-coded colours in class names` (ESLint `no-restricted-syntax`: hex, `rgb(`, default
+   palette classes, old tokens)
+5. `docs: update the agent guide for the grafit design system`
+6. `docs: describe the design system in the architecture notes`
+7. `docs: regression checks for themes and phone widths`
+8. `docs: mark phase 11 done`
+
+A commit may be split further when it grows; keep the subjects in this style.
+
+### Definition of done (every worker task)
+
+1. `pnpm install` in the new worktree; read AGENTS.md, `docs/design-system.md` (once T2a has written it) and this
+   section; rename the branch to the one in the task table (`git branch -m <branch>`).
+2. Per commit: prettier on the changed files, `pnpm --filter <package> exec eslint --fix <files>`, then `pnpm lint`
+   (0 errors, no new warnings), `pnpm typecheck`, `pnpm test`, `pnpm build`.
+3. The files you own contain no hex colours, no `rgb(`, no default-palette classes (`slate-`, `gray-`, `red-`,
+   `emerald-`, …), no old tokens and no `font-serif` / `font-syne` (grep before the PR).
+4. Tests updated where visible text or structure changes. Fragile ones: `BayLane` (`left`/`width` styles, `title`),
+   `ForecastView` (row text), `SetPasswordView` (password inputs, `<form>`), `FreeSlotsSection` (radio names),
+   `ServiceFormModal` (placeholder order), `StudioOffer` (no link inside), `routes.test` (heading "Detaileed" on
+   `/login`). Components stay under about 250 lines.
+5. Screenshots of every screen you own, dark and light, desktop and phone, with before/after pairs in the PR.
+6. `gh pr create --base redesign/grafit --body-file <file>`, then wait for CI (`gh pr checks --watch`); report with
+   `worker_done`: PR URL, commits, check results, screenshot links. Blocked or missing something shared: `ask`.
 
 ## Critical files
 

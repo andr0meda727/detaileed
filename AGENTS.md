@@ -116,5 +116,6 @@ Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboa
 8. Customer site `apps/web` (map search, studio pages, sign-up, requests, account): done
 9. Planning (bays, opening hours, day board, free slots in bookings): done
 10. Inventory ledger (movements, recipes, consumption, forecast): done
+11. Grafit redesign (one look for both apps, light and dark themes, a mock API for previews): in progress on the integration branch `redesign/grafit`; every PR of the phase targets it
 
 Architecture notes: `docs/architecture.md`; manual regression checklist: `docs/regression-checklist.md`.
