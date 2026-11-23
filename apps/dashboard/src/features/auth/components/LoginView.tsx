@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  loginFormSchema,
-  passwordResetSchema,
-  LoginFormValues,
-  PasswordResetValues,
-} from '@/features/auth/model/schemas';
-import { ArrowRight, KeyRound, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
-import { Turnstile, useTurnstile } from '@detaileed/ui';
+import { LoginFormValues, PasswordResetValues } from '@/features/auth/model/schemas';
+import { useTurnstile } from '@detaileed/ui';
 import { supabase } from '@/shared/lib/supabase';
 import { TURNSTILE_SITE_KEY } from '@/shared/lib/siteConfig';
 import logo from '@/shared/assets/logo.svg';
+import { LoginForm } from './login/LoginForm';
+import { ResetPasswordForm } from './login/ResetPasswordForm';
+import { ResetSentMessage } from './login/ResetSentMessage';
 
 interface LoginViewProps {
   onLogin: (email: string) => void;
@@ -37,23 +32,11 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
   const [resetEmailSentTo, setResetEmailSentTo] = useState('');
   const captcha = useTurnstile(TURNSTILE_SITE_KEY, mode === 'reset' ? 'password_reset' : 'dashboard_sign_in');
 
-  const {
-    register: registerLogin,
-    handleSubmit: handleLoginSubmit,
-    formState: { errors: loginErrors },
-    reset: resetLogin,
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginFormSchema),
-  });
-
-  const {
-    register: registerReset,
-    handleSubmit: handleResetSubmit,
-    formState: { errors: resetErrors },
-    reset: resetResetForm,
-  } = useForm<PasswordResetValues>({
-    resolver: zodResolver(passwordResetSchema),
-  });
+  // Each form mounts fresh when its mode opens, so its fields start empty.
+  const switchMode = (next: Mode) => {
+    setMode(next);
+    setError('');
+  };
 
   const onLoginSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
@@ -113,177 +96,25 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLogin }) => {
         </div>
 
         <div className="bg-white p-12 rounded-2xl premium-shadow border border-[#EDD9B7]">
-          {/* ── LOGIN MODE ── */}
           {mode === 'login' && (
-            <form onSubmit={handleLoginSubmit(onLoginSubmit)} className="space-y-8">
-              <div className="space-y-3">
-                <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  {...registerLogin('email')}
-                  className={`w-full px-8 py-6 bg-cream border-2 ${loginErrors.email ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-hidden transition-all font-bold text-sm text-green-deep`}
-                  placeholder="email@detaileed.com"
-                />
-                {loginErrors.email && (
-                  <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-6">
-                    {loginErrors.email.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">
-                  Hasło
-                </label>
-                <input
-                  type="password"
-                  {...registerLogin('password')}
-                  className={`w-full px-8 py-6 bg-cream border-2 ${loginErrors.password ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-hidden transition-all font-bold text-sm text-green-deep`}
-                  placeholder="••••••••"
-                />
-                {loginErrors.password && (
-                  <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-6">
-                    {loginErrors.password.message}
-                  </p>
-                )}
-              </div>
-
-              {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}
-              {captcha.failed && (
-                <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
-                  Nie udało się załadować weryfikacji. Odśwież stronę albo wyłącz blokowanie skryptów.
-                </div>
-              )}
-
-              {error && (
-                <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
-                  {error}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading || !captcha.ready}
-                className="w-full flex items-center justify-center gap-4 bg-green-deep hover:bg-[#1A3D33] text-cream-warm font-semibold py-6 rounded-xl transition-all shadow-[0_20px_40px_rgba(16,44,38,0.2)] group text-[11px] uppercase tracking-[0.2em] disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <Loader2 size={20} className="animate-spin" />
-                ) : (
-                  <>
-                    Zaloguj się{' '}
-                    <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" strokeWidth={3} />
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('reset');
-                  setError('');
-                  resetResetForm();
-                }}
-                className="w-full text-center text-[10px] font-semibold text-green-light uppercase tracking-widest hover:text-green-deep transition-colors pt-2"
-              >
-                Nie pamiętam hasła →
-              </button>
-            </form>
+            <LoginForm
+              captcha={captcha}
+              error={error}
+              isLoading={isLoading}
+              onSubmit={onLoginSubmit}
+              onForgotPassword={() => switchMode('reset')}
+            />
           )}
-
-          {/* ── RESET MODE ── */}
           {mode === 'reset' && (
-            <form onSubmit={handleResetSubmit(onResetSubmit)} className="space-y-8">
-              <div className="text-center mb-2">
-                <div className="w-12 h-12 bg-cream-warm/50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <KeyRound size={22} className="text-green-deep" />
-                </div>
-                <h2 className="font-extrabold text-green-deep text-xl tracking-tight">Reset hasła</h2>
-                <p className="text-xs text-slate-400 mt-2">Wyślemy link resetujący na Twój email</p>
-              </div>
-              <div className="space-y-3">
-                <label className="text-[10px] font-semibold text-green-light uppercase tracking-[0.3em] ml-6">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  {...registerReset('email')}
-                  autoFocus
-                  className={`w-full px-8 py-6 bg-cream border-2 ${resetErrors.email ? 'border-red-400 focus:ring-red-400/40' : 'border-transparent focus:ring-cream-warm/40'} rounded-xl focus:ring-4 outline-hidden transition-all font-bold text-sm text-green-deep`}
-                  placeholder="id@detaileed.pl"
-                />
-                {resetErrors.email && (
-                  <p className="text-red-500 font-bold tracking-widest uppercase text-[10px] ml-6">
-                    {resetErrors.email.message}
-                  </p>
-                )}
-              </div>
-
-              {captcha.widgetProps && <Turnstile {...captcha.widgetProps} className="flex justify-center" />}
-              {captcha.failed && (
-                <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
-                  Nie udało się załadować weryfikacji. Odśwież stronę albo wyłącz blokowanie skryptów.
-                </div>
-              )}
-
-              {error && (
-                <div className="p-4 bg-red-50 text-red-500 text-xs font-bold rounded-2xl border border-red-100 text-center">
-                  {error}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isLoading || !captcha.ready}
-                className="w-full flex items-center justify-center gap-3 bg-green-deep text-cream-warm font-semibold py-6 rounded-xl transition-all text-[11px] uppercase tracking-[0.2em] disabled:opacity-70"
-              >
-                {isLoading ? (
-                  <Loader2 size={20} className="animate-spin" />
-                ) : (
-                  <>
-                    Wyślij link resetujący <ArrowRight size={20} strokeWidth={3} />
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('login');
-                  setError('');
-                  resetLogin();
-                }}
-                className="w-full flex items-center justify-center gap-2 text-[10px] font-semibold text-slate-400 uppercase tracking-widest hover:text-green-deep transition-colors pt-2"
-              >
-                <ArrowLeft size={14} /> Wróć do logowania
-              </button>
-            </form>
+            <ResetPasswordForm
+              captcha={captcha}
+              error={error}
+              isLoading={isLoading}
+              onSubmit={onResetSubmit}
+              onBack={() => switchMode('login')}
+            />
           )}
-
-          {/* ── RESET SENT MODE ── */}
-          {mode === 'reset-sent' && (
-            <div className="text-center space-y-6 py-4">
-              <div className="w-16 h-16 bg-emerald-50 border-2 border-emerald-100 rounded-3xl flex items-center justify-center mx-auto">
-                <CheckCircle size={30} className="text-emerald-500" />
-              </div>
-              <div>
-                <h2 className="font-extrabold text-green-deep text-xl tracking-tight mb-2">Sprawdź skrzynkę</h2>
-                <p className="text-sm text-slate-400 leading-relaxed">
-                  Wysłaliśmy link resetujący na <strong className="text-green-deep">{resetEmailSentTo}</strong>.<br />
-                  Kliknij w link, aby ustawić nowe hasło.
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setMode('login');
-                  setError('');
-                }}
-                className="w-full flex items-center justify-center gap-2 text-[10px] font-semibold text-slate-400 uppercase tracking-widest hover:text-green-deep transition-colors py-3"
-              >
-                <ArrowLeft size={14} /> Wróć do logowania
-              </button>
-            </div>
-          )}
+          {mode === 'reset-sent' && <ResetSentMessage email={resetEmailSentTo} onBack={() => switchMode('login')} />}
         </div>
       </div>
     </div>
