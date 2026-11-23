@@ -8,8 +8,6 @@ import { BOOKING_STATUSES, useBookings, type Booking } from '@/features/bookings
 import { isLowStock, useInventory } from '@/features/inventory';
 import { useServices } from '@/features/services';
 
-import { GlobalHeader } from '@/shared/ui/GlobalHeader';
-
 import { DashboardStats } from '@/features/dashboard-home/components/DashboardStats';
 import { RevenueChart } from '@/features/dashboard-home/components/RevenueChart';
 import { BookingDetailsModal, CreateBookingModal, useBookingStatusChange } from '@/features/bookings';
@@ -53,12 +51,6 @@ export const Dashboard: React.FC = () => {
   };
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
-  // New client form state
-
-  // New vehicle form state
-
-  // Form mode
-
   const timeZone = useStudioTimeZone();
   const today = todayInZone(timeZone);
   const lowStockItems = useMemo(() => inventory.filter(isLowStock), [inventory]);
@@ -95,17 +87,15 @@ export const Dashboard: React.FC = () => {
   const handleViewBooking = (booking: Booking) => setSelectedBooking(booking);
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <GlobalHeader
-        title="Panel"
-        subtitle={`Studio ${selectedStudio?.name}`}
+    <div className="flex flex-col gap-6">
+      <GreetingBanner
+        loading={showLoading}
+        todayCount={todayBookings.length}
+        upcomingCount={upcomingBookings.length}
         onAddBooking={handleOpenNewBooking}
         onAddClient={() => setIsClientModalOpen(true)}
       />
 
-      <GreetingBanner loading={showLoading} todayCount={todayBookings.length} upcomingCount={upcomingBookings.length} />
-
-      {/* KPI Cards */}
       <DashboardStats
         todayRevenue={todayRevenue}
         activeCount={activeCount}
