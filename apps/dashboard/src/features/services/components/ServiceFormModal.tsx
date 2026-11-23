@@ -50,8 +50,8 @@ export function ServiceFormModal({ isOpen, service, onClose }: ServiceFormModalP
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={service ? 'Edycja Usługi' : 'Nowa Usługa'}>
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+    <Modal isOpen={isOpen} onClose={onClose} title={service ? 'Edycja usługi' : 'Nowa usługa'}>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
         <FormInput
           label="Nazwa usługi"
           placeholder="np. Korekta lakieru"
@@ -68,11 +68,9 @@ export function ServiceFormModal({ isOpen, service, onClose }: ServiceFormModalP
           />
         </div>
 
-        <div>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 mb-1">
-            Cena wg wielkości auta (zł)
-          </p>
-          <p className="text-xs text-slate-400 px-1 mb-3">
+        <fieldset>
+          <legend className="text-sm font-medium text-foreground">Cena wg wielkości auta (zł)</legend>
+          <p className="mt-1 mb-3 text-xs text-muted-foreground">
             Puste pole = cena na zapytanie. Klient zobaczy cenę dla swojego auta.
           </p>
           <div className="grid grid-cols-2 gap-x-4">
@@ -87,15 +85,17 @@ export function ServiceFormModal({ isOpen, service, onClose }: ServiceFormModalP
               />
             ))}
           </div>
-        </div>
+        </fieldset>
 
-        <Button size="lg" fullWidth type="submit" icon={Save} loading={isSubmitting}>
-          Zapisz
-        </Button>
+        <div className="flex justify-end">
+          <Button type="submit" icon={Save} loading={isSubmitting}>
+            Zapisz
+          </Button>
+        </div>
       </form>
       {/* Materials are kept per service, so they can be set once it exists (owners only). */}
       {service && isOwnerRole(selectedStudio?.role) && (
-        <div className="mt-6 pt-5 border-t border-slate-100">
+        <div className="mt-6 border-t border-border pt-5">
           <RecipeEditor serviceId={service.id} />
         </div>
       )}
