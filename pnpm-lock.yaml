@@ -139,6 +139,9 @@ importers:
       '@detaileed/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@supabase/supabase-js':
+        specifier: ^2.119.0
+        version: 2.119.0
       '@types/node':
         specifier: ^22.14.0
         version: 22.20.5
