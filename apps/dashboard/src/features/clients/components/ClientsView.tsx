@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 
 import { GlobalHeader } from '@/shared/ui/GlobalHeader';
-import { ConfirmDialog, LoadingSpinner, SearchInput, useToast } from '@detaileed/ui';
+import { ConfirmDialog, SearchInput, useToast } from '@detaileed/ui';
 
 import { CreateClientModal } from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
@@ -49,8 +49,6 @@ export const ClientsView: React.FC = () => {
       setDeleteConfirmation(null);
     }
   };
-
-  if (isLoading) return <LoadingSpinner />;
 
   return (
     <div className="space-y-6 pb-20">
