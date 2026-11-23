@@ -1,51 +1,33 @@
-import React from 'react';
-import { Zap } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { cn } from '../lib/cn';
 
-interface LoadingSpinnerProps {
+export interface LoadingSpinnerProps {
+  /** Spinner size in px (default 20). */
   size?: number;
+  /** Classes of the wrapper. */
   className?: string;
+  /** Centre it in a full-height page (route loading) instead of a padded block. */
   fullPage?: boolean;
+  /** What screen readers hear (default "Ładowanie…"). */
+  label?: string;
 }
 
-/** Centered loading spinner. Set fullPage for a full-height centered layout. */
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ fullPage = false }) => {
-  if (fullPage) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-cream mesh-bg">
-        <div className="text-center animate-fade-in">
-          <div className="w-20 h-20 bg-green-deep rounded-xl flex items-center justify-center mx-auto mb-6 shadow-[0_20px_50px_rgba(26,46,30,0.25)]">
-            <Zap size={36} className="text-cream-warm" strokeWidth={2.5} />
-          </div>
-          <div className="flex gap-1.5 justify-center">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="w-2 h-2 rounded-full bg-green-deep/40"
-                style={{ animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+/**
+ * A spinner for actions and whole-page loads; for content, prefer `Skeleton`s in its shape. Announced politely as
+ * a status.
+ */
+export function LoadingSpinner({ size = 20, className, fullPage = false, label = 'Ładowanie…' }: LoadingSpinnerProps) {
   return (
-    <div className="flex items-center justify-center py-20">
-      <div className="flex flex-col items-center gap-5">
-        <div className="w-14 h-14 bg-green-deep rounded-2xl flex items-center justify-center shadow-xl">
-          <Zap size={26} className="text-cream-warm" strokeWidth={2.5} />
-        </div>
-        <div className="flex gap-1.5">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className="w-1.5 h-1.5 rounded-full bg-green-deep/40"
-              style={{ animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }}
-            />
-          ))}
-        </div>
-      </div>
+    <div
+      role="status"
+      className={cn(
+        'flex items-center justify-center text-muted-foreground',
+        fullPage ? 'min-h-screen bg-background' : 'py-16',
+        className,
+      )}
+    >
+      <Loader2 size={size} strokeWidth={1.75} className="animate-spin" aria-hidden />
+      <span className="sr-only">{label}</span>
     </div>
   );
-};
+}
