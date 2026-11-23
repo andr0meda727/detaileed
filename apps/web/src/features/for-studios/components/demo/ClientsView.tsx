@@ -1,131 +1,121 @@
 import { useMemo, useState } from 'react';
-import { Edit2, Phone, Search } from 'lucide-react';
+import { Pencil, Phone, Users } from 'lucide-react';
+import {
+  Avatar,
+  Button,
+  Card,
+  EmptyState,
+  LicensePlate,
+  SearchInput,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@detaileed/ui';
 import { MOCK_CLIENTS } from '../../model/demoData';
 import { DemoHeader } from './DemoHeader';
 
-const TH = 'px-6 py-5 text-[10px] font-bold text-green-deep/60 uppercase tracking-[0.2em]';
+type DemoClient = (typeof MOCK_CLIENTS)[number];
 
-const initialsOf = (name: string) =>
-  name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .slice(0, 2);
+function VehicleList({ vehicles }: { vehicles: DemoClient['vehicles'] }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5">
+      {vehicles.slice(0, 2).map((v) => (
+        <span key={v.id} className="inline-flex min-w-0 items-center gap-2">
+          <span className="max-w-[140px] truncate text-muted-foreground">
+            {v.brand} {v.model}
+          </span>
+          <LicensePlate plate={v.licensePlate} />
+        </span>
+      ))}
+      {vehicles.length > 2 && <span className="font-mono text-xs text-faint tabular-nums">+{vehicles.length - 2}</span>}
+    </div>
+  );
+}
+
+function ClientRow({ client }: { client: DemoClient }) {
+  return (
+    <TableRow className="hover:bg-muted">
+      <TableCell>
+        <div className="flex items-center gap-3">
+          <Avatar name={client.name} decorative />
+          <div className="min-w-0">
+            <p className="max-w-[220px] truncate font-medium text-foreground">{client.name}</p>
+            {client.nip && <p className="font-mono text-xs text-faint tabular-nums">NIP {client.nip}</p>}
+          </div>
+        </div>
+      </TableCell>
+      <TableCell>
+        <p className="font-mono tabular-nums">{client.phone}</p>
+        {client.email && <p className="max-w-[200px] truncate text-xs text-muted-foreground">{client.email}</p>}
+      </TableCell>
+      <TableCell>
+        <VehicleList vehicles={client.vehicles} />
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="sm" icon={Phone} aria-label={`Zadzwoń: ${client.name}`} />
+          <Button variant="ghost" size="sm" icon={Pencil} aria-label={`Edytuj klienta: ${client.name}`} />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
 
 /** The demo's client list (CRM) with a search. */
 export function ClientsView() {
   const [query, setQuery] = useState('');
   const filtered = useMemo(() => {
-    const q = query.toLowerCase();
+    const q = query.trim().toLowerCase();
     return MOCK_CLIENTS.filter(
       (c) =>
         c.name.toLowerCase().includes(q) ||
         c.phone.includes(q) ||
         (c.email ?? '').toLowerCase().includes(q) ||
-        c.vehicles.some((v) => v.licensePlate.toLowerCase().includes(q)),
+        c.vehicles.some(
+          (v) => v.licensePlate.toLowerCase().includes(q) || `${v.brand} ${v.model}`.toLowerCase().includes(q),
+        ),
     );
   }, [query]);
 
   return (
-    <div className="space-y-8 pb-20">
-      <DemoHeader title="Klienci" subtitle="CRM • Zarządzanie Relacjami" />
+    <div className="space-y-6">
+      <DemoHeader title="Klienci" subtitle="CRM • Zarządzanie relacjami" />
 
-      <div className="relative group">
-        <Search
-          size={20}
-          strokeWidth={2.5}
-          className="absolute left-6 top-1/2 -translate-y-1/2 text-green-deep/30 group-focus-within:text-green-light transition-colors"
-        />
-        <input
-          type="text"
-          aria-label="Szukaj klienta"
-          placeholder="Szukaj klienta, tablicy, modelu..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-14 pr-6 py-5 rounded-[2rem] font-semibold text-base text-green-deep outline-none transition-all bg-white border border-green-deep/7 shadow-sm focus:border-green-light/30"
-        />
-      </div>
+      <SearchInput
+        aria-label="Szukaj klienta"
+        placeholder="Szukaj klienta, tablicy, modelu..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onClear={() => setQuery('')}
+        wrapperClassName="md:w-96"
+      />
 
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse whitespace-nowrap min-w-[900px]">
-            <thead>
-              <tr className="border-b border-slate-100 bg-cream/30">
-                <th className={`${TH} w-[25%]`}>Klient</th>
-                <th className={`${TH} w-[20%]`}>Kontakt</th>
-                <th className={`${TH} w-[40%]`}>Pojazdy we flocie</th>
-                <th className={`${TH} text-right w-[15%]`}>Akcje</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100/80 text-sm">
-              {filtered.map((client) => (
-                <tr key={client.id} className="group hover:bg-green-deep/[0.02] cursor-pointer transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm text-cream shrink-0 shadow-sm"
-                        style={{ background: 'linear-gradient(135deg, #1a2e1e 0%, #2a4a30 100%)' }}
-                      >
-                        {initialsOf(client.name)}
-                      </div>
-                      <div>
-                        <p className="font-bold text-green-deep text-base truncate max-w-[200px]">{client.name}</p>
-                        {client.nip && (
-                          <p className="text-[10px] font-semibold text-green-deep/40 mt-1 uppercase tracking-wider">
-                            NIP: {client.nip}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="space-y-1.5">
-                      <p className="font-bold text-green-deep/80 text-[13px]">{client.phone}</p>
-                      {client.email && (
-                        <p className="font-semibold text-green-deep/50 text-[11px] max-w-[180px] truncate">
-                          {client.email}
-                        </p>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {client.vehicles.slice(0, 2).map((v) => (
-                        <div
-                          key={v.id}
-                          className="flex items-center bg-slate-50 border border-slate-100 rounded-xl pr-1.5 py-1 pl-3 gap-3 shadow-sm"
-                        >
-                          <span className="font-bold text-green-deep text-[11px] max-w-[100px] truncate">
-                            {v.brand} {v.model}
-                          </span>
-                          <span className="bg-green-deep text-cream px-2 py-1 rounded-md font-mono text-[10px] font-bold tracking-widest">
-                            {v.licensePlate}
-                          </span>
-                        </div>
-                      ))}
-                      {client.vehicles.length > 2 && (
-                        <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl font-bold text-green-deep/60 text-[10px] tracking-widest uppercase">
-                          + {client.vehicles.length - 2}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-green-deep/5 text-green-deep hover:bg-green-deep hover:text-cream transition-all shadow-sm cursor-pointer">
-                        <Phone size={14} />
-                      </div>
-                      <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-green-deep border border-slate-100 transition-all shadow-sm cursor-pointer">
-                        <Edit2 size={14} />
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <Card className="overflow-hidden">
+        <Table aria-label="Klienci" className="min-w-[760px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[28%]">Klient</TableHead>
+              <TableHead className="w-[22%]">Kontakt</TableHead>
+              <TableHead>Pojazdy</TableHead>
+              <TableHead className="w-24 text-right">Akcje</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4}>
+                  <EmptyState icon={Users} message="Nie znaleziono klientów." />
+                </TableCell>
+              </TableRow>
+            ) : (
+              filtered.map((client) => <ClientRow key={client.id} client={client} />)
+            )}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }

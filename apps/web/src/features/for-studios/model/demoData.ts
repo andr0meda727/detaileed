@@ -1,6 +1,6 @@
 /**
  * Hard-coded data of the landing page's dashboard demo. Times are the studio's wall-clock times (no time zone), so
- * the server and every browser render the same text.
+ * the server and every browser render the same text. Money is złoty, as in the API.
  */
 
 export type DemoBooking = (typeof MOCK_BOOKINGS)[number];
@@ -11,8 +11,10 @@ export const MOCK_BOOKINGS = [
   {
     id: '1',
     scheduledAt: '2026-04-15T09:00',
+    endsAt: '2026-04-15T13:00',
+    bay: 'Stanowisko 1',
     completedAt: null,
-    totalPrice: 45000,
+    totalPrice: 4500,
     status: 'Utworzona',
     statusColor: '#3b82f6',
     vehicle: { licensePlate: 'WA 12345', brand: 'BMW', model: 'M4 Competition' },
@@ -22,8 +24,10 @@ export const MOCK_BOOKINGS = [
   {
     id: '2',
     scheduledAt: '2026-04-15T11:30',
+    endsAt: '2026-04-15T14:00',
+    bay: 'Myjnia',
     completedAt: null,
-    totalPrice: 28000,
+    totalPrice: 1200,
     status: 'Utworzona',
     statusColor: '#3b82f6',
     vehicle: { licensePlate: 'KR 98765', brand: 'Mercedes', model: 'AMG GT' },
@@ -33,8 +37,10 @@ export const MOCK_BOOKINGS = [
   {
     id: '3',
     scheduledAt: '2026-04-15T14:00',
+    endsAt: '2026-04-15T18:00',
+    bay: 'Stanowisko 2',
     completedAt: '2026-04-15T16:00',
-    totalPrice: 85000,
+    totalPrice: 9800,
     status: 'Zakończona',
     statusColor: '#22c55e',
     vehicle: { licensePlate: 'GD 55555', brand: 'Porsche', model: '911 Turbo S' },
@@ -44,8 +50,10 @@ export const MOCK_BOOKINGS = [
   {
     id: '4',
     scheduledAt: '2026-04-16T08:00',
+    endsAt: '2026-04-16T12:00',
+    bay: 'Stanowisko 1',
     completedAt: null,
-    totalPrice: 35000,
+    totalPrice: 2400,
     status: 'Utworzona',
     statusColor: '#3b82f6',
     vehicle: { licensePlate: 'PO 77777', brand: 'Audi', model: 'RS6 Avant' },
@@ -55,8 +63,10 @@ export const MOCK_BOOKINGS = [
   {
     id: '5',
     scheduledAt: '2026-04-17T10:00',
+    endsAt: '2026-04-17T15:00',
+    bay: 'Stanowisko 2',
     completedAt: null,
-    totalPrice: 62000,
+    totalPrice: 5200,
     status: 'Utworzona',
     statusColor: '#3b82f6',
     vehicle: { licensePlate: 'WR 33333', brand: 'Tesla', model: 'Model S Plaid' },
@@ -66,8 +76,10 @@ export const MOCK_BOOKINGS = [
   {
     id: '6',
     scheduledAt: '2026-04-18T09:00',
+    endsAt: '2026-04-18T11:00',
+    bay: 'Myjnia',
     completedAt: null,
-    totalPrice: 25000,
+    totalPrice: 450,
     status: 'Utworzona',
     statusColor: '#3b82f6',
     vehicle: { licensePlate: 'LU 44444', brand: 'Volkswagen', model: 'Golf R' },
@@ -77,8 +89,10 @@ export const MOCK_BOOKINGS = [
   {
     id: '7',
     scheduledAt: '2026-04-14T12:00',
+    endsAt: '2026-04-14T18:00',
+    bay: 'Stanowisko 2',
     completedAt: '2026-04-14T15:00',
-    totalPrice: 120000,
+    totalPrice: 14500,
     status: 'Zakończona',
     statusColor: '#22c55e',
     vehicle: { licensePlate: 'WA 99999', brand: 'Lamborghini', model: 'Huracán EVO' },
@@ -185,3 +199,22 @@ export const MOCK_EMPLOYEES = [
     color: 'text-emerald-600 bg-emerald-50',
   },
 ];
+
+/** Revenue of completed bookings in złoty: per day of the last week and per week of the last month. */
+export const MOCK_REVENUE = {
+  weekly: [
+    { name: 'Czw', rev: 3200 },
+    { name: 'Pt', rev: 5400 },
+    { name: 'Sob', rev: 7900 },
+    { name: 'Nd', rev: 0 },
+    { name: 'Pon', rev: 4100 },
+    { name: 'Wt', rev: 14500 },
+    { name: 'Śr', rev: 9800 },
+  ],
+  monthly: [
+    { name: '23.03', rev: 31200 },
+    { name: '30.03', rev: 27800 },
+    { name: '06.04', rev: 36400 },
+    { name: '13.04', rev: 44900 },
+  ],
+};
