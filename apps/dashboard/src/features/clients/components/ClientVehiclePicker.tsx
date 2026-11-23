@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Car as CarIcon } from 'lucide-react';
-import { FormSection, useToast } from '@detaileed/ui';
+import { FieldError, FormSection, useToast } from '@detaileed/ui';
 import { useClients } from '@/features/clients/api/clients';
 import { useClientVehicleSearch, type ClientVehicleMatch } from '@/features/clients/hooks/useClientVehicleSearch';
 import type { Client } from '@/features/clients/model/types';
@@ -38,10 +38,17 @@ export function ClientVehiclePicker({ value, onChange, error }: ClientVehiclePic
   return (
     <FormSection
       icon={CarIcon}
-      title="Pojazd i Klient"
-      actions={<ModeToggle value={mode} onChange={setMode} labels={{ existing: 'Wyszukaj', new: 'Dodaj Nowy' }} />}
+      title="Pojazd i klient"
+      actions={
+        <ModeToggle
+          label="Klient i pojazd"
+          value={mode}
+          onChange={setMode}
+          labels={{ existing: 'Wyszukaj', new: 'Dodaj nowy' }}
+        />
+      }
     >
-      <div className="p-4 space-y-3">
+      <div className="space-y-3 p-5">
         {mode === 'existing' ? (
           <>
             <SearchDropdown
@@ -55,9 +62,9 @@ export function ClientVehiclePicker({ value, onChange, error }: ClientVehiclePic
             {value && <PickedItem item={describeVehicleMatch(value)} icon={CarIcon} />}
           </>
         ) : (
-          <NewClientWithVehicleForm submitLabel="Dodaj Klienta i Wybierz" onCreated={handleCreated} />
+          <NewClientWithVehicleForm submitLabel="Dodaj klienta i wybierz" onCreated={handleCreated} />
         )}
-        {error && <p className="text-red-500 font-bold tracking-widest uppercase text-[10px]">{error}</p>}
+        <FieldError>{error}</FieldError>
       </div>
     </FormSection>
   );

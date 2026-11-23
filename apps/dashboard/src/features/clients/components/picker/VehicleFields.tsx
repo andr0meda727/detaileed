@@ -13,14 +13,19 @@ interface VehicleFieldsProps {
 /** Brand, model, plate and size inputs; takes `register(...)` results so it fits any form that has these fields. */
 export function VehicleFields({ brand, model, licensePlate, size, plateError }: VehicleFieldsProps) {
   return (
-    <div className="space-y-1">
-      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Pojazdu</p>
-      <div className="grid grid-cols-2 gap-2.5">
+    <div className="space-y-2">
+      <p className="text-xs font-medium text-muted-foreground">Dane pojazdu</p>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <FormInput placeholder="Marka (opcjonalnie)" {...brand} />
         <FormInput placeholder="Model (opcjonalnie)" {...model} />
       </div>
-      <div className="grid grid-cols-2 gap-2.5">
-        <FormInput placeholder="Nr Rejestracyjny *" className="uppercase" error={plateError} {...licensePlate} />
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <FormInput
+          placeholder="Nr rejestracyjny *"
+          className="font-mono uppercase"
+          error={plateError}
+          {...licensePlate}
+        />
         <Select aria-label="Wielkość pojazdu" options={VEHICLE_SIZE_OPTIONS} {...size} />
       </div>
     </div>

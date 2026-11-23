@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import { LicensePlate, cn } from '@detaileed/ui';
 
 /** What a search result or a picked item shows: a title, a subtitle and an optional badge (a plate). */
 export interface ItemSummary {
@@ -8,10 +9,11 @@ export interface ItemSummary {
   badge?: string;
 }
 
-function Badge({ text }: { text: string }) {
+function Texts({ item }: { item: ItemSummary }) {
   return (
-    <div className="bg-green-deep text-cream-warm px-3 py-1.5 rounded-lg font-mono text-[10px] font-bold tracking-widest">
-      {text}
+    <div className="min-w-0 text-left">
+      <p className="truncate text-sm font-medium text-foreground">{item.title}</p>
+      <p className="truncate text-xs text-muted-foreground">{item.subtitle}</p>
     </div>
   );
 }
@@ -22,13 +24,13 @@ export function ResultRow({ item, onPick }: { item: ItemSummary; onPick: () => v
     <button
       type="button"
       onClick={onPick}
-      className="w-full p-3.5 bg-white border-2 border-slate-100 rounded-xl flex items-center justify-between hover:border-cream-warm/60 hover:shadow-xs transition-all"
+      className={cn(
+        'flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 transition-colors duration-150 hover:bg-muted',
+        'outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+      )}
     >
-      <div className="text-left">
-        <h5 className="font-bold text-green-deep text-sm">{item.title}</h5>
-        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mt-0.5">{item.subtitle}</p>
-      </div>
-      {item.badge && <Badge text={item.badge} />}
+      <Texts item={item} />
+      {item.badge && <LicensePlate plate={item.badge} />}
     </button>
   );
 }
@@ -36,20 +38,14 @@ export function ResultRow({ item, onPick }: { item: ItemSummary; onPick: () => v
 /** The highlighted card of the item that is currently picked. */
 export function PickedItem({ item, icon: Icon }: { item: ItemSummary; icon: LucideIcon }) {
   return (
-    <div
-      className="p-4 rounded-xl flex items-center justify-between"
-      style={{ background: 'rgba(232,168,48,0.08)', border: '2px solid rgba(232,168,48,0.3)' }}
-    >
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 bg-amber/15 rounded-xl flex items-center justify-center shrink-0">
-          <Icon size={16} className="text-amber" />
-        </div>
-        <div>
-          <h5 className="font-bold text-green-deep text-sm">{item.title}</h5>
-          <p className="text-[9px] font-semibold text-green-light uppercase tracking-widest mt-0.5">{item.subtitle}</p>
-        </div>
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-primary bg-muted px-3 py-2.5">
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-surface text-foreground">
+          <Icon size={16} strokeWidth={1.75} aria-hidden />
+        </span>
+        <Texts item={item} />
       </div>
-      {item.badge && <Badge text={item.badge} />}
+      {item.badge && <LicensePlate plate={item.badge} />}
     </div>
   );
 }

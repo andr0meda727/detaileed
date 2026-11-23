@@ -1,26 +1,27 @@
+import { SegmentedControl } from '@detaileed/ui';
+
 export type PickerMode = 'existing' | 'new';
 
 interface ModeToggleProps {
   value: PickerMode;
   onChange: (mode: PickerMode) => void;
   labels: Record<PickerMode, string>;
+  /** Accessible name of the switch. */
+  label: string;
 }
 
-/** Two-button switch between picking an existing record and creating a new one. */
-export function ModeToggle({ value, onChange, labels }: ModeToggleProps) {
+/** Two-segment switch between picking an existing record and creating a new one. */
+export function ModeToggle({ value, onChange, labels, label }: ModeToggleProps) {
   return (
-    <div className="flex bg-slate-50 p-1 rounded-xl">
-      {(['existing', 'new'] as const).map((mode) => (
-        <button
-          key={mode}
-          type="button"
-          aria-pressed={value === mode}
-          onClick={() => onChange(mode)}
-          className={`px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all ${value === mode ? 'bg-green-deep text-cream-warm shadow-xs' : 'text-slate-400 hover:text-green-deep'}`}
-        >
-          {labels[mode]}
-        </button>
-      ))}
-    </div>
+    <SegmentedControl
+      size="sm"
+      aria-label={label}
+      value={value}
+      onValueChange={onChange}
+      options={[
+        { value: 'existing', label: labels.existing },
+        { value: 'new', label: labels.new },
+      ]}
+    />
   );
 }
