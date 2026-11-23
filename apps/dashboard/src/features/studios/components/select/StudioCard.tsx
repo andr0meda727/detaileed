@@ -3,10 +3,11 @@ import { CheckCircle2, Crown, Loader2, MapPin, Plus, Shield, UserCheck, type Luc
 import { Badge, cn, type BadgeTone } from '@detaileed/ui';
 import type { Studio } from '@/features/studios/model/types';
 
+// The same tones as the team screen (features/team/model/roles.ts).
 const ROLES: Record<string, { label: string; icon: LucideIcon; tone: BadgeTone }> = {
-  Owner: { label: 'Właściciel', icon: Crown, tone: 'warning' },
-  Manager: { label: 'Menedżer', icon: Shield, tone: 'info' },
-  Employee: { label: 'Pracownik', icon: UserCheck, tone: 'success' },
+  Owner: { label: 'Właściciel', icon: Crown, tone: 'info' },
+  Manager: { label: 'Menedżer', icon: Shield, tone: 'neutral' },
+  Employee: { label: 'Pracownik', icon: UserCheck, tone: 'neutral' },
 };
 
 const cardClass = cn(
