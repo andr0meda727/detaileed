@@ -50,12 +50,17 @@ export function validationProblem(errors: Record<string, string[]>): HttpError {
 export class Reply {
   readonly status: number;
   readonly body: unknown;
+  readonly headers: Record<string, string>;
 
-  constructor(status: number, body?: unknown) {
+  constructor(status: number, body?: unknown, headers: Record<string, string> = {}) {
     this.status = status;
     this.body = body;
+    this.headers = headers;
   }
 }
+
+/** A redirect (303 See Other) to `location`. */
+export const redirect = (location: string) => new Reply(303, undefined, { Location: location });
 
 /** 200 with an empty body, as the API answers commands without a result. */
 export const empty = () => new Reply(200);

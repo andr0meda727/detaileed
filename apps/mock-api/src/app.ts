@@ -40,13 +40,19 @@ async function readBody(req: IncomingMessage): Promise<unknown> {
   }
 }
 
-function send(res: ServerResponse, status: number, body: unknown, problem = false) {
+function send(
+  res: ServerResponse,
+  status: number,
+  body: unknown,
+  problem = false,
+  headers: Record<string, string> = {},
+) {
   if (body === undefined) {
-    res.writeHead(status).end();
+    res.writeHead(status, headers).end();
     return;
   }
   const type = problem && status >= 400 ? 'application/problem+json' : 'application/json';
-  res.writeHead(status, { 'Content-Type': `${type}; charset=utf-8` }).end(JSON.stringify(body));
+  res.writeHead(status, { ...headers, 'Content-Type': `${type}; charset=utf-8` }).end(JSON.stringify(body));
 }
 
 async function handle(req: IncomingMessage, res: ServerResponse) {
@@ -88,7 +94,7 @@ async function handle(req: IncomingMessage, res: ServerResponse) {
     origin: `http://${req.headers.host ?? 'localhost'}`,
   };
   const result = await found.route.handler(request);
-  if (result instanceof Reply) return send(res, result.status, result.body, isApi);
+  if (result instanceof Reply) return send(res, result.status, result.body, isApi, result.headers);
   return send(res, 200, result);
 }
 
