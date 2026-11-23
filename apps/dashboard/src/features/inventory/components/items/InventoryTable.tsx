@@ -43,7 +43,7 @@ function LoadingRows() {
           <Skeleton width="180px" height="16px" />
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="max-sm:hidden">
         <Skeleton width="80px" height="16px" />
       </TableCell>
       <TableCell>
@@ -60,13 +60,13 @@ function LoadingRows() {
 export const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading, dimmed, onEdit, onOpenHistory }) => {
   return (
     <Card className={cn('overflow-hidden transition-opacity duration-150', dimmed && 'opacity-70')}>
-      <Table aria-label="Produkty w magazynie" className="min-w-[640px]">
+      <Table aria-label="Produkty w magazynie" className="sm:min-w-[640px]">
         <TableHeader>
           <TableRow>
             <TableHead>Produkt</TableHead>
-            <TableHead>Kategoria</TableHead>
+            <TableHead className="max-sm:hidden">Kategoria</TableHead>
             <TableHead className="text-right">Stan</TableHead>
-            <TableHead className="w-24 text-right">
+            <TableHead className="w-20 text-right sm:w-24">
               <span className="sr-only">Akcje</span>
             </TableHead>
           </TableRow>
@@ -79,23 +79,29 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({ items, isLoading
               <TableRow key={item.id} className="hover:bg-muted/50">
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground max-sm:hidden">
                       <Package size={16} strokeWidth={1.75} aria-hidden />
                     </div>
-                    <span className="font-medium">{item.name}</span>
+                    <div className="flex min-w-0 flex-col">
+                      <span className="font-medium">{item.name}</span>
+                      {/* Phones hide the category column; the category moves under the name. */}
+                      <span className="text-xs text-muted-foreground sm:hidden">
+                        {item.categoryName || 'Bez kategorii'}
+                      </span>
+                    </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-muted-foreground">{item.categoryName || '—'}</TableCell>
+                <TableCell className="text-muted-foreground max-sm:hidden">{item.categoryName || '—'}</TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex flex-col-reverse items-end gap-1 sm:flex-row sm:items-center sm:justify-end sm:gap-2">
                     <StockBadge item={item} />
                     <span className="font-mono font-medium tabular-nums whitespace-nowrap">
                       {formatQuantity(item.stock)} <span className="text-faint">{item.unit}</span>
                     </span>
                   </div>
                 </TableCell>
-                <TableCell>
-                  <div className="flex justify-end gap-1">
+                <TableCell className="max-sm:px-2">
+                  <div className="flex justify-end gap-0.5 sm:gap-1">
                     <Button
                       variant="ghost"
                       size="sm"
