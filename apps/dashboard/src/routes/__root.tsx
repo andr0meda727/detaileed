@@ -1,4 +1,13 @@
-import { Link, Outlet, createRootRouteWithContext, useRouter, type ErrorComponentProps } from '@tanstack/react-router';
+import type { ReactNode } from 'react';
+import {
+  Outlet,
+  createRootRouteWithContext,
+  useNavigate,
+  useRouter,
+  type ErrorComponentProps,
+} from '@tanstack/react-router';
+import { RotateCw } from 'lucide-react';
+import { Button, LoadingSpinner, Logo } from '@detaileed/ui';
 import type { RouterContext } from '@/app/router';
 import { RouterDevtools } from '@/app/RouterDevtools';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
@@ -20,35 +29,29 @@ function RootLayout() {
 }
 
 function FullPageSpinner() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-cream">
-      <div className="w-12 h-12 border-4 border-green-deep border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  return <LoadingSpinner fullPage size={24} />;
 }
 
-function CenteredMessage({ title, text, action }: { title: string; text: string; action: React.ReactNode }) {
+function CenteredMessage({ title, text, action }: { title: string; text: string; action: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-cream p-6 text-center">
-      <h1 className="text-3xl font-serif text-green-deep">{title}</h1>
-      <p className="text-slate-500 max-w-md">{text}</p>
+    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-6 text-center text-foreground">
+      <Logo size={28} />
+      <div className="flex max-w-md flex-col gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+        <p className="text-sm text-muted-foreground">{text}</p>
+      </div>
       {action}
-    </div>
+    </main>
   );
 }
-
-const BUTTON_CLASS = 'px-5 py-2.5 bg-green-deep text-cream-warm rounded-xl text-sm font-bold';
 
 function NotFound() {
+  const navigate = useNavigate();
   return (
     <CenteredMessage
       title="Nie znaleziono strony"
       text="Ten adres nie istnieje."
-      action={
-        <Link to="/" className={BUTTON_CLASS}>
-          Wróć do panelu
-        </Link>
-      }
+      action={<Button onClick={() => void navigate({ to: '/' })}>Wróć do panelu</Button>}
     />
   );
 }
@@ -60,15 +63,15 @@ function RouteError({ error, reset }: ErrorComponentProps) {
       title="Coś poszło nie tak"
       text={getApiErrorMessage(error)}
       action={
-        <button
+        <Button
+          icon={RotateCw}
           onClick={() => {
             reset();
             void router.invalidate();
           }}
-          className={BUTTON_CLASS}
         >
           Spróbuj ponownie
-        </button>
+        </Button>
       }
     />
   );

@@ -1,6 +1,11 @@
-/** Tile styles for the settings card grids (a card, and the dashed "add" tile). */
-export const CARD = `relative group bg-white border-2 border-slate-100 rounded-3xl p-6 flex flex-col gap-3
-  hover:border-green-deep/15 hover:shadow-xl hover:shadow-green-deep/5 transition-all duration-200`;
+const FOCUS =
+  'outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
-export const ADD_CARD = `border-2 border-dashed border-slate-200 rounded-3xl p-6 flex flex-col items-center justify-center
-  gap-2 text-slate-300 hover:border-green-deep/30 hover:text-green-deep/40 transition-all duration-200 min-h-[120px]`;
+/** Tile styles for the settings card grids (a card, and the dashed "add" tile). */
+export const CARD =
+  'group relative flex flex-col gap-3 rounded-lg border border-border bg-surface p-5 ' +
+  `transition-colors duration-150 hover:border-border-strong ${FOCUS}`;
+
+export const ADD_CARD =
+  'flex min-h-30 flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border-strong p-5 ' +
+  `text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground ${FOCUS}`;
