@@ -1,9 +1,14 @@
 import type { Metadata } from 'next';
-import { DM_Sans, DM_Serif_Display, Syne } from 'next/font/google';
+import { DM_Sans, DM_Serif_Display, Geist, Geist_Mono, Syne } from 'next/font/google';
+import { themeInitScript } from '@detaileed/ui';
 import { SITE_URL } from '@/shared/lib/site';
 import { Providers } from './providers';
 import './globals.css';
 
+const geistSans = Geist({ subsets: ['latin', 'latin-ext'], variable: '--font-geist-sans', display: 'swap' });
+const geistMono = Geist_Mono({ subsets: ['latin', 'latin-ext'], variable: '--font-geist-mono', display: 'swap' });
+
+// Deprecated: the Forest & Cream fonts, until the remaining screens are migrated (phase 11, T13).
 const dmSans = DM_Sans({ subsets: ['latin', 'latin-ext'], variable: '--font-dm-sans', display: 'swap' });
 const dmSerif = DM_Serif_Display({
   subsets: ['latin', 'latin-ext'],
@@ -11,7 +16,7 @@ const dmSerif = DM_Serif_Display({
   variable: '--font-dm-serif',
   display: 'swap',
 });
-const syne = Syne({ subsets: ['latin', 'latin-ext'], variable: '--font-syne', display: 'swap' });
+const syne = Syne({ subsets: ['latin', 'latin-ext'], variable: '--font-syne-family', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -21,11 +26,22 @@ export const metadata: Metadata = {
   openGraph: { siteName: 'Detaileed', locale: 'pl_PL', type: 'website' },
 };
 
-/** Fonts, metadata and providers. The header and footer come from the `(site)` layout; /for-studios has its own. */
+/**
+ * Fonts, metadata, the theme and providers. The header and footer come from the `(site)` layout; /for-studios has
+ * its own. The theme script sets data-theme and color-scheme on <html> before the first paint, so <html> differs
+ * from the server HTML: hence suppressHydrationWarning (it covers only <html>'s own attributes).
+ */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pl" className={`${dmSans.variable} ${dmSerif.variable} ${syne.variable}`}>
-      <body className="min-h-screen flex flex-col bg-cream text-green-deep antialiased">
+    <html
+      lang="pl"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} ${dmSans.variable} ${dmSerif.variable} ${syne.variable}`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body className="min-h-screen flex flex-col bg-background text-foreground antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

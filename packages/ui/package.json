@@ -16,9 +16,9 @@
   },
   "peerDependencies": {
     "lucide-react": ">=0.400.0",
+    "maplibre-gl": ">=6.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "maplibre-gl": ">=6.0.0",
     "react-map-gl": ">=8.0.0"
   },
   "devDependencies": {
@@ -44,5 +44,9 @@
     "react-map-gl": {
       "optional": true
     }
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.7.1"
   }
 }

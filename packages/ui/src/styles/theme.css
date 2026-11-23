@@ -1,9 +1,137 @@
 /* ═══════════════════════════════════════════════════════════════
-   Detaileed design system | Forest & Cream
-   Tokens (@theme), base styles and shared utilities for every app.
+   Detaileed design system | Grafit
+   Tokens (@theme), light and dark themes, base styles and shared utilities for every app.
    Import after tailwindcss:  @import 'tailwindcss'; @import '@detaileed/ui/theme.css';
+   Guide: docs/design-system.md
    ═══════════════════════════════════════════════════════════════ */
 
+/* Dark mode follows the theme attribute the theme script sets on <html>, not the OS media query directly. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+/* ── Grafit tokens ───────────────────────────────────────────────
+   Utilities (bg-surface, text-muted-foreground, border-border, …) read the theme variables below
+   directly (inline), so an element with its own data-theme switches them too. */
+@theme inline {
+  --color-background: var(--background);
+  --color-subtle: var(--subtle);
+  --color-surface: var(--surface);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint: var(--faint);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-star: var(--star);
+  --color-overlay: var(--overlay);
+}
+
+@theme {
+  --font-sans: 'Geist Variable', Geist, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Light theme: the default, and what data-theme='light' asks for. */
+:root {
+  color-scheme: light;
+  --background: #ffffff;
+  --subtle: #fafafa;
+  --surface: #ffffff;
+  --muted: #f4f4f5;
+  --border: #e7e7e7;
+  --border-strong: #d4d4d4;
+  --foreground: #0a0a0a;
+  --muted-foreground: #525252;
+  --faint: #666666;
+  --primary: #0a0a0a;
+  --primary-foreground: #ffffff;
+  --ring: #525252;
+  --success: #15803d;
+  --success-soft: #ecfdf3;
+  --info: #1d4ed8;
+  --info-soft: #eff6ff;
+  --warning: #a16207;
+  --warning-soft: #fefce8;
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+  --danger-foreground: #ffffff;
+  --star: #d97706;
+  --overlay: rgba(0, 0, 0, 0.4);
+}
+
+/* Dark theme, set by the theme script on <html> (or on any element) … */
+[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #0a0a0a;
+  --subtle: #0f0f0f;
+  --surface: #141414;
+  --muted: #1c1c1c;
+  --border: #262626;
+  --border-strong: #383838;
+  --foreground: #ededed;
+  --muted-foreground: #a3a3a3;
+  --faint: #8f8f8f;
+  --primary: #ededed;
+  --primary-foreground: #0a0a0a;
+  --ring: #a3a3a3;
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.12);
+  --info: #7cb4ff;
+  --info-soft: rgba(96, 165, 250, 0.12);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.12);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.12);
+  --danger-foreground: #0a0a0a;
+  --star: #fbbf24;
+  --overlay: rgba(0, 0, 0, 0.6);
+}
+
+/* … and the same values when no script ran (no data-theme) and the OS asks for dark. Keep both blocks in sync. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --background: #0a0a0a;
+    --subtle: #0f0f0f;
+    --surface: #141414;
+    --muted: #1c1c1c;
+    --border: #262626;
+    --border-strong: #383838;
+    --foreground: #ededed;
+    --muted-foreground: #a3a3a3;
+    --faint: #8f8f8f;
+    --primary: #ededed;
+    --primary-foreground: #0a0a0a;
+    --ring: #a3a3a3;
+    --success: #4ade80;
+    --success-soft: rgba(74, 222, 128, 0.12);
+    --info: #7cb4ff;
+    --info-soft: rgba(96, 165, 250, 0.12);
+    --warning: #fbbf24;
+    --warning-soft: rgba(251, 191, 36, 0.12);
+    --danger: #f87171;
+    --danger-soft: rgba(248, 113, 113, 0.12);
+    --danger-foreground: #0a0a0a;
+    --star: #fbbf24;
+    --overlay: rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* ── Deprecated: Forest & Cream ──────────────────────────────────
+   The old palette, fonts and utilities (green-*, cream*, amber*, text-dim/-mid, font-serif, font-syne,
+   .mesh-bg, .floating-card*, .premium-shadow, bg-brand-gradient). Screens not migrated to grafit yet still
+   use them; new code must not. Removed in phase 11, task T13. */
 @theme {
   --color-green-deep: var(--green-deep);
   --color-green-dark: var(--green-dark);
@@ -21,41 +149,10 @@
   --color-text-dim: var(--text-dim);
   --color-text-mid: var(--text-mid);
 
-  --font-sans: DM Sans, sans-serif;
   --font-serif: DM Serif Display, serif;
   --font-syne: Syne, sans-serif;
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
-
-  /* v4 uses the default cursor on buttons and a faded text colour for placeholders; keep v3's look. */
-  button:not(:disabled),
-  [role='button']:not(:disabled) {
-    cursor: pointer;
-  }
-
-  input::placeholder,
-  textarea::placeholder {
-    color: var(--color-gray-400);
-  }
-}
-
-/* ── Design tokens ───────────────────────────────────────────── */
 :root {
   --green-deep: #1a2e1e;
   --green-dark: #1e3523;
@@ -72,69 +169,141 @@
   --text-mid: rgba(245, 240, 232, 0.75);
 }
 
-/* ── Base typography ─────────────────────────────────────────── */
-body {
-  background-color: var(--cream);
-  color: var(--green-deep);
-  font-family:
-    'DM Sans',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ── Base ────────────────────────────────────────────────────────
+   Tailwind v4 borders default to currentcolor; ours default to the border token. */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border, currentcolor);
+  }
+
+  /* v4 uses the default cursor on buttons and a faded text colour for placeholders; keep v3's look. */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-faint);
+  }
 }
 
-/* ── Mesh background (from landing page) ─────────────────────── */
-.mesh-bg {
-  background-image:
-    radial-gradient(at 0% 0%, #ffffff 0px, transparent 50%), radial-gradient(at 100% 100%, #ede7d8 0px, transparent 50%);
-  background-attachment: fixed;
+/* ── Base typography, selection and scrollbars ───────────────── */
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--foreground) 16%, transparent);
+    color: var(--foreground);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--faint);
+  }
 }
 
-/* ── Floating card — core visual primitive ───────────────────── */
-.floating-card {
-  background: white;
-  border-radius: 1rem;
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 10px 30px -5px rgba(0, 0, 0, 0.05);
+/* ── Component classes ───────────────────────────────────────────
+   In the components layer, so Tailwind utilities on the same element (rounded-*, bg-*, …) override them. */
+@layer components {
+  /* Deprecated: mesh background (from the landing page). */
+  .mesh-bg {
+    background-image:
+      radial-gradient(at 0% 0%, #ffffff 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #ede7d8 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* Deprecated: floating card, the old core visual primitive. */
+  .floating-card {
+    background: white;
+    border-radius: 1rem;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.02),
+      0 10px 30px -5px rgba(0, 0, 0, 0.05);
+  }
+
+  .floating-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.02),
+      0 20px 40px -10px rgba(0, 0, 0, 0.07);
+    border-color: rgba(61, 107, 70, 0.12);
+  }
+
+  /* Deprecated: non-interactive floating card. */
+  .floating-card-static {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.02),
+      0 10px 30px -5px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Deprecated: premium shadow (from the landing page). */
+  .premium-shadow {
+    box-shadow:
+      0 10px 20px -5px rgba(0, 0, 0, 0.03),
+      0 25px 50px -12px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Skeleton shimmer. */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(26, 46, 30, 0.04) 25%,
+      rgba(26, 46, 30, 0.08) 50%,
+      rgba(26, 46, 30, 0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+    border-radius: 0.5rem;
+    min-height: 1em;
+  }
 }
 
-.floating-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.02),
-    0 20px 40px -10px rgba(0, 0, 0, 0.07);
-  border-color: rgba(61, 107, 70, 0.12);
-}
-
-/* Non-interactive card variant */
-.floating-card-static {
-  background: white;
-  border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 10px 30px -5px rgba(0, 0, 0, 0.05);
-}
-
-/* ── Premium shadow (from landing page) ──────────────────────── */
-.premium-shadow {
-  box-shadow:
-    0 10px 20px -5px rgba(0, 0, 0, 0.03),
-    0 25px 50px -12px rgba(0, 0, 0, 0.06);
-}
-
-/* ── Brand gradient (avatars, logo tiles, primary highlights) ── */
+/* ── Deprecated: brand gradient (avatars, logo tiles, primary highlights) ── */
 @utility bg-brand-gradient {
   background-image: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
 }
 
-/* ── Keyframe animations ─────────────────────────────────────── */
+/* ── Animations ──────────────────────────────────────────────────
+   animate-fade-in, animate-slide-up(-1…4), animate-zoom-in and data-entry-fade are theme utilities, so
+   variants (motion-safe:, …) work on them; animate-spin is Tailwind's own. */
+@theme {
+  --animate-fade-in: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-up: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-up-1: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+  --animate-slide-up-2: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  --animate-slide-up-3: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+  --animate-slide-up-4: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+  --animate-zoom-in: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Keyframes stay outside @theme so they are always emitted (data-entry-fade and .skeleton use them too). */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -166,6 +335,10 @@ body {
   }
 }
 
+@utility data-entry-fade {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200% center;
@@ -173,78 +346,4 @@ body {
   100% {
     background-position: 200% center;
   }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ── Animation helper classes ────────────────────────────────── */
-.animate-fade-in {
-  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.animate-slide-up {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.animate-zoom-in {
-  animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-.animate-slide-up-1 {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
-}
-.animate-slide-up-2 {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-}
-.animate-slide-up-3 {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
-}
-.animate-slide-up-4 {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-}
-
-/* ── Skeleton shimmer ────────────────────────────────────────── */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(26, 46, 30, 0.04) 25%,
-    rgba(26, 46, 30, 0.08) 50%,
-    rgba(26, 46, 30, 0.04) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.8s ease-in-out infinite;
-  border-radius: 0.5rem;
-  min-height: 1em;
-}
-
-/* ── Data entry animation ────────────────────────────────────── */
-.data-entry-fade {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-/* ── Scrollbar ───────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--green-deep);
-  border-radius: 10px;
-  opacity: 0.4;
-}
-
-/* ── Text selection ──────────────────────────────────────────── */
-::selection {
-  background: rgba(232, 168, 48, 0.22);
-  color: var(--green-deep);
 }
