@@ -20,3 +20,4 @@ export { Turnstile } from './captcha/Turnstile';
 export type { TurnstileHandle, TurnstileProps } from './captcha/Turnstile';
 export { useTurnstile } from './captcha/useTurnstile';
 export type { UseTurnstile } from './captcha/useTurnstile';
+export { cn } from './lib/cn';
