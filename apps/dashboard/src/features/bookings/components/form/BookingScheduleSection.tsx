@@ -35,7 +35,7 @@ export function BookingScheduleSection({ control, errors }: BookingScheduleSecti
             const errorId = 'booking-scheduled-at-error';
             const describedBy = errors.scheduledAt ? errorId : undefined;
             return (
-              <div className="grid grid-cols-2 gap-3 sm:col-span-2">
+              <div className="grid gap-4 min-[420px]:grid-cols-2 sm:col-span-2 sm:gap-3">
                 <FormInput
                   type="date"
                   label="Data"
@@ -54,7 +54,7 @@ export function BookingScheduleSection({ control, errors }: BookingScheduleSecti
                   aria-invalid={errors.scheduledAt ? true : undefined}
                   className="font-mono tabular-nums"
                 />
-                <FieldError id={errorId} className="col-span-2">
+                <FieldError id={errorId} className="min-[420px]:col-span-2">
                   {errors.scheduledAt?.message}
                 </FieldError>
               </div>
