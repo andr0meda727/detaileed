@@ -1,89 +1,93 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { CheckCircle2, Info, X, XCircle } from 'lucide-react';
 import { useIsClient } from '../hooks/useIsClient';
-import { CheckCircle2, XCircle, Info, X } from 'lucide-react';
-import type { ToastMessage } from './useToast';
+import { cn } from '../lib/cn';
+import { focusRing } from '../lib/focusRing';
+import type { ToastMessage, ToastType } from './useToast';
 
-interface ToastProps {
+/** How long a toast stays; hovering or focusing it holds it, and the timer starts again on leaving. */
+export const TOAST_DURATION_MS = 5000;
+/** The fade-out before a toast leaves the DOM. */
+const EXIT_MS = 150;
+
+const icons: Record<ToastType, { icon: typeof Info; className: string }> = {
+  success: { icon: CheckCircle2, className: 'text-success' },
+  error: { icon: XCircle, className: 'text-danger' },
+  info: { icon: Info, className: 'text-info' },
+};
+
+interface ToastItemProps {
   toast: ToastMessage;
   onRemove: (id: string) => void;
 }
 
-const ToastItem: React.FC<ToastProps> = ({ toast, onRemove }) => {
-  const [isClosing, setIsClosing] = useState(false);
+function ToastItem({ toast, onRemove }: ToastItemProps) {
+  const [closing, setClosing] = useState(false);
+  const [held, setHeld] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsClosing(true);
-      setTimeout(() => onRemove(toast.id), 300); // Wait for fade out animation
-    }, 2700);
+    if (closing) {
+      const timer = setTimeout(() => onRemove(toast.id), EXIT_MS);
+      return () => clearTimeout(timer);
+    }
+    if (held) return;
+    const timer = setTimeout(() => setClosing(true), TOAST_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [toast.id, onRemove]);
+  }, [closing, held, toast.id, onRemove]);
 
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => onRemove(toast.id), 300);
-  };
-
-  const getStyles = () => {
-    switch (toast.type) {
-      case 'success':
-        return 'bg-emerald-50 border-emerald-200 text-emerald-800 shadow-2xl';
-      case 'error':
-        return 'bg-red-50 border-red-200 text-red-800 shadow-2xl';
-      case 'info':
-        return 'bg-blue-50 border-blue-200 text-blue-800 shadow-2xl';
-      default:
-        return 'bg-white border-slate-200 text-slate-800 shadow-2xl';
-    }
-  };
-
-  const getIcon = () => {
-    switch (toast.type) {
-      case 'success':
-        return <CheckCircle2 className="w-6 h-6 text-emerald-500" />;
-      case 'error':
-        return <XCircle className="w-6 h-6 text-red-500" />;
-      case 'info':
-        return <Info className="w-6 h-6 text-blue-500" />;
-      default:
-        return null;
-    }
-  };
-
+  const { icon: Icon, className: iconClass } = icons[toast.type];
   return (
     <div
-      className={`flex items-center gap-4 px-6 py-4 rounded-2xl border transition-all duration-300 ease-in-out ${getStyles()} ${
-        isClosing ? 'opacity-0 translate-x-8' : 'opacity-100 translate-x-0'
-      } animate-in slide-in-from-right-8`}
+      role={toast.type === 'error' ? 'alert' : 'status'}
+      onMouseEnter={() => setHeld(true)}
+      onMouseLeave={() => setHeld(false)}
+      onFocus={() => setHeld(true)}
+      onBlur={() => setHeld(false)}
+      className={cn(
+        'pointer-events-auto flex w-full items-start gap-3 rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground shadow-lg',
+        'transition-opacity duration-150 motion-safe:animate-fade-in',
+        closing && 'opacity-0',
+      )}
     >
-      <div className="shrink-0">{getIcon()}</div>
-      <p className="text-base font-semibold flex-1 pr-4">{toast.message}</p>
-      <button onClick={handleClose} className="shrink-0 text-current opacity-60 hover:opacity-100 transition-opacity">
-        <X size={20} />
+      <Icon size={16} strokeWidth={1.75} aria-hidden className={cn('mt-0.5 shrink-0', iconClass)} />
+      <p className="min-w-0 flex-1">{toast.message}</p>
+      <button
+        type="button"
+        onClick={() => setClosing(true)}
+        aria-label="Zamknij"
+        className={cn(
+          '-mr-1 flex size-6 shrink-0 items-center justify-center rounded text-faint transition-colors duration-150 hover:bg-muted hover:text-foreground',
+          focusRing,
+        )}
+      >
+        <X size={14} strokeWidth={1.75} aria-hidden />
       </button>
     </div>
   );
-};
+}
 
 interface ToastContainerProps {
   toasts: ToastMessage[];
   removeToast: (id: string) => void;
 }
 
-export const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, removeToast }) => {
+/** The stack in the bottom-right corner (full width at the bottom on phones). */
+export function ToastContainer({ toasts, removeToast }: ToastContainerProps) {
   const isClient = useIsClient();
   if (!isClient) return null;
   return createPortal(
-    <div className="fixed bottom-6 right-6 z-200 flex flex-col gap-2 max-w-sm w-full pointer-events-none">
-      <div className="flex flex-col gap-2 pointer-events-auto items-end">
-        {toasts.map((toast) => (
-          <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
-        ))}
-      </div>
-    </div>,
+    <section
+      aria-label="Powiadomienia"
+      aria-live="polite"
+      className="pointer-events-none fixed inset-x-4 bottom-4 z-200 flex flex-col items-end gap-2 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-90"
+    >
+      {toasts.map((toast) => (
+        <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
+      ))}
+    </section>,
     document.body,
   );
-};
+}
