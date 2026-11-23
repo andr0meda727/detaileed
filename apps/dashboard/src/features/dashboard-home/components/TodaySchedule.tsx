@@ -3,6 +3,7 @@ import { Calendar } from 'lucide-react';
 import { BOOKING_STATUSES, BookingStatusBadge, type Booking, type BookingStatus } from '@/features/bookings';
 import {
   Card,
+  cn,
   CardHeader,
   EmptyState,
   Skeleton,
@@ -50,7 +51,7 @@ export const TodaySchedule: React.FC<TodayScheduleProps> = ({ bookings, loading,
           message="Dodaj nową rezerwację przyciskiem „Nowa rezerwacja” powyżej."
         />
       ) : (
-        <Table aria-label="Dzisiejsze wizyty" className="min-w-[720px]">
+        <Table aria-label="Dzisiejsze wizyty" className="min-w-[760px]">
           <TableHeader>
             <TableRow>
               {COLUMNS.map((column) => (
@@ -81,7 +82,7 @@ export const TodaySchedule: React.FC<TodayScheduleProps> = ({ bookings, loading,
                     <TableCell>
                       <button
                         type="button"
-                        className="rounded-sm text-left font-medium text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                        className="rounded-sm text-left whitespace-nowrap font-medium text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                         onClick={(e) => {
                           e.stopPropagation();
                           onOpen(booking);
@@ -89,15 +90,17 @@ export const TodaySchedule: React.FC<TodayScheduleProps> = ({ bookings, loading,
                       >
                         {booking.client.name}
                       </button>
-                      <div className="text-xs text-faint">
+                      <div className="text-xs whitespace-nowrap text-faint">
                         {booking.vehicle.brand} {booking.vehicle.model} ·{' '}
                         <span className="font-mono">{booking.vehicle.licensePlate}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="min-w-40 text-muted-foreground">
                       {booking.services.length > 0 ? booking.services.join(', ') : 'Brak usług'}
                     </TableCell>
-                    <TableCell className={booking.bay ? 'text-muted-foreground' : 'text-faint'}>
+                    <TableCell
+                      className={cn('whitespace-nowrap', booking.bay ? 'text-muted-foreground' : 'text-faint')}
+                    >
                       {booking.bay?.name ?? '—'}
                     </TableCell>
                     <TableCell>

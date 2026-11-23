@@ -105,16 +105,17 @@ export const Dashboard: React.FC = () => {
         loading={showLoading}
       />
 
-      {/* Schedule, revenue and upcoming bookings on the left; shortcuts, stock and activity on the right. */}
+      {/* The schedule gets the full width, so its table fits without scrolling on a laptop. */}
+      <TodaySchedule
+        bookings={todayBookings}
+        loading={showLoading}
+        onOpen={handleViewBooking}
+        onRequestStatusChange={requestStatusChange}
+      />
+
+      {/* Revenue and upcoming bookings on the left; shortcuts, stock and activity on the right. */}
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-6">
-          <TodaySchedule
-            bookings={todayBookings}
-            loading={showLoading}
-            onOpen={handleViewBooking}
-            onRequestStatusChange={requestStatusChange}
-          />
-
           <RevenueChart bookings={completedBookings} />
 
           <UpcomingBookings
