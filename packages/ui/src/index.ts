@@ -1,5 +1,6 @@
 /** Shared design system of the Detaileed apps: theme tokens (theme.css) and generic React components. */
 export { Modal } from './components/Modal';
+export type { ModalProps, ModalSize } from './components/Modal';
 export { FormInput } from './components/FormInput';
 export { FormSection } from './components/FormSection';
 export { Skeleton } from './components/Skeleton';
@@ -23,3 +24,32 @@ export type { UseTurnstile } from './captcha/useTurnstile';
 export { cn } from './lib/cn';
 export { THEME_PREFERENCES, THEME_STORAGE_KEY, themeInitScript, useTheme } from './theme';
 export type { ResolvedTheme, ThemePreference, UseTheme } from './theme';
+export { ConfirmDialog } from './components/ConfirmDialog';
+export type { ConfirmDialogProps, ConfirmDialogTone } from './components/ConfirmDialog';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './components/Tabs';
+export { SegmentedControl } from './components/SegmentedControl';
+export type {
+  SegmentedControlOption,
+  SegmentedControlProps,
+  SegmentedControlSize,
+} from './components/SegmentedControl';
+export { Checkbox } from './components/Checkbox';
+export type { CheckboxProps } from './components/Checkbox';
+export { Switch } from './components/Switch';
+export type { SwitchProps } from './components/Switch';
+export { RadioCardGroup } from './components/RadioCardGroup';
+export type { RadioCardGroupProps, RadioCardOption } from './components/RadioCardGroup';
+export {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './components/DropdownMenu';
+export type { DropdownMenuItemProps } from './components/DropdownMenu';
+export { Tooltip } from './components/Tooltip';
+export type { TooltipProps } from './components/Tooltip';
+export { ThemeSwitch } from './components/ThemeSwitch';
+export type { ThemeSwitchProps } from './components/ThemeSwitch';

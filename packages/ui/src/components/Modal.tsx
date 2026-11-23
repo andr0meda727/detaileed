@@ -1,98 +1,76 @@
 'use client';
 
-import React, { useEffect, useId, useRef } from 'react';
-import { createPortal } from 'react-dom';
-import { useIsClient } from '../hooks/useIsClient';
+import { useRef, type ReactNode } from 'react';
+import { Dialog } from 'radix-ui';
 import { X } from 'lucide-react';
+import { cn } from '../lib/cn';
+import { dialogPanelClass, focusRingClass, overlayClass } from './interactiveStyles';
+import { useReturnFocus } from './useReturnFocus';
 
-interface ModalProps {
+export type ModalSize = 'sm' | 'md' | 'lg';
+
+export interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  size?: 'sm' | 'md' | 'lg';
-  children: React.ReactNode;
+  /** One line under the title; also the dialog's accessible description. */
+  description?: ReactNode;
+  size?: ModalSize;
+  /** Extra classes for the panel (layout only). */
+  className?: string;
+  children: ReactNode;
 }
 
-/** Single shared Modal component — renders via portal, consistent premium styling. */
-export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, size = 'md', children }) => {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const onCloseRef = useRef(onClose);
-  const titleId = useId();
-  const isClient = useIsClient();
+const widths: Record<ModalSize, string> = { sm: 'max-w-md', md: 'max-w-2xl', lg: 'max-w-3xl' };
 
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  }, [onClose]);
+/**
+ * The app's dialog, on Radix Dialog: rendered in a portal, with a focus trap, scroll lock and an `overlay` backdrop.
+ * Escape, the close button ("Zamknij") and a click on the backdrop call `onClose`; with nested dialogs Escape closes
+ * only the top one. Focus moves to the panel on open (so a details view never lands on a destructive button) and
+ * returns to the trigger on close.
+ */
+export function Modal({ isOpen, onClose, title, description, size = 'md', className, children }: ModalProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const returnFocus = useReturnFocus(() => panelRef.current?.focus());
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const activeBeforeOpen = document.activeElement as HTMLElement | null;
-    const originalOverflow = document.body.style.overflow;
-
-    document.body.style.overflow = 'hidden';
-    dialogRef.current?.focus();
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onCloseRef.current();
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      document.body.style.overflow = originalOverflow;
-      activeBeforeOpen?.focus?.();
-    };
-  }, [isOpen]);
-
-  if (!isOpen || !isClient) return null;
-
-  const maxWidths = { sm: 'max-w-md', md: 'max-w-2xl', lg: 'max-w-3xl' };
-
-  return createPortal(
-    <div className="fixed inset-0 z-100 flex items-center justify-center p-3 sm:p-4">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-[#1a2e1e]/80 backdrop-blur-md" onClick={onClose} />
-      {/* Modal card */}
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        tabIndex={-1}
-        className={`relative w-full ${maxWidths[size]} animate-zoom-in flex flex-col max-h-[95vh]`}
-        style={{
-          background: 'white',
-          borderRadius: '1rem',
-          border: '1px solid rgba(0,0,0,0.04)',
-          boxShadow: '0 30px 80px -15px rgba(26,46,30,0.35), 0 8px 24px -6px rgba(26,46,30,0.12)',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Header */}
-        <div
-          className="px-7 sm:px-10 py-6 flex items-center justify-between shrink-0"
-          style={{ borderBottom: '1px solid rgba(26,46,30,0.06)' }}
+  return (
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
+      <Dialog.Portal>
+        <Dialog.Overlay className={overlayClass} />
+        <Dialog.Content
+          ref={panelRef}
+          className={cn(dialogPanelClass, widths[size], className)}
+          // Without a description Radix wants an explicit "none", or it warns.
+          {...(description ? {} : { 'aria-describedby': undefined })}
+          {...returnFocus}
         >
-          <h3 id={titleId} className="text-xl sm:text-3xl font-serif text-green-deep tracking-tight leading-none">
-            {title}
-          </h3>
-          <button
-            onClick={onClose}
-            className="w-9 h-9 bg-green-deep/5 text-green-deep/40 rounded-xl hover:bg-red-50 hover:text-red-500 transition-all active:scale-90 flex items-center justify-center"
-            aria-label="Zamknij"
-          >
-            <X size={17} strokeWidth={2.5} />
-          </button>
-        </div>
-        {/* Content */}
-        <div className="px-7 sm:px-10 py-8 overflow-y-auto flex-1">{children}</div>
-      </div>
-    </div>,
-    document.body,
+          <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border px-5 py-4">
+            <div className="min-w-0">
+              <Dialog.Title className="text-lg font-semibold tracking-tight">{title}</Dialog.Title>
+              {description && (
+                <Dialog.Description className="mt-1 text-sm text-muted-foreground">{description}</Dialog.Description>
+              )}
+            </div>
+            <Dialog.Close
+              aria-label="Zamknij"
+              className={cn(
+                '-mr-1.5 inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground',
+                'transition-colors duration-150 hover:bg-muted hover:text-foreground',
+                focusRingClass,
+                'focus-visible:ring-offset-surface',
+              )}
+            >
+              <X className="size-4" strokeWidth={1.75} aria-hidden />
+            </Dialog.Close>
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 py-5">{children}</div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
-};
+}

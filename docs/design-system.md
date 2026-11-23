@@ -161,4 +161,104 @@ Don't:
 
 ## Components: interactive
 
-<!-- Filled by task T2c. -->
+Built on [Radix](https://www.radix-ui.com/) primitives (the `radix-ui` package), so focus handling, keyboard use and
+ARIA roles come for free. All are client components exported from `@detaileed/ui`, styled with the tokens above,
+`className` merged last with `cn()`. Dialogs, menus and tooltips render in a portal on `<body>`, so they follow the
+page theme, not a `data-theme` wrapper around their trigger. The dev page `/dev/ui/interactive` on the site
+(`pnpm --filter @detaileed/web dev`) shows each of them working in both themes.
+
+### Dialogs
+
+- **`Modal`** (`isOpen`, `onClose`, `title`, `description?`, `size?: 'sm' | 'md' | 'lg'`, `className?`, `children`): the
+  dialog for forms and details. `overlay` backdrop, `bg-surface` panel with `rounded-lg`, border and `shadow-lg`, a
+  header with the title (`text-lg font-semibold`), the optional description and a close button labelled "Zamknij", the
+  body scrolls inside. Focus moves to the panel on open (never straight onto a destructive button), Tab stays inside,
+  Escape, the close button and a click on the backdrop call `onClose`, focus returns to the element that opened it.
+  Nested modals work: Escape closes only the top one. The page behind doesn't scroll.
+- **`ConfirmDialog`** (`open`, `onOpenChange`, `title`, `description`, `confirmLabel`, `cancelLabel = 'Anuluj'`,
+  `tone: 'default' | 'danger'`, `onConfirm`, `loading?`): a yes/no question before an action, `role="alertdialog"`.
+  Use it instead of `window.confirm` and hand-made confirm modals. Focus starts on the cancel button; the backdrop
+  doesn't close it. `onConfirm` doesn't close the dialog: close it with `onOpenChange(false)` once the action has
+  succeeded, and pass `loading` while it runs (both buttons and Escape are blocked meanwhile). Use `tone="danger"` for
+  deleting, cancelling and anything that can't be undone; the title asks the question ("Usunąć pojazd?"), the
+  description says what happens, the confirm label is the verb ("Usuń").
+
+```tsx
+<ConfirmDialog
+  open={vehicle !== null}
+  onOpenChange={(open) => !open && setVehicle(null)}
+  tone="danger"
+  title="Usunąć pojazd?"
+  description="Pojazd zniknie z karty klienta. Tej operacji nie można cofnąć."
+  confirmLabel="Usuń"
+  loading={remove.isPending}
+  onConfirm={() => remove.mutate(vehicle.id, { onSuccess: () => setVehicle(null) })}
+/>
+```
+
+### Choosing a view
+
+- **`Tabs`**, **`TabsList`**, **`TabsTrigger`**, **`TabsContent`**: sections of one screen, underlined (`border-primary`
+  under the active tab, `text-muted-foreground` for the others). Arrow keys move between tabs, Home/End jump to the
+  ends; the list scrolls sideways on phones. Give `TabsList` an `aria-label` when the page has more than one. When the
+  tab lives in the URL (a route per tab), control `value` from the route and wrap each link in a trigger with
+  `asChild`; the route renders the content:
+
+  ```tsx
+  <Tabs value={section}>
+    <TabsList aria-label="Magazyn">
+      <TabsTrigger value="items" asChild>
+        <Link to="/s/$studioId/inventory" params={{ studioId }}>
+          Produkty
+        </Link>
+      </TabsTrigger>
+      …
+    </TabsList>
+  </Tabs>
+  ```
+
+- **`SegmentedControl`** (`options: { value, label, icon?, disabled? }[]`, `value`, `onValueChange`, `aria-label` or
+  `aria-labelledby` (required), `size: 'sm' | 'md'`, `fullWidth?`, `iconOnly?`): one choice among two to five short
+  options shown side by side: list filters, day/week/month, list/grid. `md` is 36px high, `sm` 32px. The track is
+  `bg-subtle`, the chosen segment `bg-muted` with a `border-strong` inset ring. It is a `radiogroup` with one tab stop:
+  arrows move, Space or Enter picks; clicking the chosen segment keeps it chosen. With `iconOnly` the labels stay as
+  accessible names. More than five options, or long labels: use a `Select`.
+- **`ThemeSwitch`** (`size = 'sm'`, `iconOnly?`, `fullWidth?`): a `SegmentedControl` with Systemowy / Jasny / Ciemny on
+  top of `useTheme()`. It goes in the dashboard's user menu and the site header (`iconOnly` where space is tight).
+
+### Form choices
+
+- **`Checkbox`** (Radix props: `checked` (`true`, `false` or `'indeterminate'`), `onCheckedChange`, `defaultChecked`,
+  `disabled`, `name`, `value`, plus `label?` and `description?`): a 16px box, `border-strong` when off, `bg-primary`
+  with a check (or a dash for `indeterminate`) when on. With `label` it renders the label beside the box and links the
+  description; without one, wrap it in a `<label>` or give it `aria-label`. Either way `getByLabelText` finds it. With
+  react-hook-form use a `Controller` (it is a button, not an `<input>`).
+- **`Switch`** (Radix props: `checked`, `onCheckedChange`, `disabled`, … plus `label?` and `description?`):
+  `role="switch"`, for settings that take effect at once (visible on the map, notifications). With `label` it renders a
+  settings row: label and description on the left, the switch on the right. Choices saved with a form's submit button
+  are checkboxes.
+- **`RadioCardGroup`** (`options: { value, label, description?, trailing?, disabled? }[]`, `value` (`''` while nothing is
+  chosen), `onValueChange`, `columns: 1 | 2 | 3`, `aria-label` or `aria-labelledby`): one choice among options that need
+  more than a word: free slots, vehicles, packages. Cards with a radio dot, the label, an optional description line
+  and trailing content (a time, a price, a badge; nothing interactive). The chosen card gets a `primary` border and the
+  `muted` fill. Each card is a `radio` named by its label alone, so tests and screen readers find it by the label;
+  arrows move and pick within the group. One column on phones.
+
+### Menus and hints
+
+- **`DropdownMenu`**, **`DropdownMenuTrigger`** (use `asChild` with a `Button`), **`DropdownMenuContent`** (`align`
+  defaults to `end`), **`DropdownMenuItem`** (`onSelect`, `icon?`, `danger?`, `disabled?`), **`DropdownMenuSeparator`**,
+  **`DropdownMenuLabel`**, **`DropdownMenuGroup`**: actions on a row or a record ("Więcej" behind a `MoreHorizontal`
+  icon button with an `aria-label`), the user menu. `bg-surface`, `rounded-lg`, border, `shadow-lg`; the highlighted
+  item is `bg-muted`, a `danger` item has `text-danger` and a `danger-soft` highlight and goes last, after a separator.
+  Enter, Space or ArrowDown opens it, arrows move, typing jumps to an item, Escape closes it and focus returns to the
+  trigger. Use `onSelect`, not `onClick`. A destructive item opens a `ConfirmDialog` rather than acting at once.
+- **`Tooltip`** (`content`, `children` (one focusable element), `side?`, `align?`, `delayDuration = 300`): a short
+  hint on hover and keyboard focus, inverted (`bg-primary text-primary-foreground`, `text-xs`). The trigger gets
+  `aria-describedby`. It brings its own provider. A tooltip is extra: icon-only buttons still need an `aria-label`,
+  never hide information only in a tooltip, and don't put one on a disabled button (it can't take focus).
+
+### Layers
+
+Dialogs and their backdrop use `z-100`, menus `z-110`, tooltips `z-120`, so a menu or tooltip inside a dialog shows
+above it. Don't give page content a `z-index` above 50.
