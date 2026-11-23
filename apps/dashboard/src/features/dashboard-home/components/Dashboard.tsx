@@ -8,8 +8,6 @@ import { BOOKING_STATUSES, useBookings, type Booking } from '@/features/bookings
 import { isLowStock, useInventory } from '@/features/inventory';
 import { useServices } from '@/features/services';
 
-import { GlobalHeader } from '@/shared/ui/GlobalHeader';
-
 import { DashboardStats } from '@/features/dashboard-home/components/DashboardStats';
 import { RevenueChart } from '@/features/dashboard-home/components/RevenueChart';
 import { BookingDetailsModal, CreateBookingModal, useBookingStatusChange } from '@/features/bookings';
@@ -53,12 +51,6 @@ export const Dashboard: React.FC = () => {
   };
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
-  // New client form state
-
-  // New vehicle form state
-
-  // Form mode
-
   const timeZone = useStudioTimeZone();
   const today = todayInZone(timeZone);
   const lowStockItems = useMemo(() => inventory.filter(isLowStock), [inventory]);
@@ -95,17 +87,15 @@ export const Dashboard: React.FC = () => {
   const handleViewBooking = (booking: Booking) => setSelectedBooking(booking);
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <GlobalHeader
-        title="Panel"
-        subtitle={`Studio ${selectedStudio?.name}`}
+    <div className="flex flex-col gap-6">
+      <GreetingBanner
+        loading={showLoading}
+        todayCount={todayBookings.length}
+        upcomingCount={upcomingBookings.length}
         onAddBooking={handleOpenNewBooking}
         onAddClient={() => setIsClientModalOpen(true)}
       />
 
-      <GreetingBanner loading={showLoading} todayCount={todayBookings.length} upcomingCount={upcomingBookings.length} />
-
-      {/* KPI Cards */}
       <DashboardStats
         todayRevenue={todayRevenue}
         activeCount={activeCount}
@@ -115,18 +105,17 @@ export const Dashboard: React.FC = () => {
         loading={showLoading}
       />
 
-      {/* Main Content Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-        {/* === LEFT COLUMN === */}
-        <div className="lg:col-span-8 flex flex-col gap-6 lg:gap-8">
-          <TodaySchedule
-            bookings={todayBookings}
-            loading={showLoading}
-            onOpen={handleViewBooking}
-            onRequestStatusChange={requestStatusChange}
-          />
+      {/* The schedule gets the full width, so its table fits without scrolling on a laptop. */}
+      <TodaySchedule
+        bookings={todayBookings}
+        loading={showLoading}
+        onOpen={handleViewBooking}
+        onRequestStatusChange={requestStatusChange}
+      />
 
-          {/* Revenue Chart */}
+      {/* Revenue and upcoming bookings on the left; shortcuts, stock and activity on the right. */}
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="flex min-w-0 flex-col gap-6">
           <RevenueChart bookings={completedBookings} />
 
           <UpcomingBookings
@@ -137,8 +126,7 @@ export const Dashboard: React.FC = () => {
           />
         </div>
 
-        {/* === RIGHT COLUMN === */}
-        <div className="lg:col-span-4 flex flex-col gap-6 lg:gap-8">
+        <div className="flex min-w-0 flex-col gap-6">
           <QuickActions
             onNewBooking={handleOpenNewBooking}
             onNewClient={() => setIsClientModalOpen(true)}
@@ -152,7 +140,6 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* === MODALS === */}
       {confirmDialog}
 
       <CreateClientModal

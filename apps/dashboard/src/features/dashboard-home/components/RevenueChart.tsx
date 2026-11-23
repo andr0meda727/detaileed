@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, SegmentedControl, Stat } from '@detaileed/ui';
 import type { Booking } from '@/features/bookings';
 import { useStudioTimeZone } from '@/features/studios';
 import { todayInZone } from '@detaileed/domain/studioTime';
@@ -9,86 +10,77 @@ interface RevenueChartProps {
   bookings: Booking[];
 }
 
+type Period = 'weekly' | 'monthly';
+
+const PERIODS = [
+  { value: 'weekly', label: 'Tydzień' },
+  { value: 'monthly', label: 'Miesiąc' },
+] as const;
+
+// Colours come from the theme tokens, so the chart follows the light and dark themes by itself.
+const tick = { fill: 'var(--faint)', fontSize: 12 };
+const tooltipStyle: React.CSSProperties = {
+  background: 'var(--surface)',
+  border: '1px solid var(--border)',
+  borderRadius: 8,
+  color: 'var(--foreground)',
+  fontSize: 13,
+};
+
+/** Revenue of completed bookings per day of the last week or per week of the last month. */
 export const RevenueChart: React.FC<RevenueChartProps> = ({ bookings }) => {
-  const [revPeriod, setRevPeriod] = useState<'weekly' | 'monthly'>('weekly');
+  const [period, setPeriod] = useState<Period>('weekly');
 
   const timeZone = useStudioTimeZone();
   const chartData = useMemo(() => revenueSeries(bookings, timeZone, todayInZone(timeZone)), [bookings, timeZone]);
+  const data = period === 'weekly' ? chartData.weekly : chartData.monthly;
+  const total = data.reduce((s, d) => s + d.rev, 0);
 
   return (
-    <div className="floating-card-static p-6 lg:p-8">
-      <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-        <div>
-          <p className="text-[11px] font-semibold text-green-light/60 uppercase tracking-wide mb-1">Finanse Studia</p>
-          <h3 className="text-3xl lg:text-4xl font-extrabold text-green-deep leading-none">
-            {revPeriod === 'weekly'
-              ? chartData.weekly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL')
-              : chartData.monthly.reduce((s, d) => s + d.rev, 0).toLocaleString('pl-PL')}
-            <span className="text-[15px] font-bold text-green-light/60 ml-2">PLN</span>
-          </h3>
+    <Card>
+      <CardHeader
+        title="Finanse studia"
+        actions={
+          <SegmentedControl
+            aria-label="Okres przychodu"
+            size="sm"
+            options={PERIODS}
+            value={period}
+            onValueChange={setPeriod}
+          />
+        }
+      />
+      <CardContent className="flex flex-col gap-4">
+        <Stat
+          label={period === 'weekly' ? 'Przychód z 7 dni' : 'Przychód z 4 tygodni'}
+          value={`${total.toLocaleString('pl-PL')} zł`}
+        />
+        <div className="h-[240px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 8 }}>
+              <CartesianGrid vertical={false} stroke="var(--border)" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={tick} />
+              <Tooltip
+                contentStyle={tooltipStyle}
+                labelStyle={{ color: 'var(--muted-foreground)' }}
+                itemStyle={{ color: 'var(--foreground)' }}
+                cursor={{ stroke: 'var(--border-strong)' }}
+                formatter={(value) => Number(value ?? 0).toFixed(2) + ' zł'}
+              />
+              <Area
+                type="monotone"
+                dataKey="rev"
+                stroke="var(--foreground)"
+                strokeWidth={2}
+                fill="var(--foreground)"
+                fillOpacity={0.06}
+                activeDot={{ r: 4, fill: 'var(--foreground)', stroke: 'var(--surface)', strokeWidth: 2 }}
+                name="Przychód"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
         </div>
-        <div
-          className="flex p-1.5 rounded-lg h-fit shrink-0"
-          style={{ background: 'rgba(26,46,30,0.04)', border: '1px solid rgba(26,46,30,0.07)' }}
-        >
-          <button
-            onClick={() => setRevPeriod('weekly')}
-            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
-              revPeriod === 'weekly'
-                ? 'bg-green-deep text-cream-warm shadow-md'
-                : 'text-green-deep/40 hover:text-green-deep'
-            }`}
-          >
-            Tydzień
-          </button>
-          <button
-            onClick={() => setRevPeriod('monthly')}
-            className={`px-5 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-wide transition-all duration-300 ${
-              revPeriod === 'monthly'
-                ? 'bg-green-deep text-cream-warm shadow-md'
-                : 'text-green-deep/40 hover:text-green-deep'
-            }`}
-          >
-            Miesiąc
-          </button>
-        </div>
-      </div>
-      <div className="h-[240px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={revPeriod === 'weekly' ? chartData.weekly : chartData.monthly}>
-            <defs>
-              <linearGradient id="colorEmerald" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--green-deep)" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="var(--green-deep)" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="8 8" vertical={false} stroke="#f1f3f5" />
-            <XAxis
-              dataKey="name"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: '#adb5bd', fontSize: 10, fontWeight: 700 }}
-            />
-            <Tooltip
-              contentStyle={{
-                borderRadius: '1rem',
-                border: 'none',
-                boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-                fontWeight: 700,
-              }}
-              formatter={(value) => Number(value ?? 0).toFixed(2) + ' PLN'}
-            />
-            <Area
-              type="monotone"
-              dataKey="rev"
-              stroke="var(--green-deep)"
-              strokeWidth={4}
-              fill="url(#colorEmerald)"
-              name="Przychód"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
