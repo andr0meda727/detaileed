@@ -285,7 +285,9 @@ page theme, not a `data-theme` wrapper around their trigger. The dev page `/dev/
   header with the title (`text-lg font-semibold`), the optional description and a close button labelled "Zamknij", the
   body scrolls inside. Focus moves to the panel on open (never straight onto a destructive button), Tab stays inside,
   Escape, the close button and a click on the backdrop call `onClose`, focus returns to the element that opened it.
-  Nested modals work: Escape closes only the top one. The page behind doesn't scroll.
+  Nested modals work: Escape closes only the top one. The page behind doesn't scroll. `dismissible={false}` is for a
+  dialog the user must finish (the first studio at onboarding): no close button, and Escape or a click outside does
+  nothing.
 - **`ConfirmDialog`** (`open`, `onOpenChange`, `title`, `description`, `confirmLabel`, `cancelLabel = 'Anuluj'`,
   `tone: 'default' | 'danger'`, `onConfirm`, `loading?`): a yes/no question before an action, `role="alertdialog"`.
   Use it instead of `window.confirm` and hand-made confirm modals. Focus starts on the cancel button; the backdrop

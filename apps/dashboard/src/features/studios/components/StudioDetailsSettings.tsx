@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, Save } from 'lucide-react';
+import { Building2, MapPinOff, Save } from 'lucide-react';
 import { Button, FormInput, FormSection, LoadingSpinner, Skeleton, useToast } from '@detaileed/ui';
 import { MAP_STYLE_URL } from '@/shared/lib/siteConfig';
 import { isOwnerRole } from '@/shared/lib/studioRole';
@@ -57,71 +57,73 @@ function StudioDetailsForm({ details, readOnly }: { details: StudioDetails; read
 
   return (
     <FormSection icon={Building2} title="Dane studia">
-      <form className="p-5 space-y-2" onSubmit={handleSubmit(onSubmit)}>
-        <p className="text-sm text-slate-500 pb-2">
+      <form className="flex flex-col gap-4 p-5" onSubmit={handleSubmit(onSubmit)}>
+        <p className="text-sm text-muted-foreground">
           Te dane widzą też klienci w profilu publicznym studia, więc zmieniasz je tylko tutaj.
         </p>
-        <fieldset disabled={readOnly} className="space-y-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
-            <FormInput label="Nazwa studia" error={errors.name?.message} {...register('name')} />
-            <FormInput label="Telefon" placeholder="500 600 700" error={errors.phone?.message} {...register('phone')} />
-            <FormInput
-              label="E-mail"
-              type="email"
-              placeholder="kontakt@studio.pl"
-              error={errors.email?.message}
-              {...register('email')}
-            />
-            <FormInput
-              label="Adres"
-              placeholder="ul. Długa 1"
-              error={errors.address?.message}
-              {...register('address')}
-            />
-            <FormInput label="Miasto" placeholder="Kraków" error={errors.city?.message} {...register('city')} />
-          </div>
+        <fieldset disabled={readOnly} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <FormInput label="Nazwa studia" error={errors.name?.message} {...register('name')} />
+          <FormInput label="Telefon" placeholder="500 600 700" error={errors.phone?.message} {...register('phone')} />
+          <FormInput
+            label="E-mail"
+            type="email"
+            placeholder="kontakt@studio.pl"
+            error={errors.email?.message}
+            {...register('email')}
+          />
+          <FormInput label="Adres" placeholder="ul. Długa 1" error={errors.address?.message} {...register('address')} />
+          <FormInput label="Miasto" placeholder="Kraków" error={errors.city?.message} {...register('city')} />
         </fieldset>
 
-        <div className="space-y-1.5">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
-            Lokalizacja {readOnly ? '' : '(kliknij mapę lub przeciągnij pinezkę)'}
-          </p>
-          <Controller
-            name="location"
-            control={control}
-            render={({ field }) => (
-              <>
-                <Suspense fallback={<Skeleton width="100%" height="320px" className="rounded-2xl" />}>
-                  <MapPicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    readOnly={readOnly}
-                    styleUrl={MAP_STYLE_URL}
-                  />
-                </Suspense>
-                {!readOnly && field.value && (
-                  <button
-                    type="button"
-                    onClick={() => field.onChange(null)}
-                    className="px-1 text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-red-500"
-                  >
-                    Usuń pinezkę
-                  </button>
-                )}
-              </>
-            )}
-          />
-          <p className="h-4 px-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Bez adresu, miasta i pinezki nie opublikujesz profilu na mapie.
-          </p>
-        </div>
+        <StudioLocationField control={control} readOnly={readOnly} />
 
         {!readOnly && (
-          <Button size="lg" fullWidth type="submit" icon={Save} loading={save.isPending} disabled={!isDirty}>
-            Zapisz dane studia
-          </Button>
+          <div className="flex justify-end">
+            <Button type="submit" icon={Save} loading={save.isPending} disabled={!isDirty}>
+              Zapisz dane studia
+            </Button>
+          </div>
         )}
       </form>
     </FormSection>
+  );
+}
+
+/** The pin on the map, with a button that clears it. */
+function StudioLocationField({
+  control,
+  readOnly,
+}: {
+  control: Control<StudioDetailsFormInput, unknown, StudioDetailsFormValues>;
+  readOnly: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+        <p className="text-sm font-medium text-foreground">Lokalizacja</p>
+        {!readOnly && <p className="text-xs text-faint">Kliknij mapę lub przeciągnij pinezkę</p>}
+      </div>
+      <Controller
+        name="location"
+        control={control}
+        render={({ field }) => (
+          <>
+            <Suspense fallback={<Skeleton width="100%" height="320px" className="rounded-lg" />}>
+              <MapPicker value={field.value} onChange={field.onChange} readOnly={readOnly} styleUrl={MAP_STYLE_URL} />
+            </Suspense>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs text-muted-foreground">
+                Bez adresu, miasta i pinezki nie opublikujesz profilu na mapie.
+              </p>
+              {!readOnly && field.value && (
+                <Button variant="ghost" size="sm" icon={MapPinOff} onClick={() => field.onChange(null)}>
+                  Usuń pinezkę
+                </Button>
+              )}
+            </div>
+          </>
+        )}
+      />
+    </div>
   );
 }

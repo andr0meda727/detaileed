@@ -16,6 +16,11 @@ export interface ModalProps {
   /** One line under the title; also the dialog's accessible description. */
   description?: ReactNode;
   size?: ModalSize;
+  /**
+   * False when the user must finish the dialog (e.g. onboarding): no close button, and Escape or a click outside does
+   * nothing. Default true.
+   */
+  dismissible?: boolean;
   /** Extra classes for the panel (layout only). */
   className?: string;
   children: ReactNode;
@@ -29,7 +34,16 @@ const widths: Record<ModalSize, string> = { sm: 'max-w-md', md: 'max-w-2xl', lg:
  * only the top one. Focus moves to the panel on open (so a details view never lands on a destructive button) and
  * returns to the trigger on close.
  */
-export function Modal({ isOpen, onClose, title, description, size = 'md', className, children }: ModalProps) {
+export function Modal({
+  isOpen,
+  onClose,
+  title,
+  description,
+  size = 'md',
+  dismissible = true,
+  className,
+  children,
+}: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const returnFocus = useReturnFocus(() => panelRef.current?.focus());
 
@@ -48,6 +62,12 @@ export function Modal({ isOpen, onClose, title, description, size = 'md', classN
           // Without a description Radix wants an explicit "none", or it warns.
           {...(description ? {} : { 'aria-describedby': undefined })}
           {...returnFocus}
+          {...(dismissible
+            ? {}
+            : {
+                onEscapeKeyDown: (e: Event) => e.preventDefault(),
+                onInteractOutside: (e: Event) => e.preventDefault(),
+              })}
         >
           <div className="flex shrink-0 items-start justify-between gap-4 border-b border-border px-5 py-4">
             <div className="min-w-0">
@@ -56,17 +76,19 @@ export function Modal({ isOpen, onClose, title, description, size = 'md', classN
                 <Dialog.Description className="mt-1 text-sm text-muted-foreground">{description}</Dialog.Description>
               )}
             </div>
-            <Dialog.Close
-              aria-label="Zamknij"
-              className={cn(
-                '-mr-1.5 inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground',
-                'transition-colors duration-150 hover:bg-muted hover:text-foreground',
-                focusRingClass,
-                'focus-visible:ring-offset-surface',
-              )}
-            >
-              <X className="size-4" strokeWidth={1.75} aria-hidden />
-            </Dialog.Close>
+            {dismissible && (
+              <Dialog.Close
+                aria-label="Zamknij"
+                className={cn(
+                  '-mr-1.5 inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground',
+                  'transition-colors duration-150 hover:bg-muted hover:text-foreground',
+                  focusRingClass,
+                  'focus-visible:ring-offset-surface',
+                )}
+              >
+                <X className="size-4" strokeWidth={1.75} aria-hidden />
+              </Dialog.Close>
+            )}
           </div>
           <div className="flex-1 overflow-y-auto px-5 py-5">{children}</div>
         </Dialog.Content>

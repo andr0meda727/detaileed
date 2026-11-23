@@ -60,6 +60,21 @@ describe('Modal', () => {
     expect(onClose).toHaveBeenCalledTimes(2);
   });
 
+  it('can require a choice: no close button, Escape and outside clicks do nothing', () => {
+    const onClose = vi.fn();
+    render(
+      <Modal isOpen onClose={onClose} title="Pierwsze studio" dismissible={false}>
+        <button>Utwórz</button>
+      </Modal>,
+    );
+    expect(screen.queryByRole('button', { name: 'Zamknij' })).not.toBeInTheDocument();
+
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    fireEvent.pointerDown(document.body);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
   it('returns focus to the trigger after closing', async () => {
     render(<WithTrigger />);
     const trigger = screen.getByRole('button', { name: 'Otwórz' });
