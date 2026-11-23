@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { Activity, ArrowRight, CalendarDays, Check, DollarSign, Package, Play, Users } from 'lucide-react';
+import { Activity, ArrowRight, CalendarDays, Check, DollarSign, Package, Users } from 'lucide-react';
 import { DASHBOARD_URL } from '@/shared/lib/site';
 import { FEATURES, PRICING, STEPS, type FeatureId } from '../model/content';
 import { FeatureMiniUi } from './FeatureMiniUis';
@@ -19,37 +19,6 @@ function SignUpLink({ className, children }: { className: string; children: Reac
     <a href={DASHBOARD_URL} className={className}>
       {children}
     </a>
-  );
-}
-
-export function HeroSection() {
-  return (
-    <section className="hero">
-      <div className="hero-orb" />
-      <div className="hero-badge">
-        <div className="hero-badge-dot" />
-        Studio OS dla detailerów
-      </div>
-      <h1 className="hero-headline">
-        Zarządzaj studiem
-        <br />
-        <em>bez chaosu.</em>
-      </h1>
-      <p className="hero-sub">
-        Detaileed to wszystko czego potrzebujesz — rezerwacje, klienci, magazyn i finanse w jednym miejscu.
-        Zaprojektowane specjalnie dla studiów detailingu.
-      </p>
-      <div className="hero-actions">
-        <SignUpLink className="btn-primary">
-          Zacznij za darmo
-          <ArrowRight size={16} />
-        </SignUpLink>
-        <a href="#demo" className="btn-ghost">
-          <Play size={16} />
-          Zobacz demo
-        </a>
-      </div>
-    </section>
   );
 }
 
