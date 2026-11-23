@@ -4,7 +4,9 @@ import { recordConsumption } from '../store/inventory.ts';
 import { bookingRoutes, onBookingCompleted } from './bookings.ts';
 import { clientRoutes } from './clients.ts';
 import { inventoryRoutes } from './inventory.ts';
+import { marketplaceRoutes } from './marketplace.ts';
 import { planningRoutes } from './planning.ts';
+import { requestRoutes } from './requests.ts';
 import { serviceRoutes } from './services.ts';
 import { studioRoutes } from './studios.ts';
 import { teamRoutes } from './team.ts';
@@ -22,4 +24,6 @@ export const routes: Route[] = [
   ...planningRoutes,
   ...inventoryRoutes,
   ...teamRoutes,
+  ...marketplaceRoutes,
+  ...requestRoutes,
 ];

@@ -39,6 +39,22 @@ export function seedServices(): Service[] {
   }));
 }
 
+/** Another studio's version of some of these services, with its own ids and prices (`factor` × ours). */
+export function partnerServices(studioId: string, keys: string[], factor: number): Service[] {
+  return SERVICES.filter(([key]) => keys.includes(key)).map(([key, name, category, prices, minutes]) => ({
+    id: stableId(`service:${studioId}:${key}`),
+    studioId,
+    name,
+    category,
+    prices: SIZES.flatMap((vehicleSize, i) => {
+      const price = prices[i];
+      return price === null ? [] : [{ vehicleSize, price: Math.round((price * factor) / 10) * 10 }];
+    }),
+    durationMinutes: minutes,
+    deleted: false,
+  }));
+}
+
 export const bayId = (key: string) => stableId(`bay:${key}`);
 
 export function seedBays(): Bay[] {

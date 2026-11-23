@@ -8,8 +8,11 @@ import type {
   InventoryCategory,
   InventoryItem,
   Invitation,
+  Listing,
   Membership,
+  OnlineRequest,
   Recipe,
+  Review,
   Schedule,
   Service,
   SizeMultipliers,
@@ -20,6 +23,8 @@ import type {
 import { seedUsers } from './accounts.ts';
 import { seedBookings } from './bookings.ts';
 import { seedInventoryCategories, seedInventoryItems, seedLedger, seedRecipes } from './inventory.ts';
+import { seedPartners, seedReviews } from './marketplace.ts';
+import { seedRequests } from './requests.ts';
 import { seedBays, seedSchedules, seedServices } from './services.ts';
 import { seedClients, seedInvitations, seedMemberships, seedStudios } from './studios.ts';
 
@@ -43,23 +48,27 @@ export interface MockState {
   consumptions: Consumption[];
   sizeFactors: (SizeMultipliers & { studioId: string })[];
   invitations: Invitation[];
+  listings: Listing[];
+  reviews: Review[];
+  onlineRequests: OnlineRequest[];
 }
 
 /** The fixed sample data. */
 export function seed(): MockState {
   const day = today();
   const { clients, vehicles } = seedClients();
+  const partners = seedPartners(day);
   return {
     today: day,
     users: seedUsers(day),
-    studios: seedStudios(day),
+    studios: [...seedStudios(day), ...partners.studios],
     memberships: seedMemberships(),
     clients,
     vehicles,
-    services: seedServices(),
+    services: [...seedServices(), ...partners.services],
     bookings: [],
-    bays: seedBays(),
-    schedules: seedSchedules(day),
+    bays: [...seedBays(), ...partners.bays],
+    schedules: [...seedSchedules(day), ...partners.schedules],
     inventoryCategories: seedInventoryCategories(),
     inventory: seedInventoryItems(),
     movements: [],
@@ -67,14 +76,18 @@ export function seed(): MockState {
     consumptions: [],
     sizeFactors: [],
     invitations: seedInvitations(),
+    listings: partners.listings,
+    reviews: seedReviews(day),
+    onlineRequests: [],
   };
 }
 
 /**
- * Data generated once the fixed data is in the store: bookings that fit the bays (by the planner), then the stock
- * ledger of what the completed ones used.
+ * Data generated once the fixed data is in the store: bookings that fit the bays (by the planner), online requests
+ * (accepted ones booked by the planner too), then the stock ledger of what the completed visits used.
  */
 export function populate(): void {
   seedBookings();
+  seedRequests();
   seedLedger();
 }

@@ -1,4 +1,10 @@
-import type { DayOfWeek, ServiceCategory, StockMovementType, VehicleSize } from '@detaileed/api-client';
+import type {
+  DayOfWeek,
+  OnlineRequestStatus,
+  ServiceCategory,
+  StockMovementType,
+  VehicleSize,
+} from '@detaileed/api-client';
 
 /**
  * The mock's own records. Handlers turn them into the API's DTOs (generated models), so related data
@@ -167,4 +173,45 @@ export interface Invitation {
   roleId: RoleId;
   expiresAt: string;
   status: 'pending' | 'accepted' | 'declined';
+}
+
+/** A studio's public profile; it exists once the owner saved it. */
+export interface Listing {
+  studioId: string;
+  description: string | null;
+  isPublished: boolean;
+}
+
+export interface Review {
+  id: string;
+  studioId: string;
+  /** The reviewed visit, when the review came from a customer account. */
+  bookingId: string | null;
+  authorUserId: string | null;
+  authorName: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+}
+
+export interface OnlineRequest {
+  id: string;
+  studioId: string;
+  customerUserId: string | null;
+  status: OnlineRequestStatus;
+  preferredAt: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  vehicle: { licensePlate: string; brand: string | null; model: string | null; size: VehicleSize };
+  serviceIds: string[];
+  /** Prices when the request was sent (the price list may change later). */
+  services: { serviceId: string; name: string; price: number | null }[];
+  estimatedPrice: number;
+  hasUnpricedServices: boolean;
+  notes: string | null;
+  rejectionReason: string | null;
+  createdAt: string;
+  decidedAt: string | null;
+  bookingId: string | null;
 }
