@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { UseFormRegisterReturn } from 'react-hook-form';
-import { FormInput, Skeleton } from '@detaileed/ui';
+import { FieldError, FormInput, Skeleton, Tabs, TabsContent, TabsList, TabsTrigger, cn } from '@detaileed/ui';
 import { groupSlotsByDay } from '@/features/booking/model/slots';
 
 interface TimePickerProps {
@@ -17,6 +17,8 @@ interface TimePickerProps {
   error?: string;
 }
 
+const ERROR_ID = 'time-picker-error';
+
 /**
  * When the studio plans: its free slots for the next two weeks by day. Otherwise a preferred day and time (the studio
  * confirms or proposes another).
@@ -27,12 +29,12 @@ export function TimePicker(props: TimePickerProps) {
   const [dayIndex, setDayIndex] = useState(0);
   const day = days[Math.min(dayIndex, Math.max(days.length - 1, 0))];
 
-  if (loading || planning === undefined) return <Skeleton width="100%" height="96px" className="rounded-2xl" />;
+  if (loading || planning === undefined) return <Skeleton width="100%" height="96px" className="rounded-lg" />;
 
   if (!planning) {
     return (
-      <div className="space-y-1">
-        <p className="text-sm text-green-light">
+      <div className="flex flex-col gap-3">
+        <p className="text-sm text-muted-foreground">
           Podaj, kiedy chcesz przyjechać. Studio potwierdzi termin albo zaproponuje inny.
         </p>
         <div className="grid grid-cols-2 gap-x-3">
@@ -45,41 +47,53 @@ export function TimePicker(props: TimePickerProps) {
 
   if (days.length === 0) {
     return (
-      <p className="text-sm text-green-light">W najbliższych dwóch tygodniach nie ma wolnych terminów na te usługi.</p>
+      <p className="text-sm text-muted-foreground">
+        W najbliższych dwóch tygodniach nie ma wolnych terminów na te usługi.
+      </p>
     );
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Dzień">
-        {days.map((d, i) => (
-          <button
-            key={d.day}
-            type="button"
-            role="tab"
-            aria-selected={d === day}
-            onClick={() => setDayIndex(i)}
-            className={`px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap border-2 ${d === day ? 'bg-green-deep text-cream-warm border-green-deep' : 'bg-white border-green-deep/10'}`}
-          >
+    <Tabs value={day.day} onValueChange={(v) => setDayIndex(days.findIndex((d) => d.day === v))} className="gap-4">
+      <TabsList aria-label="Dzień">
+        {days.map((d) => (
+          <TabsTrigger key={d.day} value={d.day}>
             {d.label}
-          </button>
+          </TabsTrigger>
         ))}
-      </div>
-      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Godzina">
-        {day.slots.map((s) => (
-          <button
-            key={s.start}
-            type="button"
-            role="radio"
-            aria-checked={slotStart === s.start}
-            onClick={() => onPickSlot(s.start)}
-            className={`px-3 py-2 rounded-xl text-sm font-semibold border-2 ${slotStart === s.start ? 'bg-amber border-amber' : 'bg-white border-green-deep/10 hover:border-green-deep/30'}`}
-          >
-            {s.time}
-          </button>
-        ))}
-      </div>
-      {error && <p className="text-xs font-bold text-red-500 uppercase tracking-widest">{error}</p>}
-    </div>
+      </TabsList>
+      <TabsContent value={day.day} className="flex flex-col gap-2">
+        <div
+          className="grid grid-cols-3 gap-2 sm:grid-cols-6"
+          role="radiogroup"
+          aria-label="Godzina"
+          aria-describedby={error ? ERROR_ID : undefined}
+        >
+          {day.slots.map((s) => {
+            const checked = slotStart === s.start;
+            return (
+              <button
+                key={s.start}
+                type="button"
+                role="radio"
+                aria-checked={checked}
+                onClick={() => onPickSlot(s.start)}
+                className={cn(
+                  'h-9 rounded-md border font-mono text-sm tabular-nums transition-colors duration-150',
+                  'outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  'focus-visible:ring-offset-background',
+                  checked
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border-strong bg-surface text-foreground hover:bg-muted',
+                )}
+              >
+                {s.time}
+              </button>
+            );
+          })}
+        </div>
+        <FieldError id={ERROR_ID}>{error}</FieldError>
+      </TabsContent>
+    </Tabs>
   );
 }
