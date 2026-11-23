@@ -32,6 +32,6 @@ describe('BayLane', () => {
     expect(block).toHaveTextContent('08:00–10:00 Jan Kowalski');
     expect(block).toHaveStyle({ left: '0%', width: '25%' });
     expect(screen.getByTitle('Wolne 10:15–16:00 (345 min)')).toBeInTheDocument();
-    expect(screen.getByText('25% zajęte')).toBeInTheDocument();
+    expect(screen.getByText('25%').parentElement).toHaveTextContent('25% zajęte');
   });
 });
