@@ -1,0 +1,27 @@
+{
+  "name": "@detaileed/mock-api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fake Detaileed API and Supabase sign-in with Polish sample data, for local previews and screenshots.",
+  "scripts": {
+    "dev:mock": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@detaileed/api-client": "workspace:*",
+    "@detaileed/domain": "workspace:*",
+    "tsx": "^4.20.6"
+  },
+  "devDependencies": {
+    "@detaileed/config": "workspace:*",
+    "@supabase/supabase-js": "^2.119.0",
+    "@types/node": "^22.14.0",
+    "eslint": "^9.39.5",
+    "typescript": "~5.8.2",
+    "vitest": "^4.1.4"
+  }
+}

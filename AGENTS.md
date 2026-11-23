@@ -55,6 +55,7 @@ Never silence a rule with `eslint-disable` or `@ts-ignore`/`@ts-expect-error` wi
 | ---------------------------------------------- | ----------------------------------------------------------------- |
 | `pnpm install`                                 | install all workspace dependencies                                |
 | `pnpm dev`                                     | dev servers: dashboard on :3000, customer site on :3001           |
+| `pnpm dev:mock`                                | both apps against the mock API on :5180 (sample data)             |
 | `pnpm build` / `pnpm test` / `pnpm lint`       | run across all packages via Turborepo                             |
 | `pnpm typecheck`                               | `tsc --noEmit` in every package                                   |
 | `pnpm check`                                   | lint + typecheck + test + build (what CI runs)                    |
@@ -64,7 +65,7 @@ Never silence a rule with `eslint-disable` or `@ts-ignore`/`@ts-expect-error` wi
 | `pnpm generate`                                | regenerate the API client from `packages/api-client/openapi.json` |
 | `docker build -f apps/dashboard/Dockerfile .`  | dashboard image (build context = repo root); web: apps/web/…      |
 
-Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboard/.env.local` (git-ignored). `VITE_API_URL` is the API **origin** without `/api` (e.g. `http://localhost:5174`; empty = Vite proxy in dev, `https://api.detaileed.com` in prod). `VITE_MAP_STYLE_URL` (empty = OpenFreeMap) and `VITE_WEB_URL` (customer site, empty = `https://detaileed.com`) are read in `shared/lib/siteConfig.ts`. New `VITE_*` vars also need adding to the Dockerfile build args and the deploy workflow. The customer site reads `NEXT_PUBLIC_*` (see `apps/web/.env.example`, `apps/web/src/shared/lib/site.ts`; build args in `apps/web/Dockerfile` and `.github/workflows/web-publish.yml`).
+Env vars: see `apps/dashboard/.env.example`; local overrides go in `apps/dashboard/.env.local` (git-ignored). `VITE_API_URL` is the API **origin** without `/api` (e.g. `http://localhost:5174`; empty = Vite proxy in dev, `https://api.detaileed.com` in prod). `VITE_MAP_STYLE_URL` (empty = OpenFreeMap) and `VITE_WEB_URL` (customer site, empty = `https://detaileed.com`) are read in `shared/lib/siteConfig.ts`. New `VITE_*` vars also need adding to the Dockerfile build args and the deploy workflow. The customer site reads `NEXT_PUBLIC_*` (see `apps/web/.env.example`, `apps/web/src/shared/lib/site.ts`; build args in `apps/web/Dockerfile` and `.github/workflows/web-publish.yml`). `pnpm dev:mock` runs both apps against `apps/mock-api` (fake API and Supabase sign-in with Polish sample data; demo accounts and how to add data in its README): their `.env.mock` files point at `http://localhost:5180` and beat `.env.local`, and each `dev:mock` script takes `--port`.
 
 ## Code conventions (dashboard, paths relative to `apps/dashboard/src`)
 
