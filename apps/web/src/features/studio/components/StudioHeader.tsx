@@ -1,20 +1,23 @@
-import { MapPin, Phone } from 'lucide-react';
-import { Badge, StarRating } from '@detaileed/ui';
+import { MapPin, Phone, Star } from 'lucide-react';
+import { Badge } from '@detaileed/ui';
 import { serviceCategoryLabel } from '@detaileed/domain/serviceCategory';
 import type { PublicListing } from '@detaileed/domain/listing';
 
 /** Name, address, phone, rating and the kinds of work the studio does. */
 export function StudioHeader({ listing }: { listing: PublicListing }) {
   return (
-    <header className="space-y-3">
-      <h1 className="font-serif text-4xl sm:text-5xl tracking-tight">{listing.name}</h1>
-      <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-green-light">
+    <header className="flex flex-col gap-3 border-b border-border pb-7">
+      <h1 className="text-4xl font-semibold tracking-tight text-foreground">{listing.name}</h1>
+      <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
         <span className="flex items-center gap-1.5">
-          <MapPin size={15} /> {listing.address}, {listing.city}
+          <MapPin className="size-4 shrink-0" strokeWidth={1.75} aria-hidden /> {listing.address}, {listing.city}
         </span>
         {listing.phone && (
-          <a href={`tel:${listing.phone}`} className="flex items-center gap-1.5 hover:text-green-deep">
-            <Phone size={15} /> {listing.phone}
+          <a
+            href={`tel:${listing.phone}`}
+            className="flex items-center gap-1.5 rounded-sm transition-colors duration-150 hover:text-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Phone className="size-4 shrink-0" strokeWidth={1.75} aria-hidden /> {listing.phone}
           </a>
         )}
         <span className="flex items-center gap-1.5">
@@ -22,20 +25,27 @@ export function StudioHeader({ listing }: { listing: PublicListing }) {
             'Brak opinii'
           ) : (
             <>
-              <StarRating value={listing.averageRating} size={15} />
-              {listing.averageRating.toFixed(1).replace('.', ',')} ({listing.reviewCount} opinii)
+              <Star className="size-4 shrink-0 fill-star text-star" strokeWidth={1.75} aria-hidden />
+              <span className="font-medium text-foreground">{listing.averageRating.toFixed(1).replace('.', ',')}</span>(
+              {listing.reviewCount} opinii)
             </>
           )}
         </span>
       </div>
-      <div className="flex flex-wrap gap-1.5">
-        {listing.categories.map((c) => (
-          <Badge key={c} tone="brand" size="sm">
-            {serviceCategoryLabel(c)}
-          </Badge>
-        ))}
-      </div>
-      {listing.description && <p className="max-w-3xl text-green-deep/80 whitespace-pre-line">{listing.description}</p>}
+      {listing.categories.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {listing.categories.map((c) => (
+            <Badge key={c} tone="neutral" dot={false}>
+              {serviceCategoryLabel(c)}
+            </Badge>
+          ))}
+        </div>
+      )}
+      {listing.description && (
+        <p className="mt-1 max-w-3xl whitespace-pre-line leading-relaxed text-muted-foreground">
+          {listing.description}
+        </p>
+      )}
     </header>
   );
 }
