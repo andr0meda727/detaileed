@@ -61,9 +61,9 @@ export function AcceptRequestForm({ request, timeZone, onDone }: AcceptRequestFo
     );
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
       <RequestPlanSection requestId={request.id} timeZone={timeZone} picked={picked} onPick={pickSlot} />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-x-3 sm:grid-cols-3">
         <FormInput
           label="Data"
           type="date"
@@ -78,9 +78,11 @@ export function AcceptRequestForm({ request, timeZone, onDone }: AcceptRequestFo
         />
         <FormInput label="Cena (zł)" inputMode="decimal" error={errors.price?.message} {...register('price')} />
       </div>
-      <Button size="lg" fullWidth type="submit" variant="success" icon={Check} loading={accept.isPending}>
-        Przyjmij i dodaj do kalendarza
-      </Button>
+      <div className="flex justify-end">
+        <Button type="submit" icon={Check} loading={accept.isPending}>
+          Przyjmij i dodaj do kalendarza
+        </Button>
+      </div>
     </form>
   );
 }

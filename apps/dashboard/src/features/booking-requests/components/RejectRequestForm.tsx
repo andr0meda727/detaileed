@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { Button, useToast } from '@detaileed/ui';
+import { Button, Textarea, useToast } from '@detaileed/ui';
 import { useRejectRequest } from '@/features/booking-requests/api/requests';
 import { requestErrorMessage } from '@/features/booking-requests/model/errors';
 
@@ -25,22 +25,21 @@ export function RejectRequestForm({ requestId, onDone }: { requestId: string; on
     );
 
   return (
-    <div className="space-y-3">
-      <label htmlFor="reject-reason" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
-        Powód (klient go zobaczy)
-      </label>
-      <textarea
+    <div className="flex flex-col gap-2">
+      <Textarea
         id="reject-reason"
+        label="Powód (klient go zobaczy)"
         rows={3}
         maxLength={MAX_REASON}
         value={reason}
         onChange={(e) => setReason(e.target.value)}
         placeholder="np. Brak wolnych terminów w tym tygodniu"
-        className="w-full px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-hidden font-semibold text-sm focus:border-cream-warm/50"
       />
-      <Button size="lg" fullWidth variant="danger" icon={X} loading={reject.isPending} onClick={submit}>
-        Odrzuć zapytanie
-      </Button>
+      <div className="flex justify-end">
+        <Button variant="danger" icon={X} loading={reject.isPending} onClick={submit}>
+          Odrzuć zapytanie
+        </Button>
+      </div>
     </div>
   );
 }

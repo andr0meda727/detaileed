@@ -1,6 +1,7 @@
 import { getRouteApi } from '@tanstack/react-router';
-import { ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
-import { EmptyState, Skeleton } from '@detaileed/ui';
+import { Inbox } from 'lucide-react';
+import { EmptyState, Pagination, SegmentedControl, Skeleton } from '@detaileed/ui';
+import type { OnlineRequestStatus } from '@detaileed/api-client';
 import { GlobalHeader } from '@/shared/ui/GlobalHeader';
 import { useStudioTimeZone } from '@/features/studios';
 import { useBookingRequests } from '@/features/booking-requests/api/requests';
@@ -10,7 +11,11 @@ import { RequestDetailsModal } from '@/features/booking-requests/components/Requ
 
 const routeApi = getRouteApi('/_signed-in/s/$studioId/requests');
 
-const FILTERS = [{ value: undefined, label: 'Wszystkie' }, ...REQUEST_STATUSES];
+const ALL = 'all';
+const FILTERS: { value: OnlineRequestStatus | typeof ALL; label: string }[] = [
+  { value: ALL, label: 'Wszystkie' },
+  ...REQUEST_STATUSES.map(({ value, label }) => ({ value, label })),
+];
 
 /** Booking requests customers sent from the map; the filter, page and open request live in the URL. */
 export function RequestsView() {
@@ -25,61 +30,41 @@ export function RequestsView() {
     navigate({ search: (prev) => ({ ...prev, ...next }) });
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-6">
       <GlobalHeader title="Zapytania" subtitle="Rezerwacje wysłane przez klientów z mapy Detaileed" />
 
-      <div className="flex gap-1 bg-white border border-slate-100 rounded-2xl p-1.5 overflow-x-auto w-fit max-w-full">
-        {FILTERS.map((f) => (
-          <button
-            key={f.label}
-            type="button"
-            aria-pressed={status === f.value}
-            onClick={() => setSearch({ status: f.value, page: undefined, id: undefined })}
-            className={`px-4 py-2.5 rounded-xl text-[11px] font-semibold uppercase tracking-widest whitespace-nowrap transition-all ${status === f.value ? 'bg-green-deep text-cream-warm' : 'text-slate-400 hover:text-green-deep hover:bg-slate-50'}`}
-          >
-            {f.label}
-          </button>
-        ))}
+      <div className="max-w-full overflow-x-auto">
+        <SegmentedControl
+          aria-label="Status zapytań"
+          className="w-max"
+          options={FILTERS}
+          value={status ?? ALL}
+          onValueChange={(value) =>
+            setSearch({ status: value === ALL ? undefined : value, page: undefined, id: undefined })
+          }
+        />
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} width="100%" height="92px" className="rounded-2xl" />
+            <Skeleton key={i} width="100%" height="92px" className="rounded-lg" />
           ))}
         </div>
       ) : items.length === 0 ? (
         <EmptyState message="Brak zapytań. Opublikuj profil studia, aby klienci mogli je wysyłać." icon={Inbox} />
       ) : (
-        <div className="space-y-3">
+        <ul className="flex flex-col gap-3">
           {items.map((r) => (
-            <RequestCard key={r.id} request={r} timeZone={timeZone} onOpen={() => setSearch({ id: r.id })} />
+            <li key={r.id}>
+              <RequestCard request={r} timeZone={timeZone} onOpen={() => setSearch({ id: r.id })} />
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
-      {data && data.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-4 text-sm font-semibold text-slate-500">
-          <button
-            type="button"
-            aria-label="Poprzednia strona"
-            disabled={page <= 1}
-            onClick={() => setSearch({ page: page - 1 })}
-            className="p-2 rounded-xl hover:bg-slate-100 disabled:opacity-30"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          {page} / {data.totalPages}
-          <button
-            type="button"
-            aria-label="Następna strona"
-            disabled={page >= data.totalPages}
-            onClick={() => setSearch({ page: page + 1 })}
-            className="p-2 rounded-xl hover:bg-slate-100 disabled:opacity-30"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
+      {data && (
+        <Pagination page={page} totalPages={data.totalPages} onPageChange={(next) => setSearch({ page: next })} />
       )}
 
       <RequestDetailsModal

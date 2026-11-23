@@ -70,7 +70,7 @@ describe('toRequestPlan', () => {
 
 describe('statuses and errors', () => {
   it('labels statuses', () => {
-    expect(requestStatus('Pending')).toMatchObject({ label: 'Oczekujące', tone: 'amber' });
+    expect(requestStatus('Pending')).toMatchObject({ label: 'Oczekujące', tone: 'warning' });
     expect(requestStatus('Unknown').label).toBe('Unknown');
   });
 

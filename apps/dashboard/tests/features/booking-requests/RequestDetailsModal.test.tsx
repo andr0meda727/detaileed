@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { ToastProvider } from '@detaileed/ui';
@@ -62,6 +62,18 @@ const renderModal = (r: BookingRequest | null = request, missing = false) =>
     wrapper,
   });
 
+// jsdom has no ResizeObserver; Radix radio groups measure themselves with one.
+beforeEach(() => {
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
+});
+
 describe('RequestDetailsModal', () => {
   it('shows the request and the plan, and accepts it on a picked free slot and bay', async () => {
     renderModal();
@@ -70,7 +82,7 @@ describe('RequestDetailsModal', () => {
     expect(screen.getByText(/nie ma wolnego stanowiska/)).toBeInTheDocument();
     expect(screen.getByText(/Jan Kowalski/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /Stanowisko 2/ }));
+    fireEvent.click(screen.getByRole('radio', { name: /Stanowisko 2/ }));
     expect(screen.getByDisplayValue('11:00')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Przyjmij i dodaj do kalendarza' }));
 
@@ -84,7 +96,7 @@ describe('RequestDetailsModal', () => {
 
   it('rejects with a reason', () => {
     renderModal();
-    fireEvent.click(screen.getByRole('button', { name: 'Odrzuć' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Odrzuć' }));
     fireEvent.change(screen.getByLabelText('Powód (klient go zobaczy)'), { target: { value: 'Brak terminów' } });
     fireEvent.click(screen.getByRole('button', { name: 'Odrzuć zapytanie' }));
     expect(reject).toHaveBeenCalledWith({ id: 'r1', reason: 'Brak terminów' }, expect.anything());
@@ -93,7 +105,7 @@ describe('RequestDetailsModal', () => {
   it('only shows a decided request', () => {
     renderModal({ ...request, status: 'Rejected', rejectionReason: 'Brak terminów' });
     expect(screen.getByText('Powód odrzucenia: Brak terminów')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Przyjmij' })).toBeNull();
+    expect(screen.queryByRole('radio', { name: 'Przyjmij' })).toBeNull();
   });
 
   it('explains a request that is not on the list', () => {
