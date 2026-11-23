@@ -1,6 +1,6 @@
 import React from 'react';
-import { Check, Clock, MessageSquare, Phone, User, X } from 'lucide-react';
-import { Button, Modal } from '@detaileed/ui';
+import { Check, MessageSquare, Phone, X, type LucideIcon } from 'lucide-react';
+import { Avatar, Button, Modal } from '@detaileed/ui';
 import { formatPln } from '@detaileed/domain/money';
 import type { Booking } from '@/features/bookings/model/types';
 import { BOOKING_STATUSES, type BookingStatus } from '@/features/bookings/model/statuses';
@@ -24,142 +24,113 @@ export const BookingDetailsModal: React.FC<BookingDetailsModalProps> = ({
   onRequestStatusChange,
 }) => {
   const timeZone = useStudioTimeZone();
+  const finish = (status: BookingStatus) => {
+    if (!booking) return;
+    onClose();
+    onRequestStatusChange(booking, status);
+  };
   return (
-    <>
-      <Modal isOpen={booking !== null} onClose={onClose} title="Detale Zlecenia">
-        {booking && (
-          <div className="space-y-8">
-            <div className="p-8 bg-green-deep rounded-2xl border border-white/5 relative overflow-hidden">
-              <div className="relative z-10 flex items-center justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-cream-warm">
-                      <User size={24} />
-                    </div>
-                    <div>
-                      <p className="text-[12px] font-semibold text-slate-400 uppercase tracking-widest">Klient</p>
-                      <h4 className="text-xl font-normal text-white tracking-tighter">{booking.client.name}</h4>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    {booking.client.phone && (
-                      <a
-                        href={`tel:${booking.client.phone}`}
-                        className="flex items-center gap-2 text-cream-warm hover:text-white transition-colors"
-                      >
-                        <Phone size={14} />
-                        <span className="text-l font-semibold font-mono">{booking.client.phone}</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  {booking.client.phone && (
-                    <a
-                      href={`tel:${booking.client.phone}`}
-                      className="w-12 h-12 bg-cream-warm text-green-deep rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-                    >
-                      <Phone size={20} />
-                    </a>
-                  )}
-                  {booking.client.phone && (
-                    <a
-                      href={`sms:${booking.client.phone}`}
-                      className="w-12 h-12 bg-white/10 text-white rounded-xl flex items-center justify-center active:scale-90 transition-transform"
-                    >
-                      <MessageSquare size={20} />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="p-6 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-5">
-                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-green-light shadow-xs">
-                  <Clock size={28} />
-                </div>
-                <div>
-                  <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-widest mb-1">Termin</p>
-                  <p className="text-lg font-bold text-green-deep">
-                    {formatInZone(booking.scheduledAt, timeZone, { dateStyle: 'short' })} •{' '}
-                    {formatBookingTime(booking.scheduledAt, timeZone)}–{formatBookingTime(booking.endsAt, timeZone)}
-                  </p>
-                  {booking.bay && <p className="text-sm font-semibold text-green-light">{booking.bay.name}</p>}
-                </div>
-              </div>
-              <div className="text-right">
-                <BookingStatusBadge booking={booking} size="lg" className="mb-2" />
-                <div className="flex flex-col items-end">
-                  <p className="text-3xl font-extrabold text-green-deep font-mono leading-none tracking-tighter">
-                    {formatPln(booking.totalPrice)}
-                  </p>
-                  <p className="text-[9px] font-semibold text-green-light uppercase mt-1 tracking-widest">PLN Netto</p>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <p className="text-[10px] font-semibold text-green-light uppercase tracking-[0.4em] ml-4">Zakres Prac</p>
-              <div className="flex flex-wrap gap-2">
-                {booking.services.map((s) => (
-                  <span
-                    key={s}
-                    className="px-5 py-3 bg-green-deep text-cream-warm rounded-xl text-[12px] font-semibold uppercase tracking-widest shadow-md"
-                  >
-                    {s}
-                  </span>
-                ))}
-                {booking.services.length === 0 && (
-                  <span className="text-sm text-slate-400">Brak przypisanych usług</span>
+    <Modal isOpen={booking !== null} onClose={onClose} title="Detale zlecenia">
+      {booking && (
+        <div className="space-y-5">
+          <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <Avatar name={booking.client.name} size="lg" decorative />
+              <div className="min-w-0">
+                <p className="text-xs text-faint">Klient</p>
+                <p className="truncate text-sm font-medium text-foreground">{booking.client.name}</p>
+                {booking.client.phone && (
+                  <p className="font-mono text-sm text-muted-foreground tabular-nums">{booking.client.phone}</p>
                 )}
               </div>
             </div>
-            {booking.notes && (
-              <div className="space-y-2">
-                <p className="text-[10px] font-semibold text-green-light uppercase tracking-[0.4em] ml-4">Notatki</p>
-                <p className="text-sm text-slate-600 bg-slate-50 p-4 rounded-2xl">{booking.notes}</p>
+            {booking.client.phone && (
+              <div className="flex shrink-0 gap-2">
+                <ContactLink href={`tel:${booking.client.phone}`} icon={Phone} label="Zadzwoń do klienta" />
+                <ContactLink href={`sms:${booking.client.phone}`} icon={MessageSquare} label="Wyślij SMS" />
               </div>
             )}
-            {booking.status === BOOKING_STATUSES.ZAKONCZONA.name && <ConsumptionSection bookingId={booking.id} />}
-            <div className="flex gap-4 pt-6">
-              {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
-                <>
-                  <Button
-                    variant="success"
-                    icon={Check}
-                    size="lg"
-                    className="flex-1"
-                    onClick={() => {
-                      onClose();
-                      onRequestStatusChange(booking, BOOKING_STATUSES.ZAKONCZONA);
-                    }}
-                  >
-                    Zakończ
-                  </Button>
-                  <Button
-                    variant="danger"
-                    icon={X}
-                    size="lg"
-                    className="flex-1"
-                    onClick={() => {
-                      onClose();
-                      onRequestStatusChange(booking, BOOKING_STATUSES.ANULOWANA);
-                    }}
-                  >
-                    Anuluj
-                  </Button>
-                </>
-              )}
-              <Button
-                size="lg"
-                onClick={() => onClose()}
-                className={booking.status === BOOKING_STATUSES.UTWORZONA.name ? 'flex-none' : 'flex-1'}
-              >
-                Zamknij
-              </Button>
-            </div>
           </div>
-        )}
-      </Modal>
-    </>
+
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-4 rounded-lg border border-border p-4">
+            <div className="space-y-1">
+              <dt className="text-xs text-faint">Termin</dt>
+              <dd className="font-mono text-sm text-foreground tabular-nums">
+                {formatInZone(booking.scheduledAt, timeZone, { dateStyle: 'short' })} ·{' '}
+                {formatBookingTime(booking.scheduledAt, timeZone)}–{formatBookingTime(booking.endsAt, timeZone)}
+              </dd>
+              {booking.bay && <dd className="text-sm text-muted-foreground">{booking.bay.name}</dd>}
+            </div>
+            <div className="space-y-1 text-right">
+              <dt className="text-xs text-faint">Status</dt>
+              <dd>
+                <BookingStatusBadge booking={booking} />
+              </dd>
+            </div>
+            <div className="col-span-2 flex items-baseline justify-between gap-3 border-t border-border pt-4">
+              <dt className="text-xs text-faint">Cena netto</dt>
+              <dd className="font-mono text-2xl font-semibold text-foreground tabular-nums">
+                {formatPln(booking.totalPrice)}
+              </dd>
+            </div>
+          </dl>
+
+          <section className="space-y-2">
+            <h3 className="text-sm font-medium text-foreground">Zakres prac</h3>
+            {booking.services.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {booking.services.map((s) => (
+                  <span key={s} className="rounded-md bg-muted px-2 py-1 text-sm text-foreground">
+                    {s}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Brak przypisanych usług</p>
+            )}
+          </section>
+
+          {booking.notes && (
+            <section className="space-y-2">
+              <h3 className="text-sm font-medium text-foreground">Notatki</h3>
+              <p className="whitespace-pre-line rounded-lg bg-subtle p-3 text-sm text-muted-foreground">
+                {booking.notes}
+              </p>
+            </section>
+          )}
+
+          {booking.status === BOOKING_STATUSES.ZAKONCZONA.name && <ConsumptionSection bookingId={booking.id} />}
+
+          <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end">
+            <Button variant="secondary" onClick={onClose}>
+              Zamknij
+            </Button>
+            {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
+              <>
+                <Button variant="danger" icon={X} onClick={() => finish(BOOKING_STATUSES.ANULOWANA)}>
+                  Anuluj
+                </Button>
+                <Button icon={Check} onClick={() => finish(BOOKING_STATUSES.ZAKONCZONA)}>
+                  Zakończ
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </Modal>
   );
 };
+
+/** A square outline link (call, text) next to the client's name. */
+function ContactLink({ href, icon: Icon, label }: { href: string; icon: LucideIcon; label: string }) {
+  return (
+    <a
+      href={href}
+      aria-label={label}
+      className="inline-flex size-9 items-center justify-center rounded-md border border-border-strong bg-surface text-foreground transition-colors duration-150 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+    >
+      <Icon size={16} strokeWidth={1.75} aria-hidden />
+    </a>
+  );
+}
