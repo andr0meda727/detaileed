@@ -26,3 +26,10 @@ export { THEME_PREFERENCES, THEME_STORAGE_KEY, themeInitScript, useTheme } from 
 export type { ResolvedTheme, ThemePreference, UseTheme } from './theme';
 export { ConfirmDialog } from './components/ConfirmDialog';
 export type { ConfirmDialogProps, ConfirmDialogTone } from './components/ConfirmDialog';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './components/Tabs';
+export { SegmentedControl } from './components/SegmentedControl';
+export type {
+  SegmentedControlOption,
+  SegmentedControlProps,
+  SegmentedControlSize,
+} from './components/SegmentedControl';
