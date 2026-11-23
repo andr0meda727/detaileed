@@ -5,6 +5,8 @@ import type {
   Booking,
   Client,
   Consumption,
+  CustomerProfile,
+  GarageVehicle,
   InventoryCategory,
   InventoryItem,
   Invitation,
@@ -22,6 +24,7 @@ import type {
 } from '../store/types.ts';
 import { seedUsers } from './accounts.ts';
 import { seedBookings } from './bookings.ts';
+import { seedCustomers } from './customers.ts';
 import { seedInventoryCategories, seedInventoryItems, seedLedger, seedRecipes } from './inventory.ts';
 import { seedPartners, seedReviews } from './marketplace.ts';
 import { seedRequests } from './requests.ts';
@@ -51,6 +54,8 @@ export interface MockState {
   listings: Listing[];
   reviews: Review[];
   onlineRequests: OnlineRequest[];
+  profiles: CustomerProfile[];
+  garage: GarageVehicle[];
 }
 
 /** The fixed sample data. */
@@ -58,6 +63,7 @@ export function seed(): MockState {
   const day = today();
   const { clients, vehicles } = seedClients();
   const partners = seedPartners(day);
+  const customers = seedCustomers();
   return {
     today: day,
     users: seedUsers(day),
@@ -79,6 +85,8 @@ export function seed(): MockState {
     listings: partners.listings,
     reviews: seedReviews(day),
     onlineRequests: [],
+    profiles: customers.profiles,
+    garage: customers.garage,
   };
 }
 

@@ -215,3 +215,20 @@ export interface OnlineRequest {
   decidedAt: string | null;
   bookingId: string | null;
 }
+
+/** A customer's contact details for requests (`/api/me/profile`). */
+export interface CustomerProfile {
+  userId: string;
+  name: string;
+  phone: string;
+}
+
+/** A car in a customer's garage (`/api/me/vehicles`). */
+export interface GarageVehicle {
+  id: string;
+  userId: string;
+  licensePlate: string;
+  brand: string | null;
+  model: string | null;
+  size: VehicleSize;
+}
