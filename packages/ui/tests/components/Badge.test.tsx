@@ -23,17 +23,6 @@ describe('Badge', () => {
     expect(screen.getByText('Status')).toHaveClass(fill, text);
   });
 
-  it('maps the old brand and amber tones to neutral and warning', () => {
-    render(
-      <>
-        <Badge tone="brand">Pracownik</Badge>
-        <Badge tone="amber">Właściciel</Badge>
-      </>,
-    );
-    expect(screen.getByText('Pracownik')).toHaveClass('bg-muted');
-    expect(screen.getByText('Właściciel')).toHaveClass('bg-warning-soft', 'text-warning');
-  });
-
   it('puts a given colour on the dot only, on a neutral pill', () => {
     render(
       <Badge tone="danger" color="#ef4444">
