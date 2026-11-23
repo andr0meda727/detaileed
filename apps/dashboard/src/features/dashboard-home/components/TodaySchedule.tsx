@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, X, Check, UserCheck, MoreHorizontal } from 'lucide-react';
-import { BOOKING_STATUSES, type Booking, type BookingStatus } from '@/features/bookings';
+import { BOOKING_STATUSES, BookingStatusBadge, type Booking, type BookingStatus } from '@/features/bookings';
 
 import { Skeleton } from '@detaileed/ui';
 import { timeInZone } from '@detaileed/domain/studioTime';
@@ -84,16 +84,7 @@ export const TodaySchedule: React.FC<TodayScheduleProps> = ({
                     style={{ borderColor: 'rgba(26,46,30,0.08)' }}
                   >
                     <span className="text-xl font-bold text-green-deep font-mono">{time}</span>
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full border mt-1.5"
-                      style={{
-                        color: booking.statusColor || 'var(--green-deep)',
-                        borderColor: (booking.statusColor || 'var(--green-deep)') + '40',
-                        backgroundColor: (booking.statusColor || 'var(--green-deep)') + '12',
-                      }}
-                    >
-                      {booking.status}
-                    </span>
+                    <BookingStatusBadge booking={booking} className="mt-1.5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h5 className="text-lg font-sans font-bold text-green-deep truncate">
