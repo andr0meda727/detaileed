@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Clock, Plus, Trash2, Wrench } from 'lucide-react';
-import { Badge, Button, EmptyState, LoadingSpinner } from '@detaileed/ui';
+import { Badge, Button, ConfirmDialog, EmptyState, LoadingSpinner } from '@detaileed/ui';
 import { formatPln } from '@detaileed/domain/money';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { serviceCategoryLabel } from '@detaileed/domain/serviceCategory';
@@ -20,10 +20,12 @@ export function ServicesSettings({ addToast }: ServicesSettingsProps) {
   // The open form: a new service (null) or one to edit; `key` remounts it with fresh values.
   const [form, setForm] = useState<{ key: number; service: Service | null } | null>(null);
   const openForm = (service: Service | null) => setForm({ key: Date.now(), service });
+  const [deleting, setDeleting] = useState<Service | null>(null);
 
   const handleDelete = async (id: string) => {
     try {
       await deleteService.mutateAsync(id);
+      setDeleting(null);
       addToast('Usługa usunięta', 'success');
     } catch (err) {
       addToast(getApiErrorMessage(err, 'Nie udało się usunąć usługi'), 'error');
@@ -82,8 +84,7 @@ export function ServicesSettings({ addToast }: ServicesSettingsProps) {
                   size="sm"
                   icon={Trash2}
                   aria-label={`Usuń ${item.name}`}
-                  onClick={() => void handleDelete(item.id)}
-                  disabled={deleteService.isPending}
+                  onClick={() => setDeleting(item)}
                   className="absolute top-3 right-3 z-10"
                 />
               </div>
@@ -95,6 +96,17 @@ export function ServicesSettings({ addToast }: ServicesSettingsProps) {
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        tone="danger"
+        title="Usunąć usługę?"
+        description={`Usługa „${deleting?.name ?? ''}” zniknie z cennika. Tej operacji nie można cofnąć.`}
+        confirmLabel="Usuń"
+        loading={deleteService.isPending}
+        onConfirm={() => deleting && void handleDelete(deleting.id)}
+      />
 
       <ServiceFormModal
         key={form?.key ?? 'closed'}
