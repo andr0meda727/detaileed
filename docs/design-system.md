@@ -168,12 +168,15 @@ and a dark panel side by side and links to `/dev/ui/interactive`.
   `icon?`, `loading?`, `fullWidth?`, every `<button>` prop): `primary` is the inverted main action (one per view),
   `secondary` an outline, `ghost` a quiet action in toolbars and rows, `danger` a solid destructive one. `success` is
   kept as an alias of `primary`. `type` defaults to `"button"`. `loading` swaps the icon for a spinner and disables the
-  button. Without children it is a square icon button, and TypeScript then requires an `aria-label`.
+  button. Without children it is a square icon button, and TypeScript then requires an `aria-label`. `asChild`
+  renders its one child (a Next or TanStack `<Link>`, an `<a>`) with the button's look and the icon inside, for
+  navigation that should look like a button; `type` and `disabled` are not passed on.
 
 ```tsx
 <Button icon={Plus}>Nowa rezerwacja</Button>
 <Button variant="secondary" loading={save.isPending} type="submit">Zapisz</Button>
 <Button variant="ghost" size="sm" icon={Trash2} aria-label="Usuń pojazd" />
+<Button asChild variant="secondary"><Link href="/sign-in">Zaloguj się</Link></Button>
 ```
 
 ### Status and identity
