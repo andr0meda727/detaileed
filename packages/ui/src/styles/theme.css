@@ -192,64 +192,118 @@
   }
 }
 
-/* ── Base typography ─────────────────────────────────────────── */
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ── Base typography, selection and scrollbars ───────────────── */
+@layer base {
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--foreground) 16%, transparent);
+    color: var(--foreground);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--faint);
+  }
 }
 
-/* ── Mesh background (from landing page) ─────────────────────── */
-.mesh-bg {
-  background-image:
-    radial-gradient(at 0% 0%, #ffffff 0px, transparent 50%), radial-gradient(at 100% 100%, #ede7d8 0px, transparent 50%);
-  background-attachment: fixed;
+/* ── Component classes ───────────────────────────────────────────
+   In the components layer, so Tailwind utilities on the same element (rounded-*, bg-*, …) override them. */
+@layer components {
+  /* Deprecated: mesh background (from the landing page). */
+  .mesh-bg {
+    background-image:
+      radial-gradient(at 0% 0%, #ffffff 0px, transparent 50%),
+      radial-gradient(at 100% 100%, #ede7d8 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+
+  /* Deprecated: floating card, the old core visual primitive. */
+  .floating-card {
+    background: white;
+    border-radius: 1rem;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.02),
+      0 10px 30px -5px rgba(0, 0, 0, 0.05);
+  }
+
+  .floating-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 4px 8px rgba(0, 0, 0, 0.02),
+      0 20px 40px -10px rgba(0, 0, 0, 0.07);
+    border-color: rgba(61, 107, 70, 0.12);
+  }
+
+  /* Deprecated: non-interactive floating card. */
+  .floating-card-static {
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.02),
+      0 10px 30px -5px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Deprecated: premium shadow (from the landing page). */
+  .premium-shadow {
+    box-shadow:
+      0 10px 20px -5px rgba(0, 0, 0, 0.03),
+      0 25px 50px -12px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Skeleton shimmer. */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(26, 46, 30, 0.04) 25%,
+      rgba(26, 46, 30, 0.08) 50%,
+      rgba(26, 46, 30, 0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+    border-radius: 0.5rem;
+    min-height: 1em;
+  }
 }
 
-/* ── Floating card — core visual primitive ───────────────────── */
-.floating-card {
-  background: white;
-  border-radius: 1rem;
-  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 10px 30px -5px rgba(0, 0, 0, 0.05);
-}
-
-.floating-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.02),
-    0 20px 40px -10px rgba(0, 0, 0, 0.07);
-  border-color: rgba(61, 107, 70, 0.12);
-}
-
-/* Non-interactive card variant */
-.floating-card-static {
-  background: white;
-  border-radius: 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.02),
-    0 10px 30px -5px rgba(0, 0, 0, 0.05);
-}
-
-/* ── Premium shadow (from landing page) ──────────────────────── */
-.premium-shadow {
-  box-shadow:
-    0 10px 20px -5px rgba(0, 0, 0, 0.03),
-    0 25px 50px -12px rgba(0, 0, 0, 0.06);
-}
-
-/* ── Brand gradient (avatars, logo tiles, primary highlights) ── */
+/* ── Deprecated: brand gradient (avatars, logo tiles, primary highlights) ── */
 @utility bg-brand-gradient {
   background-image: linear-gradient(135deg, var(--green-deep) 0%, var(--green-mid) 100%);
 }
 
-/* ── Keyframe animations ─────────────────────────────────────── */
+/* ── Animations ──────────────────────────────────────────────────
+   animate-fade-in, animate-slide-up(-1…4), animate-zoom-in and data-entry-fade are theme utilities, so
+   variants (motion-safe:, …) work on them; animate-spin is Tailwind's own. */
+@theme {
+  --animate-fade-in: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-up: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-slide-up-1: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
+  --animate-slide-up-2: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  --animate-slide-up-3: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+  --animate-slide-up-4: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+  --animate-zoom-in: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Keyframes stay outside @theme so they are always emitted (data-entry-fade and .skeleton use them too). */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -281,6 +335,10 @@ body {
   }
 }
 
+@utility data-entry-fade {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200% center;
@@ -288,81 +346,4 @@ body {
   100% {
     background-position: 200% center;
   }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ── Animation helper classes ────────────────────────────────── */
-.animate-fade-in {
-  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.animate-slide-up {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.animate-zoom-in {
-  animation: zoomIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-.animate-slide-up-1 {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both;
-}
-.animate-slide-up-2 {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-}
-.animate-slide-up-3 {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
-}
-.animate-slide-up-4 {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-}
-
-/* ── Skeleton shimmer ────────────────────────────────────────── */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(26, 46, 30, 0.04) 25%,
-    rgba(26, 46, 30, 0.08) 50%,
-    rgba(26, 46, 30, 0.04) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.8s ease-in-out infinite;
-  border-radius: 0.5rem;
-  min-height: 1em;
-}
-
-/* ── Data entry animation ────────────────────────────────────── */
-.data-entry-fade {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-/* ── Scrollbar ───────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--faint);
-}
-
-/* ── Text selection ──────────────────────────────────────────── */
-::selection {
-  background: color-mix(in srgb, var(--foreground) 16%, transparent);
-  color: var(--foreground);
 }
