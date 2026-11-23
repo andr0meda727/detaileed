@@ -42,9 +42,10 @@ export function toMyRequest(dto: BookingRequestDto): MyRequest {
 }
 
 /** Customer-facing status labels and badge tones. */
-export const MY_REQUEST_STATUS: Record<string, { label: string; tone: 'amber' | 'success' | 'danger' | 'neutral' }> = {
-  Pending: { label: 'Czeka na odpowiedź', tone: 'amber' },
-  Accepted: { label: 'Przyjęte', tone: 'success' },
-  Rejected: { label: 'Odrzucone', tone: 'danger' },
-  Withdrawn: { label: 'Wycofane', tone: 'neutral' },
-};
+export const MY_REQUEST_STATUS: Record<string, { label: string; tone: 'warning' | 'success' | 'danger' | 'neutral' }> =
+  {
+    Pending: { label: 'Czeka na odpowiedź', tone: 'warning' },
+    Accepted: { label: 'Przyjęte', tone: 'success' },
+    Rejected: { label: 'Odrzucone', tone: 'danger' },
+    Withdrawn: { label: 'Wycofane', tone: 'neutral' },
+  };
