@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <title>Grafit: panel studia</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap"
+        />
+        <style>
+          body {
+            margin: 0;
+          }
+          .t-dark {
+            --bg: #0a0a0a;
+            --panel: #0f0f0f;
+            --card: #141414;
+            --hover: #1c1c1c;
+            --border: #262626;
+            --border-strong: #383838;
+            --text: #ededed;
+            --muted: #a3a3a3;
+            --faint: #8f8f8f;
+            --pri-bg: #ededed;
+            --pri-fg: #0a0a0a;
+            --ok-fg: #4ade80;
+            --ok-bg: rgba(74, 222, 128, 0.1);
+            --info-fg: #7cb4ff;
+            --info-bg: rgba(96, 165, 250, 0.12);
+            --bad-fg: #f87171;
+            --bad-bg: rgba(248, 113, 113, 0.1);
+            --warn-fg: #fbbf24;
+            --warn-bg: rgba(251, 191, 36, 0.1);
+          }
+          .t-light {
+            --bg: #ffffff;
+            --panel: #fafafa;
+            --card: #ffffff;
+            --hover: #f4f4f5;
+            --border: #e7e7e7;
+            --border-strong: #d4d4d4;
+            --text: #0a0a0a;
+            --muted: #525252;
+            --faint: #666666;
+            --pri-bg: #0a0a0a;
+            --pri-fg: #ffffff;
+            --ok-fg: #15803d;
+            --ok-bg: #ecfdf3;
+            --info-fg: #1d4ed8;
+            --info-bg: #eff6ff;
+            --bad-fg: #b91c1c;
+            --bad-bg: #fef2f2;
+            --warn-fg: #a16207;
+            --warn-bg: #fefce8;
+          }
+          .ic {
+            width: 16px;
+            height: 16px;
+            flex: none;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
+          .nav {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 6px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+          }
+          .nav:hover {
+            background: var(--hover);
+            color: var(--text);
+          }
+          .nav.on {
+            background: var(--hover);
+            color: var(--text);
+            font-weight: 500;
+          }
+          .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 6px;
+            font: 500 14px/1 inherit;
+            font-family: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+          }
+          .btn-pri {
+            background: var(--pri-bg);
+            color: var(--pri-fg);
+            border: 1px solid var(--pri-bg);
+          }
+          .btn-sec {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border-strong);
+          }
+          .btn-sec:hover {
+            background: var(--hover);
+          }
+          .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 22px;
+            padding: 0 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+          }
+          .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+          }
+          .ok {
+            color: var(--ok-fg);
+            background: var(--ok-bg);
+          }
+          .info {
+            color: var(--info-fg);
+            background: var(--info-bg);
+          }
+          .bad {
+            color: var(--bad-fg);
+            background: var(--bad-bg);
+          }
+          .tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 760px;
+          }
+          .tbl th {
+            text-align: left;
+            font-weight: 500;
+            font-size: 12px;
+            color: var(--faint);
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+          }
+          .tbl td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+          }
+          .tbl tr:last-child td {
+            border-bottom: 0;
+          }
+          .mono {
+            font-family: 'Geist Mono', ui-monospace, monospace;
+            font-variant-numeric: tabular-nums;
+          }
+          a {
+            color: var(--text);
+          }
+          a:hover {
+            color: var(--muted);
+          }
+        </style>
+      </helmet>
+      <div
+        class="{{themeClass}}"
+        style="
+          min-height: 1000px;
+          background: var(--bg);
+          color: var(--text);
+          font-family: Geist, system-ui, sans-serif;
+          display: flex;
+          flex-wrap: wrap;
+        "
+      >
+        <aside
+          style="
+            flex: 1 1 240px;
+            max-width: 100%;
+            box-sizing: border-box;
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            padding: 14px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+          "
+        >
+          <div style="display: flex; align-items: center; gap: 10px; padding: 4px 6px">
+            <div
+              style="
+                width: 24px;
+                height: 24px;
+                border-radius: 6px;
+                background: var(--pri-bg);
+                color: var(--pri-fg);
+                display: grid;
+                place-items: center;
+                font-weight: 600;
+                font-size: 14px;
+              "
+            >
+              d
+            </div>
+            <span style="font-weight: 600; font-size: 15px; letter-spacing: -0.01em">detaileed</span>
+          </div>
+          <button
+            class="btn btn-sec"
+            style="width: 100%; justify-content: space-between; height: 44px; padding: 0 10px"
+          >
+            <span style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px">
+              <span style="font-size: 13px">Połysk Detailing</span>
+              <span style="font-size: 12px; color: var(--faint); font-weight: 400">Warszawa, Mokotów</span>
+            </span>
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5" /></svg>
+          </button>
+          <nav aria-label="Menu studia" style="display: flex; flex-direction: column; gap: 2px">
+            <a class="nav on" href="#"
+              ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="9" rx="1" />
+                <rect x="14" y="3" width="7" height="5" rx="1" />
+                <rect x="14" y="12" width="7" height="9" rx="1" />
+                <rect x="3" y="16" width="7" height="5" rx="1" /></svg
+              >Panel główny</a
+            >
+            <a class="nav" href="#"
+              ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" /></svg
+              >Rezerwacje</a
+            >
+            <a class="nav" href="#"
+              ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M22 12h-6l-2 3h-4l-2-3H2" />
+                <path
+                  d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"
+                /></svg
+              >Zapytania<span
+                class="mono"
+                style="
+                  margin-left: auto;
+                  font-size: 12px;
+                  padding: 1px 7px;
+                  border-radius: 999px;
+                  border: 1px solid var(--border-strong);
+                "
+                >3</span
+              ></a
+            >
+            <a class="nav" href="#"
+              ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h10M6 12h9M11 18h7" /></svg>Grafik</a
+            >
+            <a class="nav" href="#"
+              ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg
+              >Klienci</a
+            >
+            <a class="nav" href="#"
+              ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                /></svg
+              >Zespół</a
+            >
+            <a class="nav" href="#"
+              ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                />
+                <path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12" /></svg
+              >Magazyn</a
+            >
+            <a class="nav" href="#"
+              ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 3v18h18" />
+                <path d="M18 17V9M13 17V5M8 17v-3" /></svg
+              >Raporty</a
+            >
+          </nav>
+          <div
+            style="
+              margin-top: auto;
+              display: flex;
+              flex-direction: column;
+              gap: 2px;
+              border-top: 1px solid var(--border);
+              padding-top: 12px;
+            "
+          >
+            <a class="nav" href="#"
+              ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+                /></svg
+              >Ustawienia studia</a
+            >
+            <a class="nav" href="#"
+              ><span
+                style="
+                  width: 20px;
+                  height: 20px;
+                  border-radius: 50%;
+                  background: var(--hover);
+                  border: 1px solid var(--border-strong);
+                  display: grid;
+                  place-items: center;
+                  font-size: 11px;
+                "
+                >MK</span
+              >Marta Kamińska</a
+            >
+          </div>
+        </aside>
+
+        <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+          <header
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              gap: 12px;
+              padding: 12px 28px;
+              border-bottom: 1px solid var(--border);
+            "
+          >
+            <span style="font-size: 14px; color: var(--muted)"
+              >Połysk Detailing <span style="color: var(--faint)">/</span>
+              <span style="color: var(--text)">Panel główny</span></span
+            >
+            <label
+              style="
+                margin-left: auto;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                height: 36px;
+                padding: 0 10px;
+                width: 300px;
+                max-width: 100%;
+                box-sizing: border-box;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                background: var(--card);
+                color: var(--faint);
+              "
+            >
+              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                aria-label="Szukaj"
+                placeholder="Szukaj klienta, auta, rezerwacji…"
+                style="
+                  flex: 1;
+                  min-width: 0;
+                  border: 0;
+                  outline: 0;
+                  background: transparent;
+                  color: var(--text);
+                  font: inherit;
+                  font-size: 14px;
+                "
+              />
+              <kbd
+                class="mono"
+                style="font-size: 11px; padding: 2px 5px; border: 1px solid var(--border); border-radius: 4px"
+                >⌘K</kbd
+              >
+            </label>
+          </header>
+
+          <div
+            style="
+              padding: 28px;
+              display: flex;
+              flex-direction: column;
+              gap: 24px;
+              max-width: 1180px;
+              box-sizing: border-box;
+              width: 100%;
+            "
+          >
+            <div
+              style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px"
+            >
+              <div>
+                <h1 style="margin: 0; font-size: 24px; font-weight: 600; letter-spacing: -0.02em">
+                  Dzień dobry, Marta
+                </h1>
+                <p style="margin: 6px 0 0; color: var(--muted); font-size: 14px">
+                  Poniedziałek, 23 listopada · dziś 5 wizyt, stanowisko 3 wolne po 14:30.
+                </p>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px">
+                <button class="btn btn-sec">
+                  <svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M19 8v6M22 11h-6" /></svg
+                  >Nowy klient
+                </button>
+                <button class="btn btn-pri">
+                  <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>Nowa
+                  rezerwacja
+                </button>
+              </div>
+            </div>
+
+            <section
+              aria-label="Podsumowanie"
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                background: var(--card);
+                overflow: hidden;
+              "
+            >
+              <div style="padding: 18px 20px; border-right: 1px solid var(--border)">
+                <div style="font-size: 13px; color: var(--muted)">Przychód dziś</div>
+                <div class="mono" style="font-size: 26px; font-weight: 500; margin-top: 8px; letter-spacing: -0.02em">
+                  2 340 zł
+                </div>
+                <div style="font-size: 12px; color: var(--faint); margin-top: 4px">z 2 ukończonych wizyt</div>
+              </div>
+              <div style="padding: 18px 20px; border-right: 1px solid var(--border)">
+                <div style="font-size: 13px; color: var(--muted)">Wizyty dziś</div>
+                <div class="mono" style="font-size: 26px; font-weight: 500; margin-top: 8px">5</div>
+                <div style="font-size: 12px; color: var(--faint); margin-top: 4px">następna o 11:30</div>
+              </div>
+              <div style="padding: 18px 20px; border-right: 1px solid var(--border)">
+                <div style="font-size: 13px; color: var(--muted)">Aktywne rezerwacje</div>
+                <div class="mono" style="font-size: 26px; font-weight: 500; margin-top: 8px">14</div>
+                <div style="font-size: 12px; color: var(--faint); margin-top: 4px">na najbliższe 7 dni</div>
+              </div>
+              <div style="padding: 18px 20px">
+                <div style="font-size: 13px; color: var(--muted)">Klienci</div>
+                <div class="mono" style="font-size: 26px; font-weight: 500; margin-top: 8px">218</div>
+                <div style="font-size: 12px; color: var(--ok-fg); margin-top: 4px">+6 w tym miesiącu</div>
+              </div>
+            </section>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+              <section
+                style="
+                  flex: 999 1 560px;
+                  min-width: 0;
+                  border: 1px solid var(--border);
+                  border-radius: 10px;
+                  background: var(--card);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 14px 16px;
+                    border-bottom: 1px solid var(--border);
+                  "
+                >
+                  <h2 style="margin: 0; font-size: 15px; font-weight: 600">Dzisiejszy grafik</h2>
+                  <a href="#" style="font-size: 13px; color: var(--muted); text-decoration: none">Otwórz grafik →</a>
+                </div>
+                <div style="overflow-x: auto">
+                  <table class="tbl">
+                    <thead>
+                      <tr>
+                        <th>Godzina</th>
+                        <th>Klient i auto</th>
+                        <th>Usługi</th>
+                        <th>Stanowisko</th>
+                        <th>Status</th>
+                        <th style="text-align: right">Kwota</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="mono">08:30</td>
+                        <td>
+                          <div style="font-weight: 500">Tomasz Wiśniewski</div>
+                          <div style="font-size: 13px; color: var(--faint)">Audi A4 · WX 4821K</div>
+                        </td>
+                        <td style="color: var(--muted)">Mycie + wosk</td>
+                        <td style="color: var(--muted)">Stanowisko 1</td>
+                        <td><span class="badge ok">Zakończona</span></td>
+                        <td class="mono" style="text-align: right">280 zł</td>
+                      </tr>
+                      <tr>
+                        <td class="mono">09:00</td>
+                        <td>
+                          <div style="font-weight: 500">Anna Kowalczyk</div>
+                          <div style="font-size: 13px; color: var(--faint)">Toyota RAV4 · WE 7720S</div>
+                        </td>
+                        <td style="color: var(--muted)">Korekta lakieru</td>
+                        <td style="color: var(--muted)">Stanowisko 2</td>
+                        <td><span class="badge ok">Zakończona</span></td>
+                        <td class="mono" style="text-align: right">2 060 zł</td>
+                      </tr>
+                      <tr>
+                        <td class="mono">11:30</td>
+                        <td>
+                          <div style="font-weight: 500">Piotr Nowak</div>
+                          <div style="font-size: 13px; color: var(--faint)">BMW X5 · WI 30551</div>
+                        </td>
+                        <td style="color: var(--muted)">Powłoka ceramiczna</td>
+                        <td style="color: var(--muted)">Stanowisko 1</td>
+                        <td><span class="badge info">Utworzona</span></td>
+                        <td class="mono" style="text-align: right">2 400 zł</td>
+                      </tr>
+                      <tr>
+                        <td class="mono">13:00</td>
+                        <td>
+                          <div style="font-weight: 500">Karolina Zielińska</div>
+                          <div style="font-size: 13px; color: var(--faint)">Skoda Octavia · WPI 1180</div>
+                        </td>
+                        <td style="color: var(--muted)">Pranie tapicerki</td>
+                        <td style="color: var(--muted)">Stanowisko 3</td>
+                        <td><span class="badge info">Utworzona</span></td>
+                        <td class="mono" style="text-align: right">450 zł</td>
+                      </tr>
+                      <tr>
+                        <td class="mono">15:30</td>
+                        <td>
+                          <div style="font-weight: 500">Michał Lewandowski</div>
+                          <div style="font-size: 13px; color: var(--faint)">Ford Focus · WB 0937M</div>
+                        </td>
+                        <td style="color: var(--muted)">Mycie zewnętrzne</td>
+                        <td style="color: var(--faint)">—</td>
+                        <td><span class="badge bad">Anulowana</span></td>
+                        <td class="mono" style="text-align: right; color: var(--faint)">120 zł</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+                <section style="border: 1px solid var(--border); border-radius: 10px; background: var(--card)">
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      padding: 14px 16px;
+                      border-bottom: 1px solid var(--border);
+                    "
+                  >
+                    <h2 style="margin: 0; font-size: 15px; font-weight: 600">Nowe zapytania</h2>
+                    <span class="badge info">3 nowe</span>
+                  </div>
+                  <div style="display: flex; flex-direction: column">
+                    <a
+                      href="#"
+                      style="
+                        display: block;
+                        padding: 12px 16px;
+                        border-bottom: 1px solid var(--border);
+                        text-decoration: none;
+                      "
+                      ><div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 500">
+                        Jan Mazur<span style="font-weight: 400; font-size: 12px; color: var(--faint)">12 min temu</span>
+                      </div>
+                      <div style="font-size: 13px; color: var(--muted); margin-top: 2px">
+                        VW Golf · Korekta lakieru · Średnie
+                      </div></a
+                    >
+                    <a
+                      href="#"
+                      style="
+                        display: block;
+                        padding: 12px 16px;
+                        border-bottom: 1px solid var(--border);
+                        text-decoration: none;
+                      "
+                      ><div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 500">
+                        Ewa Dąbrowska<span style="font-weight: 400; font-size: 12px; color: var(--faint)"
+                          >2 godz. temu</span
+                        >
+                      </div>
+                      <div style="font-size: 13px; color: var(--muted); margin-top: 2px">
+                        Mazda CX-5 · Wnętrze · Duże
+                      </div></a
+                    >
+                    <a href="#" style="display: block; padding: 12px 16px; text-decoration: none"
+                      ><div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 500">
+                        Krzysztof Wójcik<span style="font-weight: 400; font-size: 12px; color: var(--faint)"
+                          >wczoraj</span
+                        >
+                      </div>
+                      <div style="font-size: 13px; color: var(--muted); margin-top: 2px">
+                        Tesla Model 3 · Folia PPF · Średnie
+                      </div></a
+                    >
+                  </div>
+                </section>
+                <section style="border: 1px solid var(--border); border-radius: 10px; background: var(--card)">
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 8px;
+                      padding: 14px 16px;
+                      border-bottom: 1px solid var(--border);
+                    "
+                  >
+                    <svg class="ic" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--warn-fg)">
+                      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+                      <path d="M12 9v4M12 17h.01" />
+                    </svg>
+                    <h2 style="margin: 0; font-size: 15px; font-weight: 600">Kończy się w magazynie</h2>
+                  </div>
+                  <div style="display: flex; flex-direction: column; padding: 6px 0">
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        gap: 12px;
+                        padding: 8px 16px;
+                        font-size: 14px;
+                      "
+                    >
+                      <span>Wosk Carnauba 200 ml</span
+                      ><span class="mono" style="color: var(--warn-fg)">2 / 5 szt.</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        gap: 12px;
+                        padding: 8px 16px;
+                        font-size: 14px;
+                      "
+                    >
+                      <span>Pad polerski 150 mm</span><span class="mono" style="color: var(--warn-fg)">3 / 6 szt.</span>
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        justify-content: space-between;
+                        gap: 12px;
+                        padding: 8px 16px;
+                        font-size: 14px;
+                      "
+                    >
+                      <span>Środek do felg 5 l</span><span class="mono" style="color: var(--warn-fg)">1 / 2 szt.</span>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"dark":{"editor":"boolean","default":true},"$preview":{"width":1440,"height":1000}}'
+    >
+      class Component extends DCLogic {
+        renderVals() {
+          const dark = this.props.dark ?? true;
+          return { themeClass: dark ? 't-dark' : 't-light' };
+        }
+      }
+    </script>
+  </body>
+</html>
