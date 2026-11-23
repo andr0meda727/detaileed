@@ -34,8 +34,42 @@ describe('Button', () => {
       </Button>,
     );
     const button = screen.getByRole('button', { name: 'Usuń' });
-    expect(button).toHaveClass('bg-red-50', 'py-5', 'w-full', 'mt-4');
+    expect(button).toHaveClass('bg-danger', 'text-danger-foreground', 'h-10', 'w-full', 'mt-4');
     expect(button.querySelector('svg')).not.toBeNull();
+  });
+
+  it('is an inverted primary, 36px high, by default', () => {
+    render(<Button>Zapisz</Button>);
+    const button = screen.getByRole('button', { name: 'Zapisz' });
+    expect(button).toHaveClass('bg-primary', 'text-primary-foreground', 'h-9', 'focus-visible:ring-2');
+    expect(button).not.toHaveClass('uppercase');
+  });
+
+  it('draws secondary as an outline and keeps success as an alias of primary', () => {
+    render(
+      <>
+        <Button variant="secondary">Anuluj</Button>
+        <Button variant="success" size="sm">
+          Zakończ
+        </Button>
+      </>,
+    );
+    expect(screen.getByRole('button', { name: 'Anuluj' })).toHaveClass('border-border-strong', 'bg-transparent');
+    expect(screen.getByRole('button', { name: 'Zakończ' })).toHaveClass('bg-primary', 'h-8');
+  });
+
+  it('lets layout classes from the caller win', () => {
+    render(<Button className="h-12 w-40">Dalej</Button>);
+    const button = screen.getByRole('button', { name: 'Dalej' });
+    expect(button).toHaveClass('h-12', 'w-40');
+    expect(button).not.toHaveClass('h-9');
+  });
+
+  it('renders a square icon button named by its aria-label', () => {
+    render(<Button icon={Save} variant="ghost" aria-label="Zapisz zmiany" />);
+    const button = screen.getByRole('button', { name: 'Zapisz zmiany' });
+    expect(button).toHaveClass('size-9');
+    expect(button).not.toHaveClass('px-3.5');
   });
 
   it('does not fire clicks while disabled', () => {

@@ -12,8 +12,17 @@ export interface Bounds {
   maxLng: number;
 }
 
-/** OpenFreeMap's vector style: free, no key. Apps may override it with their own env var. */
-export const DEFAULT_MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+/**
+ * OpenFreeMap's vector styles (free, no key): the quiet greys of positron in the light theme, dark in the dark one.
+ * Maps pick one with the theme (`useMapStyle`); an app's own style URL (env var) overrides both.
+ */
+export const MAP_STYLES = {
+  light: 'https://tiles.openfreemap.org/styles/positron',
+  dark: 'https://tiles.openfreemap.org/styles/dark',
+} as const;
+
+/** The light style; kept for code that wants one fixed style. */
+export const DEFAULT_MAP_STYLE: string = MAP_STYLES.light;
 
 /** Roughly the middle of Poland, and a zoom that shows the whole country. */
 export const POLAND_VIEW = { lat: 52.07, lng: 19.48, zoom: 5.3 };

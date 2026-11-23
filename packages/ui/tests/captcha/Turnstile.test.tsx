@@ -44,7 +44,7 @@ describe('Turnstile', () => {
   it('waits for a token, then hands it to the form', async () => {
     render(<Form siteKey="site-key" />);
     await waitFor(() => expect(api.render).toHaveBeenCalledOnce());
-    expect(lastOptions()).toMatchObject({ sitekey: 'site-key', action: 'login' });
+    expect(lastOptions()).toMatchObject({ sitekey: 'site-key', action: 'login', theme: 'auto' });
     expect(state()).toBe('waiting:-:false');
 
     act(() => lastOptions().callback('token-1'));
