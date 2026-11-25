@@ -22,7 +22,8 @@ describe('Table', () => {
     );
     const table = screen.getByRole('table', { name: 'Dzisiejsze wizyty' });
     expect(table).toHaveClass('min-w-[640px]');
-    expect(table.parentElement).toHaveClass('overflow-x-auto');
+    // The wrapper is the containing block, so an `sr-only` head can't widen the page.
+    expect(table.parentElement).toHaveClass('overflow-x-auto', 'relative');
 
     const head = screen.getByRole('columnheader', { name: 'Godzina' });
     expect(head).toHaveAttribute('scope', 'col');

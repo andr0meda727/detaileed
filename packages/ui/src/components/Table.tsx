@@ -12,7 +12,8 @@ export interface TableProps extends HTMLAttributes<HTMLTableElement> {
  */
 export function Table({ className, wrapperClassName, ...props }: TableProps) {
   return (
-    <div className={cn('w-full overflow-x-auto', wrapperClassName)}>
+    // `relative` keeps absolutely placed content (an `sr-only` head) inside the scroll box, not the page.
+    <div className={cn('relative w-full overflow-x-auto', wrapperClassName)}>
       <table className={cn('w-full border-collapse text-sm text-foreground', className)} {...props} />
     </div>
   );
