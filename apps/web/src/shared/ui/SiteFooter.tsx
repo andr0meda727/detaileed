@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { LogoMark, ThemeSwitch } from '@detaileed/ui';
 import { DASHBOARD_URL } from '@/shared/lib/site';
 
-const linkClass = 'transition-colors duration-150 hover:text-foreground';
+// On phones the links get a 40px-high touch target.
+const linkClass = 'inline-flex items-center transition-colors duration-150 hover:text-foreground max-md:min-h-10';
 
 /** A quiet footer: the links of the header, the panel for studios and on phones the theme switch. */
 export function SiteFooter() {
@@ -14,7 +15,7 @@ export function SiteFooter() {
           <p>© {new Date().getFullYear()} Detaileed: studia detailingu w Twojej okolicy.</p>
         </div>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-4">
-          <nav aria-label="Stopka" className="flex flex-wrap gap-x-5 gap-y-2">
+          <nav aria-label="Stopka" className="flex flex-wrap gap-x-5 md:gap-y-2">
             <Link href="/" className={linkClass}>
               Szukaj studia
             </Link>
@@ -25,7 +26,7 @@ export function SiteFooter() {
               Panel dla studiów
             </a>
           </nav>
-          <ThemeSwitch iconOnly className="sm:hidden" />
+          <ThemeSwitch iconOnly size="md" className="sm:hidden" />
         </div>
       </div>
     </footer>

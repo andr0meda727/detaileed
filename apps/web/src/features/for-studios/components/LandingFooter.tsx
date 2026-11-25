@@ -4,7 +4,8 @@ import { DASHBOARD_URL } from '@/shared/lib/site';
 import { column, focusLink } from './landingStyles';
 
 const linkClass = cn(
-  'self-start rounded-sm text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground',
+  // On phones the links get a 40px-high touch target (the column gap shrinks to match).
+  'inline-flex min-h-10 items-center self-start rounded-sm text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground sm:min-h-0',
   focusLink,
 );
 
@@ -21,7 +22,7 @@ export function LandingFooter() {
             Studio OS zaprojektowany specjalnie dla branży detailingu. Prosty, szybki, bezpieczny.
           </p>
         </div>
-        <nav aria-labelledby="footer-product" className="flex flex-col gap-2.5">
+        <nav aria-labelledby="footer-product" className="flex flex-col sm:gap-2.5">
           <h2 id="footer-product" className="text-sm font-medium text-foreground">
             Produkt
           </h2>
@@ -35,7 +36,7 @@ export function LandingFooter() {
             Panel studia
           </a>
         </nav>
-        <nav aria-labelledby="footer-customers" className="flex flex-col gap-2.5">
+        <nav aria-labelledby="footer-customers" className="flex flex-col sm:gap-2.5">
           <h2 id="footer-customers" className="text-sm font-medium text-foreground">
             Dla klientów
           </h2>
@@ -54,7 +55,7 @@ export function LandingFooter() {
           <p>© {new Date().getFullYear()} Detaileed. Wszelkie prawa zastrzeżone.</p>
           <div className="flex items-center justify-between gap-4">
             <p>Zbudowane z ❤️ dla detailerów</p>
-            <ThemeSwitch iconOnly className="sm:hidden" />
+            <ThemeSwitch iconOnly size="md" className="sm:hidden" />
           </div>
         </div>
       </div>
