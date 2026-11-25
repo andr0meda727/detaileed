@@ -128,7 +128,7 @@ variant is missing.
 - **Page header**: title (`text-2xl font-semibold tracking-tight`), an optional one-line description in
   `text-muted-foreground`, actions on the right (they wrap below the title on phones). One primary button per page.
 - **List or table**: filters and search above in one row (`SegmentedControl`, `SearchInput`, `Select`), then the table
-  in a card; on phones tables become stacked rows or scroll horizontally inside the card, never the page.
+  in a card; on phones wide tables become stacked cards (`Table stacked`) or scroll inside the card, never the page.
 - **Card**: `rounded-lg border bg-surface`; a header row with `text-sm font-medium` title and an optional action, a body
   with `p-5`. Stats: label in `text-xs text-faint`, value in `text-2xl font-semibold font-mono tabular-nums`.
 - **Form**: labels above fields (`text-sm font-medium`), help text and errors below (`text-xs`; errors in
@@ -228,7 +228,8 @@ and a dark panel side by side and links to `/dev/ui/interactive`.
 - **`Table`** (`wrapperClassName?`), **`TableHeader`**, **`TableBody`**, **`TableRow`**, **`TableHead`**,
   **`TableCell`**: a data table with row borders only and a 12px `faint` head on `subtle`. It scrolls sideways inside
   its wrapper, never the page: give it a `min-w-*` when the columns need room, and put it in a `Card` without padding.
-  Times, money and counts in cells get `font-mono tabular-nums`; numbers align right.
+  Times, money and counts in cells get `font-mono tabular-nums`; numbers align right. Tables with more columns than
+  fit on a phone take `stacked` (see below).
 - **`Pagination`** (`page` from 1, `totalPages`, `onPageChange`): "Poprzednia", "Strona X z Y", "Następna"; renders
   nothing for a single page.
 
@@ -238,6 +239,45 @@ and a dark panel side by side and links to `/dev/ui/interactive`.
   <CardHeader title="Dzisiejszy grafik" actions={<Link to="…">Otwórz grafik</Link>} />
   <Table aria-label="Dzisiejsze wizyty" className="min-w-[640px]">…</Table>
 </Card>
+```
+
+#### Tables on phones: `stacked`
+
+Below `md` (768px) a `Table stacked` shows each row as a card: the head is hidden, the cells flow into a two-column
+grid and each shows its `label` (in `text-xs text-faint`) above the value. From `md` up it is the usual table, and its
+`min-w-*` applies only there, so the page never scrolls sideways. Say where each cell goes with `stack` on
+`TableCell`:
+
+| `stack`   | In the card                                                                   |
+| --------- | ----------------------------------------------------------------------------- |
+| `primary` | the first line, across the card, no label: the name, the time and client      |
+| (none)    | one cell of the label/value grid; give it a `label` (the column's head)       |
+| `full`    | across the card, with its label: long text such as services                   |
+| `actions` | pinned to the card's top-right corner: a menu or icon buttons, always visible |
+| `hidden`  | left out on phones, when the card shows it elsewhere (e.g. under the name)    |
+
+A cell with `colSpan` (an empty state, skeleton note) spans the card. Put the status badge in a labelled cell or next
+to the primary line, so it stays visible. Keep the desktop look: `stacked` adds only `max-md:` classes.
+
+```tsx
+<Table aria-label="Dzisiejsze wizyty" className="min-w-[760px]" stacked>
+  <TableHeader>…</TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell stack="primary">09:00 · Jan Kowalski</TableCell>
+      <TableCell label="Stanowisko">Stanowisko 1</TableCell>
+      <TableCell label="Status">
+        <BookingStatusBadge booking={b} />
+      </TableCell>
+      <TableCell label="Usługi" stack="full">
+        Mycie, Wosk
+      </TableCell>
+      <TableCell stack="actions">
+        <RowMenu />
+      </TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
 ```
 
 ### Feedback and states

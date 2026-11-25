@@ -32,7 +32,7 @@ export type { PageHeaderProps } from './components/PageHeader';
 export { Stat } from './components/Stat';
 export type { StatProps, StatTone } from './components/Stat';
 export { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './components/Table';
-export type { TableProps } from './components/Table';
+export type { TableCellProps, TableCellStack, TableProps } from './components/Table';
 export { Alert } from './components/Alert';
 export type { AlertProps, AlertTone } from './components/Alert';
 export { Pagination } from './components/Pagination';
