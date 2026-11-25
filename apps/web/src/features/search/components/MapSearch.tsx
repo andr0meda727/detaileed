@@ -66,7 +66,8 @@ export function MapSearch({ initial }: { initial: SearchState }) {
                 : `${data.totalCount} studiów w tym obszarze${isFetching ? '…' : ''}`}
           </p>
         )}
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+        {/* Two columns of cards on tablets, where the list sits under the map at full width. */}
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 md:max-lg:grid md:max-lg:grid-cols-2 md:max-lg:gap-3 md:max-lg:space-y-0 md:max-lg:[&>:only-child]:col-span-2">
           {!data && !isError ? (
             [0, 1, 2].map((i) => <Skeleton key={i} width="100%" height="128px" className="rounded-lg" />)
           ) : data && pins.length === 0 ? (
