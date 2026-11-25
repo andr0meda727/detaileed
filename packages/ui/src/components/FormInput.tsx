@@ -1,54 +1,63 @@
 'use client';
 
-import React, { InputHTMLAttributes, forwardRef, useId } from 'react';
+import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
+import { cn } from '../lib/cn';
+import { FieldShell } from './FieldShell';
+import { controlClasses, reservesMessage, useFieldIds } from './fieldParts';
 
-interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  /** Shown below in `text-danger`, linked with `aria-describedby`; also sets `aria-invalid`. */
   error?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+  /** Help text below the field, linked with `aria-describedby`. */
+  hint?: ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
 }
 
-export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
-  ({ label, error, leftIcon, rightIcon, className = '', id, ...props }, ref) => {
-    const fallbackId = useId();
-    const inputId = id ?? fallbackId;
-    return (
-      <div className="w-full flex flex-col gap-1.5 focus-within:-translate-y-0.5 transition-transform duration-200">
-        {label && (
-          <label htmlFor={inputId} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
-            {label}
-          </label>
+/**
+ * A text input with its label above and the hint or error below. `className` goes on the `<input>`. Works with
+ * react-hook-form's `register(...)`, which passes `ref`.
+ */
+export const FormInput = forwardRef<HTMLInputElement, FormInputProps>((allProps, ref) => {
+  const {
+    label,
+    error,
+    hint,
+    leftIcon,
+    rightIcon,
+    className,
+    id,
+    'aria-describedby': describedBy,
+    ...props
+  } = allProps;
+  const ids = useFieldIds({ id, error, hint, describedBy });
+  return (
+    <FieldShell
+      label={label}
+      hint={hint}
+      error={error}
+      controlId={ids.controlId}
+      hintId={ids.hintId}
+      errorId={ids.errorId}
+      reserveMessage={reservesMessage(allProps)}
+    >
+      <div className="relative">
+        {leftIcon && (
+          <div className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 text-faint">{leftIcon}</div>
         )}
-        <div className="relative">
-          {leftIcon && <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">{leftIcon}</div>}
-          <input
-            ref={ref}
-            id={inputId}
-            aria-invalid={error ? true : undefined}
-            className={`
-              w-full px-4 py-3.5 bg-slate-50 border-2 rounded-xl outline-hidden font-semibold text-sm transition-all
-              ${error ? 'border-red-400/50 focus:border-red-500 bg-red-50' : 'border-transparent focus:border-cream-warm/50'}
-              ${leftIcon ? 'pl-11' : ''}
-              ${rightIcon ? 'pr-11' : ''}
-              ${className}
-            `}
-            {...props}
-          />
-          {rightIcon && <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">{rightIcon}</div>}
-        </div>
-
-        {/* Error message slot with stable height to prevent layout shift */}
-        <div className="h-4 px-1 flex items-center justify-start overflow-hidden">
-          <div
-            className={`transition-all duration-300 transform ${error ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}
-          >
-            <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">{error}</span>
-          </div>
-        </div>
+        <input
+          ref={ref}
+          id={ids.controlId}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={ids.describedBy}
+          className={cn(controlClasses(Boolean(error)), 'h-9 px-3', leftIcon && 'pl-9', rightIcon && 'pr-9', className)}
+          {...props}
+        />
+        {rightIcon && <div className="absolute right-3 top-1/2 flex -translate-y-1/2 text-faint">{rightIcon}</div>}
       </div>
-    );
-  },
-);
+    </FieldShell>
+  );
+});
 
 FormInput.displayName = 'FormInput';

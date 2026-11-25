@@ -33,30 +33,40 @@ export function ReviewsList({ studioId, timeZone, reviewCount, initial }: Review
   const items = reviews.data.pages.flatMap((p) => p.items);
 
   return (
-    <section className="space-y-4" aria-labelledby="reviews-heading">
-      <h2 id="reviews-heading" className="font-serif text-3xl">
-        Opinie {reviewCount > 0 && <span className="text-green-light text-xl">({reviewCount})</span>}
+    <section className="flex flex-col gap-3" aria-labelledby="reviews-heading">
+      <h2 id="reviews-heading" className="text-xl font-semibold tracking-tight text-foreground">
+        Opinie{' '}
+        {reviewCount > 0 && (
+          <span className="font-mono text-base font-normal tabular-nums text-faint">({reviewCount})</span>
+        )}
       </h2>
       {items.length === 0 ? (
-        <p className="text-green-light">Studio nie ma jeszcze opinii. Opinię może wystawić klient po wizycie.</p>
+        <p className="text-muted-foreground">Studio nie ma jeszcze opinii. Opinię może wystawić klient po wizycie.</p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid gap-3 sm:grid-cols-2">
           {items.map((r) => (
-            <li key={r.id} className="bg-white rounded-2xl border border-green-deep/5 p-4">
+            <li key={r.id} className="rounded-lg border border-border bg-surface p-4">
               <div className="flex items-center justify-between gap-3">
-                <p className="font-bold">{r.authorName}</p>
+                <p className="text-sm font-medium text-foreground">{r.authorName}</p>
                 <StarRating value={r.rating} size={14} />
               </div>
-              <p className="text-xs text-green-light mt-0.5">
+              <p className="mt-0.5 text-xs text-faint">
                 {formatInZone(r.createdAt, timeZone, { day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
-              {r.comment && <p className="mt-2 text-green-deep/80 whitespace-pre-line">{r.comment}</p>}
+              {r.comment && (
+                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{r.comment}</p>
+              )}
             </li>
           ))}
         </ul>
       )}
       {reviews.hasNextPage && (
-        <Button variant="secondary" loading={reviews.isFetchingNextPage} onClick={() => reviews.fetchNextPage()}>
+        <Button
+          variant="secondary"
+          className="self-start"
+          loading={reviews.isFetchingNextPage}
+          onClick={() => reviews.fetchNextPage()}
+        >
           Pokaż więcej opinii
         </Button>
       )}

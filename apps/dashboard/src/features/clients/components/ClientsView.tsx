@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
 
-import { Search, Trash2 } from 'lucide-react';
 import { GlobalHeader } from '@/shared/ui/GlobalHeader';
-import { Modal, LoadingSpinner, useToast } from '@detaileed/ui';
+import { ConfirmDialog, SearchInput, useToast } from '@detaileed/ui';
 
 import { CreateClientModal } from '@/features/clients/components/CreateClientModal';
 import { CreateBookingModal } from '@/features/bookings';
@@ -51,35 +50,23 @@ export const ClientsView: React.FC = () => {
     }
   };
 
-  if (isLoading) return <LoadingSpinner />;
-
   return (
-    <div className="space-y-8 animate-slide-up pb-20">
+    <div className="space-y-6 pb-20">
       <GlobalHeader
         title="Klienci"
-        subtitle="CRM • Zarządzanie Relacjami"
+        subtitle="CRM • Zarządzanie relacjami"
         onAddBooking={() => setIsBookingModalOpen(true)}
         onAddClient={() => setIsClientModalOpen(true)}
       />
 
-      {/* Search */}
-      <div className="relative group">
-        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-green-deep/30 group-focus-within:text-green-light transition-colors">
-          <Search size={20} strokeWidth={2.5} />
-        </div>
-        <input
-          type="text"
-          placeholder="Szukaj klienta, tablicy, modelu..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-14 pr-6 py-5 rounded-4xl font-semibold text-base text-green-deep outline-hidden transition-all focus:border-[rgba(61,107,70,0.3)] focus:shadow-[0_0_0_4px_rgba(61,107,70,0.08),0_4px_16px_-4px_rgba(0,0,0,0.04)]"
-          style={{
-            background: 'white',
-            border: '1px solid rgba(26,46,30,0.07)',
-            boxShadow: '0 4px 16px -4px rgba(0,0,0,0.04)',
-          }}
-        />
-      </div>
+      <SearchInput
+        aria-label="Szukaj klienta"
+        placeholder="Szukaj klienta, tablicy, modelu…"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onClear={() => setSearchQuery('')}
+        wrapperClassName="sm:max-w-sm"
+      />
 
       <ClientsTable
         clients={filteredClients}
@@ -131,31 +118,16 @@ export const ClientsView: React.FC = () => {
         />
       )}
 
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={!!deleteConfirmation} onClose={() => setDeleteConfirmation(null)} title="Usuń pojazd">
-        <div className="text-center space-y-6 pb-4">
-          <div className="w-20 h-20 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Trash2 size={32} />
-          </div>
-          <p className="text-slate-600 font-medium">
-            Czy na pewno chcesz usunąć ten pojazd? Tej operacji nie można cofnąć, a dane zostaną trwale utracone.
-          </p>
-          <div className="grid grid-cols-2 gap-4 mt-8">
-            <button
-              onClick={() => setDeleteConfirmation(null)}
-              className="py-4 bg-slate-50 text-slate-500 rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:bg-slate-100 transition-all"
-            >
-              Anuluj
-            </button>
-            <button
-              onClick={executeDeleteVehicle}
-              className="py-4 bg-red-500 text-white rounded-2xl font-bold text-[11px] uppercase tracking-widest hover:bg-red-600 shadow-lg shadow-red-500/30 transition-all"
-            >
-              Usuń pojazd
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <ConfirmDialog
+        open={!!deleteConfirmation}
+        onOpenChange={(open) => !open && setDeleteConfirmation(null)}
+        tone="danger"
+        title="Usunąć pojazd?"
+        description="Tej operacji nie można cofnąć, a dane zostaną trwale utracone."
+        confirmLabel="Usuń pojazd"
+        loading={deleteVehicleMut.isPending}
+        onConfirm={executeDeleteVehicle}
+      />
     </div>
   );
 };

@@ -38,26 +38,31 @@ export default async function StudioPage({ params }: Props) {
   const jsonLd = studioJsonLd(listing, siteUrl(`/studio/${listing.studioId}`));
 
   return (
-    <article className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
+    <article className="mx-auto w-full max-w-[1160px] px-4 pt-7 pb-16 sm:px-6">
       <script
         type="application/ld+json"
         // JSON.stringify output with "<" escaped, so a description can't close the script tag.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
-      <div className="grid lg:grid-cols-[1fr_340px] gap-8 items-start">
-        <StudioHeader listing={listing} />
-        <StudioLocation lat={listing.latitude} lng={listing.longitude} name={listing.name} />
+      <StudioHeader listing={listing} />
+      {/* Services and reviews on the left, the sticky estimate and the map on the right (stacked on phones). */}
+      <div className="grid items-start gap-8 pt-7 lg:grid-cols-[minmax(0,1fr)_340px]">
+        {/* The chosen car size comes from ?size=, which a static page reads in the browser. */}
+        <Suspense>
+          <StudioOffer
+            listing={listing}
+            aside={<StudioLocation lat={listing.latitude} lng={listing.longitude} name={listing.name} />}
+          />
+        </Suspense>
+        <div className="min-w-0 lg:col-start-1 lg:row-start-2">
+          <ReviewsList
+            studioId={listing.studioId}
+            timeZone={listing.timeZone}
+            reviewCount={listing.reviewCount}
+            initial={reviews}
+          />
+        </div>
       </div>
-      {/* The chosen car size comes from ?size=, which a static page reads in the browser. */}
-      <Suspense>
-        <StudioOffer listing={listing} />
-      </Suspense>
-      <ReviewsList
-        studioId={listing.studioId}
-        timeZone={listing.timeZone}
-        reviewCount={listing.reviewCount}
-        initial={reviews}
-      />
     </article>
   );
 }

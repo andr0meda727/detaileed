@@ -1,0 +1,46 @@
+/*
+ * MapLibre's controls (zoom, location, attribution) in the Grafit tokens. maplibre-gl.css paints them white with dark
+ * icons, which glare on the dark map; import this after it.
+ */
+.maplibregl-ctrl.maplibregl-ctrl-group {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.maplibregl-ctrl.maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--border);
+}
+
+.maplibregl-ctrl.maplibregl-ctrl-group button:not(:disabled):hover {
+  background-color: var(--muted);
+}
+
+.maplibregl-ctrl.maplibregl-ctrl-attrib,
+.maplibregl-ctrl.maplibregl-ctrl-attrib.maplibregl-compact {
+  background: color-mix(in oklab, var(--surface) 85%, transparent);
+  color: var(--muted-foreground);
+}
+
+.maplibregl-ctrl.maplibregl-ctrl-attrib a {
+  color: var(--muted-foreground);
+}
+
+.maplibregl-ctrl.maplibregl-ctrl-attrib a:hover {
+  color: var(--foreground);
+}
+
+/* The icons are dark SVG backgrounds; turn them light in the dark theme (the hue turn keeps red red). */
+[data-theme='dark'] .maplibregl-ctrl .maplibregl-ctrl-icon,
+[data-theme='dark'] .maplibregl-ctrl .maplibregl-ctrl-attrib-button {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* The same when no theme script ran and the OS asks for dark. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .maplibregl-ctrl .maplibregl-ctrl-icon,
+  :root:not([data-theme]) .maplibregl-ctrl .maplibregl-ctrl-attrib-button {
+    filter: invert(1) hue-rotate(180deg);
+  }
+}

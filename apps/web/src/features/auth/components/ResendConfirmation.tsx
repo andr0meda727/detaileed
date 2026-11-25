@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { Button, useTurnstile } from '@detaileed/ui';
+import { Alert, Button, useTurnstile } from '@detaileed/ui';
 import { getSupabase } from '@/shared/lib/supabase/client';
 import { TURNSTILE_SITE_KEY } from '@/shared/lib/site';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
@@ -62,19 +62,11 @@ export function ResendConfirmation({
   };
 
   return (
-    <div className="space-y-2 pt-2">
-      <p className="text-sm text-green-light">Nie dostałeś wiadomości? Sprawdź spam albo wyślij ją ponownie.</p>
+    <div className="space-y-3 pt-2">
+      <p className="text-sm text-muted-foreground">Nie dostałeś wiadomości? Sprawdź spam albo wyślij ją ponownie.</p>
       <CaptchaField captcha={captcha} />
-      {sent && !error && (
-        <p role="status" className="text-sm text-green-deep">
-          Wysłaliśmy link ponownie.
-        </p>
-      )}
-      {error && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
-          {error}
-        </p>
-      )}
+      {sent && !error && <Alert tone="success">Wysłaliśmy link ponownie.</Alert>}
+      {error && <Alert tone="danger">{error}</Alert>}
       <Button
         variant="secondary"
         icon={RefreshCw}

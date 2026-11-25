@@ -1,6 +1,8 @@
 'use client';
 
 import { Star } from 'lucide-react';
+import { cn } from '../lib/cn';
+import { focusRing } from '../lib/focusRing';
 
 export interface StarRatingProps {
   /** 0–5, may be fractional when only shown (4.7 fills four stars and most of the fifth). */
@@ -12,7 +14,7 @@ export interface StarRatingProps {
   label?: string;
 }
 
-/** Five stars: a read-only rating, or a picker when `onChange` is given. */
+/** Five stars in the `star` colour: a read-only rating, or a picker when `onChange` is given. */
 export function StarRating({ value, onChange, size = 16, label = 'Ocena' }: StarRatingProps) {
   const stars = [1, 2, 3, 4, 5];
 
@@ -23,9 +25,9 @@ export function StarRating({ value, onChange, size = 16, label = 'Ocena' }: Star
           const fill = Math.max(0, Math.min(1, value - (n - 1)));
           return (
             <span key={n} className="relative inline-block" style={{ width: size, height: size }}>
-              <Star size={size} className="absolute inset-0 text-amber/30" />
+              <Star size={size} strokeWidth={1.75} className="absolute inset-0 text-border-strong" />
               <span className="absolute inset-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
-                <Star size={size} className="text-amber fill-amber" />
+                <Star size={size} strokeWidth={1.75} className="fill-star text-star" />
               </span>
             </span>
           );
@@ -35,7 +37,7 @@ export function StarRating({ value, onChange, size = 16, label = 'Ocena' }: Star
   }
 
   return (
-    <span className="inline-flex items-center gap-1" role="radiogroup" aria-label={label}>
+    <span className="inline-flex items-center gap-0.5" role="radiogroup" aria-label={label}>
       {stars.map((n) => (
         <button
           key={n}
@@ -44,9 +46,14 @@ export function StarRating({ value, onChange, size = 16, label = 'Ocena' }: Star
           aria-checked={value === n}
           aria-label={`${n} na 5`}
           onClick={() => onChange(n)}
-          className="p-0.5 rounded-md transition-transform hover:scale-110"
+          className={cn('rounded-md p-1 transition-colors duration-150 hover:bg-muted', focusRing)}
         >
-          <Star size={size} className={n <= value ? 'text-amber fill-amber' : 'text-amber/30'} />
+          <Star
+            size={size}
+            strokeWidth={1.75}
+            className={n <= value ? 'fill-star text-star' : 'text-border-strong'}
+            aria-hidden
+          />
         </button>
       ))}
     </span>

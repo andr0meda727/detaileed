@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Layers, Plus, Trash2, Loader2, Edit2 } from 'lucide-react';
+import { Layers, Plus, Trash2, Pencil } from 'lucide-react';
 import {
   useCategories,
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
 } from '@/features/inventory/api/categories';
-import { Button, Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
+import { Button, ConfirmDialog, Modal, LoadingSpinner, EmptyState } from '@detaileed/ui';
 import { NameForm } from '@/shared/ui/NameForm';
 import { ADD_CARD, CARD } from '@/shared/ui/cardGrid';
 
@@ -21,6 +21,7 @@ export const CategoriesSettings: React.FC<{ addToast: (message: string, type: 's
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null);
 
   const openAdd = () => {
     setEditing(null);
@@ -50,6 +51,7 @@ export const CategoriesSettings: React.FC<{ addToast: (message: string, type: 's
   const handleDelete = async (id: string) => {
     try {
       await deleteCategory.mutateAsync(id);
+      setDeleting(null);
       addToast('Kategoria usunięta', 'success');
     } catch {
       addToast('Nie udało się usunąć kategorii', 'error');
@@ -61,58 +63,80 @@ export const CategoriesSettings: React.FC<{ addToast: (message: string, type: 's
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-400 font-medium">{items.length} kategorii</p>
-        <Button variant="primary" onClick={openAdd} icon={Plus}>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          <span className="font-mono tabular-nums">{items.length}</span> kategorii
+        </p>
+        <Button variant="secondary" onClick={openAdd} icon={Plus}>
           Dodaj kategorię
         </Button>
       </div>
 
       {items.length === 0 ? (
-        <EmptyState message="Brak kategorii. Dodaj pierwszą!" icon={Layers} />
+        <EmptyState
+          message="Brak kategorii. Dodaj pierwszą."
+          icon={Layers}
+          action={
+            <Button icon={Plus} onClick={openAdd}>
+              Dodaj kategorię
+            </Button>
+          }
+        />
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {items.map((item) => (
             <div key={item.id} className={CARD}>
-              <div className="w-10 h-10 bg-cream-warm/50 rounded-2xl flex items-center justify-center mb-1">
-                <Layers size={18} className="text-green-deep/50" />
+              <div className="flex size-8 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                <Layers size={16} strokeWidth={1.75} aria-hidden />
               </div>
-              <p className="font-bold text-green-deep text-sm leading-tight">{item.name}</p>
-              <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
+              <p className="pr-14 text-sm font-medium text-foreground">{item.name}</p>
+              <div className="absolute top-3 right-3 flex gap-0.5">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={Pencil}
+                  aria-label={`Zmień nazwę: ${item.name}`}
                   onClick={() => openEdit(item)}
-                  className="p-1.5 rounded-xl text-slate-300 hover:bg-green-deep hover:text-cream-warm transition-all active:scale-90"
-                >
-                  <Edit2 size={13} />
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  disabled={deleteCategory.isPending}
-                  className="p-1.5 rounded-xl text-slate-300 hover:bg-red-50 hover:text-red-500 transition-all active:scale-90"
-                >
-                  {deleteCategory.isPending ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
-                </button>
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={Trash2}
+                  aria-label={`Usuń kategorię: ${item.name}`}
+                  onClick={() => setDeleting(item)}
+                />
               </div>
             </div>
           ))}
-          <button onClick={openAdd} className={ADD_CARD}>
-            <Plus size={22} />
-            <span className="text-[10px] font-semibold uppercase tracking-widest">Dodaj</span>
+          <button type="button" onClick={openAdd} className={ADD_CARD}>
+            <Plus size={20} strokeWidth={1.75} aria-hidden />
+            <span className="text-sm font-medium">Dodaj</span>
           </button>
         </div>
       )}
 
+      <ConfirmDialog
+        open={deleting !== null}
+        onOpenChange={(open) => !open && setDeleting(null)}
+        tone="danger"
+        title="Usunąć kategorię?"
+        description={`Kategoria „${deleting?.name ?? ''}” zniknie z listy. Tej operacji nie można cofnąć.`}
+        confirmLabel="Usuń"
+        loading={deleteCategory.isPending}
+        onConfirm={() => deleting && void handleDelete(deleting.id)}
+      />
+
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={editing ? 'Edytuj Kategorię' : 'Nowa Kategoria'}
+        title={editing ? 'Edytuj kategorię' : 'Nowa kategoria'}
         size="sm"
       >
         <NameForm
           key={editing?.id ?? 'new'}
           label="Nazwa kategorii"
-          placeholder="np. Produkty do polerowania..."
+          placeholder="np. Produkty do polerowania"
           onSave={handleSave}
           saving={isMutating}
         />

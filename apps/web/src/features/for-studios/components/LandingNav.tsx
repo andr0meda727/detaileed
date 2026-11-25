@@ -1,37 +1,45 @@
-'use client';
-
-import { useSyncExternalStore } from 'react';
 import Link from 'next/link';
+import { Button, cn, Logo, ThemeSwitch } from '@detaileed/ui';
 import { DASHBOARD_URL } from '@/shared/lib/site';
-import { LandingLogo } from './LandingLogo';
+import { column, focusLink } from './landingStyles';
 
-const subscribe = (onChange: () => void) => {
-  window.addEventListener('scroll', onChange, { passive: true });
-  return () => window.removeEventListener('scroll', onChange);
-};
+const LINKS = [
+  { href: '#demo', label: 'Demo' },
+  { href: '#features', label: 'Funkcje' },
+  { href: '#how', label: 'Jak to działa' },
+  { href: '#pricing', label: 'Cennik' },
+];
 
-/** Fixed top bar: transparent over the dark hero, solid once the page scrolls. */
+/** Sticky top bar: the logo, the section links (from md up), the theme switch and the sign-up button. */
 export function LandingNav() {
-  const scrolled = useSyncExternalStore(
-    subscribe,
-    () => window.scrollY > 40,
-    () => false,
-  );
-
   return (
-    <nav className={`landing-nav ${scrolled ? 'scrolled' : ''}`} id="navbar" aria-label="Główna">
-      <Link href="/for-studios" className="nav-logo">
-        <LandingLogo />
-      </Link>
-      <div className="nav-links">
-        <a href="#demo">Demo</a>
-        <a href="#features">Funkcje</a>
-        <a href="#how">Jak to działa</a>
-        <a href="#pricing">Cennik</a>
-        <a href={DASHBOARD_URL} className="nav-cta">
-          Zacznij za darmo
-        </a>
-      </div>
-    </nav>
+    <header className="sticky top-0 z-40 border-b border-border bg-background">
+      <nav aria-label="Główna" className={cn(column, 'flex h-14 items-center gap-6')}>
+        <Link href="/for-studios" className={cn('shrink-0 rounded-md text-foreground', focusLink)}>
+          <Logo size={22} />
+        </Link>
+        <ul className="flex items-center gap-1 max-md:hidden">
+          {LINKS.map((link) => (
+            <li key={link.href}>
+              <a
+                href={link.href}
+                className={cn(
+                  'rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground',
+                  focusLink,
+                )}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div className="ml-auto flex items-center gap-2">
+          <ThemeSwitch iconOnly className="max-sm:hidden" />
+          <Button asChild size="sm">
+            <a href={DASHBOARD_URL}>Zacznij za darmo</a>
+          </Button>
+        </div>
+      </nav>
+    </header>
   );
 }

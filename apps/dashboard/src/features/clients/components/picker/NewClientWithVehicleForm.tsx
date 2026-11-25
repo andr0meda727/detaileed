@@ -50,21 +50,33 @@ export function NewClientWithVehicleForm({ submitLabel, onCreated }: NewClientWi
 
   return (
     <div className="space-y-3">
-      <div className="space-y-1">
-        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Dane Klienta</p>
-        <FormInput placeholder="Imię i Nazwisko *" error={errors.name?.message} {...register('name')} />
-        <div className="grid grid-cols-2 gap-2.5">
-          <FormInput type="tel" placeholder="Telefon *" error={errors.phone?.message} {...register('phone')} />
+      <div className="space-y-2">
+        <p className="text-xs font-medium text-muted-foreground">Dane klienta</p>
+        <FormInput
+          aria-label="Imię i nazwisko"
+          placeholder="Imię i nazwisko *"
+          error={errors.name?.message}
+          {...register('name')}
+        />
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <FormInput
+            type="tel"
+            aria-label="Telefon"
+            placeholder="Telefon *"
+            error={errors.phone?.message}
+            {...register('phone')}
+          />
           <FormInput
             type="email"
+            aria-label="Email"
             placeholder="Email (opcjonalnie)"
             error={errors.email?.message}
             {...register('email')}
           />
         </div>
-        <FormInput placeholder="NIP (opcjonalnie)" error={errors.nip?.message} {...register('nip')} />
+        <FormInput aria-label="NIP" placeholder="NIP (opcjonalnie)" error={errors.nip?.message} {...register('nip')} />
       </div>
-      <div className="pt-3 border-t border-slate-100">
+      <div className="border-t border-border pt-3">
         <VehicleFields
           brand={register('vehicle.brand')}
           model={register('vehicle.model')}
@@ -73,7 +85,7 @@ export function NewClientWithVehicleForm({ submitLabel, onCreated }: NewClientWi
           plateError={errors.vehicle?.licensePlate?.message}
         />
       </div>
-      <Button fullWidth disabled={isSubmitting} onClick={handleSubmit(onValid)} icon={UserPlus}>
+      <Button fullWidth loading={isSubmitting} onClick={handleSubmit(onValid)} icon={UserPlus}>
         {submitLabel}
       </Button>
     </div>

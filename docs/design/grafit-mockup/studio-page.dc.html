@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <title>Grafit: strona studia</title>
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap"
+        />
+        <style>
+          body {
+            margin: 0;
+          }
+          .t-dark {
+            --bg: #0a0a0a;
+            --panel: #0f0f0f;
+            --card: #141414;
+            --hover: #1c1c1c;
+            --border: #262626;
+            --border-strong: #383838;
+            --text: #ededed;
+            --muted: #a3a3a3;
+            --faint: #8f8f8f;
+            --pri-bg: #ededed;
+            --pri-fg: #0a0a0a;
+            --star: #fbbf24;
+          }
+          .t-light {
+            --bg: #ffffff;
+            --panel: #fafafa;
+            --card: #ffffff;
+            --hover: #f4f4f5;
+            --border: #e7e7e7;
+            --border-strong: #d4d4d4;
+            --text: #0a0a0a;
+            --muted: #525252;
+            --faint: #666666;
+            --pri-bg: #0a0a0a;
+            --pri-fg: #ffffff;
+            --star: #d97706;
+          }
+          .ic {
+            width: 16px;
+            height: 16px;
+            flex: none;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.75;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+          }
+          .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+          }
+          .btn-pri {
+            background: var(--pri-bg);
+            color: var(--pri-fg);
+            border: 1px solid var(--pri-bg);
+          }
+          .btn-sec {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border-strong);
+          }
+          .btn-sec:hover {
+            background: var(--hover);
+          }
+          .chip {
+            display: inline-flex;
+            align-items: center;
+            height: 26px;
+            padding: 0 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--muted);
+          }
+          .seg {
+            flex: 1;
+            height: 32px;
+            border: 0;
+            border-radius: 5px;
+            background: transparent;
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0 12px;
+          }
+          .seg.on {
+            background: var(--hover);
+            color: var(--text);
+            box-shadow: inset 0 0 0 1px var(--border-strong);
+          }
+          .row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+          }
+          .row:last-child {
+            border-bottom: 0;
+          }
+          .row:hover {
+            background: var(--hover);
+          }
+          .box {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 1px solid var(--border-strong);
+            display: grid;
+            place-items: center;
+            flex: none;
+          }
+          .box.on {
+            background: var(--pri-bg);
+            border-color: var(--pri-bg);
+            color: var(--pri-fg);
+          }
+          .sr {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+          }
+          .mono {
+            font-family: 'Geist Mono', ui-monospace, monospace;
+            font-variant-numeric: tabular-nums;
+          }
+          .cap {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--faint);
+            margin: 0 0 8px;
+          }
+          a {
+            color: var(--text);
+          }
+          a:hover {
+            color: var(--muted);
+          }
+        </style>
+      </helmet>
+      <div
+        class="{{themeClass}}"
+        style="min-height: 1320px; background: var(--bg); color: var(--text); font-family: Geist, system-ui, sans-serif"
+      >
+        <header style="border-bottom: 1px solid var(--border)">
+          <div
+            style="
+              max-width: 1160px;
+              margin: 0 auto;
+              padding: 12px 24px;
+              display: flex;
+              flex-wrap: wrap;
+              align-items: center;
+              gap: 20px;
+            "
+          >
+            <a href="#" style="display: flex; align-items: center; gap: 10px; text-decoration: none">
+              <span
+                style="
+                  width: 24px;
+                  height: 24px;
+                  border-radius: 6px;
+                  background: var(--pri-bg);
+                  color: var(--pri-fg);
+                  display: grid;
+                  place-items: center;
+                  font-weight: 600;
+                  font-size: 14px;
+                "
+                >d</span
+              >
+              <span style="font-weight: 600; font-size: 15px">detaileed</span>
+            </a>
+            <nav aria-label="Główne" style="display: flex; gap: 18px; font-size: 14px">
+              <a href="#" style="color: var(--muted); text-decoration: none">Szukaj na mapie</a>
+              <a href="#" style="color: var(--muted); text-decoration: none">Dla studiów</a>
+            </nav>
+            <div style="margin-left: auto; display: flex; gap: 8px">
+              <a class="btn btn-sec" href="#">Zaloguj się</a>
+              <a class="btn btn-pri" href="#">Załóż konto</a>
+            </div>
+          </div>
+        </header>
+
+        <main style="max-width: 1160px; margin: 0 auto; padding: 28px 24px 64px; box-sizing: border-box">
+          <p style="margin: 0 0 18px; font-size: 13px; color: var(--faint)">
+            <a href="#" style="color: var(--faint); text-decoration: none">Warszawa</a> /
+            <a href="#" style="color: var(--faint); text-decoration: none">Mokotów</a> /
+            <span style="color: var(--muted)">Połysk Detailing</span>
+          </p>
+
+          <section
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              padding-bottom: 28px;
+              border-bottom: 1px solid var(--border);
+            "
+          >
+            <h1 style="margin: 0; font-size: 36px; font-weight: 600; letter-spacing: -0.03em">Połysk Detailing</h1>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted)">
+              <span style="display: flex; align-items: center; gap: 6px"
+                ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0" />
+                  <circle cx="12" cy="10" r="3" /></svg
+                >ul. Puławska 182, Warszawa</span
+              >
+              <a
+                href="#"
+                style="display: flex; align-items: center; gap: 6px; color: var(--muted); text-decoration: none"
+                ><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"
+                  /></svg
+                >+48 512 340 118</a
+              >
+              <span style="display: flex; align-items: center; gap: 6px"
+                ><svg viewBox="0 0 24 24" aria-hidden="true" style="width: 15px; height: 15px; fill: var(--star)">
+                  <path
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"
+                  /></svg
+                ><span style="color: var(--text); font-weight: 500">4,8</span> (126 opinii)</span
+              >
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px">
+              <span class="chip">Mycie zewnętrzne</span><span class="chip">Polerowanie</span
+              ><span class="chip">Powłoki ceramiczne</span><span class="chip">Wnętrze</span>
+            </div>
+            <p style="margin: 4px 0 0; max-width: 720px; font-size: 15px; line-height: 1.6; color: var(--muted)">
+              Małe studio na Mokotowie: korekty lakieru, powłoki ceramiczne i pranie wnętrz. Pracujemy na trzech
+              stanowiskach, każde auto odbierasz z protokołem i zdjęciami przed i po.
+            </p>
+          </section>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; padding-top: 28px">
+            <section
+              aria-labelledby="offer"
+              style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 22px"
+            >
+              <div
+                style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px"
+              >
+                <h2 id="offer" style="margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.01em">
+                  Usługi i ceny
+                </h2>
+                <div
+                  role="group"
+                  aria-label="Wielkość auta"
+                  style="
+                    display: flex;
+                    gap: 2px;
+                    padding: 3px;
+                    border: 1px solid var(--border);
+                    border-radius: 8px;
+                    background: var(--panel);
+                    width: 340px;
+                    max-width: 100%;
+                    box-sizing: border-box;
+                  "
+                >
+                  <sc-for list="{{sizes}}" as="s" hint-placeholder-count="4">
+                    <button class="seg {{s.cls}}" aria-pressed="{{s.pressed}}" onClick="{{s.pick}}">{{s.label}}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <sc-for list="{{groups}}" as="g" hint-placeholder-count="4">
+                <div>
+                  <p class="cap">{{g.label}}</p>
+                  <div
+                    style="
+                      border: 1px solid var(--border);
+                      border-radius: 10px;
+                      background: var(--card);
+                      overflow: hidden;
+                    "
+                  >
+                    <sc-for list="{{g.items}}" as="it" hint-placeholder-count="2">
+                      <label class="row">
+                        <input class="sr" type="checkbox" checked="{{it.checked}}" onChange="{{it.toggle}}" />
+                        <span class="box {{it.cls}}" aria-hidden="true"
+                          ><sc-if value="{{it.checked}}" hint-placeholder-val="{{false}}"
+                            ><svg
+                              viewBox="0 0 24 24"
+                              style="width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3"
+                            >
+                              <path d="M20 6 9 17l-5-5" /></svg></sc-if
+                        ></span>
+                        <span style="flex: 1; font-size: 14px; font-weight: 500"
+                          >{{it.name}}<span
+                            style="
+                              display: block;
+                              font-weight: 400;
+                              font-size: 13px;
+                              color: var(--faint);
+                              margin-top: 2px;
+                            "
+                            >{{it.time}}</span
+                          ></span
+                        >
+                        <span class="mono" style="font-size: 14px; color: var(--muted)">{{it.price}}</span>
+                      </label>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+
+              <div>
+                <h2 style="margin: 12px 0 12px; font-size: 20px; font-weight: 600">Opinie</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px">
+                  <figure
+                    style="
+                      margin: 0;
+                      padding: 16px;
+                      border: 1px solid var(--border);
+                      border-radius: 10px;
+                      background: var(--card);
+                    "
+                  >
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 500">
+                      Łukasz P.<span class="mono" style="color: var(--star); font-weight: 400">★★★★★</span>
+                    </div>
+                    <blockquote style="margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: var(--muted)">
+                      Korekta lakieru w Octavii zrobiona porządnie, dostałem zdjęcia z każdego etapu. Termin dotrzymany
+                      co do godziny.
+                    </blockquote>
+                  </figure>
+                  <figure
+                    style="
+                      margin: 0;
+                      padding: 16px;
+                      border: 1px solid var(--border);
+                      border-radius: 10px;
+                      background: var(--card);
+                    "
+                  >
+                    <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 500">
+                      Magdalena S.<span class="mono" style="color: var(--star); font-weight: 400">★★★★☆</span>
+                    </div>
+                    <blockquote style="margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: var(--muted)">
+                      Wnętrze po praniu jak nowe. Trzeba było zostawić auto na noc, ale uprzedzili przy wycenie.
+                    </blockquote>
+                  </figure>
+                </div>
+              </div>
+            </section>
+
+            <aside
+              style="
+                flex: 1 1 320px;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                position: sticky;
+                top: 24px;
+              "
+            >
+              <div
+                style="
+                  border: 1px solid var(--border);
+                  border-radius: 10px;
+                  background: var(--card);
+                  padding: 18px;
+                  display: flex;
+                  flex-direction: column;
+                  gap: 14px;
+                "
+              >
+                <div>
+                  <div style="font-size: 13px; color: var(--muted)">Szacunkowo dla auta: {{sizeLabel}}</div>
+                  <div
+                    class="mono"
+                    style="font-size: 30px; font-weight: 500; letter-spacing: -0.02em; margin-top: 6px"
+                    aria-live="polite"
+                  >
+                    {{total}}
+                  </div>
+                </div>
+                <sc-if value="{{hasSelection}}" hint-placeholder-val="{{true}}">
+                  <ul
+                    style="
+                      margin: 0;
+                      padding: 12px 0 0;
+                      list-style: none;
+                      border-top: 1px solid var(--border);
+                      display: flex;
+                      flex-direction: column;
+                      gap: 8px;
+                    "
+                  >
+                    <sc-for list="{{chosen}}" as="c" hint-placeholder-count="2">
+                      <li style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px">
+                        <span style="color: var(--muted)">{{c.name}}</span><span class="mono">{{c.price}}</span>
+                      </li>
+                    </sc-for>
+                  </ul>
+                </sc-if>
+                <sc-if value="{{noSelection}}" hint-placeholder-val="{{false}}">
+                  <p style="margin: 0; font-size: 14px; color: var(--muted)">
+                    Zaznacz usługi, aby zobaczyć szacunkową cenę.
+                  </p>
+                </sc-if>
+                <a class="btn btn-pri" href="#" style="height: 42px">Wyślij zapytanie o termin</a>
+                <p style="margin: 0; font-size: 12px; color: var(--faint); line-height: 1.5">
+                  To jeszcze nie rezerwacja. Studio odpisze z wolnym terminem i potwierdzi cenę.
+                </p>
+              </div>
+              <div
+                style="border: 1px solid var(--border); border-radius: 10px; background: var(--card); overflow: hidden"
+              >
+                <div
+                  aria-hidden="true"
+                  style="
+                    height: 140px;
+                    background-color: var(--panel);
+                    background-image:
+                      linear-gradient(var(--border) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+                    background-size: 28px 28px;
+                    display: grid;
+                    place-items: center;
+                  "
+                >
+                  <span
+                    style="
+                      width: 14px;
+                      height: 14px;
+                      border-radius: 50%;
+                      background: var(--pri-bg);
+                      box-shadow: 0 0 0 6px var(--hover);
+                    "
+                  ></span>
+                </div>
+                <div style="padding: 14px 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px">
+                  <div style="font-weight: 500">Godziny otwarcia</div>
+                  <div style="display: flex; justify-content: space-between; color: var(--muted)">
+                    <span>Pon. – pt.</span><span class="mono">08:00 – 18:00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; color: var(--muted)">
+                    <span>Sobota</span><span class="mono">09:00 – 14:00</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; color: var(--faint)">
+                    <span>Niedziela</span><span>nieczynne</span>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </main>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{"dark":{"editor":"boolean","default":true},"$preview":{"width":1440,"height":1320}}'
+    >
+      class Component extends DCLogic {
+        constructor(props) {
+          super(props);
+          this.state = { size: 1, picked: ['wash1', 'cer2'] };
+        }
+        renderVals() {
+          const dark = this.props.dark ?? true;
+          const SIZES = ['Małe', 'Średnie', 'Duże', 'XL'];
+          const GROUPS = [
+            { label: 'Mycie zewnętrzne', items: [
+              { id: 'wash1', name: 'Mycie ręczne z woskiem', time: 'ok. 1,5 godz.', p: [120, 140, 170, 200] },
+              { id: 'wash2', name: 'Mycie detailingowe z dekontaminacją', time: 'ok. 3 godz.', p: [220, 260, 310, 360] } ] },
+            { label: 'Polerowanie', items: [
+              { id: 'pol1', name: 'Korekta lakieru 1-etapowa', time: '1 dzień', p: [900, 1100, 1300, 1500] },
+              { id: 'pol2', name: 'Korekta lakieru 2-etapowa', time: '2 dni', p: [1600, 1900, 2300, 2700] } ] },
+            { label: 'Powłoki ceramiczne', items: [
+              { id: 'cer2', name: 'Powłoka ceramiczna, 2 lata', time: '1 dzień', p: [1400, 1600, 1900, 2200] },
+              { id: 'cer5', name: 'Powłoka ceramiczna, 5 lat', time: '2 dni', p: [2400, 2800, 3200, 3600] } ] },
+            { label: 'Wnętrze', items: [
+              { id: 'int1', name: 'Pranie tapicerki', time: 'auto zostaje na noc', p: [350, 450, 550, 650] },
+              { id: 'int2', name: 'Czyszczenie i zabezpieczenie skóry', time: 'ok. 3 godz.', p: [300, 350, 420, 500] },
+              { id: 'int3', name: 'Ozonowanie', time: 'ok. 1 godz.', p: null } ] }
+          ];
+          const pln = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' zł';
+          const size = this.state.size;
+          const picked = this.state.picked;
+          const toggle = (id) => this.setState({ picked: picked.includes(id) ? picked.filter((x) => x !== id) : picked.concat(id) });
+          const chosen = [];
+          let sum = 0;
+          let unpriced = false;
+          const groups = GROUPS.map((g) => ({ label: g.label, items: g.items.map((it) => {
+            const on = picked.includes(it.id);
+            const price = it.p ? pln(it.p[size]) : 'na zapytanie';
+            if (on) { chosen.push({ name: it.name, price }); if (it.p) sum += it.p[size]; else unpriced = true; }
+            return { name: it.name, time: it.time, price, checked: on, cls: on ? 'on' : '', toggle: () => toggle(it.id) };
+          }) }));
+          return {
+            themeClass: dark ? 't-dark' : 't-light',
+            sizes: SIZES.map((label, i) => ({ label, cls: i === size ? 'on' : '', pressed: i === size ? 'true' : 'false', pick: () => this.setState({ size: i }) })),
+            sizeLabel: SIZES[size].toLowerCase(),
+            groups,
+            chosen,
+            hasSelection: chosen.length > 0,
+            noSelection: chosen.length === 0,
+            total: chosen.length === 0 ? '—' : pln(sum) + (unpriced ? ' + wycena' : '')
+          };
+        }
+      }
+    </script>
+  </body>
+</html>

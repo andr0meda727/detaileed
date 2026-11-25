@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { SearchInput } from '@detaileed/ui';
 import { ResultRow, type ItemSummary } from '@/features/clients/components/picker/ItemSummary';
 
 interface SearchDropdownProps<T> {
@@ -11,7 +11,7 @@ interface SearchDropdownProps<T> {
   onPick: (item: T) => void;
 }
 
-/** A search box whose results slide open below it while there is a query. */
+/** A search box whose results open below it while there is a query. */
 export function SearchDropdown<T>({
   query,
   onQueryChange,
@@ -23,43 +23,34 @@ export function SearchDropdown<T>({
   const open = query.trim() !== '';
   return (
     <>
-      <div className="relative">
-        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input
-          type="text"
-          placeholder={placeholder}
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-          className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl font-semibold text-sm outline-hidden focus:border-cream-warm/50 transition-all"
-        />
-      </div>
-      <div
-        style={{ height: open ? '130px' : '0px', opacity: open ? 1 : 0, transition: 'all 0.25s', overflow: 'hidden' }}
-      >
-        <div className="overflow-y-auto custom-scrollbar rounded-xl h-full">
+      <SearchInput
+        aria-label={placeholder}
+        placeholder={placeholder}
+        value={query}
+        onChange={(e) => onQueryChange(e.target.value)}
+        onClear={() => onQueryChange('')}
+      />
+      {open && (
+        <div className="max-h-[150px] overflow-y-auto rounded-lg border border-border bg-surface p-1">
           {results.length === 0 ? (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Brak wyników</p>
-            </div>
+            <p className="px-3 py-4 text-center text-sm text-faint">Brak wyników</p>
           ) : (
-            <div className="space-y-1.5">
-              {results.map((item) => {
-                const summary = describe(item);
-                return (
-                  <ResultRow
-                    key={summary.key}
-                    item={summary}
-                    onPick={() => {
-                      onPick(item);
-                      onQueryChange('');
-                    }}
-                  />
-                );
-              })}
-            </div>
+            results.map((item) => {
+              const summary = describe(item);
+              return (
+                <ResultRow
+                  key={summary.key}
+                  item={summary}
+                  onPick={() => {
+                    onPick(item);
+                    onQueryChange('');
+                  }}
+                />
+              );
+            })
           )}
         </div>
-      </div>
+      )}
     </>
   );
 }

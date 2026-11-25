@@ -40,3 +40,9 @@ export function longDateOf(date: string) {
   const d = new Date(`${date}T00:00:00Z`);
   return `${WEEKDAYS[d.getUTCDay()]}, ${d.getUTCDate()} ${MONTHS_GENITIVE[d.getUTCMonth()]}`;
 }
+
+/** `Środa, 15 kwietnia 2026` for a `YYYY-MM-DD` date, as the dashboard greeting shows it. */
+export function fullDateOf(date: string) {
+  const text = `${longDateOf(date)} ${date.slice(0, 4)}`;
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}

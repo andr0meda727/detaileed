@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Check, Plus, Wrench } from 'lucide-react';
-import { FormSection, useToast } from '@detaileed/ui';
+import { Badge, Button, FieldError, FormInput, FormSection, cn, useToast } from '@detaileed/ui';
 import { toggleIdSelection } from '@/shared/lib/selection';
 import { getApiErrorMessage } from '@detaileed/domain/apiErrors';
 import { useCreateService, useServices } from '@/features/services';
@@ -31,15 +31,14 @@ export function BookingServicesSection({ value, onChange, error }: BookingServic
   };
 
   const counter = value.length > 0 && (
-    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full" style={{ background: 'var(--green-deep)' }}>
-      <Check size={10} strokeWidth={3} className="text-cream-warm" />
-      <span className="text-[9px] font-bold text-cream-warm tracking-widest">{value.length}</span>
-    </div>
+    <Badge dot={false}>
+      Wybrano: <span className="font-mono tabular-nums">{value.length}</span>
+    </Badge>
   );
 
   return (
-    <FormSection icon={Wrench} title="Wybierz Usługi" actions={counter}>
-      <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+    <FormSection icon={Wrench} title="Wybierz usługi" actions={counter}>
+      <div className="grid grid-cols-1 gap-2 p-5 pb-3 sm:grid-cols-3">
         {services.map((svc) => {
           const isSelected = value.includes(svc.id);
           return (
@@ -48,53 +47,47 @@ export function BookingServicesSection({ value, onChange, error }: BookingServic
               type="button"
               aria-pressed={isSelected}
               onClick={() => onChange(toggleIdSelection(value, svc.id))}
-              className="group relative flex items-center gap-2.5 p-3 rounded-xl text-left transition-all duration-200"
-              style={
+              className={cn(
+                'flex min-h-9 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm transition-colors duration-150',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
                 isSelected
-                  ? { background: 'var(--green-deep)', boxShadow: '0 4px 12px rgba(26,46,30,0.2)' }
-                  : { background: '#f8f9fa' }
-              }
+                  ? 'border-primary bg-muted text-foreground'
+                  : 'border-border bg-surface text-muted-foreground hover:bg-muted hover:text-foreground',
+              )}
             >
-              <div
-                className="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
-                style={
-                  isSelected
-                    ? { background: 'rgba(245,240,232,0.15)', border: '1.5px solid rgba(245,240,232,0.4)' }
-                    : { background: 'white', border: '1.5px solid rgba(0,0,0,0.12)' }
-                }
-              >
-                {isSelected && <Check size={10} strokeWidth={3.5} className="text-cream-warm" />}
-              </div>
               <span
-                className="text-[10px] font-bold uppercase tracking-wide leading-tight line-clamp-2"
-                style={{ color: isSelected ? 'var(--cream)' : '#2d4f33' }}
+                aria-hidden
+                className={cn(
+                  'flex size-4 shrink-0 items-center justify-center rounded-sm border',
+                  isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-border-strong',
+                )}
               >
-                {svc.name}
+                {isSelected && <Check size={12} strokeWidth={2.5} />}
               </span>
+              <span className="line-clamp-2 leading-tight">{svc.name}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="px-4 pb-4 flex gap-2">
-        <input
-          type="text"
-          value={newServiceName}
-          onChange={(e) => setNewServiceName(e.target.value)}
-          placeholder="Dodaj inną usługę..."
-          className="flex-1 px-4 py-3.5 bg-slate-50 border-2 border-transparent rounded-xl outline-hidden font-semibold text-sm focus:border-cream-warm/50"
-        />
-        <button
-          type="button"
+      <div className="flex items-start gap-2 px-5 pb-5">
+        <div className="flex-1">
+          <FormInput
+            aria-label="Nowa usługa"
+            value={newServiceName}
+            onChange={(e) => setNewServiceName(e.target.value)}
+            placeholder="Dodaj inną usługę..."
+          />
+        </div>
+        <Button
+          variant="secondary"
+          icon={Plus}
           aria-label="Dodaj usługę"
           onClick={handleAddService}
-          disabled={createService.isPending}
-          className="w-12 h-12 bg-green-deep text-cream-warm rounded-xl flex items-center justify-center shadow-md active:scale-95 disabled:opacity-60"
-        >
-          <Plus size={18} strokeWidth={2.5} />
-        </button>
+          loading={createService.isPending}
+        />
       </div>
-      {error && <p className="px-4 pb-4 text-red-500 font-bold tracking-widest uppercase text-[10px]">{error}</p>}
+      <FieldError className="px-5 pb-5">{error}</FieldError>
     </FormSection>
   );
 }

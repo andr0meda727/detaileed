@@ -2,6 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/app/api';
 import { App } from '@/app/App';
+// Geist (latin and latin-ext for Polish letters, among others); the browser downloads only the subsets it uses.
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
 import './index.css';
 
 const rootElement = document.getElementById('root');

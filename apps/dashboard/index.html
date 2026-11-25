@@ -3,16 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/src/shared/assets/favicon.svg" />
     <title>Detaileed</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,300&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Applies the saved theme before the first paint: a copy of themeInitScript from @detaileed/ui (a test checks it). -->
+    <script>
+      (function () {
+        var key = 'detaileed-theme';
+        var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+        function apply() {
+          var choice = null;
+          try {
+            choice = window.localStorage.getItem(key);
+          } catch (e) {
+            return;
+          }
+          var theme = choice === 'light' || choice === 'dark' ? choice : media && media.matches ? 'dark' : 'light';
+          var root = document.documentElement;
+          root.dataset.theme = theme;
+          root.style.colorScheme = theme;
+        }
+        apply();
+        if (media && media.addEventListener) media.addEventListener('change', apply);
+        window.addEventListener('storage', function (event) {
+          if (event.key === key || event.key === null) apply();
+        });
+      })();
+    </script>
   </head>
 
-  <body class="antialiased mesh-bg">
+  <body class="antialiased">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

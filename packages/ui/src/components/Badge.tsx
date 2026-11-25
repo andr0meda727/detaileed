@@ -1,52 +1,57 @@
 import type { ReactNode } from 'react';
+import { cn } from '../lib/cn';
 
-export type BadgeTone = 'brand' | 'amber' | 'success' | 'neutral' | 'danger';
+/** Status tones (see the status → tone map in docs/design-system.md). */
+export type BadgeTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps {
   children: ReactNode;
   tone?: BadgeTone;
-  /** Any CSS colour (e.g. a status colour from the API); overrides `tone`. */
+  /**
+   * Any CSS colour (e.g. a status colour from the API). It colours only the dot, on a neutral pill, so the text
+   * keeps its contrast in both themes; overrides `tone`.
+   */
   color?: string | null;
   size?: BadgeSize;
+  /** The 6px dot before the text (default on). */
+  dot?: boolean;
   className?: string;
 }
 
 const tones: Record<BadgeTone, string> = {
-  brand: 'text-green-deep bg-green-deep/5 border-green-deep/15',
-  amber: 'text-amber bg-amber/10 border-amber/30',
-  success: 'text-green-light bg-green-pale/30 border-green-pale',
-  neutral: 'text-slate-500 bg-slate-50 border-slate-200',
-  danger: 'text-red-500 bg-red-50 border-red-200',
+  neutral: 'bg-muted text-muted-foreground',
+  info: 'bg-info-soft text-info',
+  success: 'bg-success-soft text-success',
+  warning: 'bg-warning-soft text-warning',
+  danger: 'bg-danger-soft text-danger',
 };
 
 const sizes: Record<BadgeSize, string> = {
-  sm: 'px-2.5 py-1 rounded-lg border text-[9px]',
-  md: 'px-4 py-2 rounded-full border text-[10px]',
-  lg: 'px-5 py-2.5 rounded-2xl border-2 text-[11px]',
+  sm: 'h-5 px-1.5 text-xs',
+  md: 'h-5.5 px-2 text-xs',
+  lg: 'h-6 px-2.5 text-sm',
 };
 
-/** A small uppercase label: a status, a role, a count. Tinted by `tone`, or by any `color`. */
-export function Badge({ children, tone = 'brand', color, size = 'md', className = '' }: BadgeProps) {
-  const style = color
-    ? {
-        color,
-        borderColor: `color-mix(in srgb, ${color} 25%, transparent)`,
-        backgroundColor: `color-mix(in srgb, ${color} 8%, transparent)`,
-      }
-    : undefined;
+/** A status pill with a dot: a booking status, a role, a stock level. Tinted by `tone`, or dotted by `color`. */
+export function Badge({ children, tone = 'neutral', color, size = 'md', dot = true, className }: BadgeProps) {
   return (
     <span
-      className={[
-        'inline-flex items-center gap-1.5 font-bold uppercase tracking-widest',
+      className={cn(
+        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full font-medium',
         sizes[size],
-        color ? '' : tones[tone],
+        tones[color ? 'neutral' : tone],
         className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      style={style}
+      )}
     >
+      {dot && (
+        <span
+          aria-hidden
+          data-slot="dot"
+          className={cn('size-1.5 shrink-0 rounded-full', !color && 'bg-current')}
+          style={color ? { backgroundColor: color } : undefined}
+        />
+      )}
       {children}
     </span>
   );

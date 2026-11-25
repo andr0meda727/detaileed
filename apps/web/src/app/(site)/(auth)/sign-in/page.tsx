@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { textLink } from '@/shared/ui/textLink';
 import { AuthCard, SignInForm, safeReturnPath, LINK_EXPIRED } from '@/features/auth';
 
 export const metadata: Metadata = { title: 'Logowanie' };
@@ -9,7 +10,7 @@ const NOTICES: Record<string, ReactNode> = {
   link: (
     <>
       {LINK_EXPIRED} Zaloguj się poniżej. Jeśli to był link do ustawienia hasła,{' '}
-      <Link href="/forgot-password" className="font-bold underline">
+      <Link href="/forgot-password" className={textLink}>
         wyślij nowy
       </Link>
       .

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
+import { ChevronLeft } from 'lucide-react';
 import { VehicleSize } from '@detaileed/api-client';
+import { PageHeader } from '@detaileed/ui';
 import { getSignedInUser } from '@/shared/lib/supabase/server';
 import { signInPath } from '@/features/auth';
 import { getListing } from '@/features/studio/server';
@@ -33,13 +35,19 @@ export default async function RequestPage({ params, searchParams }: Props) {
     : VehicleSize.Medium;
 
   return (
-    <section className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
-      <div>
-        <Link href={`/studio/${id}`} className="text-sm font-semibold text-green-light hover:text-green-deep">
-          ← {listing.name}
-        </Link>
-        <h1 className="font-serif text-4xl tracking-tight mt-2">Zapytanie o termin</h1>
-      </div>
+    <section className="mx-auto w-full max-w-3xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
+      <PageHeader
+        title="Zapytanie o termin"
+        breadcrumb={
+          <Link
+            href={`/studio/${id}`}
+            className="inline-flex items-center gap-1 transition-colors duration-150 hover:text-foreground"
+          >
+            <ChevronLeft size={16} strokeWidth={1.75} aria-hidden />
+            {listing.name}
+          </Link>
+        }
+      />
       <BookingRequestPage listing={listing} initialServiceIds={serviceIds} initialSize={size} />
     </section>
   );

@@ -26,6 +26,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+!.env.mock
 # Build artifacts
 *.tsbuildinfo
 coverage

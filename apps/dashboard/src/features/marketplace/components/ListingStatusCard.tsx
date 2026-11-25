@@ -1,5 +1,5 @@
-import { Eye, EyeOff, ExternalLink, Globe, Star } from 'lucide-react';
-import { Badge, Button, FormSection, useToast } from '@detaileed/ui';
+import { Eye, EyeOff, ExternalLink, Star } from 'lucide-react';
+import { Alert, Badge, Button, Card, CardContent, CardHeader, useToast } from '@detaileed/ui';
 import { publicStudioUrl } from '@/shared/lib/siteConfig';
 import { usePublishListing, useUnpublishListing } from '@/features/marketplace/api/listing';
 import type { Listing } from '@/features/marketplace/model/types';
@@ -22,50 +22,61 @@ export function ListingStatusCard({ listing, isOwner, onOpenServices, onOpenStud
   const hasDetails = listing?.hasCompleteDetails ?? false;
 
   return (
-    <FormSection
-      icon={Globe}
-      title="Widoczność w Detaileed"
-      actions={
-        listing && (
-          <Badge tone={listing.isPublished ? 'success' : 'neutral'} size="sm">
-            {listing.isPublished ? 'Opublikowany' : 'Ukryty'}
-          </Badge>
-        )
-      }
-    >
-      <div className="p-5 space-y-4">
+    <Card>
+      <CardHeader
+        title="Widoczność w Detaileed"
+        actions={
+          listing && (
+            <Badge tone={listing.isPublished ? 'success' : 'neutral'}>
+              {listing.isPublished ? 'Opublikowany' : 'Ukryty'}
+            </Badge>
+          )
+        }
+      />
+      <CardContent className="flex flex-col gap-4">
         {!listing ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             Klienci znajdą studio na mapie Detaileed, gdy zapiszesz profil poniżej i go opublikujesz.
           </p>
         ) : (
           <>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-green-deep">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-foreground">
               <span className="flex items-center gap-1.5">
-                <Star size={15} className="text-amber fill-amber" />
+                <Star size={16} strokeWidth={1.75} className="fill-star text-star" aria-hidden />
                 {listing.averageRating === null
                   ? 'Brak opinii'
                   : `${listing.averageRating.toFixed(1).replace('.', ',')} (${listing.reviewCount} opinii)`}
               </span>
-              <span>Usługi widoczne dla klientów: {listing.services.length}</span>
+              <span className="text-muted-foreground">
+                Usługi widoczne dla klientów:{' '}
+                <span className="font-mono text-foreground tabular-nums">{listing.services.length}</span>
+              </span>
             </div>
             {!hasServices && (
-              <p className="text-sm text-amber-700 bg-amber/10 rounded-xl p-3">
-                Studio nie ma jeszcze usług, więc nie można go opublikować.{' '}
-                <button type="button" onClick={onOpenServices} className="font-bold underline">
-                  Dodaj usługi
-                </button>
-              </p>
+              <Alert
+                tone="warning"
+                action={
+                  <Button size="sm" variant="secondary" onClick={onOpenServices}>
+                    Dodaj usługi
+                  </Button>
+                }
+              >
+                Studio nie ma jeszcze usług, więc nie można go opublikować.
+              </Alert>
             )}
             {!hasDetails && (
-              <p className="text-sm text-amber-700 bg-amber/10 rounded-xl p-3">
-                Studio nie ma jeszcze adresu, miasta lub pinezki na mapie, więc klienci by go nie znaleźli.{' '}
-                <button type="button" onClick={onOpenStudio} className="font-bold underline">
-                  Uzupełnij dane studia
-                </button>
-              </p>
+              <Alert
+                tone="warning"
+                action={
+                  <Button size="sm" variant="secondary" onClick={onOpenStudio}>
+                    Uzupełnij dane studia
+                  </Button>
+                }
+              >
+                Studio nie ma jeszcze adresu, miasta lub pinezki na mapie, więc klienci by go nie znaleźli.
+              </Alert>
             )}
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {isOwner &&
                 (listing.isPublished ? (
                   <Button
@@ -93,19 +104,16 @@ export function ListingStatusCard({ listing, isOwner, onOpenServices, onOpenStud
                   </Button>
                 ))}
               {listing.isPublished && (
-                <a
-                  href={publicStudioUrl(listing.studioId)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl text-[10px] font-semibold uppercase tracking-widest text-green-deep hover:bg-slate-50"
-                >
-                  <ExternalLink size={15} /> Zobacz stronę
-                </a>
+                <Button asChild variant="ghost" icon={ExternalLink}>
+                  <a href={publicStudioUrl(listing.studioId)} target="_blank" rel="noreferrer">
+                    Zobacz stronę
+                  </a>
+                </Button>
               )}
             </div>
           </>
         )}
-      </div>
-    </FormSection>
+      </CardContent>
+    </Card>
   );
 }

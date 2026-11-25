@@ -2,7 +2,23 @@
 
 A manual click-through before merging bigger changes to `main`. Run `pnpm dev` (dashboard on :3000, customer site on
 :3001) against a local API and a Supabase project with the redirect URLs set. Tick what a change could have touched;
-for structural refactors go through all of it. Labels in quotes are what the screen shows.
+for structural refactors go through all of it. Labels in quotes are what the screen shows. For visual changes,
+`pnpm dev:mock` runs both apps on sample data (demo accounts in `apps/mock-api/README.md`), no backend needed.
+
+## Look and feel (both apps)
+
+- [ ] Every screen you touched in the light and the dark theme: text readable, no white or black patches, borders and
+      status colours visible, nothing styled for one theme only.
+- [ ] The theme switch (dashboard user menu, site header): "Systemowy", "Jasny", "Ciemny" apply at once, survive a
+      reload, and "Systemowy" follows the OS setting while the page is open.
+- [ ] Reloading in dark shows no light flash before the page appears (dashboard and site, also `/for-studios`).
+- [ ] At 390px wide (phone): no horizontal page scroll, menus and tables usable, dialogs fit the screen.
+- [ ] Keyboard only: Tab reaches every control in order with a visible focus ring; menus and tabs work with arrows.
+- [ ] Dialogs and confirm dialogs: focus moves in and stays inside, `Esc` and the backdrop close them, focus returns
+      to the button that opened them.
+- [ ] Maps (site search, studio page, dashboard public profile pin) use the dark map style in the dark theme.
+- [ ] Fonts are Geist and Geist Mono (times, prices and counts in mono); nothing falls back to a serif.
+- [ ] `/dev/ui` and `/dev/ui/interactive` on the site (dev only) still show every shared component in both themes.
 
 ## Dashboard
 
@@ -59,5 +75,6 @@ for structural refactors go through all of it. Labels in quotes are what the scr
       `/account/bookings?sent=1` shows the notice.
 - [ ] Account: contact details, cars (add, edit, delete, garage full / duplicate plate messages), requests (withdraw a
       pending one), reviews of finished visits, password change (with the emailed code when asked).
+- [ ] `/for-studios`: the landing page and its dashboard demo in both themes and at phone width; its links work.
 - [ ] Page source: `noindex` on sign-in, password, account and booking pages, not on `/` or studio pages;
       `/robots.txt` lists the same paths; `/sitemap.xml` lists the published studios.

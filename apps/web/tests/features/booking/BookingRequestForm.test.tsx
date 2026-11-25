@@ -5,6 +5,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ApiError } from '@detaileed/api-client';
 import type { Listing } from '@detaileed/domain/listing';
 
+// Radix Checkbox measures its box inside a form; jsdom has no ResizeObserver.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 const availability = vi.fn();
 const mutate = vi.fn();
 const push = vi.fn();

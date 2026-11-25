@@ -44,7 +44,7 @@ describe('InventoryItemModal', () => {
   it('saves an edit with the stock read-only (it changes through deliveries) and keeps the category', async () => {
     const onClose = vi.fn();
     render(<InventoryItemModal isOpen item={item} onClose={onClose} />, { wrapper });
-    expect(screen.getAllByText('Chemia')[0].tagName).toBe('SPAN'); // the picked label, not a dropdown option
+    expect(screen.getByLabelText('Kategoria')).toHaveValue('cat1');
 
     expect(screen.getByDisplayValue('2,5')).toHaveAttribute('readonly');
     fireEvent.click(screen.getByText('Zapisz'));

@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyRound, RefreshCw, ShieldCheck } from 'lucide-react';
-import { Button, FormInput, FormSection, useToast } from '@detaileed/ui';
+import { Alert, Button, Card, CardContent, CardHeader, FormInput, useToast } from '@detaileed/ui';
 import { getSupabase } from '@/shared/lib/supabase/client';
 import { newPasswordSchema, type NewPasswordValues, authErrorMessage, setPassword } from '@/features/auth';
 
@@ -89,13 +89,18 @@ export function ChangePasswordForm() {
   };
 
   return (
-    <FormSection icon={KeyRound} title="Hasło">
-      <div className="p-5 space-y-3">
+    <Card>
+      <CardHeader
+        title="Hasło"
+        description={
+          pendingPassword
+            ? 'Dla bezpieczeństwa wysłaliśmy kod na Twój adres e-mail. Wpisz go, aby zmienić hasło.'
+            : 'Po zmianie hasła wylogujemy Cię na pozostałych urządzeniach.'
+        }
+      />
+      <CardContent className="max-w-md">
         {pendingPassword ? (
-          <form className="space-y-3" onSubmit={confirmWithCode} noValidate>
-            <p className="text-sm text-green-light">
-              Dla bezpieczeństwa wysłaliśmy kod na Twój adres e-mail. Wpisz go, aby zmienić hasło.
-            </p>
+          <form className="space-y-2" onSubmit={confirmWithCode} noValidate>
             <FormInput
               label="Kod z e-maila"
               inputMode="numeric"
@@ -103,11 +108,7 @@ export function ChangePasswordForm() {
               value={code}
               onChange={(e) => setCode(e.target.value)}
             />
-            {error && (
-              <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
-                {error}
-              </p>
-            )}
+            {error && <Alert tone="danger">{error}</Alert>}
             <div className="flex flex-wrap gap-2">
               <Button type="submit" icon={ShieldCheck} loading={busy} disabled={!code.trim()}>
                 Potwierdź i zmień hasło
@@ -122,7 +123,6 @@ export function ChangePasswordForm() {
           </form>
         ) : (
           <form className="space-y-2" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <p className="text-sm text-green-light">Po zmianie hasła wylogujemy Cię na pozostałych urządzeniach.</p>
             <FormInput
               label="Nowe hasło"
               type="password"
@@ -137,17 +137,13 @@ export function ChangePasswordForm() {
               error={errors.confirmPassword?.message}
               {...register('confirmPassword')}
             />
-            {error && (
-              <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
-                {error}
-              </p>
-            )}
+            {error && <Alert tone="danger">{error}</Alert>}
             <Button type="submit" icon={KeyRound} loading={busy}>
               Zmień hasło
             </Button>
           </form>
         )}
-      </div>
-    </FormSection>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,6 +1,8 @@
 import React from 'react';
-import { DollarSign, Clipboard, Users, CheckCircle2 } from 'lucide-react';
-import { Skeleton } from '@detaileed/ui';
+import { Card, cn, Skeleton, Stat } from '@detaileed/ui';
+
+/** Dividers between the cells: a 2×2 grid on phones and tablets, one row from `lg`. */
+const cellBorders = ['border-r border-b lg:border-b-0', 'border-b lg:border-r lg:border-b-0', 'border-r', ''];
 
 export interface DashboardStatsProps {
   todayRevenue: number;
@@ -11,6 +13,7 @@ export interface DashboardStatsProps {
   loading?: boolean;
 }
 
+/** The four key figures of the studio, side by side in one card (two by two on phones). */
 export const DashboardStats: React.FC<DashboardStatsProps> = ({
   todayRevenue,
   activeCount,
@@ -20,64 +23,23 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
   loading,
 }) => {
   const stats = [
-    {
-      label: 'Przychód Dziś',
-      value: `${todayRevenue.toLocaleString('pl-PL')} zł`,
-      icon: DollarSign,
-      iconBg: 'bg-green-deep',
-      iconColor: 'text-cream-warm',
-      trend: '+12%',
-      trendStyle: 'bg-green-pale/40 text-green-light',
-    },
-    {
-      label: 'Aktywne Zlecenia',
-      value: activeCount,
-      icon: Clipboard,
-      iconBg: 'bg-amber',
-      iconColor: 'text-green-deep',
-      trend: `${todayBookingsCount} dziś`,
-      trendStyle: 'bg-amber/15 text-amber',
-    },
-    {
-      label: 'Baza Klientów',
-      value: clientsCount,
-      icon: Users,
-      iconBg: 'bg-green-mid',
-      iconColor: 'text-cream-warm',
-      trend: 'aktywni',
-      trendStyle: 'bg-green-pale/40 text-green-light',
-    },
-    {
-      label: 'Ukończone',
-      value: completedCount,
-      icon: CheckCircle2,
-      iconBg: 'bg-green-light',
-      iconColor: 'text-white',
-      trend: 'łącznie',
-      trendStyle: 'bg-green-pale/40 text-green-light',
-    },
+    { label: 'Przychód dziś', value: `${todayRevenue.toLocaleString('pl-PL')} zł`, hint: 'z zakończonych wizyt' },
+    { label: 'Aktywne zlecenia', value: activeCount, hint: `${todayBookingsCount} dziś` },
+    { label: 'Baza klientów', value: clientsCount, hint: 'aktywni' },
+    { label: 'Ukończone', value: completedCount, hint: 'łącznie' },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
-      {stats.map((card, i) => (
-        <div key={i} className="floating-card-static p-5 lg:p-6" style={{ animationDelay: `${i * 60}ms` }}>
-          <div className="flex items-start justify-between mb-4">
-            <div className={`w-11 h-11 ${card.iconBg} rounded-[0.875rem] flex items-center justify-center shadow-md`}>
-              <card.icon size={18} className={card.iconColor} strokeWidth={2.5} />
-            </div>
-            <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${card.trendStyle}`}>{card.trend}</span>
-          </div>
-          <h3 className="text-3xl lg:text-4xl font-extrabold text-green-deep leading-none flex items-baseline">
-            {loading ? (
-              <Skeleton width="100px" height="32px" className="rounded-lg" />
-            ) : (
-              <span className="">{card.value}</span>
-            )}
-          </h3>
-          <p className="text-[12px] font-semibold text-green-deep/45 uppercase tracking-wide mt-2">{card.label}</p>
-        </div>
+    <Card role="group" aria-label="Podsumowanie" className="grid grid-cols-2 overflow-hidden lg:grid-cols-4">
+      {stats.map((stat, i) => (
+        <Stat
+          key={stat.label}
+          className={cn('border-border px-5 py-4', cellBorders[i])}
+          label={stat.label}
+          value={loading ? <Skeleton width="96px" height="28px" /> : stat.value}
+          hint={stat.hint}
+        />
       ))}
-    </div>
+    </Card>
   );
 };

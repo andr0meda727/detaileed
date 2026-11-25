@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:mock": "vite --mode mock",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
@@ -16,6 +17,8 @@
     "@detaileed/api-client": "workspace:*",
     "@detaileed/domain": "workspace:*",
     "@detaileed/ui": "workspace:*",
+    "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/geist-mono": "^5.3.0",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.98.0",
     "@tanstack/react-query": "^5.90.21",

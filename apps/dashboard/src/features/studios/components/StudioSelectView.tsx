@@ -1,60 +1,15 @@
 import React, { useState } from 'react';
-import { Building2, MapPin, CheckCircle2, Loader2, Crown, Shield, UserCheck, Plus, RefreshCw } from 'lucide-react';
+import { Plus, RefreshCw } from 'lucide-react';
 import type { Studio } from '@/features/studios/model/types';
 import { useStudios } from '@/features/studios/api/studios';
 import { getLastStudioId } from '@/features/studios/model/activeStudio';
-import { LoadingSpinner } from '@detaileed/ui';
+import { Alert, Button, LogoMark, Skeleton } from '@detaileed/ui';
 import { CreateStudioModal } from '@/features/studios/components/CreateStudioModal';
+import { NewStudioCard, StudioCard } from './select/StudioCard';
 
 interface StudioSelectViewProps {
   onSelect: (studio: Studio) => void;
 }
-
-// ─── Role config ─────────────────────────────────────────────────────────────
-type RoleConfig = {
-  label: string;
-  icon: React.FC<{ size?: number; className?: string }>;
-  bg: string;
-  text: string;
-  border: string;
-  accent: string;
-};
-
-const ROLE_CONFIG: Record<string, RoleConfig> = {
-  Owner: {
-    label: 'Właściciel',
-    icon: Crown,
-    bg: 'bg-amber-50',
-    text: 'text-amber-700',
-    border: 'border-amber-200',
-    accent: 'bg-amber-500',
-  },
-  Manager: {
-    label: 'Menedżer',
-    icon: Shield,
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
-    border: 'border-blue-200',
-    accent: 'bg-blue-500',
-  },
-  Employee: {
-    label: 'Pracownik',
-    icon: UserCheck,
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200',
-    accent: 'bg-emerald-500',
-  },
-};
-
-const getFallback = (role: string): RoleConfig => ({
-  label: role,
-  icon: UserCheck,
-  bg: 'bg-slate-50',
-  text: 'text-slate-600',
-  border: 'border-slate-200',
-  accent: 'bg-slate-400',
-});
 
 /** Owners and managers can create a new studio (anyone can create their first). */
 const canCreateStudio = (studios: Studio[]) =>
@@ -95,157 +50,66 @@ export const StudioSelectView: React.FC<StudioSelectViewProps> = ({ onSelect }) 
 
   return (
     <>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-cream mesh-bg p-6 sm:p-12">
-        <div className="mb-12 text-center max-w-md">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-xl mb-7 shadow-[0_20px_50px_rgba(26,46,30,0.2)] bg-brand-gradient">
-            <Building2 className="text-cream-warm" size={32} />
+      <main className="flex min-h-screen flex-col items-center justify-center gap-8 bg-background px-4 py-10 text-foreground sm:px-7">
+        <div className="flex max-w-md flex-col items-center gap-3 text-center">
+          <LogoMark size={36} className="text-foreground" />
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-semibold tracking-tight">Wybierz studio</h1>
+            <p className="text-sm text-muted-foreground">
+              Wybierz studio, z którym chcesz pracować. Możesz je zmienić w dowolnym momencie.
+            </p>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-serif text-green-deep tracking-tight mb-4 leading-tight">
-            Wybierz Studio
-          </h1>
-          <p className="text-green-deep/40 text-[14px] font-medium leading-relaxed max-w-sm mx-auto">
-            Wybierz studio, z którym chcesz pracować. Możesz je zmienić w dowolnym momencie.
-          </p>
         </div>
 
         <div className="w-full max-w-4xl">
-          {isLoading && <LoadingSpinner />}
+          {isLoading && (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <span role="status" className="sr-only">
+                Ładowanie studiów…
+              </span>
+              {[0, 1, 2].map((i) => (
+                <Skeleton key={i} className="h-44 w-full rounded-lg" />
+              ))}
+            </div>
+          )}
 
           {isError && (
-            <div className="text-center py-12 space-y-4">
-              <p className="text-red-500 text-sm font-medium bg-red-50 rounded-3xl px-6 py-4 inline-block">
-                Nie udało się pobrać listy studiów.
-              </p>
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={() => refetch()}
-                  className="flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-semibold text-slate-600 hover:text-green-deep hover:border-green-deep/20 transition-all"
-                >
-                  <RefreshCw size={14} /> Spróbuj ponownie
-                </button>
-                <button
-                  onClick={() => setManualOpen(true)}
-                  className="flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-[11px] uppercase tracking-widest text-cream-warm shadow-md transition-all active:scale-95 bg-brand-gradient"
-                >
-                  <Plus size={14} /> Utwórz studio
-                </button>
-              </div>
-            </div>
+            <Alert
+              tone="danger"
+              title="Nie udało się pobrać listy studiów."
+              className="mx-auto max-w-lg"
+              action={
+                <>
+                  <Button size="sm" variant="secondary" icon={RefreshCw} onClick={() => refetch()}>
+                    Spróbuj ponownie
+                  </Button>
+                  <Button size="sm" icon={Plus} onClick={() => setManualOpen(true)}>
+                    Utwórz studio
+                  </Button>
+                </>
+              }
+            />
           )}
 
           {!isLoading && !isError && studios.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {studios.map((studio) => {
-                const isActive = lastStudioId === studio.studioId;
-                const isSelecting = selecting === studio.studioId;
-                const cfg = ROLE_CONFIG[studio.role] ?? getFallback(studio.role);
-                const RoleIcon = cfg.icon;
-
-                return (
-                  <button
-                    key={studio.studioId}
-                    onClick={() => handleSelect(studio)}
-                    disabled={!!selecting}
-                    className={`relative text-left flex flex-col gap-5 p-7 rounded-xl transition-all duration-300 overflow-hidden group
-                      ${
-                        isActive
-                          ? 'shadow-[0_20px_50px_rgba(26,46,30,0.2)] scale-[1.02]'
-                          : 'hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)]'
-                      }
-                      ${selecting && !isSelecting ? 'opacity-40 pointer-events-none' : ''}
-                    `}
-                    style={
-                      isActive
-                        ? {
-                            background: 'linear-gradient(135deg, var(--green-deep) 0%, var(--green-dark) 100%)',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                          }
-                        : {
-                            background: 'white',
-                            border: '1px solid rgba(26,46,30,0.06)',
-                            boxShadow: '0 4px 16px -4px rgba(0,0,0,0.04)',
-                          }
-                    }
-                  >
-                    {/* accent stripe */}
-                    <div
-                      className={`absolute inset-x-0 top-0 h-1 rounded-t-3xl ${isActive ? 'bg-cream-warm/40' : cfg.accent}`}
-                    />
-
-                    {/* role badge */}
-                    <div className="flex items-start justify-between">
-                      <div
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-widest border
-                        ${isActive ? 'bg-white/10 text-cream-warm border-white/10' : `${cfg.bg} ${cfg.text} ${cfg.border}`}`}
-                      >
-                        <RoleIcon size={11} className="shrink-0" />
-                        {cfg.label}
-                      </div>
-                      {isSelecting && (
-                        <Loader2
-                          className={`animate-spin ${isActive ? 'text-cream-warm/60' : 'text-green-deep/30'}`}
-                          size={18}
-                        />
-                      )}
-                      {isActive && !isSelecting && <CheckCircle2 className="text-cream-warm" size={20} />}
-                    </div>
-
-                    {/* Studio info */}
-                    <div className="flex-1">
-                      <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${isActive ? 'bg-white/10' : 'bg-slate-50'}`}
-                      >
-                        <Building2 size={20} className={isActive ? 'text-cream-warm/80' : 'text-green-deep/40'} />
-                      </div>
-                      <h3
-                        className={`font-extrabold text-lg tracking-tight leading-tight mb-1 ${isActive ? 'text-white' : 'text-green-deep'}`}
-                      >
-                        {studio.name}
-                      </h3>
-                      {studio.address ? (
-                        <div
-                          className={`flex items-start gap-1.5 text-xs leading-relaxed ${isActive ? 'text-white/40' : 'text-slate-400'}`}
-                        >
-                          <MapPin size={11} className="shrink-0 mt-0.5" />
-                          <span>{studio.address}</span>
-                        </div>
-                      ) : (
-                        <span className={`text-xs ${isActive ? 'text-white/20' : 'text-slate-300'}`}>Brak adresu</span>
-                      )}
-                    </div>
-
-                    <div
-                      className={`text-[10px] font-semibold uppercase tracking-widest ${isActive ? 'text-cream-warm/60' : 'text-slate-300 group-hover:text-green-deep/40 transition-colors'}`}
-                    >
-                      {isActive ? '✓ Aktualnie wybrane' : 'Kliknij, aby wybrać →'}
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {studios.map((studio) => (
+                <StudioCard
+                  key={studio.studioId}
+                  studio={studio}
+                  isActive={lastStudioId === studio.studioId}
+                  isSelecting={selecting === studio.studioId}
+                  isDimmed={!!selecting && selecting !== studio.studioId}
+                  onSelect={() => handleSelect(studio)}
+                />
+              ))}
 
               {/* New studio card: only when the user already has studios */}
-              {showCreateCard && (
-                <button
-                  onClick={() => setManualOpen(true)}
-                  className="relative text-left flex flex-col items-center justify-center gap-3 p-7 rounded-xl border-2 border-dashed border-green-deep/15 hover:border-green-deep/30 hover:bg-green-deep/2 transition-all duration-300 group min-h-[200px]"
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-green-deep/5 flex items-center justify-center group-hover:bg-green-deep/10 transition-colors">
-                    <Plus size={22} className="text-green-deep/40 group-hover:text-green-deep/70 transition-colors" />
-                  </div>
-                  <div className="text-center">
-                    <p className="font-extrabold text-sm text-green-deep/50 group-hover:text-green-deep/80 transition-colors tracking-tight">
-                      Nowe Studio
-                    </p>
-                    <p className="text-[11px] text-slate-300 group-hover:text-slate-400 transition-colors mt-0.5">
-                      Utwórz kolejne studio
-                    </p>
-                  </div>
-                </button>
-              )}
+              {showCreateCard && <NewStudioCard onClick={() => setManualOpen(true)} />}
             </div>
           )}
         </div>
-      </div>
+      </main>
 
       {/* Opens by itself when there are no studios, or by hand */}
       <CreateStudioModal

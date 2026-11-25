@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Modal, Skeleton } from '@detaileed/ui';
+import { Modal, Pagination, Skeleton, Stat, type StatTone } from '@detaileed/ui';
 import { formatInZone } from '@detaileed/domain/studioTime';
 import { useStudioTimeZone } from '@/features/studios';
 import { useMovements } from '@/features/inventory/api/ledger';
 import { MOVEMENT_LABELS, formatQuantity } from '@/features/inventory/model/ledger';
-import type { InventoryItem } from '@/features/inventory/model/types';
+import { stockLevel, type InventoryItem } from '@/features/inventory/model/types';
 import { MovementForm } from '@/features/inventory/components/ledger/MovementForm';
 
 interface ItemHistoryModalProps {
@@ -14,56 +13,36 @@ interface ItemHistoryModalProps {
   onClose: () => void;
 }
 
+const STOCK_TONES: Record<ReturnType<typeof stockLevel>, StatTone> = { out: 'danger', low: 'warning', ok: 'neutral' };
+
 function History({ item }: { item: InventoryItem }) {
   const timeZone = useStudioTimeZone();
   const [page, setPage] = useState(1);
   const { data, isLoading } = useMovements(item.id, page);
 
-  if (isLoading) return <Skeleton width="100%" height="160px" className="rounded-xl" />;
-  if (!data?.items.length) return <p className="text-sm text-slate-400">Brak ruchów magazynowych.</p>;
+  if (isLoading) return <Skeleton width="100%" height="160px" className="rounded-lg" />;
+  if (!data?.items.length) return <p className="text-sm text-muted-foreground">Brak ruchów magazynowych.</p>;
 
   return (
-    <div className="space-y-2">
-      <ul className="divide-y divide-slate-100 border border-slate-100 rounded-xl">
+    <div className="flex flex-col gap-3">
+      <ul className="divide-y divide-border rounded-lg border border-border">
         {data.items.map((m) => (
-          <li key={m.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
-            <span className="w-36 shrink-0 text-xs text-slate-400">
+          <li key={m.id} className="flex flex-wrap items-center gap-x-3 gap-y-0.5 px-4 py-2.5 text-sm">
+            <span className="w-full shrink-0 font-mono text-xs text-faint tabular-nums sm:w-32">
               {formatInZone(m.createdAt, timeZone, { dateStyle: 'short', timeStyle: 'short' })}
             </span>
-            <span className="flex-1 font-semibold text-green-deep">
+            <span className="min-w-0 flex-1 font-medium text-foreground">
               {MOVEMENT_LABELS[m.type] ?? m.type}
-              {m.note && <span className="font-normal text-slate-500"> · {m.note}</span>}
+              {m.note && <span className="font-normal text-muted-foreground"> · {m.note}</span>}
             </span>
-            <span className={`font-mono font-bold ${m.quantity < 0 ? 'text-red-500' : 'text-green-light'}`}>
+            <span className="font-mono font-medium whitespace-nowrap tabular-nums">
               {m.quantity > 0 ? '+' : ''}
               {formatQuantity(m.quantity)} {item.unit}
             </span>
           </li>
         ))}
       </ul>
-      {data.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 text-sm text-slate-500">
-          <button
-            type="button"
-            aria-label="Nowsze"
-            disabled={page <= 1}
-            onClick={() => setPage(page - 1)}
-            className="p-1.5 disabled:opacity-30"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          {page} / {data.totalPages}
-          <button
-            type="button"
-            aria-label="Starsze"
-            disabled={page >= data.totalPages}
-            onClick={() => setPage(page + 1)}
-            className="p-1.5 disabled:opacity-30"
-          >
-            <ChevronRight size={16} />
-          </button>
-        </div>
-      )}
+      <Pagination page={page} totalPages={data.totalPages} onPageChange={setPage} label="Strony historii" />
     </div>
   );
 }
@@ -71,19 +50,25 @@ function History({ item }: { item: InventoryItem }) {
 /** An item's stock and its history (deliveries, stocktakes, what visits used), with a delivery/stocktake form. */
 export function ItemHistoryModal({ item, onClose }: ItemHistoryModalProps) {
   return (
-    <Modal isOpen={item !== null} onClose={onClose} title={item ? item.name : ''}>
+    <Modal
+      isOpen={item !== null}
+      onClose={onClose}
+      title={item ? item.name : ''}
+      description="Dostawy, inwentaryzacje i zużycie w wizytach"
+    >
       {item && (
-        <div className="space-y-5 pb-4">
-          <p className="text-sm text-slate-500">
-            Stan: <strong className="text-2xl font-mono text-green-deep">{formatQuantity(item.stock)}</strong>{' '}
-            {item.unit}
-            {item.minStock !== null && <span> · minimum {formatQuantity(item.minStock)}</span>}
-          </p>
+        <div className="flex flex-col gap-5">
+          <Stat
+            label="Stan"
+            value={`${formatQuantity(item.stock)} ${item.unit}`}
+            hint={item.minStock !== null ? `Minimum ${formatQuantity(item.minStock)} ${item.unit}` : undefined}
+            tone={STOCK_TONES[stockLevel(item)]}
+          />
           <MovementForm itemId={item.id} unit={item.unit} />
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Historia</p>
+          <section className="flex flex-col gap-2">
+            <h3 className="text-sm font-medium text-foreground">Historia</h3>
             <History item={item} />
-          </div>
+          </section>
         </div>
       )}
     </Modal>

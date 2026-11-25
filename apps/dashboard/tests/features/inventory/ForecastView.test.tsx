@@ -6,7 +6,15 @@ vi.mock('@/features/inventory/api/ledger', () => ({
   useForecast: () => ({
     isLoading: false,
     data: [
-      { ...base, itemId: 'a', name: 'Wosk', stock: 10, daysLeft: 20, stockAfterPlanned: 9, runsOutAt: null },
+      {
+        ...base,
+        itemId: 'a',
+        name: 'Wosk',
+        stock: 10,
+        daysLeft: 20,
+        stockAfterPlanned: 9,
+        runsOutAt: '2026-12-07T08:00:00Z',
+      },
       {
         ...base,
         itemId: 'b',
@@ -56,7 +64,9 @@ describe('ForecastView', () => {
       'Wosk ',
       'Nieużywany ',
     ]);
-    expect(within(rows[0]).getByText('17.11.2026, 09:00')).toBeInTheDocument();
+    // Running out before the planned bookings are done is flagged; a later date is plain text.
+    expect(within(rows[0]).getByText('17.11.2026, 09:00').querySelector('[data-slot=dot]')).not.toBeNull();
+    expect(within(rows[1]).getByText('7.12.2026, 09:00').querySelector('[data-slot=dot]')).toBeNull();
     expect(screen.getByText('×1,12')).toBeInTheDocument();
     expect(screen.getByText('8%')).toBeInTheDocument();
   });

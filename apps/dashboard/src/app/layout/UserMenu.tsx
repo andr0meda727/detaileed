@@ -1,0 +1,52 @@
+import React from 'react';
+import { Link } from '@tanstack/react-router';
+import { ChevronsUpDown, LogOut, UserCircle } from 'lucide-react';
+import {
+  Avatar,
+  cn,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  ThemeSwitch,
+} from '@detaileed/ui';
+import { NAV_ROW } from '@/app/layout/navItems';
+
+interface UserMenuProps {
+  studioId: string;
+  userEmail?: string | null;
+  onLogout: () => void;
+  onNavigate?: () => void;
+}
+
+/** The signed-in user at the bottom of the sidebar: the theme switch, their account and signing out. */
+export const UserMenu: React.FC<UserMenuProps> = ({ studioId, userEmail, onLogout, onNavigate }) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger
+      className={cn(NAV_ROW, 'text-muted-foreground hover:bg-muted hover:text-foreground')}
+      aria-label="Menu użytkownika"
+    >
+      <Avatar name={userEmail} size="sm" decorative />
+      <span className="min-w-0 flex-1 truncate text-left">{userEmail ?? 'Konto'}</span>
+      <ChevronsUpDown className="size-4 shrink-0" strokeWidth={1.75} aria-hidden />
+    </DropdownMenuTrigger>
+    <DropdownMenuContent side="top" align="start" className="min-w-60">
+      {userEmail && <DropdownMenuLabel className="truncate">{userEmail}</DropdownMenuLabel>}
+      <div className="px-1 py-1.5">
+        <ThemeSwitch />
+      </div>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem icon={UserCircle} asChild>
+        <Link to="/s/$studioId/settings/user" params={{ studioId }} onClick={onNavigate}>
+          Moje konto
+        </Link>
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem danger icon={LogOut} onSelect={onLogout}>
+        Wyloguj
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+);

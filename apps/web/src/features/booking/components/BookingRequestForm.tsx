@@ -10,7 +10,7 @@ import {
   type GarageVehicleDto,
   type VehicleSize,
 } from '@detaileed/api-client';
-import { Button, FormSection } from '@detaileed/ui';
+import { Alert, Button, FieldError, FormSection, Textarea } from '@detaileed/ui';
 import type { Listing } from '@detaileed/domain/listing';
 import { formatPln } from '@detaileed/domain/money';
 import { addDays, todayInZone } from '@detaileed/domain/studioTime';
@@ -25,6 +25,7 @@ import {
 import { bookingErrorMessage } from '@/features/booking/model/errors';
 import { ServiceChecklist } from '@/features/booking/components/ServiceChecklist';
 import { TimePicker } from '@/features/booking/components/TimePicker';
+import { CarChoice } from '@/features/booking/components/CarChoice';
 
 interface BookingRequestFormProps {
   listing: Listing;
@@ -88,36 +89,30 @@ export function BookingRequestForm({ listing, garage, initialServiceIds, initial
 
   const errors = formState.errors;
   return (
-    <form className="space-y-5" onSubmit={onSubmit} noValidate>
+    <form className="flex flex-col gap-5" onSubmit={onSubmit} noValidate>
       <FormSection icon={Wrench} title="Usługi">
-        <div className="p-4">
+        <div className="flex flex-col gap-2 p-5">
           <ServiceChecklist
             services={listing.services}
             size={size}
             selected={serviceIds}
             onChange={(ids) => setValue('serviceIds', ids, { shouldDirty: true })}
+            errorId={errors.serviceIds ? 'services-error' : undefined}
           />
-          {errors.serviceIds && <p className="mt-2 text-xs font-bold text-red-500">{errors.serviceIds.message}</p>}
+          <FieldError id="services-error">{errors.serviceIds?.message}</FieldError>
         </div>
       </FormSection>
 
       <FormSection icon={Car} title="Auto">
-        <div className="p-4 space-y-3" role="radiogroup" aria-label="Auto">
-          {garage.map((v) => (
-            <label
-              key={v.id}
-              className="flex items-center gap-3 p-3 rounded-xl border-2 border-green-deep/10 cursor-pointer has-[:checked]:border-green-deep"
-            >
-              <input type="radio" value={v.id} {...register('vehicleChoice')} />
-              <span className="font-semibold">{[v.brand, v.model].filter(Boolean).join(' ') || 'Auto'}</span>
-              <span className="font-mono text-sm text-green-light">{v.licensePlate}</span>
-            </label>
-          ))}
+        <div className="flex flex-col gap-3 p-5">
           {garage.length > 0 && (
-            <label className="flex items-center gap-3 p-3 rounded-xl border-2 border-green-deep/10 cursor-pointer has-[:checked]:border-green-deep">
-              <input type="radio" value={NEW_CAR} {...register('vehicleChoice')} />
-              <span className="font-semibold">Inne auto</span>
-            </label>
+            <CarChoice
+              garage={garage}
+              value={vehicleChoice}
+              onChange={(v) => setValue('vehicleChoice', v, { shouldDirty: true })}
+              errorId={errors.vehicleChoice ? 'car-error' : undefined}
+              invalid={!!errors.vehicleChoice}
+            />
           )}
           {vehicleChoice === NEW_CAR && (
             <CarFields
@@ -130,12 +125,12 @@ export function BookingRequestForm({ listing, garage, initialServiceIds, initial
               errors={errors.car}
             />
           )}
-          {errors.vehicleChoice && <p className="text-xs font-bold text-red-500">{errors.vehicleChoice.message}</p>}
+          <FieldError id="car-error">{errors.vehicleChoice?.message}</FieldError>
         </div>
       </FormSection>
 
       <FormSection icon={Clock} title="Termin">
-        <div className="p-4">
+        <div className="p-5">
           <TimePicker
             planning={serviceIds.length === 0 ? false : planning}
             slots={availability.data?.slots ?? []}
@@ -150,36 +145,34 @@ export function BookingRequestForm({ listing, garage, initialServiceIds, initial
         </div>
       </FormSection>
 
-      <div className="space-y-1.5">
-        <label htmlFor="notes" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
-          Uwagi dla studia (opcjonalnie)
-        </label>
-        <textarea
-          id="notes"
-          rows={3}
-          placeholder="np. psia sierść na tylnej kanapie"
-          className="w-full px-4 py-3.5 bg-white border-2 border-green-deep/10 rounded-xl outline-hidden text-sm focus:border-cream-warm"
-          {...register('notes')}
-        />
-      </div>
+      <Textarea
+        id="notes"
+        label="Uwagi dla studia (opcjonalnie)"
+        rows={3}
+        placeholder="np. psia sierść na tylnej kanapie"
+        error={errors.notes?.message}
+        {...register('notes')}
+      />
 
-      {errors.root && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
-          {errors.root.message}
-        </p>
-      )}
+      {errors.root && <Alert tone="danger">{errors.root.message}</Alert>}
 
-      <div className="bg-green-deep text-cream-warm rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-lg font-bold" aria-live="polite">
-          {estimate.data
-            ? `Szacunkowo ${formatPln(Number(estimate.data.total))} zł${estimate.data.hasUnpricedServices ? ' + wycena części usług' : ''}`
-            : 'Wybierz usługi'}
-        </p>
-        <Button type="submit" size="lg" variant="secondary" icon={Send} loading={submit.isPending}>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface p-5">
+        <div aria-live="polite">
+          <p className="text-sm text-muted-foreground">{estimate.data ? 'Szacunkowo' : 'Wybierz usługi'}</p>
+          {estimate.data && (
+            <p className="font-mono text-2xl font-medium tracking-tight tabular-nums text-foreground">
+              {formatPln(Number(estimate.data.total))} zł
+              {estimate.data.hasUnpricedServices && (
+                <span className="font-sans text-sm font-normal text-muted-foreground"> + wycena części usług</span>
+              )}
+            </p>
+          )}
+        </div>
+        <Button type="submit" size="lg" icon={Send} loading={submit.isPending}>
           Wyślij zapytanie
         </Button>
       </div>
-      <p className="text-xs text-green-light">
+      <p className="text-xs text-faint">
         To zapytanie, nie rezerwacja: studio odpowie e-mailem, a termin pojawi się w zakładce „Moje rezerwacje”.
       </p>
     </form>

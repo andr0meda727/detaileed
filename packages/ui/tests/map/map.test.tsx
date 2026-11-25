@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { roundBounds, roundCoord } from '../../src/map/geo';
+import { MAP_STYLES, roundBounds, roundCoord } from '../../src/map/geo';
+import { THEME_STORAGE_KEY } from '../../src/theme/themeScript';
 
 // jsdom has no WebGL: replace the map with a div that exposes its click and load handlers.
 const fakeMap = {
@@ -12,14 +13,16 @@ const fakeMap = {
 vi.mock('react-map-gl/maplibre', () => ({
   default: ({
     children,
+    mapStyle,
     onClick,
     onLoad,
   }: {
     children: ReactNode;
+    mapStyle?: string;
     onClick?: (e: { lngLat: { lat: number; lng: number } }) => void;
     onLoad?: (e: { target: typeof fakeMap }) => void;
   }) => (
-    <div>
+    <div data-testid="map-root" data-style={mapStyle}>
       <button data-testid="map" onClick={() => onClick?.({ lngLat: { lat: 50.0614123456, lng: 19.9372987654 } })} />
       <button data-testid="load" onClick={() => onLoad?.({ target: fakeMap })} />
       {children}
@@ -88,5 +91,40 @@ describe('MapView', () => {
       { minLat: 50, maxLat: 50.1, minLng: 19.8, maxLng: 20.1 },
       { lat: 50.05, lng: 19.95, zoom: 11 },
     );
+  });
+});
+
+describe('map styles', () => {
+  afterEach(() => window.localStorage.clear());
+
+  it('uses positron in the light theme', () => {
+    render(<MapView pins={[]} />);
+    expect(screen.getByTestId('map-root')).toHaveAttribute('data-style', MAP_STYLES.light);
+  });
+
+  it('uses the dark style in the dark theme', () => {
+    window.localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+    render(<MapPicker value={null} onChange={() => {}} />);
+    expect(screen.getByTestId('map-root')).toHaveAttribute('data-style', MAP_STYLES.dark);
+  });
+
+  it('keeps an app style over both', () => {
+    window.localStorage.setItem(THEME_STORAGE_KEY, 'dark');
+    render(<MapView pins={[]} styleUrl="https://maps.example.com/style.json" />);
+    expect(screen.getByTestId('map-root')).toHaveAttribute('data-style', 'https://maps.example.com/style.json');
+  });
+
+  it('marks the selected pin with the inverted primary', () => {
+    render(
+      <MapView
+        pins={[
+          { id: 'a', lat: 50, lng: 20, label: 'od 89 zł' },
+          { id: 'b', lat: 51, lng: 21, label: 'od 120 zł' },
+        ]}
+        selectedId="b"
+      />,
+    );
+    expect(screen.getByText('od 120 zł')).toHaveClass('bg-primary', 'text-primary-foreground');
+    expect(screen.getByText('od 89 zł')).toHaveClass('bg-surface', 'border-border-strong');
   });
 });

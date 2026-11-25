@@ -1,6 +1,6 @@
 import React from 'react';
-import { Phone, Search, Car as CarIcon, Plus, Edit2, Trash2 } from 'lucide-react';
-import { Button, Modal, Badge } from '@detaileed/ui';
+import { Car as CarIcon, Mail, Pencil, Phone, Plus, Trash2 } from 'lucide-react';
+import { Avatar, Badge, Button, Card, CardHeader, EmptyState, LicensePlate, Modal } from '@detaileed/ui';
 import { vehicleSizeLabel } from '@detaileed/domain/vehicleSize';
 import type { Client } from '@/features/clients/model/types';
 
@@ -14,6 +14,65 @@ interface ClientDetailsModalProps {
   onDeleteVehicle: (vehicleId: string) => void;
 }
 
+function ContactRow({ icon: Icon, label, value }: { icon: typeof Phone; label: string; value: string | null }) {
+  return (
+    <div className="flex min-w-0 items-center gap-3 rounded-lg border border-border px-4 py-3">
+      <Icon size={16} strokeWidth={1.75} className="shrink-0 text-faint" aria-hidden />
+      <div className="min-w-0">
+        <dt className="text-xs text-faint">{label}</dt>
+        <dd className={value ? 'truncate text-sm text-foreground' : 'text-sm text-faint'}>{value || 'Brak'}</dd>
+      </div>
+    </div>
+  );
+}
+
+function VehicleRow({
+  vehicle,
+  onEdit,
+  onDelete,
+}: {
+  vehicle: Client['vehicles'][number];
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const name = [vehicle.brand, vehicle.model].filter(Boolean).join(' ') || 'Pojazd';
+  const size = vehicleSizeLabel(vehicle.size);
+  return (
+    <li className="flex flex-col gap-3 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+          <CarIcon size={16} strokeWidth={1.75} aria-hidden />
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium text-foreground">{name}</p>
+          {size && (
+            <Badge tone="neutral" size="sm" dot={false} className="mt-0.5">
+              {size}
+            </Badge>
+          )}
+        </div>
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
+        <LicensePlate plate={vehicle.licensePlate} className="mr-2" />
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={Pencil}
+          aria-label={`Edytuj pojazd ${vehicle.licensePlate}`}
+          onClick={onEdit}
+        />
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={Trash2}
+          aria-label={`Usuń pojazd ${vehicle.licensePlate}`}
+          onClick={onDelete}
+        />
+      </div>
+    </li>
+  );
+}
+
 /** Client card: contact details and vehicles, with edit/add/delete actions. */
 export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   client,
@@ -23,128 +82,65 @@ export const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   onEditVehicle,
   onDeleteVehicle,
 }) => (
-  <Modal isOpen={client !== null} onClose={onClose} title="Karta Klienta">
+  <Modal isOpen={client !== null} onClose={onClose} title="Karta klienta">
     {client && (
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-6">
-        <div className="p-8 bg-green-deep rounded-[2.5rem] border border-white/5 relative overflow-hidden">
-          <div className="relative z-10 flex flex-col gap-6">
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 bg-white/10 text-cream-warm rounded-4xl flex items-center justify-center font-extrabold text-4xl shadow-xl shrink-0">
-                {client.name
-                  .split(' ')
-                  .map((n) => n[0])
-                  .join('')
-                  .slice(0, 2)}
-              </div>
-              <div className="min-w-0">
-                <p className="text-[10px] font-semibold text-cream-warm uppercase tracking-widest mb-1">Klient</p>
-                <h3 className="font-extrabold text-white text-3xl tracking-tight truncate">{client.name}</h3>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-              <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4">
-                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-cream-warm shrink-0">
-                  <Phone size={16} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[9px] font-semibold text-cream-warm uppercase tracking-wider">Telefon</p>
-                  <p className="font-semibold text-white truncate">{client.phone || 'Brak'}</p>
-                </div>
-              </div>
-              <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-4">
-                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-cream-warm shrink-0">
-                  <Search size={16} />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[9px] font-semibold text-cream-warm uppercase tracking-wider">Email</p>
-                  <p className="font-semibold text-white truncate">{client.email || 'Brak'}</p>
-                </div>
-              </div>
-            </div>
+      <div className="space-y-5">
+        <div className="flex items-center gap-3">
+          <Avatar name={client.name} size="lg" decorative />
+          <div className="min-w-0">
+            <h3 className="truncate text-lg font-semibold tracking-tight text-foreground">{client.name}</h3>
+            {client.nip && <p className="font-mono text-xs text-faint tabular-nums">NIP {client.nip}</p>}
           </div>
         </div>
 
-        <div className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-100">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <div className="flex items-center gap-3">
-              <h4 className="text-sm font-bold text-green-deep uppercase tracking-widest">Pojazdy we flocie</h4>
-              <div className="px-3 py-1 bg-cream-warm/30 text-green-deep rounded-lg font-bold text-xs">
-                {client.vehicles.length}
-              </div>
-            </div>
-            <button
-              onClick={onAddVehicle}
-              className="px-4 py-2 bg-white border border-slate-200 text-green-deep rounded-xl font-bold text-[10px] uppercase tracking-widest hover:border-green-deep/20 transition-all flex items-center gap-2 self-start sm:self-auto shadow-xs"
-            >
-              <Plus size={14} /> Dodaj Pojazd
-            </button>
-          </div>
+        <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <ContactRow icon={Phone} label="Telefon" value={client.phone} />
+          <ContactRow icon={Mail} label="Email" value={client.email} />
+        </dl>
 
-          <div className="space-y-4">
-            {client.vehicles.length > 0 ? (
-              client.vehicles.map((v) => (
-                <div
+        <Card>
+          <CardHeader
+            titleAs="h4"
+            title={
+              <span className="flex items-center gap-2">
+                Pojazdy we flocie
+                <span className="font-mono text-xs font-normal text-faint tabular-nums">{client.vehicles.length}</span>
+              </span>
+            }
+            actions={
+              <Button variant="secondary" size="sm" icon={Plus} onClick={onAddVehicle}>
+                Dodaj pojazd
+              </Button>
+            }
+          />
+          {client.vehicles.length > 0 ? (
+            <ul className="divide-y divide-border">
+              {client.vehicles.map((v) => (
+                <VehicleRow
                   key={v.id}
-                  className="bg-white p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between shadow-xs border border-slate-100 gap-4 group hover:border-cream-warm transition-all"
-                >
-                  <div className="flex items-center gap-5 min-w-0">
-                    <div className="w-12 h-12 bg-slate-50 group-hover:bg-cream-warm/20 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-green-light transition-colors shrink-0">
-                      <CarIcon size={24} />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="font-bold text-green-deep text-lg block truncate">
-                        {v.brand} {v.model}
-                      </span>
-                      {vehicleSizeLabel(v.size) && (
-                        <Badge tone="neutral" size="sm" className="mt-1">
-                          {vehicleSizeLabel(v.size)}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <div className="bg-green-deep text-cream-warm px-4 py-2.5 rounded-xl font-mono text-sm font-bold text-center shadow-md">
-                      {v.licensePlate}
-                    </div>
-                    <button
-                      onClick={() => onEditVehicle(v.id)}
-                      className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-100 text-slate-400 rounded-xl hover:text-green-deep hover:bg-cream-warm/20 hover:border-cream-warm/40 transition-all"
-                    >
-                      <Edit2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => onDeleteVehicle(v.id)}
-                      className="w-10 h-10 flex items-center justify-center bg-slate-50 border border-slate-100 text-slate-400 rounded-xl hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-all"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-10 bg-white rounded-2xl border-2 border-dashed border-slate-200">
-                <p className="text-slate-400 font-semibold text-sm">Klient nie posiada jeszcze dodanych pojazdów.</p>
-              </div>
-            )}
-          </div>
-        </div>
+                  vehicle={v}
+                  onEdit={() => onEditVehicle(v.id)}
+                  onDelete={() => onDeleteVehicle(v.id)}
+                />
+              ))}
+            </ul>
+          ) : (
+            <EmptyState icon={CarIcon} message="Klient nie posiada jeszcze dodanych pojazdów." className="py-8" />
+          )}
+        </Card>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Button variant="secondary" size="lg" fullWidth onClick={() => onEditClient(client)}>
-            <Edit2 size={16} /> Edytuj Klienta
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button variant="secondary" icon={Pencil} onClick={() => onEditClient(client)}>
+            Edytuj klienta
           </Button>
           {client.phone ? (
-            <a
-              href={`tel:${client.phone}`}
-              className="w-full py-5 bg-green-deep text-cream-warm rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl hover:bg-[#0a1c18] transition-all"
-            >
-              <Phone size={16} /> Zadzwoń
-            </a>
+            <Button asChild icon={Phone}>
+              <a href={`tel:${client.phone}`}>Zadzwoń</a>
+            </Button>
           ) : (
-            <div className="w-full py-5 bg-slate-50 text-slate-300 border border-slate-100 border-dashed rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 cursor-not-allowed">
-              <Phone size={16} /> Brak numeru
-            </div>
+            <Button icon={Phone} disabled>
+              Brak numeru
+            </Button>
           )}
         </div>
       </div>

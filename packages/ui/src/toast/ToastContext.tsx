@@ -1,28 +1,29 @@
 'use client';
 
-import React, { useState, useCallback, ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import { ToastContainer } from './Toast';
 import { ToastContext, type ToastMessage, type ToastType } from './useToast';
 
+let nextId = 0;
+
+/** Holds the toasts; each one removes itself after about 5 s (see `Toast.tsx`) or when closed. */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const addToast = useCallback((message: string, type: ToastType) => {
-    const id = Math.random().toString(36).substr(2, 9);
+    nextId += 1;
+    const id = `toast-${nextId}`;
     setToasts((prev) => [...prev, { id, type, message }]);
-
-    // Auto remove after 3 seconds
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, 3000);
   }, []);
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
+  const value = useMemo(() => ({ addToast, removeToast }), [addToast, removeToast]);
+
   return (
-    <ToastContext.Provider value={{ addToast, removeToast }}>
+    <ToastContext.Provider value={value}>
       {children}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
     </ToastContext.Provider>

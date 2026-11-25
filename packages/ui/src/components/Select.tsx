@@ -1,7 +1,10 @@
 'use client';
 
-import { useId, type ComponentPropsWithRef } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { cn } from '../lib/cn';
+import { FieldShell } from './FieldShell';
+import { controlClasses, reservesMessage, useFieldIds } from './fieldParts';
 
 export interface SelectOption {
   value: string;
@@ -10,38 +13,36 @@ export interface SelectOption {
 
 export interface SelectProps extends Omit<ComponentPropsWithRef<'select'>, 'children'> {
   label?: string;
+  /** Shown below in `text-danger`, linked with `aria-describedby`; also sets `aria-invalid`. */
   error?: string;
+  /** Help text below the field, linked with `aria-describedby`. */
+  hint?: ReactNode;
   options: SelectOption[];
 }
 
 /**
- * A native select styled like `FormInput` (label above, error below with a stable height). Works with
- * react-hook-form's `register(...)`, which passes `ref`.
+ * A native select styled like `FormInput` (label above, hint or error below). `className` goes on the `<select>`.
+ * Works with react-hook-form's `register(...)`, which passes `ref`.
  */
-export function Select({ label, error, options, id, className = '', ...props }: SelectProps) {
-  const fallbackId = useId();
-  const selectId = id ?? fallbackId;
+export function Select(allProps: SelectProps) {
+  const { label, error, hint, options, id, className, 'aria-describedby': describedBy, ...props } = allProps;
+  const ids = useFieldIds({ id, error, hint, describedBy });
   return (
-    <div className="w-full flex flex-col gap-1.5">
-      {label && (
-        <label htmlFor={selectId} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">
-          {label}
-        </label>
-      )}
+    <FieldShell
+      label={label}
+      hint={hint}
+      error={error}
+      controlId={ids.controlId}
+      hintId={ids.hintId}
+      errorId={ids.errorId}
+      reserveMessage={reservesMessage(allProps)}
+    >
       <div className="relative">
         <select
-          id={selectId}
+          id={ids.controlId}
           aria-invalid={error ? true : undefined}
-          className={[
-            'w-full appearance-none pl-4 pr-10 py-3.5 bg-slate-50 border-2 rounded-xl outline-hidden font-semibold text-sm',
-            'transition-all cursor-pointer',
-            error
-              ? 'border-red-400/50 focus:border-red-500 bg-red-50'
-              : 'border-transparent focus:border-cream-warm/50',
-            className,
-          ]
-            .filter(Boolean)
-            .join(' ')}
+          aria-describedby={ids.describedBy}
+          className={cn(controlClasses(Boolean(error)), 'h-9 cursor-pointer appearance-none pl-3 pr-9', className)}
           {...props}
         >
           {options.map((o) => (
@@ -52,13 +53,11 @@ export function Select({ label, error, options, id, className = '', ...props }: 
         </select>
         <ChevronDown
           size={16}
+          strokeWidth={1.75}
           aria-hidden
-          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-faint"
         />
       </div>
-      <div className="h-4 px-1 flex items-center overflow-hidden">
-        {error && <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">{error}</span>}
-      </div>
-    </div>
+    </FieldShell>
   );
 }

@@ -1,6 +1,20 @@
+import { cn, type BadgeTone } from '@detaileed/ui';
 import { timeInZone } from '@detaileed/domain/studioTime';
 import { blockPosition } from '@/features/planning/model/boardLayout';
+import { bookingStatusTone } from '@/features/bookings';
 import type { DayBoard } from '@/features/planning/model/types';
+
+/**
+ * A booking block's colours by its status tone: the soft fill (on a `::before` layer over an opaque surface, so the
+ * hour lines don't show through) with a solid edge in the tone.
+ */
+const BLOCK_TONES: Record<BadgeTone, string> = {
+  info: 'before:bg-info-soft border-info',
+  success: 'before:bg-success-soft border-success',
+  warning: 'before:bg-warning-soft border-warning',
+  danger: 'before:bg-danger-soft border-danger',
+  neutral: 'before:bg-muted border-border-strong',
+};
 
 interface BayLaneProps {
   bay: DayBoard['bays'][number];
@@ -14,14 +28,14 @@ interface BayLaneProps {
 export function BayLane({ bay, day, timeZone, axis, hours }: BayLaneProps) {
   return (
     <div className="flex items-stretch gap-3">
-      <div className="w-32 shrink-0 py-2">
-        <p className="font-semibold text-sm text-green-deep truncate">{bay.name}</p>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          {Math.round(bay.utilisationPercent)}% zajęte
+      <div className="flex w-32 shrink-0 flex-col justify-center gap-0.5">
+        <p className="truncate text-sm font-medium text-foreground">{bay.name}</p>
+        <p className="text-xs text-faint">
+          <span className="font-mono tabular-nums">{Math.round(bay.utilisationPercent)}%</span> zajęte
         </p>
       </div>
       <div
-        className="relative flex-1 h-14 rounded-xl bg-slate-50 overflow-hidden"
+        className="relative h-14 flex-1 overflow-hidden rounded-md border border-border bg-subtle"
         role="list"
         aria-label={`Stanowisko ${bay.name}`}
       >
@@ -29,7 +43,7 @@ export function BayLane({ bay, day, timeZone, axis, hours }: BayLaneProps) {
           <span
             key={h}
             aria-hidden
-            className="absolute top-0 bottom-0 border-l border-slate-200/70"
+            className="absolute top-0 bottom-0 border-l border-border"
             style={{ left: `${((h * 60 - axis.start) / (axis.end - axis.start)) * 100}%` }}
           />
         ))}
@@ -39,7 +53,7 @@ export function BayLane({ bay, day, timeZone, axis, hours }: BayLaneProps) {
             <span
               key={g.start}
               title={`Wolne ${timeInZone(g.start, timeZone)}–${timeInZone(g.end, timeZone)} (${g.minutes} min)`}
-              className="absolute top-1 bottom-1 rounded-lg border-2 border-dashed border-green-light/30"
+              className="absolute top-1 bottom-1 rounded-md border border-dashed border-border-strong"
               style={{ left: `${pos.left}%`, width: `${pos.width}%` }}
             />
           );
@@ -51,13 +65,20 @@ export function BayLane({ bay, day, timeZone, axis, hours }: BayLaneProps) {
               key={b.id}
               role="listitem"
               title={`${b.clientName}, ${b.vehicleLicensePlate}`}
-              className="absolute top-1 bottom-1 rounded-lg bg-green-deep text-cream-warm px-2 py-1 overflow-hidden"
+              className={cn(
+                'absolute top-1 bottom-1 overflow-hidden rounded-md border-l-2 bg-surface px-2 py-1 text-foreground',
+                'before:pointer-events-none before:absolute before:inset-0 before:content-[""] [&>*]:relative',
+                BLOCK_TONES[bookingStatusTone(b.status) ?? 'neutral'],
+              )}
               style={{ left: `${pos.left}%`, width: `${pos.width}%` }}
             >
-              <p className="text-[11px] font-bold truncate">
-                {timeInZone(b.start, timeZone)}–{timeInZone(b.end, timeZone)} {b.clientName}
+              <p className="truncate text-xs font-medium">
+                <span className="font-mono tabular-nums">
+                  {timeInZone(b.start, timeZone)}–{timeInZone(b.end, timeZone)}
+                </span>{' '}
+                {b.clientName}
               </p>
-              <p className="text-[10px] font-mono truncate opacity-70">{b.vehicleLicensePlate}</p>
+              <p className="truncate font-mono text-xs text-muted-foreground">{b.vehicleLicensePlate}</p>
             </div>
           );
         })}

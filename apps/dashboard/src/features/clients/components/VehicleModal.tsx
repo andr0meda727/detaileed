@@ -68,30 +68,27 @@ export function VehicleModal({ isOpen, onClose, clientId, vehicleToEdit, onSucce
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={vehicleToEdit ? 'Edytuj Pojazd' : 'Nowy Pojazd'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={vehicleToEdit ? 'Edytuj pojazd' : 'Nowy pojazd'}>
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormInput label="Marka" placeholder="BMW" error={errors.brand?.message} {...register('brand')} />
           <FormInput label="Model" placeholder="Seria 3" error={errors.model?.message} {...register('model')} />
         </div>
         <FormInput
-          label="Nr Rejestracyjny *"
+          label="Nr rejestracyjny *"
           placeholder="WX 12345"
-          className="uppercase"
+          className="font-mono uppercase"
           error={errors.licensePlate?.message}
           {...register('licensePlate')}
         />
         <Select label="Wielkość pojazdu" options={VEHICLE_SIZE_OPTIONS} {...register('size')} />
 
-        <div className="pt-2">
-          <Button size="lg" fullWidth type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <span>TRWA ZAPIS...</span>
-            ) : (
-              <>
-                <Save size={18} /> Zapisz Pojazd
-              </>
-            )}
+        <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end">
+          <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
+            Anuluj
+          </Button>
+          <Button type="submit" icon={Save} loading={isSubmitting}>
+            Zapisz pojazd
           </Button>
         </div>
       </form>

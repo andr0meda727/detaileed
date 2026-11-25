@@ -1,2 +1,5 @@
 # Git hooks run under sh, which rejects a CRLF shebang.
 .githooks/* text eol=lf
+
+# The router plugin writes this file with LF; keep it LF on checkout too, so Windows doesn't show it as changed.
+apps/dashboard/src/routeTree.gen.ts text eol=lf

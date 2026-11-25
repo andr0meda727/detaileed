@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { KeyRound } from 'lucide-react';
-import { Button, FormInput, useToast } from '@detaileed/ui';
+import { Alert, Button, FormInput, useToast } from '@detaileed/ui';
+import { textLink } from '@/shared/ui/textLink';
 import { newPasswordSchema, type NewPasswordValues } from '@/features/auth/model/schemas';
 import { authErrorMessage } from '@/features/auth/model/authErrors';
 import { setPassword } from '@/features/auth/api/password';
@@ -57,17 +58,17 @@ export function NewPasswordForm() {
         {...register('confirmPassword')}
       />
       {error && (
-        <p role="alert" className="text-sm text-red-600 bg-red-50 rounded-xl p-3">
+        <Alert tone="danger">
           {error}
           {needsCode && (
             <>
               {' '}
-              <Link href="/account/security" className="font-bold underline">
+              <Link href="/account/security" className={textLink}>
                 Przejdź do ustawień
               </Link>
             </>
           )}
-        </p>
+        </Alert>
       )}
       <Button size="lg" fullWidth type="submit" icon={KeyRound} loading={isSubmitting}>
         Ustaw hasło

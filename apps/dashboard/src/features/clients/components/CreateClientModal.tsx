@@ -80,16 +80,16 @@ export function CreateClientModal({ isOpen, onClose, onSuccess, clientToEdit }: 
   }, [isOpen, clientToEdit, reset]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={clientToEdit ? 'Edytuj Klienta' : 'Nowy Klient'}>
+    <Modal isOpen={isOpen} onClose={onClose} title={clientToEdit ? 'Edytuj klienta' : 'Nowy klient'}>
       <form className="space-y-4" onSubmit={handleSubmit(handleCreateClient)}>
         <FormInput
-          label="Imię i Nazwisko *"
+          label="Imię i nazwisko *"
           placeholder="Jan Kowalski"
           error={errors.name?.message}
           {...register('name')}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormInput
             label="Telefon *"
             type="tel"
@@ -113,15 +113,12 @@ export function CreateClientModal({ isOpen, onClose, onSuccess, clientToEdit }: 
           {...register('nip')}
         />
 
-        <div className="pt-2">
-          <Button size="lg" fullWidth type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <span>TRWA ZAPIS...</span>
-            ) : (
-              <>
-                <Save size={16} /> {clientToEdit ? 'Zapisz Zmiany' : 'Załóż Kartę Klienta'}
-              </>
-            )}
+        <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end">
+          <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>
+            Anuluj
+          </Button>
+          <Button type="submit" icon={Save} loading={isSubmitting}>
+            {clientToEdit ? 'Zapisz zmiany' : 'Załóż kartę klienta'}
           </Button>
         </div>
       </form>
