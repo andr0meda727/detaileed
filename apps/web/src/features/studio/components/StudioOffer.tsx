@@ -44,7 +44,7 @@ export function StudioOffer({ listing, aside }: StudioOfferProps) {
 
   return (
     <>
-      <section className="flex min-w-0 flex-col gap-5 lg:col-start-1 lg:row-start-1" aria-labelledby="offer-heading">
+      <section className="flex min-w-0 flex-col gap-5 md:col-start-1 md:row-start-1" aria-labelledby="offer-heading">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 id="offer-heading" className="text-xl font-semibold tracking-tight text-foreground">
             Usługi i ceny
@@ -60,8 +60,8 @@ export function StudioOffer({ listing, aside }: StudioOfferProps) {
         </div>
         <OfferServices services={listing.services} size={size} selected={selected} onToggle={toggle} />
       </section>
-      <aside className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1" aria-label="Wycena">
-        <div className="flex flex-col gap-4 lg:sticky lg:top-20">
+      <aside className="min-w-0 md:col-start-2 md:row-span-2 md:row-start-1" aria-label="Wycena">
+        <div className="flex flex-col gap-4 md:sticky md:top-20">
           <EstimateCard
             sizeLabel={vehicleSizeLabel(size).toLowerCase()}
             selectedCount={selected.length}

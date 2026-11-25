@@ -45,8 +45,8 @@ export default async function StudioPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
       <StudioHeader listing={listing} />
-      {/* Services and reviews on the left, the sticky estimate and the map on the right (stacked on phones). */}
-      <div className="grid items-start gap-8 pt-7 lg:grid-cols-[minmax(0,1fr)_340px]">
+      {/* Services and reviews on the left, the sticky estimate and the map on the right (from tablets; stacked on phones). */}
+      <div className="grid items-start gap-8 pt-7 md:grid-cols-[minmax(0,1fr)_280px] lg:grid-cols-[minmax(0,1fr)_340px]">
         {/* The chosen car size comes from ?size=, which a static page reads in the browser. */}
         <Suspense>
           <StudioOffer
@@ -54,7 +54,7 @@ export default async function StudioPage({ params }: Props) {
             aside={<StudioLocation lat={listing.latitude} lng={listing.longitude} name={listing.name} />}
           />
         </Suspense>
-        <div className="min-w-0 lg:col-start-1 lg:row-start-2">
+        <div className="min-w-0 md:col-start-1 md:row-start-2">
           <ReviewsList
             studioId={listing.studioId}
             timeZone={listing.timeZone}

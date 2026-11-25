@@ -43,7 +43,7 @@ export function ReviewsList({ studioId, timeZone, reviewCount, initial }: Review
       {items.length === 0 ? (
         <p className="text-muted-foreground">Studio nie ma jeszcze opinii. Opinię może wystawić klient po wizycie.</p>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid gap-3 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
           {items.map((r) => (
             <li key={r.id} className="rounded-lg border border-border bg-surface p-4">
               <div className="flex items-center justify-between gap-3">
