@@ -70,4 +70,19 @@ describe('ForecastView', () => {
     expect(screen.getByText('×1,12')).toBeInTheDocument();
     expect(screen.getByText('8%')).toBeInTheDocument();
   });
+
+  it('labels the values for the stacked cards on phones', () => {
+    render(<ForecastView />);
+    const first = within(screen.getAllByRole('row')[1]).getAllByRole('cell');
+    expect(first.map((cell) => cell.dataset.label)).toEqual([
+      undefined,
+      'Stan',
+      'Zużycie / dzień',
+      'Wystarczy na',
+      'Zaplanowane (14 dni)',
+      'Po zaplanowanych',
+      'Zabraknie',
+    ]);
+    expect(screen.getByText('8%').closest('td')).toHaveAttribute('data-label', 'Średni błąd');
+  });
 });
