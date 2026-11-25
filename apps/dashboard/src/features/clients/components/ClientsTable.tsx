@@ -28,16 +28,19 @@ interface ClientsTableProps {
 
 const COLUMNS = 4;
 
+/** On tablets (`md` to `xl`) the contact column gives way and the phone shows under the name. */
+const CONTACT_COLUMN = 'md:max-xl:hidden';
+
 function SkeletonRows() {
   return Array.from({ length: 5 }).map((_, i) => (
     <TableRow key={`skeleton-${i}`}>
-      <TableCell>
+      <TableCell stack="primary">
         <div className="flex items-center gap-3">
           <Skeleton circle width="32px" height="32px" />
           <Skeleton width="140px" height="14px" />
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className={CONTACT_COLUMN}>
         <div className="space-y-1.5">
           <Skeleton width="100px" height="14px" />
           <Skeleton width="140px" height="12px" />
@@ -46,7 +49,7 @@ function SkeletonRows() {
       <TableCell>
         <Skeleton width="200px" height="22px" />
       </TableCell>
-      <TableCell>
+      <TableCell stack="actions">
         <Skeleton width="72px" height="32px" className="ml-auto" />
       </TableCell>
     </TableRow>
@@ -75,7 +78,7 @@ function VehicleList({ vehicles }: { vehicles: Client['vehicles'] }) {
 function ClientRow({ client, onOpen, onEdit }: { client: Client } & Pick<ClientsTableProps, 'onOpen' | 'onEdit'>) {
   return (
     <TableRow onClick={() => onOpen(client)} className="cursor-pointer hover:bg-muted">
-      <TableCell>
+      <TableCell stack="primary" className="max-md:pr-20">
         <div className="flex items-center gap-3">
           <Avatar name={client.name} decorative />
           <div className="min-w-0">
@@ -90,11 +93,16 @@ function ClientRow({ client, onOpen, onEdit }: { client: Client } & Pick<Clients
               {client.name}
             </button>
             {client.nip && <p className="font-mono text-xs text-faint tabular-nums">NIP {client.nip}</p>}
+            {client.phone && (
+              <p className="hidden font-mono text-xs text-muted-foreground tabular-nums md:max-xl:block">
+                {client.phone}
+              </p>
+            )}
           </div>
         </div>
       </TableCell>
 
-      <TableCell>
+      <TableCell label="Kontakt" stack="full" className={CONTACT_COLUMN}>
         {client.phone ? (
           <p className="font-mono tabular-nums">{client.phone}</p>
         ) : (
@@ -103,11 +111,11 @@ function ClientRow({ client, onOpen, onEdit }: { client: Client } & Pick<Clients
         {client.email && <p className="max-w-[200px] truncate text-xs text-muted-foreground">{client.email}</p>}
       </TableCell>
 
-      <TableCell>
+      <TableCell label="Pojazdy" stack="full">
         <VehicleList vehicles={client.vehicles} />
       </TableCell>
 
-      <TableCell>
+      <TableCell stack="actions">
         <div className="flex items-center justify-end gap-1">
           {client.phone && (
             <Button asChild variant="ghost" size="sm" icon={Phone} className="size-8 px-0">
@@ -134,14 +142,14 @@ function ClientRow({ client, onOpen, onEdit }: { client: Client } & Pick<Clients
   );
 }
 
-/** Client list with contact details, vehicles and call/edit actions. */
+/** Client list with contact details, vehicles and call/edit actions (stacked cards on phones). */
 export const ClientsTable: React.FC<ClientsTableProps> = ({ clients, isLoading, dimmed, onOpen, onEdit }) => (
   <Card className={cn('overflow-hidden transition-opacity duration-150', dimmed && 'opacity-70')}>
-    <Table aria-label="Klienci" className="min-w-[760px]">
+    <Table aria-label="Klienci" stacked>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[28%]">Klient</TableHead>
-          <TableHead className="w-[22%]">Kontakt</TableHead>
+          <TableHead className={cn('w-[22%]', CONTACT_COLUMN)}>Kontakt</TableHead>
           <TableHead>Pojazdy</TableHead>
           <TableHead className="w-24 text-right">Akcje</TableHead>
         </TableRow>
