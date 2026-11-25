@@ -55,7 +55,7 @@ function Lines({ consumption }: { consumption: Consumption }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="overflow-hidden rounded-lg border border-border">
-        <Table aria-label="Zużyte materiały" className="min-w-[440px]">
+        <Table aria-label="Zużyte materiały" className="min-w-[440px]" stacked>
           <TableHeader>
             <TableRow>
               <TableHead>Materiał</TableHead>
@@ -67,14 +67,16 @@ function Lines({ consumption }: { consumption: Consumption }) {
           <TableBody>
             {consumption.lines.map((l) => (
               <TableRow key={lineKey(l)}>
-                <TableCell className="font-medium">{l.itemName}</TableCell>
-                <TableCell className={num}>
+                <TableCell stack="primary" className="font-medium">
+                  {l.itemName}
+                </TableCell>
+                <TableCell label="Norma" className={num}>
                   {formatQuantity(l.baseQuantity)} {l.unit}
                 </TableCell>
-                <TableCell className={num}>
+                <TableCell label="Zdjęto ze stanu" className={num}>
                   {formatQuantity(l.estimatedQuantity)} {l.unit}
                 </TableCell>
-                <TableCell className="w-28 pb-0">
+                <TableCell label="Faktycznie" className="w-28 pb-0">
                   <FormInput
                     aria-label={`Faktyczne zużycie: ${l.itemName}`}
                     inputMode="decimal"

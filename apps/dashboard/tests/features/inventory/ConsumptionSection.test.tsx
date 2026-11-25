@@ -38,6 +38,9 @@ describe('ConsumptionSection', () => {
     render(<ConsumptionSection bookingId="b1" />, { wrapper });
     expect(screen.getByText('0,26 L')).toBeInTheDocument();
     expect(screen.getByText('0,28 L')).toBeInTheDocument();
+    // Labelled for the stacked cards on phones.
+    expect(screen.getByText('0,26 L').closest('td')).toHaveAttribute('data-label', 'Norma');
+    expect(screen.getByText('0,28 L').closest('td')).toHaveAttribute('data-label', 'Zdjęto ze stanu');
 
     fireEvent.change(screen.getByLabelText('Faktyczne zużycie: Szampon'), { target: { value: '0,3' } });
     fireEvent.click(screen.getByRole('button', { name: 'Zapisz zużycie' }));
