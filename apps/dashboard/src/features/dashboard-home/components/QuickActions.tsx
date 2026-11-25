@@ -26,7 +26,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
   return (
     <Card>
       <CardHeader title="Szybkie akcje" />
-      <CardContent className="grid grid-cols-2 gap-2 xl:grid-cols-1">
+      <CardContent className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-1">
         {actions.map(({ label, icon, action }) => (
           <Button key={label} variant="secondary" icon={icon} onClick={action} className="justify-start">
             {label}
