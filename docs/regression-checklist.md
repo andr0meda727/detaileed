@@ -12,7 +12,10 @@ for structural refactors go through all of it. Labels in quotes are what the scr
 - [ ] The theme switch (dashboard user menu, site header): "Systemowy", "Jasny", "Ciemny" apply at once, survive a
       reload, and "Systemowy" follows the OS setting while the page is open.
 - [ ] Reloading in dark shows no light flash before the page appears (dashboard and site, also `/for-studios`).
-- [ ] At 390px wide (phone): no horizontal page scroll, menus and tables usable, dialogs fit the screen.
+- [ ] At 390px wide (phone): no horizontal page scroll, menus and tables usable (wide tables show as cards), dialogs
+      fit the screen; the site header's menu button opens the links and the theme switch.
+- [ ] At 768×1024 and 1024×768 (tablet): no horizontal page or table scroll, no columns cut off, no single narrow
+      column with empty space beside it; the dashboard sidebar is a drawer below 1024px.
 - [ ] Keyboard only: Tab reaches every control in order with a visible focus ring; menus and tabs work with arrows.
 - [ ] Dialogs and confirm dialogs: focus moves in and stays inside, `Esc` and the backdrop close them, focus returns
       to the button that opened them.

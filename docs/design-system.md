@@ -104,7 +104,7 @@ font-semibold tracking-tight` only for the studio name on the site and the landi
   only for things tokens can't express (an image, a map style).
 - Maps use the OpenFreeMap positron style in light and the dark style in dark (an env style URL overrides both);
   Turnstile uses `theme: 'auto'`; charts read the CSS variables.
-- Check every screen in both themes, at 1440 and at 390 px wide.
+- Check every screen in both themes, at 1440, 1024, 768 and 390 px wide.
 
 ## Class names: `cn()`
 
@@ -124,7 +124,7 @@ variant is missing.
   about 1180px wide with 28px padding (`p-7`), sections `gap-6`. Below `lg` the sidebar becomes a drawer over the
   `overlay`.
 - **Site shell**: a 56px header (`h-14`, `border-b`), a 1160px column (`max-w-[1160px] mx-auto px-4`), the footer in
-  `bg-subtle` with `border-t`.
+  `bg-subtle` with `border-t`. Below `md` the header's links and theme switch move into a menu button (`NavMenu`).
 - **Page header**: title (`text-2xl font-semibold tracking-tight`), an optional one-line description in
   `text-muted-foreground`, actions on the right (they wrap below the title on phones). One primary button per page.
 - **List or table**: filters and search above in one row (`SegmentedControl`, `SearchInput`, `Select`), then the table
@@ -136,7 +136,9 @@ variant is missing.
 - **Empty state**: an icon in a `bg-muted` circle, one sentence of what's missing, one action. **Loading**: skeletons
   in the shape of the content (`bg-muted`), a spinner only for actions. **Error**: an `Alert` in the danger tone with a
   retry action.
-- Everything works at 390px wide: no horizontal page scroll, touch targets at least 36px.
+- Everything works at 390px wide: no horizontal page scroll, touch targets at least 36px (links in footers and lists
+  40px). On tablets (768–1024px) use the width: two columns where one would leave space empty, columns that fold
+  (a detail moves under the name) rather than a table that scrolls.
 
 ## Do's and don'ts
 
