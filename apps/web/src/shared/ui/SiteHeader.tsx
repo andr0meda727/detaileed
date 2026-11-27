@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import { Logo, ThemeSwitch } from '@detaileed/ui';
-import { HeaderNav } from './HeaderNav';
+import { HeaderMenu, HeaderNav } from './HeaderNav';
 
-/** Top bar: logo home link, the main links, the theme switch and the account slot. */
+/**
+ * Top bar: logo home link, the main links, the theme switch and the account slot. Below `md` the links and the theme
+ * switch move into a menu button, so the bar stays 56px high.
+ */
 export function SiteHeader({ accountSlot }: { accountSlot?: React.ReactNode }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background">
@@ -15,8 +18,9 @@ export function SiteHeader({ accountSlot }: { accountSlot?: React.ReactNode }) {
         </Link>
         <HeaderNav />
         <div className="ml-auto flex items-center gap-2">
-          <ThemeSwitch iconOnly className="max-sm:hidden" />
+          <ThemeSwitch iconOnly className="max-md:hidden" />
           {accountSlot}
+          <HeaderMenu className="md:hidden" />
         </div>
       </div>
     </header>

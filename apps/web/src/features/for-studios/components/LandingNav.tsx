@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button, cn, Logo, ThemeSwitch } from '@detaileed/ui';
 import { DASHBOARD_URL } from '@/shared/lib/site';
+import { NavMenu } from '@/shared/ui/NavMenu';
 import { column, focusLink } from './landingStyles';
 
 const LINKS = [
@@ -10,7 +11,10 @@ const LINKS = [
   { href: '#pricing', label: 'Cennik' },
 ];
 
-/** Sticky top bar: the logo, the section links (from md up), the theme switch and the sign-up button. */
+/**
+ * Sticky top bar: the logo, the section links and the theme switch (from md up, below in a menu button) and the
+ * sign-up button.
+ */
 export function LandingNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background">
@@ -34,10 +38,11 @@ export function LandingNav() {
           ))}
         </ul>
         <div className="ml-auto flex items-center gap-2">
-          <ThemeSwitch iconOnly className="max-sm:hidden" />
+          <ThemeSwitch iconOnly className="max-md:hidden" />
           <Button asChild size="sm">
             <a href={DASHBOARD_URL}>Zacznij za darmo</a>
           </Button>
+          <NavMenu links={LINKS} className="md:hidden" />
         </div>
       </nav>
     </header>

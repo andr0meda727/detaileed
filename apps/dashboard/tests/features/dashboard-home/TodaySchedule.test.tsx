@@ -66,6 +66,14 @@ describe('TodaySchedule', () => {
     expect(rows[2]).toHaveTextContent('—');
   });
 
+  it('labels the values for the stacked cards on phones', () => {
+    renderSchedule();
+    expect(screen.getByRole('cell', { name: 'Powłoka ceramiczna' })).toHaveAttribute('data-label', 'Usługi');
+    expect(screen.getByRole('cell', { name: 'Stanowisko 1' })).toHaveAttribute('data-label', 'Stanowisko');
+    for (const amount of screen.getAllByRole('cell', { name: /zł$/ }))
+      expect(amount).toHaveAttribute('data-label', 'Kwota');
+  });
+
   it('opens a booking from its row and offers the status menu only for planned ones', () => {
     const { onOpen } = renderSchedule();
     fireEvent.click(screen.getByRole('button', { name: 'Anna Kowalczyk' }));

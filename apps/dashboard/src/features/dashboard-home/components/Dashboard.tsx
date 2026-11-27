@@ -113,7 +113,10 @@ export const Dashboard: React.FC = () => {
         onRequestStatusChange={requestStatusChange}
       />
 
-      {/* Revenue and upcoming bookings on the left; shortcuts, stock and activity on the right. */}
+      {/*
+        Revenue and upcoming bookings on the left; shortcuts, stock and activity on the right. On tablets the side
+        column goes below: the shortcuts across, stock and activity side by side.
+      */}
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="flex min-w-0 flex-col gap-6">
           <RevenueChart bookings={completedBookings} />
@@ -126,7 +129,7 @@ export const Dashboard: React.FC = () => {
           />
         </div>
 
-        <div className="flex min-w-0 flex-col gap-6">
+        <div className="grid min-w-0 grid-cols-1 items-start gap-6 md:grid-cols-2 md:[&>:first-child]:col-span-2 xl:grid-cols-1 xl:[&>:first-child]:col-span-1">
           <QuickActions
             onNewBooking={handleOpenNewBooking}
             onNewClient={() => setIsClientModalOpen(true)}

@@ -20,6 +20,8 @@ import { useAccuracy, useForecast } from '@/features/inventory/api/ledger';
 import { formatQuantity } from '@/features/inventory/model/ledger';
 
 const num = 'text-right font-mono tabular-nums';
+/** Long heads wrap on tablets, so the forecast fits without scrolling from `md` up. */
+const wrapHead = 'text-right whitespace-normal';
 
 function AccuracyCard() {
   const accuracy = useAccuracy();
@@ -38,7 +40,7 @@ function AccuracyCard() {
           Brak danych: zapisuj faktyczne zużycie w zakończonych rezerwacjach, a szacunki zaczną się uczyć.
         </CardContent>
       ) : (
-        <Table aria-label="Trafność szacunków" className="min-w-[520px]">
+        <Table aria-label="Trafność szacunków" className="min-w-[520px]" stacked>
           <TableHeader>
             <TableRow>
               <TableHead>Materiał</TableHead>
@@ -50,13 +52,17 @@ function AccuracyCard() {
           <TableBody>
             {accuracy.data.map((a) => (
               <TableRow key={`${a.serviceId}:${a.itemId}`}>
-                <TableCell className="font-medium">{a.itemName}</TableCell>
-                <TableCell className={num}>{a.samples}</TableCell>
-                <TableCell className={num}>
+                <TableCell stack="primary" className="font-medium">
+                  {a.itemName}
+                </TableCell>
+                <TableCell label="Wizyt" className={num}>
+                  {a.samples}
+                </TableCell>
+                <TableCell label="Współczynnik" className={num}>
                   ×{formatQuantity(a.factor)}{' '}
                   {!a.factorApplied && <span className="font-sans text-faint">(jeszcze nie)</span>}
                 </TableCell>
-                <TableCell className={num}>
+                <TableCell label="Średni błąd" className={num}>
                   {a.meanAbsolutePercentageError === null ? '—' : `${Math.round(a.meanAbsolutePercentageError)}%`}
                 </TableCell>
               </TableRow>
@@ -91,22 +97,27 @@ export function ForecastView() {
         ) : items.length === 0 ? (
           <EmptyState message="Brak produktów do prognozy." icon={TrendingDown} />
         ) : (
-          <Table aria-label="Prognoza zapasów" className="min-w-[760px]">
+          <Table
+            aria-label="Prognoza zapasów"
+            // Tighter cells on tablets, so all seven columns fit.
+            className="min-w-[640px] md:max-xl:[&_td]:px-3 md:max-xl:[&_th]:px-3"
+            stacked
+          >
             <TableHeader>
               <TableRow>
                 <TableHead>Produkt</TableHead>
                 <TableHead className="text-right">Stan</TableHead>
-                <TableHead className="text-right">Zużycie / dzień</TableHead>
-                <TableHead className="text-right">Wystarczy na</TableHead>
-                <TableHead className="text-right">Zaplanowane (14 dni)</TableHead>
-                <TableHead className="text-right">Po zaplanowanych</TableHead>
+                <TableHead className={wrapHead}>Zużycie / dzień</TableHead>
+                <TableHead className={wrapHead}>Wystarczy na</TableHead>
+                <TableHead className={wrapHead}>Zaplanowane (14 dni)</TableHead>
+                <TableHead className={wrapHead}>Po zaplanowanych</TableHead>
                 <TableHead>Zabraknie</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.map((f) => (
                 <TableRow key={f.itemId}>
-                  <TableCell className="font-medium">
+                  <TableCell stack="primary" className="font-medium">
                     {f.name}{' '}
                     {f.isLowStock && (
                       <Badge tone="warning" size="sm" className="ml-1">
@@ -114,22 +125,33 @@ export function ForecastView() {
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className={cn(num, 'whitespace-nowrap')}>
+                  <TableCell label="Stan" className={cn(num, 'whitespace-nowrap')}>
                     {formatQuantity(f.stock)} <span className="text-faint">{f.unit}</span>
                   </TableCell>
-                  <TableCell className={cn(num, 'text-muted-foreground')}>
+                  <TableCell label="Zużycie / dzień" className={cn(num, 'text-muted-foreground')}>
                     {formatQuantity(f.averageDailyUse)}
                   </TableCell>
-                  <TableCell className={num}>{f.daysLeft === null ? '—' : `${Math.floor(f.daysLeft)} dni`}</TableCell>
-                  <TableCell className={cn(num, 'text-muted-foreground')}>{formatQuantity(f.plannedUse)}</TableCell>
-                  <TableCell className={cn(num, f.stockAfterPlanned < 0 && 'font-medium text-danger')}>
+                  <TableCell label="Wystarczy na" className={num}>
+                    {f.daysLeft === null ? '—' : `${Math.floor(f.daysLeft)} dni`}
+                  </TableCell>
+                  <TableCell label="Zaplanowane (14 dni)" className={cn(num, 'text-muted-foreground')}>
+                    {formatQuantity(f.plannedUse)}
+                  </TableCell>
+                  <TableCell
+                    label="Po zaplanowanych"
+                    className={cn(num, f.stockAfterPlanned < 0 && 'font-medium text-danger')}
+                  >
                     {formatQuantity(f.stockAfterPlanned)}
                   </TableCell>
-                  <TableCell className="font-mono whitespace-nowrap text-muted-foreground tabular-nums">
+                  <TableCell
+                    label="Zabraknie"
+                    stack={f.runsOutAt ? undefined : 'hidden'}
+                    className="font-mono whitespace-nowrap text-muted-foreground tabular-nums md:max-xl:whitespace-normal"
+                  >
                     {f.runsOutAt &&
                       // Running out before the planned bookings are done is the urgent case.
                       (f.stockAfterPlanned < 0 ? (
-                        <Badge tone="danger" size="sm">
+                        <Badge tone="danger" size="sm" className="md:max-xl:whitespace-normal">
                           {formatInZone(f.runsOutAt, timeZone, { dateStyle: 'short', timeStyle: 'short' })}
                         </Badge>
                       ) : (

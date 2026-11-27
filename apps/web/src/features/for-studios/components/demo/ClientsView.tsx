@@ -13,6 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  cn,
 } from '@detaileed/ui';
 import { MOCK_CLIENTS } from '../../model/demoData';
 import { DemoHeader } from './DemoHeader';
@@ -35,26 +36,32 @@ function VehicleList({ vehicles }: { vehicles: DemoClient['vehicles'] }) {
   );
 }
 
+/** As on the dashboard: on tablets the contact column gives way and the phone shows under the name. */
+const CONTACT_COLUMN = 'md:max-xl:hidden';
+
 function ClientRow({ client }: { client: DemoClient }) {
   return (
     <TableRow className="hover:bg-muted">
-      <TableCell>
+      <TableCell stack="primary" className="max-md:pr-20">
         <div className="flex items-center gap-3">
           <Avatar name={client.name} decorative />
           <div className="min-w-0">
             <p className="max-w-[220px] truncate font-medium text-foreground">{client.name}</p>
             {client.nip && <p className="font-mono text-xs text-faint tabular-nums">NIP {client.nip}</p>}
+            <p className="hidden font-mono text-xs text-muted-foreground tabular-nums md:max-xl:block">
+              {client.phone}
+            </p>
           </div>
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell label="Kontakt" stack="full" className={CONTACT_COLUMN}>
         <p className="font-mono tabular-nums">{client.phone}</p>
         {client.email && <p className="max-w-[200px] truncate text-xs text-muted-foreground">{client.email}</p>}
       </TableCell>
-      <TableCell>
+      <TableCell label="Pojazdy" stack="full">
         <VehicleList vehicles={client.vehicles} />
       </TableCell>
-      <TableCell>
+      <TableCell stack="actions">
         <div className="flex items-center justify-end gap-1">
           <Button variant="ghost" size="sm" icon={Phone} aria-label={`Zadzwoń: ${client.name}`} />
           <Button variant="ghost" size="sm" icon={Pencil} aria-label={`Edytuj klienta: ${client.name}`} />
@@ -94,11 +101,11 @@ export function ClientsView() {
       />
 
       <Card className="overflow-hidden">
-        <Table aria-label="Klienci" className="min-w-[760px]">
+        <Table aria-label="Klienci" stacked>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[28%]">Klient</TableHead>
-              <TableHead className="w-[22%]">Kontakt</TableHead>
+              <TableHead className={cn('w-[22%]', CONTACT_COLUMN)}>Kontakt</TableHead>
               <TableHead>Pojazdy</TableHead>
               <TableHead className="w-24 text-right">Akcje</TableHead>
             </TableRow>

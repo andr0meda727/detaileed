@@ -2,19 +2,21 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Map as MapIcon, Store } from 'lucide-react';
 import { cn } from '@detaileed/ui';
+import { NavMenu, type NavMenuLink } from './NavMenu';
 
-const LINKS = [
-  { href: '/', label: 'Szukaj na mapie' },
-  { href: '/for-studios', label: 'Dla studiów' },
+const SITE_LINKS: readonly NavMenuLink[] = [
+  { href: '/', label: 'Szukaj na mapie', icon: MapIcon },
+  { href: '/for-studios', label: 'Dla studiów', icon: Store },
 ];
 
-/** The header's main links (hidden on phones, where the footer carries them). */
+/** The header's main links from `md` up (below, the header's menu button carries them). */
 export function HeaderNav() {
   const pathname = usePathname();
   return (
     <nav aria-label="Główne" className="flex items-center gap-5 text-sm max-md:hidden">
-      {LINKS.map((link) => {
+      {SITE_LINKS.map((link) => {
         const current = pathname === link.href;
         return (
           <Link
@@ -33,4 +35,9 @@ export function HeaderNav() {
       })}
     </nav>
   );
+}
+
+/** The same links and the theme switch behind a menu button, for the header below `md`. */
+export function HeaderMenu({ className }: { className?: string }) {
+  return <NavMenu links={SITE_LINKS} className={className} />;
 }

@@ -105,7 +105,7 @@ export function DataSection() {
 
       <GallerySection title="Table, Avatar, LicensePlate i Pagination">
         <Card className="overflow-hidden">
-          <Table aria-label="Dzisiejsze wizyty" className="min-w-[640px]">
+          <Table aria-label="Dzisiejsze wizyty" className="min-w-[640px]" stacked>
             <TableHeader>
               <TableRow>
                 <TableHead>Godzina</TableHead>
@@ -118,21 +118,27 @@ export function DataSection() {
             <TableBody>
               {visits.map((v) => (
                 <TableRow key={v.time} className="hover:bg-muted">
-                  <TableCell className="font-mono tabular-nums">{v.time}</TableCell>
-                  <TableCell>
+                  <TableCell label="Godzina" className="font-mono tabular-nums">
+                    {v.time}
+                  </TableCell>
+                  <TableCell stack="primary">
                     <div className="flex items-center gap-2.5">
                       <Avatar name={v.name} size="sm" decorative />
                       <span className="font-medium">{v.name}</span>
                       <LicensePlate plate={v.plate} />
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{v.service}</TableCell>
-                  <TableCell>
+                  <TableCell label="Usługa" stack="full" className="text-muted-foreground">
+                    {v.service}
+                  </TableCell>
+                  <TableCell label="Status">
                     {v.status === 'done' && <Badge>Zakończona</Badge>}
                     {v.status === 'info' && <Badge tone="info">Utworzona</Badge>}
                     {v.status === 'danger' && <Badge tone="danger">Anulowana</Badge>}
                   </TableCell>
-                  <TableCell className="text-right font-mono tabular-nums">{v.price}</TableCell>
+                  <TableCell label="Kwota" className="text-right font-mono tabular-nums">
+                    {v.price}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

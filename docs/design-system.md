@@ -104,7 +104,7 @@ font-semibold tracking-tight` only for the studio name on the site and the landi
   only for things tokens can't express (an image, a map style).
 - Maps use the OpenFreeMap positron style in light and the dark style in dark (an env style URL overrides both);
   Turnstile uses `theme: 'auto'`; charts read the CSS variables.
-- Check every screen in both themes, at 1440 and at 390 px wide.
+- Check every screen in both themes, at 1440, 1024, 768 and 390 px wide.
 
 ## Class names: `cn()`
 
@@ -124,11 +124,11 @@ variant is missing.
   about 1180px wide with 28px padding (`p-7`), sections `gap-6`. Below `lg` the sidebar becomes a drawer over the
   `overlay`.
 - **Site shell**: a 56px header (`h-14`, `border-b`), a 1160px column (`max-w-[1160px] mx-auto px-4`), the footer in
-  `bg-subtle` with `border-t`.
+  `bg-subtle` with `border-t`. Below `md` the header's links and theme switch move into a menu button (`NavMenu`).
 - **Page header**: title (`text-2xl font-semibold tracking-tight`), an optional one-line description in
   `text-muted-foreground`, actions on the right (they wrap below the title on phones). One primary button per page.
 - **List or table**: filters and search above in one row (`SegmentedControl`, `SearchInput`, `Select`), then the table
-  in a card; on phones tables become stacked rows or scroll horizontally inside the card, never the page.
+  in a card; on phones wide tables become stacked cards (`Table stacked`) or scroll inside the card, never the page.
 - **Card**: `rounded-lg border bg-surface`; a header row with `text-sm font-medium` title and an optional action, a body
   with `p-5`. Stats: label in `text-xs text-faint`, value in `text-2xl font-semibold font-mono tabular-nums`.
 - **Form**: labels above fields (`text-sm font-medium`), help text and errors below (`text-xs`; errors in
@@ -136,7 +136,9 @@ variant is missing.
 - **Empty state**: an icon in a `bg-muted` circle, one sentence of what's missing, one action. **Loading**: skeletons
   in the shape of the content (`bg-muted`), a spinner only for actions. **Error**: an `Alert` in the danger tone with a
   retry action.
-- Everything works at 390px wide: no horizontal page scroll, touch targets at least 36px.
+- Everything works at 390px wide: no horizontal page scroll, touch targets at least 36px (links in footers and lists
+  40px). On tablets (768–1024px) use the width: two columns where one would leave space empty, columns that fold
+  (a detail moves under the name) rather than a table that scrolls.
 
 ## Do's and don'ts
 
@@ -228,7 +230,8 @@ and a dark panel side by side and links to `/dev/ui/interactive`.
 - **`Table`** (`wrapperClassName?`), **`TableHeader`**, **`TableBody`**, **`TableRow`**, **`TableHead`**,
   **`TableCell`**: a data table with row borders only and a 12px `faint` head on `subtle`. It scrolls sideways inside
   its wrapper, never the page: give it a `min-w-*` when the columns need room, and put it in a `Card` without padding.
-  Times, money and counts in cells get `font-mono tabular-nums`; numbers align right.
+  Times, money and counts in cells get `font-mono tabular-nums`; numbers align right. Tables with more columns than
+  fit on a phone take `stacked` (see below).
 - **`Pagination`** (`page` from 1, `totalPages`, `onPageChange`): "Poprzednia", "Strona X z Y", "Następna"; renders
   nothing for a single page.
 
@@ -238,6 +241,45 @@ and a dark panel side by side and links to `/dev/ui/interactive`.
   <CardHeader title="Dzisiejszy grafik" actions={<Link to="…">Otwórz grafik</Link>} />
   <Table aria-label="Dzisiejsze wizyty" className="min-w-[640px]">…</Table>
 </Card>
+```
+
+#### Tables on phones: `stacked`
+
+Below `md` (768px) a `Table stacked` shows each row as a card: the head is hidden, the cells flow into a two-column
+grid and each shows its `label` (in `text-xs text-faint`) above the value. From `md` up it is the usual table, and its
+`min-w-*` applies only there, so the page never scrolls sideways. Say where each cell goes with `stack` on
+`TableCell`:
+
+| `stack`   | In the card                                                                   |
+| --------- | ----------------------------------------------------------------------------- |
+| `primary` | the first line, across the card, no label: the name, the time and client      |
+| (none)    | one cell of the label/value grid; give it a `label` (the column's head)       |
+| `full`    | across the card, with its label: long text such as services                   |
+| `actions` | pinned to the card's top-right corner: a menu or icon buttons, always visible |
+| `hidden`  | left out on phones, when the card shows it elsewhere (e.g. under the name)    |
+
+A cell with `colSpan` (an empty state, skeleton note) spans the card. Put the status badge in a labelled cell or next
+to the primary line, so it stays visible. Keep the desktop look: `stacked` adds only `max-md:` classes.
+
+```tsx
+<Table aria-label="Dzisiejsze wizyty" className="min-w-[760px]" stacked>
+  <TableHeader>…</TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell stack="primary">09:00 · Jan Kowalski</TableCell>
+      <TableCell label="Stanowisko">Stanowisko 1</TableCell>
+      <TableCell label="Status">
+        <BookingStatusBadge booking={b} />
+      </TableCell>
+      <TableCell label="Usługi" stack="full">
+        Mycie, Wosk
+      </TableCell>
+      <TableCell stack="actions">
+        <RowMenu />
+      </TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
 ```
 
 ### Feedback and states

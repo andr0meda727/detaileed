@@ -28,7 +28,13 @@ interface TodayScheduleProps {
 
 const COLUMNS = ['Godzina', 'Klient i auto', 'Usługi', 'Stanowisko', 'Status'];
 
-/** Today's bookings as a table; a row opens the booking, planned ones can be completed or cancelled from a menu. */
+/** Columns that give way on tablets (`md` to `xl`): the bay shows under the time, the status under the client. */
+const NARROW_HIDDEN: Record<string, string> = { Stanowisko: 'md:max-xl:hidden', Status: 'md:max-xl:hidden' };
+
+/**
+ * Today's bookings as a table (stacked cards on phones); a row opens the booking, planned ones can be completed or
+ * cancelled from a menu.
+ */
 export const TodaySchedule: React.FC<TodayScheduleProps> = ({ bookings, loading, onOpen, onRequestStatusChange }) => {
   const timeZone = useStudioTimeZone();
 
@@ -51,11 +57,13 @@ export const TodaySchedule: React.FC<TodayScheduleProps> = ({ bookings, loading,
           message="Dodaj nową rezerwację przyciskiem „Nowa rezerwacja” powyżej."
         />
       ) : (
-        <Table aria-label="Dzisiejsze wizyty" className="min-w-[760px]">
+        <Table aria-label="Dzisiejsze wizyty" className="min-w-[640px] xl:min-w-[760px]" stacked>
           <TableHeader>
             <TableRow>
               {COLUMNS.map((column) => (
-                <TableHead key={column}>{column}</TableHead>
+                <TableHead key={column} className={NARROW_HIDDEN[column]}>
+                  {column}
+                </TableHead>
               ))}
               <TableHead className="text-right">Kwota</TableHead>
               <TableHead className="w-12">
@@ -67,8 +75,8 @@ export const TodaySchedule: React.FC<TodayScheduleProps> = ({ bookings, loading,
             {loading
               ? [1, 2, 3].map((i) => (
                   <TableRow key={i}>
-                    {[...COLUMNS, 'Kwota', 'Akcje'].map((column) => (
-                      <TableCell key={column}>
+                    {[...COLUMNS, 'Kwota', 'Akcje'].map((column, index) => (
+                      <TableCell key={column} stack={index === 1 ? 'primary' : index > 3 ? 'hidden' : undefined}>
                         <Skeleton width="70%" height="14px" />
                       </TableCell>
                     ))}
@@ -76,10 +84,16 @@ export const TodaySchedule: React.FC<TodayScheduleProps> = ({ bookings, loading,
                 ))
               : bookings.map((booking) => (
                   <TableRow key={booking.id} onClick={() => onOpen(booking)} className="cursor-pointer hover:bg-muted">
-                    <TableCell className="font-mono tabular-nums">
+                    <TableCell stack="hidden" className="font-mono tabular-nums">
                       {timeInZone(booking.scheduledAt, timeZone)}
+                      <div className="hidden font-sans text-xs whitespace-nowrap text-faint md:max-xl:block">
+                        {booking.bay?.name}
+                      </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell stack="primary">
+                      <span className="mr-2 font-mono font-medium tabular-nums md:hidden">
+                        {timeInZone(booking.scheduledAt, timeZone)}
+                      </span>
                       <button
                         type="button"
                         className="rounded-sm text-left whitespace-nowrap font-medium text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
@@ -94,23 +108,29 @@ export const TodaySchedule: React.FC<TodayScheduleProps> = ({ bookings, loading,
                         {booking.vehicle.brand} {booking.vehicle.model} ·{' '}
                         <span className="font-mono">{booking.vehicle.licensePlate}</span>
                       </div>
+                      <BookingStatusBadge booking={booking} className="mt-2 xl:hidden" />
                     </TableCell>
-                    <TableCell className="min-w-40 text-muted-foreground">
+                    <TableCell label="Usługi" stack="full" className="min-w-40 text-muted-foreground max-md:order-last">
                       {booking.services.length > 0 ? booking.services.join(', ') : 'Brak usług'}
                     </TableCell>
                     <TableCell
-                      className={cn('whitespace-nowrap', booking.bay ? 'text-muted-foreground' : 'text-faint')}
+                      label="Stanowisko"
+                      className={cn(
+                        'whitespace-nowrap',
+                        NARROW_HIDDEN.Stanowisko,
+                        booking.bay ? 'text-muted-foreground' : 'text-faint',
+                      )}
                     >
                       {booking.bay?.name ?? '—'}
                     </TableCell>
-                    <TableCell>
+                    <TableCell stack="hidden" className={NARROW_HIDDEN.Status}>
                       <BookingStatusBadge booking={booking} />
                     </TableCell>
-                    <TableCell className="text-right font-mono whitespace-nowrap tabular-nums">
+                    <TableCell label="Kwota" className="text-right font-mono whitespace-nowrap tabular-nums">
                       {formatPln(booking.totalPrice)} zł
                     </TableCell>
                     {/* Clicks inside the menu (portalled, but still in this React tree) must not open the booking. */}
-                    <TableCell className="py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
+                    <TableCell stack="actions" className="py-1.5 text-right" onClick={(e) => e.stopPropagation()}>
                       {booking.status === BOOKING_STATUSES.UTWORZONA.name && (
                         <TodayBookingActions booking={booking} onRequestStatusChange={onRequestStatusChange} />
                       )}

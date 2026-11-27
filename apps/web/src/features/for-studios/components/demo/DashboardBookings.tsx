@@ -15,12 +15,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  cn,
 } from '@detaileed/ui';
 import { formatPln } from '@detaileed/domain/money';
 import type { DemoBooking } from '../../model/demoData';
 import { dayOf, shortMonthOf, timeOf } from '../../model/demoFormat';
 
 const COLUMNS = ['Godzina', 'Klient i auto', 'Usługi', 'Stanowisko', 'Status'];
+
+/**
+ * As on the dashboard, the status shows under the client on tablets. The demo window is narrower than the dashboard
+ * (at most 812px), so the bay shows under the time at every width from `md` up.
+ */
+const NARROW_HIDDEN: Record<string, string> = { Stanowisko: 'md:hidden', Status: 'md:max-xl:hidden' };
 
 const countLabel = (n: number) => `${n} ${n === 1 ? 'zlecenie' : 'zleceń'}`;
 
@@ -42,16 +49,23 @@ export function DemoBookingMenu() {
   );
 }
 
-/** Today's bookings as a table, as on the dashboard's home screen. */
+/** Today's bookings as a table (stacked cards on phones), as on the dashboard's home screen. */
 export function TodaySchedule({ bookings }: { bookings: DemoBooking[] }) {
   return (
     <Card className="min-w-0">
       <CardHeader title="Dzisiejszy grafik" titleAs="h4" description={`${countLabel(bookings.length)} zaplanowanych`} />
-      <Table aria-label="Dzisiejsze wizyty" className="min-w-[760px]">
+      <Table
+        aria-label="Dzisiejsze wizyty"
+        // The demo window is narrower than the dashboard: tighter cells on tablets keep every column in view.
+        className="min-w-[600px] md:max-xl:[&_td]:px-3 md:max-xl:[&_th]:px-3 xl:min-w-[760px]"
+        stacked
+      >
         <TableHeader>
           <TableRow>
             {COLUMNS.map((column) => (
-              <TableHead key={column}>{column}</TableHead>
+              <TableHead key={column} className={NARROW_HIDDEN[column]}>
+                {column}
+              </TableHead>
             ))}
             <TableHead className="text-right">Kwota</TableHead>
             <TableHead className="w-12">
@@ -62,23 +76,41 @@ export function TodaySchedule({ bookings }: { bookings: DemoBooking[] }) {
         <TableBody>
           {bookings.map((booking) => (
             <TableRow key={booking.id} className="hover:bg-muted">
-              <TableCell className="font-mono tabular-nums">{timeOf(booking.scheduledAt)}</TableCell>
-              <TableCell>
-                <div className="whitespace-nowrap font-medium text-foreground">{booking.client.name}</div>
+              <TableCell stack="hidden" className="font-mono tabular-nums">
+                {timeOf(booking.scheduledAt)}
+                <div className="hidden font-sans text-xs whitespace-nowrap text-faint md:block">{booking.bay}</div>
+              </TableCell>
+              <TableCell stack="primary">
+                <div className="whitespace-nowrap font-medium text-foreground">
+                  <span className="mr-2 font-mono tabular-nums md:hidden">{timeOf(booking.scheduledAt)}</span>
+                  {booking.client.name}
+                </div>
                 <div className="text-xs whitespace-nowrap text-faint">
                   {booking.vehicle.brand} {booking.vehicle.model} ·{' '}
                   <span className="font-mono">{booking.vehicle.licensePlate}</span>
                 </div>
+                <Badge tone={booking.statusTone} className="mt-2 xl:hidden">
+                  {booking.status}
+                </Badge>
               </TableCell>
-              <TableCell className="min-w-40 text-muted-foreground">{booking.services.join(', ')}</TableCell>
-              <TableCell className="whitespace-nowrap text-muted-foreground">{booking.bay}</TableCell>
-              <TableCell>
+              <TableCell label="Usługi" stack="full" className="min-w-40 text-muted-foreground max-md:order-last">
+                {booking.services.join(', ')}
+              </TableCell>
+              <TableCell
+                label="Stanowisko"
+                className={cn('whitespace-nowrap text-muted-foreground', NARROW_HIDDEN.Stanowisko)}
+              >
+                {booking.bay}
+              </TableCell>
+              <TableCell stack="hidden" className={NARROW_HIDDEN.Status}>
                 <Badge tone={booking.statusTone}>{booking.status}</Badge>
               </TableCell>
-              <TableCell className="text-right font-mono whitespace-nowrap tabular-nums">
+              <TableCell label="Kwota" className="text-right font-mono whitespace-nowrap tabular-nums">
                 {formatPln(booking.totalPrice)} zł
               </TableCell>
-              <TableCell className="py-1.5 text-right">{booking.completedAt === null && <DemoBookingMenu />}</TableCell>
+              <TableCell stack="actions" className="py-1.5 text-right">
+                {booking.completedAt === null && <DemoBookingMenu />}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

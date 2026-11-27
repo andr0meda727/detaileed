@@ -27,6 +27,13 @@ describe('ClientsTable', () => {
     expect(screen.getByRole('link', { name: 'Zadzwoń: Jan Kowalski' })).toHaveAttribute('href', 'tel:500600700');
   });
 
+  it('labels contact and vehicles for the stacked cards on phones', () => {
+    render(<ClientsTable clients={[client]} isLoading={false} dimmed={false} onOpen={vi.fn()} onEdit={vi.fn()} />);
+
+    expect(screen.getByText('jan@example.com').closest('td')).toHaveAttribute('data-label', 'Kontakt');
+    expect(screen.getByText('BMW M3').closest('td')).toHaveAttribute('data-label', 'Pojazdy');
+  });
+
   it('opens a client from the row and edits without opening', () => {
     const onOpen = vi.fn();
     const onEdit = vi.fn();

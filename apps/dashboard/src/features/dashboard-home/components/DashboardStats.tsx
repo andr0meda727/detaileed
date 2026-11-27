@@ -1,8 +1,8 @@
 import React from 'react';
 import { Card, cn, Skeleton, Stat } from '@detaileed/ui';
 
-/** Dividers between the cells: a 2×2 grid on phones and tablets, one row from `lg`. */
-const cellBorders = ['border-r border-b lg:border-b-0', 'border-b lg:border-r lg:border-b-0', 'border-r', ''];
+/** Dividers between the cells: a 2×2 grid on phones, one row from `md`. */
+const cellBorders = ['border-r border-b md:border-b-0', 'border-b md:border-r md:border-b-0', 'border-r', ''];
 
 export interface DashboardStatsProps {
   todayRevenue: number;
@@ -30,7 +30,7 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
   ];
 
   return (
-    <Card role="group" aria-label="Podsumowanie" className="grid grid-cols-2 overflow-hidden lg:grid-cols-4">
+    <Card role="group" aria-label="Podsumowanie" className="grid grid-cols-2 overflow-hidden md:grid-cols-4">
       {stats.map((stat, i) => (
         <Stat
           key={stat.label}
